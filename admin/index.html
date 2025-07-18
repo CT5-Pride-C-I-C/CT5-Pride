@@ -61,99 +61,107 @@
 
     <script>
       // Initialize Auth0
-      const auth0 = new auth0.createAuth0Client({
-        domain: 'dev-4t26fj1ccsqqr50h.us.auth0.com',
-        client_id: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
-        redirect_uri: window.location.origin + '/admin/',
-        cacheLocation: 'localstorage'
-      });
+      async function initializeAuth0() {
+        const auth0Client = await auth0.createAuth0Client({
+          domain: 'dev-4t26fj1ccsqqr50h.us.auth0.com',
+          client_id: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
+          redirect_uri: window.location.origin + '/admin/',
+          cacheLocation: 'localstorage',
+          audience: 'https://api.github.com',
+          scope: 'openid profile email repo'
+        });
 
-      // Handle the authentication flow
-      async function initAuth() {
-        try {
-          // Check for callback
-          if (window.location.search.includes('code=')) {
-            await auth0.handleRedirectCallback();
-            window.history.replaceState({}, document.title, '/admin/');
-          }
+        // Handle the authentication flow
+        async function handleAuth() {
+          try {
+            // Check for callback
+            if (window.location.search.includes('code=')) {
+              await auth0Client.handleRedirectCallback();
+              window.history.replaceState({}, document.title, '/admin/');
+            }
 
-          const isAuthenticated = await auth0.isAuthenticated();
-          const loginButton = document.getElementById('login');
+            const isAuthenticated = await auth0Client.isAuthenticated();
+            const loginButton = document.getElementById('login');
 
-          if (isAuthenticated) {
-            const token = await auth0.getTokenSilently();
-            // Initialize CMS with Auth0 token
-            window.CMS.init({
-              config: {
-                backend: {
-                  name: 'github',
-                  repo: 'CT5-Pride-C-I-C/CT5-Pride',
-                  branch: 'main',
-                  auth_type: 'implicit',
-                  auth_endpoint: 'auth',
-                  app_id: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
-                  auth_token: token
-                },
-                load_config_file: false,
-                media_folder: 'images/uploads',
-                public_folder: '/images/uploads',
-                collections: [
-                  {
-                    name: 'volunteer_roles',
-                    label: 'Volunteer Roles',
-                    folder: 'data/roles',
-                    create: true,
-                    slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
-                    fields: [
-                      { label: 'Title', name: 'title', widget: 'string' },
-                      { label: 'Summary', name: 'summary', widget: 'text' },
-                      { label: 'Job Description', name: 'job_description', widget: 'markdown' },
-                      { label: 'Essential Criteria', name: 'essential_criteria', widget: 'list' },
-                      { label: 'Desirable Criteria', name: 'desirable_criteria', widget: 'list' },
-                      {
-                        label: 'Department',
-                        name: 'department',
-                        widget: 'select',
-                        options: ['Outreach', 'Production', 'Marketing', 'Operations', 'Admin']
-                      },
-                      { label: 'Application Deadline', name: 'application_deadline', widget: 'datetime' },
-                      {
-                        label: 'Status',
-                        name: 'status',
-                        widget: 'select',
-                        options: ['Open', 'Closed', 'Paused']
-                      }
-                    ]
+            if (isAuthenticated) {
+              const token = await auth0Client.getTokenSilently();
+              // Initialize CMS with Auth0 token
+              window.CMS.init({
+                config: {
+                  backend: {
+                    name: 'github',
+                    repo: 'CT5-Pride-C-I-C/CT5-Pride',
+                    branch: 'main',
+                    auth_type: 'implicit',
+                    auth_endpoint: 'auth',
+                    app_id: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
+                    auth_token: token
                   },
-                  {
-                    name: 'applications',
-                    label: 'Applications',
-                    folder: 'data/applications',
-                    create: true,
-                    slug: '{{year}}{{month}}{{day}}-{{hour}}{{minute}}-{{slug}}',
-                    fields: [
-                      { label: 'Full Name', name: 'full_name', widget: 'string' },
-                      { label: 'Email', name: 'email', widget: 'string' },
-                      { label: 'Cover Letter', name: 'cover_letter', widget: 'text' },
-                      { label: 'CV Upload', name: 'cv_upload', widget: 'file' },
-                      { label: 'Submission Date', name: 'submission_date', widget: 'datetime' }
-                    ]
-                  }
-                ]
-              }
-            });
-            loginButton.style.display = 'none';
-          } else {
-            loginButton.onclick = () => auth0.loginWithRedirect();
-            loginButton.style.display = 'block';
+                  load_config_file: false,
+                  media_folder: 'images/uploads',
+                  public_folder: '/images/uploads',
+                  collections: [
+                    {
+                      name: 'volunteer_roles',
+                      label: 'Volunteer Roles',
+                      folder: 'data/roles',
+                      create: true,
+                      slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+                      fields: [
+                        { label: 'Title', name: 'title', widget: 'string' },
+                        { label: 'Summary', name: 'summary', widget: 'text' },
+                        { label: 'Job Description', name: 'job_description', widget: 'markdown' },
+                        { label: 'Essential Criteria', name: 'essential_criteria', widget: 'list' },
+                        { label: 'Desirable Criteria', name: 'desirable_criteria', widget: 'list' },
+                        {
+                          label: 'Department',
+                          name: 'department',
+                          widget: 'select',
+                          options: ['Outreach', 'Production', 'Marketing', 'Operations', 'Admin']
+                        },
+                        { label: 'Application Deadline', name: 'application_deadline', widget: 'datetime' },
+                        {
+                          label: 'Status',
+                          name: 'status',
+                          widget: 'select',
+                          options: ['Open', 'Closed', 'Paused']
+                        }
+                      ]
+                    },
+                    {
+                      name: 'applications',
+                      label: 'Applications',
+                      folder: 'data/applications',
+                      create: true,
+                      slug: '{{year}}{{month}}{{day}}-{{hour}}{{minute}}-{{slug}}',
+                      fields: [
+                        { label: 'Full Name', name: 'full_name', widget: 'string' },
+                        { label: 'Email', name: 'email', widget: 'string' },
+                        { label: 'Cover Letter', name: 'cover_letter', widget: 'text' },
+                        { label: 'CV Upload', name: 'cv_upload', widget: 'file' },
+                        { label: 'Submission Date', name: 'submission_date', widget: 'datetime' }
+                      ]
+                    }
+                  ]
+                }
+              });
+              loginButton.style.display = 'none';
+            } else {
+              loginButton.onclick = () => auth0Client.loginWithRedirect();
+              loginButton.style.display = 'block';
+            }
+          } catch (error) {
+            console.error('Error during authentication:', error);
+            document.querySelector('.loading-message').innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
           }
-        } catch (error) {
-          console.error('Error during authentication:', error);
         }
+
+        // Initialize when the page loads
+        await handleAuth();
       }
 
-      // Initialize when the page loads
-      window.addEventListener('load', initAuth);
+      // Start the auth process when the page loads
+      window.addEventListener('load', initializeAuth0);
     </script>
   </body>
 </html> 
