@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CT5 Pride - Content Management</title>
+    <!-- Include Netlify Identity Widget for authentication -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <style>
+      /* Custom styles for the admin interface */
+      :root {
+        --primary-color: #FF4081;
+        --secondary-color: #7C4DFF;
+      }
+      
+      /* Make the CMS more inclusive and pride-themed */
+      .nc-appHeader-container {
+        background: linear-gradient(45deg, #FF4081, #7C4DFF) !important;
+      }
+      
+      /* Improve mobile responsiveness */
+      @media (max-width: 799px) {
+        .css-u4olba-SidebarContainer-card {
+          position: static;
+          width: 100%;
+          margin-bottom: 30px;
+        }
+      }
+
+      /* Loading message styles */
+      .loading-message {
+        text-align: center;
+        padding: 2rem;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loading-message">
+      <h2>Setting up your admin access...</h2>
+      <p>If you're not redirected automatically, please click the login button below.</p>
+    </div>
+
+    <!-- Include the Netlify CMS -->
+    <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
+    <script>
+      // Add preview styles
+      CMS.registerPreviewStyle("/css/style.css");
+      
+      // Handle invitation acceptance and login
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", user => {
+          // Force show login modal if user is not logged in
+          if (!user) {
+            window.netlifyIdentity.open();
+          }
+        });
+
+        // After login, redirect to admin
+        window.netlifyIdentity.on("login", () => {
+          document.location.href = "/admin/";
+        });
+
+        // Handle invitation acceptance
+        window.netlifyIdentity.on("error", err => {
+          if (err?.message?.includes("invite")) {
+            // Reload the page if there's an invitation error
+            window.location.reload();
+          }
+        });
+      }
+    </script>
+  </body>
+</html> 
