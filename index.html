@@ -3,47 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CT5 Pride | LGBTQIA+ Community in Whitstable</title>
-    <meta name="description" content="CT5 Pride supports and celebrates the LGBTQIA+ community in Whitstable and surrounding areas. Join us for events, support, and community connection.">
+    <title>CT5 Pride - Community, Events & Pride in Sittingbourne & Surrounding Areas</title>
+    <meta name="description" content="CT5 Pride Community Interest Company - Bringing LGBTQIA+ community events, support, and pride celebrations to Sittingbourne and surrounding areas in Kent.">
+    <link rel="icon" type="image/svg+xml" href="Images/Logo-with-Transparent-background.svg">
     <link rel="stylesheet" href="css/style.css">
-    <!-- Load Inter font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Netlify Identity Widget -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- OpenGraph/Social Media Meta Tags -->
+    <meta property="og:title" content="CT5 Pride - LGBTQIA+ Community & Events">
+    <meta property="og:description" content="Community Interest Company bringing Pride events and LGBTQIA+ support to Sittingbourne & surrounding areas.">
+    <meta property="og:image" content="https://ct5pride.co.uk/Images/Logo-with-Transparent-background.svg">
+    <meta property="og:url" content="https://ct5pride.co.uk">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CT5 Pride - LGBTQIA+ Community & Events">
+    <meta name="twitter:description" content="Community Interest Company bringing Pride events and LGBTQIA+ support to Sittingbourne & surrounding areas.">
+    <meta name="twitter:image" content="https://ct5pride.co.uk/Images/Logo-with-Transparent-background.svg">
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "CT5 Pride Community Interest Company",
+        "description": "LGBTQIA+ community organization bringing Pride events and support to Sittingbourne and surrounding areas in Kent",
+        "url": "https://ct5pride.co.uk",
+        "logo": "https://ct5pride.co.uk/Images/Logo-with-Transparent-background.svg",
+        "sameAs": [
+            "https://www.facebook.com/CT5Pride",
+            "https://www.instagram.com/ct5pride"
+        ],
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Sittingbourne",
+            "addressRegion": "Kent",
+            "addressCountry": "UK"
+        }
+    }
+    </script>
 </head>
 <body>
-    <!-- Skip to Main Content -->
+    <!-- Skip to main content for accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
     
     <!-- Progress Pride Flag Stripe -->
-    <div class="pride-stripe" role="presentation"></div>
+    <div class="pride-stripe" role="banner" aria-label="Progress Pride Flag"></div>
     
     <header>
         <div class="container">
             <div class="header-content">
-                <a href="index.html" class="logo-link" aria-label="CT5 Pride - Return to homepage">
-                    <img src="Images/Logo-with-Transparent-background.svg" alt="CT5 Pride logo" class="site-logo" width="auto" height="60">
+                <a href="index.html" class="logo-link" aria-label="CT5 Pride Homepage">
+                    <img src="Images/Logo-with-Transparent-background.svg" alt="CT5 Pride Logo" class="site-logo">
                 </a>
-                <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-                <nav>
+                
+                <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                    ☰
+                </button>
+                
+                <nav role="navigation" aria-label="Main navigation">
                     <ul>
                         <li><a href="index.html" aria-current="page">Home</a></li>
-                        <li class="dropdown">
-                            <a href="about.html">About</a>
-                            <div class="dropdown-content">
-                                <a href="team.html">Team</a>
-                            </div>
-                        </li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="team.html">Our Team</a></li>
                         <li><a href="events.html">Events</a></li>
                         <li class="dropdown">
-                            <a href="get-involved.html">Get Involved</a>
-                            <div class="dropdown-content">
-                                <a href="volunteer.html">Volunteer</a>
-                            </div>
+                            <a href="#" aria-haspopup="true" aria-expanded="false">Get Involved</a>
+                            <ul class="dropdown-content" role="menu">
+                                <li role="none"><a href="get-involved.html" role="menuitem">Overview</a></li>
+                                <li role="none"><a href="volunteer.html" role="menuitem">Volunteer Opportunities</a></li>
+                                <li role="none"><a href="contact.html" role="menuitem">Contact Us</a></li>
+                            </ul>
                         </li>
-                        <li><a href="contact.html">Contact</a></li>
                     </ul>
                 </nav>
             </div>
@@ -51,132 +85,189 @@
     </header>
 
     <main id="main-content">
-        <!-- Hero Section -->
-        <section class="hero">
+        <!-- Enhanced Hero Section with Vibrant Background -->
+        <section class="hero decorative-shapes" role="banner">
+            <!-- IDEOGRAM GRAPHIC ACTIVE: hero_pride_celebration.svg is now displaying as background overlay -->
             <div class="container">
                 <div class="hero-container">
                     <div class="hero-content">
-                        <h1>Welcome to CT5 Pride</h1>
-                        <p>Celebrating and supporting the LGBTQIA+ community in Whitstable and surrounding areas. Join us as we create a more inclusive, vibrant, and welcoming space for everyone.</p>
-                        <a href="get-involved.html" class="button hero-button">Get Involved</a>
+                        <h1>
+                            Celebrating <strong>Pride</strong> in <strong>Sittingbourne</strong> & Surrounding Areas
+                        </h1>
+                        <p>
+                            CT5 Pride Community Interest Company brings together the LGBTQIA+ community through vibrant events, 
+                            support networks, and celebrating our beautiful diversity in Kent.
+                        </p>
+                        <a href="events.html" class="button hero-button">Discover Our Events</a>
                     </div>
                     <div class="hero-image">
-                        <img src="Images/Hero-Homepage.svg" alt="Illustration of LGBTQ+ people celebrating CT5 Pride by the seaside in Whitstable" width="100%" height="auto">
+                        <img src="Images/Hero-Homepage.svg" alt="Colorful illustration representing community celebration and pride" 
+                             loading="lazy" width="600" height="400">
                     </div>
                 </div>
             </div>
         </section>
 
-        <div class="section-divider"></div>
-
-        <!-- About Section -->
-        <section class="cta-section">
+        <!-- Vibrant Section Divider -->
+        <div class="section-divider" role="separator" aria-hidden="true"></div>
+        
+        <!-- Enhanced Community Section with Colorful Background -->
+        <section class="cta-section decorative-shapes">
+            <!-- IDEOGRAM GRAPHIC ACTIVE: community_pattern.svg is now displaying as background pattern -->
             <div class="container">
-                <h2>Who We Are</h2>
+                <h2>Join Our Vibrant Community</h2>
                 <div class="cta-grid">
                     <div>
-                        <h3>Community</h3>
-                        <p>We're a grassroots organization dedicated to fostering a supportive and inclusive community for LGBTQIA+ individuals and allies in the CT5 area.</p>
+                        <h3>🌈 Community Events</h3>
+                        <p>
+                            From Pride festivals to social gatherings, we create safe and welcoming spaces 
+                            where everyone can be their authentic selves and celebrate together.
+                        </p>
+                        <a href="events.html" class="button">View Events</a>
                     </div>
                     <div>
-                        <h3>Celebration</h3>
-                        <p>We organize events, activities, and celebrations that bring our community together and raise visibility for LGBTQIA+ issues and achievements.</p>
+                        <h3>🤝 Get Involved</h3>
+                        <p>
+                            Join our passionate team of volunteers! Whether you're interested in event planning, 
+                            community outreach, or creative projects, there's a place for you.
+                        </p>
+                        <a href="volunteer.html" class="button">Volunteer With Us</a>
                     </div>
                     <div>
-                        <h3>Support</h3>
-                        <p>We provide resources, advocacy, and a safe space for LGBTQIA+ people of all ages, backgrounds, and experiences in our local area.</p>
+                        <h3>💬 Support Network</h3>
+                        <p>
+                            Connect with others in the LGBTQIA+ community. We provide resources, support, 
+                            and a welcoming environment for people of all ages and backgrounds.
+                        </p>
+                        <a href="contact.html" class="button">Get In Touch</a>
                     </div>
                 </div>
             </div>
         </section>
 
-        <div class="section-divider"></div>
+        <!-- Vibrant Section Divider -->
+        <div class="section-divider" role="separator" aria-hidden="true"></div>
 
-        <!-- Get Involved Section -->
-        <section class="cta-section" style="background: var(--gray);">
-            <div class="container">
-                <h2>Join Our Community</h2>
-                <div class="cta-grid">
-                    <div>
-                        <h3>Volunteer</h3>
-                        <p>Help us organize events, support community members, and create positive change. We have opportunities for everyone, regardless of experience.</p>
-                        <a href="volunteer.html" class="button">Learn More</a>
-                    </div>
-                    <div>
-                        <h3>Attend Events</h3>
-                        <p>Join us for social gatherings, educational workshops, and our annual Pride celebration. Everyone is welcome in our inclusive community.</p>
-                        <a href="events.html" class="button">See Events</a>
-                    </div>
-                    <div>
-                        <h3>Stay Connected</h3>
-                        <p>Follow us on social media and sign up for our newsletter to stay updated on events, resources, and community news.</p>
-                        <a href="contact.html" class="button">Get in Touch</a>
+        <!-- Enhanced About Section with Gradient Background -->
+        <section class="decorative-shapes" style="background: var(--warm-gradient); color: white; padding: 4rem 0; position: relative;">
+            <!-- IDEOGRAM GRAPHIC ACTIVE: about_inclusivity.svg background -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('Images/about_inclusivity.svg') center/cover no-repeat; opacity: 0.1; z-index: 1;"></div>
+            <div class="container" style="position: relative; z-index: 2;">
+                <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                        🏳️‍🌈 Our Mission
+                    </h2>
+                    <p style="font-size: 1.3rem; line-height: 1.8; margin-bottom: 2rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                        CT5 Pride Community Interest Company exists to foster an inclusive, vibrant LGBTQIA+ community 
+                        in Sittingbourne and surrounding areas. We organize events, provide support, and create spaces 
+                        where everyone can live authentically and proudly.
+                    </p>
+                    <a href="about.html" class="button" style="background: rgba(255,255,255,0.2); color: white; border: 3px solid white;">
+                        Learn More About Us
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vibrant Section Divider -->
+        <div class="section-divider" role="separator" aria-hidden="true"></div>
+
+        <!-- Enhanced Team Spotlight with Colorful Cards -->
+        <section class="decorative-shapes" style="background: var(--pastel-gradient); padding: 4rem 0; position: relative;">
+            <!-- IDEOGRAM GRAPHIC ACTIVE: team_collaboration.svg background -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('Images/team_collaboration.svg') center/cover no-repeat; opacity: 0.08; z-index: 1;"></div>
+            <div class="container" style="position: relative; z-index: 2;">
+                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--text); text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
+                    ✨ Meet Our Amazing Team
+                </h2>
+                <div style="text-align: center; max-width: 700px; margin: 0 auto;">
+                    <p style="font-size: 1.2rem; line-height: 1.7; margin-bottom: 2rem; color: var(--text);">
+                        Our passionate team of volunteers brings diverse skills, experiences, and perspectives to create 
+                        meaningful events and support for our community. Every member plays a vital role in making CT5 Pride a success.
+                    </p>
+                    <a href="team.html" class="button" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                        Meet the Team
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vibrant Section Divider -->
+        <div class="section-divider" role="separator" aria-hidden="true"></div>
+
+        <!-- Enhanced Contact Section with Pride Background -->
+        <section class="decorative-shapes" style="background: var(--cosmic-gradient); color: white; padding: 4rem 0; position: relative;">
+            <!-- IDEOGRAM GRAPHIC ACTIVE: contact_community.svg background -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('Images/contact_community.svg') center/cover no-repeat; opacity: 0.15; z-index: 1;"></div>
+            <div class="container" style="position: relative; z-index: 2;">
+                <div style="text-align: center; max-width: 600px; margin: 0 auto; position: relative; z-index: 2;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                        💌 Stay Connected
+                    </h2>
+                    <p style="font-size: 1.3rem; line-height: 1.8; margin-bottom: 2rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                        Join our vibrant community! Get updates on upcoming events, volunteer opportunities, 
+                        and connect with fellow community members.
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="contact.html" class="button" style="background: rgba(255,255,255,0.2); color: white; border: 3px solid white;">
+                            Contact Us
+                        </a>
+                        <a href="get-involved.html" class="button" style="background: var(--warm-gradient); color: white; border: 3px solid rgba(255,255,255,0.3);">
+                            Get Involved
+                        </a>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Accessibility Panel -->
-    <div class="accessibility-panel">
-        <button class="accessibility-toggle" aria-label="Open accessibility options" aria-expanded="false">
-            ♿
-        </button>
-        <div class="accessibility-menu" role="dialog" aria-labelledby="accessibility-heading">
-            <h3 id="accessibility-heading">Accessibility Options</h3>
-            
-            <div class="accessibility-option">
-                <label for="high-contrast-toggle">High Contrast Mode</label>
-                <div class="accessibility-toggle-switch" id="high-contrast-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="high-contrast-toggle">
-                </div>
-            </div>
-            
-            <div class="accessibility-option">
-                <label for="dyslexia-toggle">Dyslexia-Friendly Font</label>
-                <div class="accessibility-toggle-switch" id="dyslexia-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="dyslexia-toggle">
-                </div>
-            </div>
-            
-            <div class="accessibility-option">
-                <label for="reduce-motion-toggle">Reduce Motion</label>
-                <div class="accessibility-toggle-switch" id="reduce-motion-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="reduce-motion-toggle">
-                </div>
-            </div>
-            
-            <div class="accessibility-option">
-                <label>Text Size</label>
-                <div class="text-size-controls">
-                    <button class="text-size-btn" data-size="small" aria-label="Small text">A</button>
-                    <button class="text-size-btn active" data-size="normal" aria-label="Normal text">A</button>
-                    <button class="text-size-btn" data-size="large" aria-label="Large text">A</button>
-                    <button class="text-size-btn" data-size="extra-large" aria-label="Extra large text">A</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <footer>
+        <!-- FOOTER BACKGROUND: Using cosmic gradient (footer_pride_community.svg not yet available) -->
         <div class="container">
             <div class="footer-content">
-                <p>CT5 Pride CIC | Community Interest Company No. [placeholder]</p>
-                <p>Email: <a href="mailto:hello@ct5pride.org.uk">hello@ct5pride.org.uk</a></p>
+                <p>&copy; 2024 CT5 Pride Community Interest Company. All rights reserved.</p>
+                <p>Registered Community Interest Company in England and Wales.</p>
+                <p>
+                    <a href="mailto:hello@ct5pride.co.uk">hello@ct5pride.co.uk</a> | 
+                    <a href="contact.html">Contact Us</a>
+                </p>
                 
-                <!-- Pride Flag Icons -->
+                <!-- Enhanced Pride Flag Icons -->
                 <div class="pride-flags">
-                    <div class="pride-flag-icon rainbow-flag" title="Pride Flag" role="img" aria-label="Rainbow Pride Flag" tabindex="0"></div>
-                    <div class="pride-flag-icon trans-flag" title="Transgender Pride Flag" role="img" aria-label="Transgender Pride Flag" tabindex="0"></div>
-                    <div class="pride-flag-icon nonbinary-flag" title="Non-Binary Pride Flag" role="img" aria-label="Non-Binary Pride Flag" tabindex="0"></div>
+                    <div class="pride-flag-icon rainbow-flag" 
+                         role="img" 
+                         aria-label="Rainbow Pride Flag"
+                         tabindex="0"
+                         title="Rainbow Pride Flag - Celebrating LGBTQIA+ diversity"></div>
+                    <div class="pride-flag-icon trans-flag" 
+                         role="img" 
+                         aria-label="Transgender Pride Flag"
+                         tabindex="0"
+                         title="Transgender Pride Flag - Supporting trans rights"></div>
+                    <div class="pride-flag-icon nonbinary-flag" 
+                         role="img" 
+                         aria-label="Non-Binary Pride Flag"
+                         tabindex="0"
+                         title="Non-Binary Pride Flag - Celebrating non-binary identities"></div>
                 </div>
                 
+                <!-- Enhanced Social Links -->
                 <div class="social-links">
-                    <a href="#" aria-label="Follow us on Instagram">
+                    <a href="https://www.facebook.com/CT5Pride" target="_blank" rel="noopener noreferrer" 
+                       aria-label="Follow us on Facebook">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.instagram.com/ct5pride" target="_blank" rel="noopener noreferrer" 
+                       aria-label="Follow us on Instagram">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                         </svg>
                     </a>
-                    <a href="#" aria-label="Follow us on Facebook">
+                    <a href="mailto:hello@ct5pride.co.uk" aria-label="Email us">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                         </svg>
                     </a>
                 </div>
@@ -184,17 +275,59 @@
         </div>
     </footer>
 
+    <!-- Enhanced Accessibility Panel -->
+    <div class="accessibility-panel">
+        <button class="accessibility-toggle" aria-label="Open accessibility options" aria-expanded="false">
+            ♿
+        </button>
+        <div class="accessibility-menu" role="dialog" aria-labelledby="accessibility-title">
+            <h3 id="accessibility-title">Accessibility Options</h3>
+            
+            <div class="accessibility-option">
+                <label for="high-contrast-toggle">High Contrast Mode</label>
+                <div class="accessibility-toggle-switch" 
+                     role="switch" 
+                     aria-checked="false" 
+                     aria-labelledby="high-contrast-toggle"
+                     tabindex="0"
+                     data-setting="high-contrast">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label for="dyslexia-toggle">Dyslexia Friendly Font</label>
+                <div class="accessibility-toggle-switch" 
+                     role="switch" 
+                     aria-checked="false" 
+                     aria-labelledby="dyslexia-toggle"
+                     tabindex="0"
+                     data-setting="dyslexia-friendly">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label for="motion-toggle">Reduce Motion</label>
+                <div class="accessibility-toggle-switch" 
+                     role="switch" 
+                     aria-checked="false" 
+                     aria-labelledby="motion-toggle"
+                     tabindex="0"
+                     data-setting="reduce-motion">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label for="text-size">Text Size</label>
+                <div class="text-size-controls">
+                    <button class="text-size-btn" data-size="small" aria-label="Small text size">A</button>
+                    <button class="text-size-btn active" data-size="normal" aria-label="Normal text size">A</button>
+                    <button class="text-size-btn" data-size="large" aria-label="Large text size">A</button>
+                    <button class="text-size-btn" data-size="extra-large" aria-label="Extra large text size">A</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="js/main.js"></script>
-    <script>
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on("init", user => {
-          if (!user) {
-            window.netlifyIdentity.on("login", () => {
-              document.location.href = "/admin/";
-            });
-          }
-        });
-      }
-    </script>
 </body>
 </html> 
