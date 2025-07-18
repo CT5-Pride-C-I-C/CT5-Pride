@@ -215,7 +215,7 @@ body {
   padding: 0 var(--spacing-md);
 }
 
-/* Enhanced Button Styles with Consistent Accent Color */
+/* Enhanced Button Styles with No Movement */
 .button {
   display: inline-block;
   padding: var(--spacing-md) var(--spacing-xl);
@@ -226,7 +226,7 @@ body {
   font-weight: 600;
   border: none;
   cursor: pointer;
-  transition: var(--transition);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
   font-size: 1rem;
@@ -252,7 +252,7 @@ body {
 }
 
 .button:hover {
-  transform: translateY(-3px) scale(1.05);
+  /* No transform movement */
   box-shadow: 0 8px 25px rgba(233, 30, 99, 0.4);
   color: white;
   background: var(--primary-dark);
@@ -281,12 +281,10 @@ body {
   background: var(--gray);
   color: var(--text-light);
   cursor: not-allowed;
-  transform: none;
   box-shadow: none;
 }
 
 .button.disabled:hover {
-  transform: none;
   background: var(--gray);
   color: var(--text-light);
 }
@@ -333,14 +331,17 @@ body {
   width: 200%;
   height: 200%;
   background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="%23ff69b4" opacity="0.3"/><circle cx="80" cy="30" r="1.5" fill="%2300bfff" opacity="0.4"/><circle cx="40" cy="70" r="1" fill="%2300ff7f" opacity="0.3"/><circle cx="90" cy="80" r="2.5" fill="%23ff8c00" opacity="0.2"/><circle cx="10" cy="60" r="1.8" fill="%238a2be2" opacity="0.3"/></svg>') repeat;
-  animation: float-shapes 20s linear infinite;
+  animation: none;
   pointer-events: none;
   z-index: -1;
+  opacity: 0.1;
 }
 
-@keyframes float-shapes {
-  0% { transform: translateX(-100px) translateY(-100px); }
-  100% { transform: translateX(100px) translateY(100px); }
+/* No floating animations */
+
+.decorative-shapes::before {
+  animation: none;
+  opacity: 0.1;
 }
 
 .reduce-motion .decorative-shapes::before {
@@ -399,7 +400,6 @@ header.scrolled {
 }
 
 .logo-link:hover {
-  transform: scale(1.05) rotate(1deg);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
   border-color: var(--primary);
 }
@@ -421,7 +421,7 @@ header.scrolled {
 }
 
 .reduce-motion .logo-link:hover {
-  transform: scale(1.02);
+  /* No movement for reduced motion */
 }
 
 .reduce-motion .logo-link::before {
@@ -469,7 +469,6 @@ nav a {
 nav a:hover {
   color: var(--primary);
   background: rgba(233, 30, 99, 0.1);
-  transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -558,7 +557,7 @@ nav a:focus {
 }
 
 .nav-toggle:hover {
-  transform: scale(1.1) rotate(5deg);
+  /* No movement */
 }
 
 .nav-toggle:focus {
@@ -735,7 +734,7 @@ nav a:focus {
 }
 
 .hero-image img:hover {
-  transform: translateY(-5px) scale(1.03);
+  /* No hover movement */
   box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
 }
 
@@ -745,7 +744,7 @@ nav a:focus {
   background: var(--accent);
   color: white;
   border-radius: 50px;
-  transition: all 0.4s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   position: relative;
   z-index: 1;
   box-shadow: 0 8px 30px rgba(233, 30, 99, 0.3);
@@ -754,7 +753,7 @@ nav a:focus {
 }
 
 .hero-button:hover {
-  transform: translateY(-3px) scale(1.05);
+  /* No transform movement */
   box-shadow: 0 12px 40px rgba(233, 30, 99, 0.4);
   text-decoration: none;
   border-color: rgba(255, 255, 255, 0.6);
@@ -766,45 +765,7 @@ nav a:focus {
   outline-offset: 4px;
 }
 
-/* Animations for hero elements */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-.hero-content {
-  animation: fadeInUp 1s ease forwards;
-}
-
-.hero-image {
-  animation: fadeInUp 1s ease forwards 0.3s, float 8s ease-in-out infinite 2s;
-  opacity: 0;
-}
-
-.reduce-motion .hero-content,
-.reduce-motion .hero-image {
-  animation: fadeInUp 0.01s ease forwards;
-}
-
-.reduce-motion .hero-image img:hover,
-.reduce-motion .hero-button:hover {
-  transform: translateY(-2px) scale(1.01);
-}
+/* No animations - completely static hero */
 
 /* Responsive Design for Hero */
 @media (max-width: 768px) {
@@ -955,14 +916,12 @@ section:nth-child(odd) {
 }
 
 .cta-grid > div:hover {
-  transform: translateY(-8px) scale(1.02);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
   border-color: var(--primary);
 }
 
 .cta-grid > div:hover::after {
   opacity: 0.3;
-  transform: scale(1.1);
 }
 
 .cta-grid h3 {
@@ -1031,7 +990,6 @@ section:nth-child(odd) {
 }
 
 .role-column:hover {
-  transform: translateY(-5px);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
   border-color: var(--primary);
 }
@@ -1074,7 +1032,6 @@ section:nth-child(odd) {
 }
 
 .role-card:hover {
-  transform: translateY(-5px) scale(1.02);
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
   border-color: var(--primary);
 }
@@ -1090,7 +1047,6 @@ section:nth-child(odd) {
 }
 
 .role-card.closed:hover {
-  transform: none;
   box-shadow: none;
   border-color: transparent;
 }
@@ -1443,7 +1399,6 @@ footer::after {
 }
 
 .pride-flag-icon:hover {
-  transform: scale(1.2) translateY(-3px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   border-color: rgba(255, 255, 255, 0.8);
 }
@@ -1509,7 +1464,6 @@ footer::after {
 
 .social-links a:hover {
   color: white;
-  transform: scale(1.15) translateY(-3px);
   background: var(--warm-gradient);
   border-color: rgba(255, 255, 255, 0.5);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
@@ -1546,7 +1500,6 @@ footer::after {
 }
 
 .accessibility-toggle:hover {
-  transform: scale(1.15) rotate(5deg);
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
   border-color: rgba(255, 255, 255, 0.6);
 }
@@ -1578,11 +1531,9 @@ footer::after {
 @keyframes accessibilitySlideIn {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.9);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 
@@ -1679,7 +1630,6 @@ footer::after {
 .text-size-btn:hover {
   background: var(--primary);
   color: white;
-  transform: scale(1.05);
   border-color: var(--primary);
 }
 
@@ -2914,3 +2864,24 @@ footer::after {
     font-size: 1.125rem;
   }
 } 
+
+/* Static Hero Elements - No Movement */
+.hero-content {
+  opacity: 1;
+}
+
+.hero-image {
+  opacity: 1;
+}
+
+.hero-image img:hover {
+  /* No hover effects to prevent movement */
+}
+
+.hero-button:hover {
+  /* Simple hover without transform */
+  box-shadow: 0 12px 40px rgba(233, 30, 99, 0.4);
+  text-decoration: none;
+  border-color: rgba(255, 255, 255, 0.6);
+  background: var(--primary-dark);
+}
