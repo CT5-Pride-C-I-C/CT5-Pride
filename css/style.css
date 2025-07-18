@@ -373,16 +373,29 @@ nav a:focus {
     transform: rotate(180deg);
 }
 
-/* Logo Styles */
+/* Enhanced Logo Styles with Pride Elements */
 .logo-link {
     display: flex;
     align-items: center;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
     padding: 0.75rem;
     background: white;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     margin: 0.5rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.logo-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 3px;
+    background: var(--rainbow-gradient);
+    transition: left 0.5s ease;
 }
 
 .logo-link:hover {
@@ -390,11 +403,40 @@ nav a:focus {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.logo-link:hover::before {
+    left: 0;
+}
+
+.logo-link:focus {
+    outline: 2px solid var(--secondary);
+    outline-offset: 2px;
+}
+
 .site-logo {
-    height: 70px;
+    height: 60px;
     width: auto;
     transition: all 0.3s ease;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.reduce-motion .logo-link:hover {
+    transform: none;
+}
+
+.reduce-motion .logo-link::before {
+    display: none;
+}
+
+/* Mobile Logo Responsive Design */
+@media (max-width: 768px) {
+    .logo-link {
+        padding: 0.5rem;
+        margin: 0.25rem 0;
+    }
+    
+    .site-logo {
+        height: 45px;
+    }
 }
 
 .scrolled .site-logo {
