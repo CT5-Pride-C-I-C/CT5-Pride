@@ -538,7 +538,7 @@ function openRoleDetailModal(roleId) {
     modal.focus();
 }
 
-// Enhanced Volunteer Role Board
+// Enhanced Volunteer Role Board - Simplified Layout
 function loadRoles() {
     try {
         // Check if we should show draft roles
@@ -548,25 +548,20 @@ function loadRoles() {
         const roleBoard = document.querySelector('.role-board');
         if (!roleBoard) return;
 
-        // Filter and group roles
-        const openRoles = rolesData.filter(role => role.status === 'open');
-        const closedRoles = rolesData.filter(role => role.status === 'closed');
-        const draftRoles = rolesData.filter(role => role.status === 'draft');
-
-        // Create columns
-        const columns = {
-            open: createRoleColumn('Open Roles', openRoles),
-            closed: createRoleColumn('Closed Roles', closedRoles),
-            draft: showDraft ? createRoleColumn('Draft Roles', draftRoles) : null
-        };
-
-        // Clear and populate role board
-        roleBoard.innerHTML = '';
-        Object.values(columns).forEach(column => {
-            if (column) roleBoard.appendChild(column);
+        // Filter roles - only show open roles and draft roles if in preview mode
+        const visibleRoles = rolesData.filter(role => {
+            if (role.status === 'open') return true;
+            if (role.status === 'draft' && showDraft) return true;
+            return false; // Hide closed roles completely
         });
 
-        // Add click handlers for role cards (to show details)
+        // Create simplified single-column layout
+        roleBoard.className = 'role-board-simple';
+        roleBoard.innerHTML = visibleRoles.length > 0 ? 
+            visibleRoles.map(role => createSimpleRoleCard(role)).join('') :
+            '<div class="no-roles-message"><h3>🌈 No Open Positions Currently</h3><p>We\'re not actively recruiting for new volunteer positions right now, but we\'d still love to hear from you! <a href="contact.html">Get in touch</a> to learn about future opportunities.</p></div>';
+
+        // Add click handlers for role cards
         document.querySelectorAll('[data-role-id]').forEach(card => {
             card.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -597,39 +592,23 @@ function loadRoles() {
     }
 }
 
-function createRoleColumn(title, roles) {
-    const column = document.createElement('div');
-    column.className = 'role-column';
-    
-    column.innerHTML = `
-        <h3>${title}</h3>
-        ${roles.map(role => createRoleCard(role)).join('')}
-    `;
-    
-    return column;
-}
-
-function createRoleCard(role) {
+function createSimpleRoleCard(role) {
     const isOpen = role.status === 'open';
     
     return `
-        <div class="role-card ${!isOpen ? 'closed' : ''}" data-role-id="${role.id}" style="cursor: pointer;" tabindex="0" role="button" aria-label="View details for ${role.title}">
-            <div class="role-card-header">
-                <div class="role-card-icon">${roleIcons[role.icon] || roleIcons['volunteers']}</div>
-                <div class="role-card-meta">
-                    <h4>${role.title}</h4>
-                    <span class="role-department">${role.department}</span>
+        <div class="simple-role-card ${!isOpen ? 'draft' : ''}" data-role-id="${role.id}" style="cursor: pointer;" tabindex="0" role="button" aria-label="View details for ${role.title}">
+            <div class="role-header">
+                <div class="role-icon-simple">${roleIcons[role.icon] || roleIcons['volunteers']}</div>
+                <div class="role-info">
+                    <h3>${role.title}</h3>
+                    <span class="role-department-simple">${role.department}</span>
+                    ${!isOpen ? '<span class="draft-badge">Preview</span>' : ''}
+                </div>
+                <div class="role-actions-simple">
+                    ${isOpen ? `<a href="apply.html" class="button" onclick="event.stopPropagation()" aria-label="Apply for ${role.title}">Apply Now</a>` : ''}
                 </div>
             </div>
-            <p>${role.summary}</p>
-            <div class="role-card-actions">
-                <button class="button secondary view-details" onclick="event.stopPropagation(); openRoleDetailModal('${role.id}')" aria-label="View details for ${role.title}">View Details</button>
-                ${isOpen ? `
-                    <a href="apply.html" class="button primary" onclick="event.stopPropagation()" aria-label="Apply for ${role.title}">Apply Now</a>
-                ` : `
-                    <span class="button disabled" aria-label="Applications closed for ${role.title}">Applications Closed</span>
-                `}
-            </div>
+            <p class="role-summary">${role.summary}</p>
         </div>
     `;
 }

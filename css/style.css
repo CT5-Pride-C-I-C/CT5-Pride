@@ -2982,3 +2982,202 @@ nav a:focus {
   top: -40px;
   left: 6px;
 }
+
+/* Simplified Role Board - Clean Single Column Layout */
+.role-board-simple {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.simple-role-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 250, 250, 0.95) 100%);
+  border-radius: 15px;
+  padding: var(--spacing-xl);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.simple-role-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.simple-role-card:focus {
+  outline: 3px solid var(--secondary);
+  outline-offset: 3px;
+}
+
+.role-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.role-icon-simple {
+  width: 50px;
+  height: 50px;
+  color: var(--primary);
+  flex-shrink: 0;
+  background: var(--soft-rainbow-bg);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--primary);
+}
+
+.role-icon-simple svg {
+  width: 60%;
+  height: 60%;
+}
+
+.role-info {
+  flex: 1;
+}
+
+.role-info h3 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.role-department-simple {
+  display: inline-block;
+  background: var(--warm-gradient);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: var(--spacing-sm);
+}
+
+.draft-badge {
+  display: inline-block;
+  background: var(--gray);
+  color: var(--text);
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.role-actions-simple {
+  flex-shrink: 0;
+}
+
+.role-summary {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0;
+}
+
+.no-roles-message {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 255, 255, 0.95) 100%);
+  border-radius: 20px;
+  border: 2px solid var(--primary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.no-roles-message h3 {
+  margin-bottom: var(--spacing-lg);
+  color: var(--primary);
+  font-size: 1.8rem;
+}
+
+.no-roles-message p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.no-roles-message a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.no-roles-message a:hover {
+  text-decoration: underline;
+}
+
+/* Fix Modal Bullet Point Overlap */
+.criteria-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.criteria-list li {
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) var(--spacing-xxl);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  font-size: 1.1rem;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 240, 245, 0.8) 100%);
+  margin-bottom: var(--spacing-sm);
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.criteria-list li:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.criteria-list li:before {
+  content: "✓";
+  position: absolute;
+  left: var(--spacing-md);
+  top: var(--spacing-md);
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  background: var(--primary);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile Responsive for Simplified Layout */
+@media (max-width: 768px) {
+  .role-header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    text-align: center;
+  }
+  
+  .role-actions-simple {
+    width: 100%;
+  }
+  
+  .role-actions-simple .button {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .simple-role-card {
+    padding: var(--spacing-lg);
+  }
+  
+  .role-icon-simple {
+    align-self: center;
+    width: 60px;
+    height: 60px;
+  }
+}
