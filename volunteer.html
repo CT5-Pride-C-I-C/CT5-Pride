@@ -166,6 +166,59 @@
         </section>
     </main>
 
+    <!-- Enhanced Accessibility Panel -->
+    <div class="accessibility-panel">
+        <button class="accessibility-toggle" aria-label="Open accessibility options" aria-expanded="false">
+            ♿
+        </button>
+        <div class="accessibility-menu" role="dialog" aria-labelledby="accessibility-title">
+            <h3 id="accessibility-title">Accessibility Options</h3>
+            
+            <div class="accessibility-option">
+                <label for="high-contrast-toggle">High Contrast Mode</label>
+                <div class="accessibility-toggle-switch" 
+                     id="high-contrast-toggle"
+                     role="switch" 
+                     aria-checked="false" 
+                     tabindex="0"
+                     data-setting="high-contrast">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label for="dyslexia-toggle">Dyslexia Friendly Font</label>
+                <div class="accessibility-toggle-switch" 
+                     id="dyslexia-toggle"
+                     role="switch" 
+                     aria-checked="false" 
+                     tabindex="0"
+                     data-setting="dyslexia-friendly">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label for="reduce-motion-toggle">Reduce Motion</label>
+                <div class="accessibility-toggle-switch" 
+                     id="reduce-motion-toggle"
+                     role="switch" 
+                     aria-checked="false" 
+                     tabindex="0"
+                     data-setting="reduce-motion">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label for="text-size">Text Size</label>
+                <div class="text-size-controls">
+                    <button class="text-size-btn" data-size="small" aria-label="Small text size">A</button>
+                    <button class="text-size-btn active" data-size="normal" aria-label="Normal text size">A</button>
+                    <button class="text-size-btn" data-size="large" aria-label="Large text size">A</button>
+                    <button class="text-size-btn" data-size="extra-large" aria-label="Extra large text size">A</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Role Detail Modal -->
     <div id="roleDetailModal" class="modal">
         <div class="modal-content role-detail-modal">

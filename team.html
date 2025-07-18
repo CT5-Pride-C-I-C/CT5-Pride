@@ -71,9 +71,9 @@
                         <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--primary); margin: 0 auto var(--spacing-lg) auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold;">
                             JD
                         </div>
-                        <h3 style="margin-bottom: var(--spacing-sm); color: var(--primary);">Jane Doe</h3>
-                        <p style="color: var(--text-light); font-weight: 600; margin-bottom: var(--spacing-sm);">Chair & Founder</p>
-                        <p>Jane founded CT5 Pride to create the inclusive community space she wished had existed when she first moved to Whitstable. With a background in community organizing, she leads our strategic vision.</p>
+                        <h3 style="margin-bottom: var(--spacing-sm); color: var(--primary);">Freeman Dan Cope</h3>
+                        <p style="color: var(--text-light); font-weight: 600; margin-bottom: var(--spacing-sm);">Chair, Senior Director & Co-Founder</p>
+                        <p>Dan Co-founded CT5 Pride to create the inclusive community space he wished had existed when he grew up in Whitstable. With a background in community organising, legal & technology, he leads our strategic vision.</p>
                     </div>
                     
                     <div style="text-align: center; padding: var(--spacing-xl); background: var(--gray); border-radius: var(--border-radius); position: relative;">
@@ -81,8 +81,8 @@
                         <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--secondary); margin: 0 auto var(--spacing-lg) auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold;">
                             AS
                         </div>
-                        <h3 style="margin-bottom: var(--spacing-sm); color: var(--primary);">Alex Smith</h3>
-                        <p style="color: var(--text-light); font-weight: 600; margin-bottom: var(--spacing-sm);">Events Coordinator</p>
+                        <h3 style="margin-bottom: var(--spacing-sm); color: var(--primary);">Peter Simpson</h3>
+                        <p style="color: var(--text-light); font-weight: 600; margin-bottom: var(--spacing-sm);">Cheif Operating Officer, Senior Director & Co-Founder</p>
                         <p>Alex brings years of event planning experience to CT5 Pride, coordinating our annual parade and monthly community gatherings with creativity and attention to detail.</p>
                     </div>
                     
@@ -115,39 +115,54 @@
         </section>
     </main>
 
-    <!-- Accessibility Panel -->
+    <!-- Enhanced Accessibility Panel -->
     <div class="accessibility-panel">
         <button class="accessibility-toggle" aria-label="Open accessibility options" aria-expanded="false">
             ♿
         </button>
-        <div class="accessibility-menu" role="dialog" aria-labelledby="accessibility-heading">
-            <h3 id="accessibility-heading">Accessibility Options</h3>
+        <div class="accessibility-menu" role="dialog" aria-labelledby="accessibility-title">
+            <h3 id="accessibility-title">Accessibility Options</h3>
             
             <div class="accessibility-option">
                 <label for="high-contrast-toggle">High Contrast Mode</label>
-                <div class="accessibility-toggle-switch" id="high-contrast-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="high-contrast-toggle">
+                <div class="accessibility-toggle-switch" 
+                     id="high-contrast-toggle"
+                     role="switch" 
+                     aria-checked="false" 
+                     tabindex="0"
+                     data-setting="high-contrast">
                 </div>
             </div>
             
             <div class="accessibility-option">
-                <label for="dyslexia-toggle">Dyslexia-Friendly Font</label>
-                <div class="accessibility-toggle-switch" id="dyslexia-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="dyslexia-toggle">
+                <label for="dyslexia-toggle">Dyslexia Friendly Font</label>
+                <div class="accessibility-toggle-switch" 
+                     id="dyslexia-toggle"
+                     role="switch" 
+                     aria-checked="false" 
+                     tabindex="0"
+                     data-setting="dyslexia-friendly">
                 </div>
             </div>
             
             <div class="accessibility-option">
                 <label for="reduce-motion-toggle">Reduce Motion</label>
-                <div class="accessibility-toggle-switch" id="reduce-motion-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="reduce-motion-toggle">
+                <div class="accessibility-toggle-switch" 
+                     id="reduce-motion-toggle"
+                     role="switch" 
+                     aria-checked="false" 
+                     tabindex="0"
+                     data-setting="reduce-motion">
                 </div>
             </div>
             
             <div class="accessibility-option">
-                <label>Text Size</label>
+                <label for="text-size">Text Size</label>
                 <div class="text-size-controls">
-                    <button class="text-size-btn" data-size="small" aria-label="Small text">A</button>
-                    <button class="text-size-btn active" data-size="normal" aria-label="Normal text">A</button>
-                    <button class="text-size-btn" data-size="large" aria-label="Large text">A</button>
-                    <button class="text-size-btn" data-size="extra-large" aria-label="Extra large text">A</button>
+                    <button class="text-size-btn" data-size="small" aria-label="Small text size">A</button>
+                    <button class="text-size-btn active" data-size="normal" aria-label="Normal text size">A</button>
+                    <button class="text-size-btn" data-size="large" aria-label="Large text size">A</button>
+                    <button class="text-size-btn" data-size="extra-large" aria-label="Extra large text size">A</button>
                 </div>
             </div>
         </div>
