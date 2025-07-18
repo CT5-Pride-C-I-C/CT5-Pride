@@ -32,75 +32,127 @@
         padding: 2rem;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       }
+
+      .error-message {
+        color: red;
+        margin: 20px;
+        padding: 20px;
+        border: 1px solid red;
+        border-radius: 4px;
+        background: #ffe6e6;
+      }
     </style>
   </head>
   <body>
+    <div id="loading" class="loading-message">
+      <h2>CT5 Pride Admin Panel</h2>
+      <p>Loading content management system...</p>
+    </div>
+    
+    <div id="error" class="error-message" style="display: none;">
+      <h3>Error Loading CMS</h3>
+      <p id="error-details"></p>
+    </div>
+
     <script>
-      // Configure the CMS
-      window.CMS.init({
-        config: {
-          backend: {
-            name: 'github',
-            repo: 'CT5-Pride-C-I-C/CT5-Pride',
-            branch: 'main',
-            base_url: 'https://api.github.com',
-            auth_endpoint: 'oauth/authorize',
-            client_id: 'Ov23liR1E7aA7OU548q1',
-            auth_type: 'implicit'
-          },
-          media_folder: 'images/uploads',
-          public_folder: '/images/uploads',
-          display_url: 'https://ct5pride.co.uk',
-          site_url: 'https://ct5pride.co.uk',
-          logo_url: '/images/Logo-with-Transparent-background.svg',
-          show_preview_links: true,
-          collections: [
-            {
-              name: 'roles',
-              label: 'Volunteer Roles',
-              folder: 'data/roles',
-              create: true,
-              slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
-              summary: '{{title}} - {{department}} ({{status}})',
-              fields: [
-                { label: 'Title', name: 'title', widget: 'string' },
-                { label: 'Summary', name: 'summary', widget: 'text' },
-                { label: 'Job Description', name: 'job_description', widget: 'markdown' },
-                { label: 'Essential Criteria', name: 'essential_criteria', widget: 'list' },
-                { label: 'Desirable Criteria', name: 'desirable_criteria', widget: 'list' },
-                {
-                  label: 'Department',
-                  name: 'department',
-                  widget: 'select',
-                  options: ['Outreach', 'Production', 'Marketing', 'Operations', 'Admin']
-                },
-                { label: 'Application Deadline', name: 'application_deadline', widget: 'datetime' },
-                {
-                  label: 'Status',
-                  name: 'status',
-                  widget: 'select',
-                  options: ['Open', 'Closed', 'Paused']
-                }
-              ]
-            },
-            {
-              name: 'submissions',
-              label: 'Applications',
-              folder: 'data/applications',
-              create: true,
-              slug: '{{year}}{{month}}{{day}}-{{hour}}{{minute}}-{{slug}}',
-              fields: [
-                { label: 'Full Name', name: 'full_name', widget: 'string' },
-                { label: 'Email', name: 'email', widget: 'string' },
-                { label: 'Cover Letter', name: 'cover_letter', widget: 'text' },
-                { label: 'CV Upload', name: 'cv_upload', widget: 'file' },
-                { label: 'Applied Role', name: 'applied_role', widget: 'string' },
-                { label: 'Submission Date', name: 'submission_date', widget: 'datetime' }
-              ]
-            }
-          ]
-        }
+      // Error handling
+      window.addEventListener('error', function(e) {
+        console.error('JavaScript error:', e.error);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error-details').innerHTML = 'JavaScript Error: ' + e.error.message;
       });
+
+      // Wait for CMS to load
+      function waitForCMS() {
+        if (window.CMS) {
+          console.log('CMS loaded, initializing...');
+          document.getElementById('loading').innerHTML = '<p>Initializing CMS...</p>';
+          
+          try {
+            // Configure the CMS
+            window.CMS.init({
+              config: {
+                backend: {
+                  name: 'github',
+                  repo: 'CT5-Pride-C-I-C/CT5-Pride',
+                  branch: 'main',
+                  base_url: 'https://api.github.com',
+                  auth_endpoint: 'oauth/authorize',
+                  client_id: 'Ov23liR1E7aA7OU548q1',
+                  auth_type: 'implicit'
+                },
+                media_folder: 'images/uploads',
+                public_folder: '/images/uploads',
+                display_url: 'https://ct5pride.co.uk',
+                site_url: 'https://ct5pride.co.uk',
+                logo_url: '/images/Logo-with-Transparent-background.svg',
+                show_preview_links: true,
+                collections: [
+                  {
+                    name: 'roles',
+                    label: 'Volunteer Roles',
+                    folder: 'data/roles',
+                    create: true,
+                    slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+                    summary: '{{title}} - {{department}} ({{status}})',
+                    fields: [
+                      { label: 'Title', name: 'title', widget: 'string' },
+                      { label: 'Summary', name: 'summary', widget: 'text' },
+                      { label: 'Job Description', name: 'job_description', widget: 'markdown' },
+                      { label: 'Essential Criteria', name: 'essential_criteria', widget: 'list' },
+                      { label: 'Desirable Criteria', name: 'desirable_criteria', widget: 'list' },
+                      {
+                        label: 'Department',
+                        name: 'department',
+                        widget: 'select',
+                        options: ['Outreach', 'Production', 'Marketing', 'Operations', 'Admin']
+                      },
+                      { label: 'Application Deadline', name: 'application_deadline', widget: 'datetime' },
+                      {
+                        label: 'Status',
+                        name: 'status',
+                        widget: 'select',
+                        options: ['Open', 'Closed', 'Paused']
+                      }
+                    ]
+                  },
+                  {
+                    name: 'submissions',
+                    label: 'Applications',
+                    folder: 'data/applications',
+                    create: true,
+                    slug: '{{year}}{{month}}{{day}}-{{hour}}{{minute}}-{{slug}}',
+                    fields: [
+                      { label: 'Full Name', name: 'full_name', widget: 'string' },
+                      { label: 'Email', name: 'email', widget: 'string' },
+                      { label: 'Cover Letter', name: 'cover_letter', widget: 'text' },
+                      { label: 'CV Upload', name: 'cv_upload', widget: 'file' },
+                      { label: 'Applied Role', name: 'applied_role', widget: 'string' },
+                      { label: 'Submission Date', name: 'submission_date', widget: 'datetime' }
+                    ]
+                  }
+                ]
+              }
+            });
+            
+            console.log('CMS initialized successfully');
+            document.getElementById('loading').style.display = 'none';
+            
+          } catch (error) {
+            console.error('Error initializing CMS:', error);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error-details').innerHTML = 'CMS Initialization Error: ' + error.message;
+          }
+        } else {
+          console.log('Waiting for CMS to load...');
+          setTimeout(waitForCMS, 500);
+        }
+      }
+
+      // Start when page loads
+      window.addEventListener('load', waitForCMS);
     </script>
   </body>
 </html> 
