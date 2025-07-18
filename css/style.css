@@ -684,7 +684,7 @@ nav a:focus {
   color: white;
 }
 
-/* Hero Pride Celebration Background - Fully Visible */
+/* Hero Pride Celebration Background - Fully Visible and Properly Contained */
 .hero::before {
   content: '';
   position: absolute;
@@ -695,7 +695,7 @@ nav a:focus {
   background: 
     url('../Images/hero_pride_celebration.svg') no-repeat center center,
     var(--cosmic-gradient);
-  background-size: 75% auto, cover;
+  background-size: contain, cover;
   background-position: center center, center center;
   background-attachment: scroll !important, scroll !important;
   opacity: 0.2;
@@ -851,7 +851,7 @@ nav a:focus {
   }
   
   .hero::before {
-    background-size: 85% auto, cover;
+    background-size: contain, cover;
     background-position: center center, center center;
     background-attachment: scroll !important, scroll !important;
     transform: none !important;
@@ -861,7 +861,7 @@ nav a:focus {
 
 @media (max-width: 480px) {
   .hero::before {
-    background-size: 95% auto, cover;
+    background-size: contain, cover;
   }
 }
 
