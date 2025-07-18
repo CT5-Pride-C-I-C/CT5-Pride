@@ -372,8 +372,12 @@ body {
   opacity: 0.1;
 }
 
-/* No floating animations */
+/* Disable decorative shapes in hero section to prevent interference */
+.hero.decorative-shapes::before {
+  display: none;
+}
 
+/* No floating animations */
 .decorative-shapes::before {
   animation: none;
   opacity: 0.1;
@@ -674,44 +678,41 @@ nav a:focus {
   }
 }
 
-/* Enhanced Hero Section - Completely Static */
+/* Enhanced Hero Section - Fixed and Properly Aligned */
 .hero {
-  background: var(--cosmic-gradient);
-  background-attachment: scroll !important;
+  background: var(--cosmic-gradient) !important;
   padding: var(--spacing-xxl) 0;
   position: relative;
   overflow: hidden;
   color: white;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
 }
 
-/* Hero Pride Celebration Background - Fully Visible and Properly Contained */
+/* Override any section background inheritance */
+.hero.decorative-shapes {
+  background: var(--cosmic-gradient) !important;
+}
+
+/* Completely Remove Background Image Issues */
 .hero::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    url('../Images/hero_pride_celebration.svg') no-repeat center center,
-    var(--cosmic-gradient);
-  background-size: contain, cover;
-  background-position: center center, center center;
-  background-attachment: scroll !important, scroll !important;
-  opacity: 0.2;
+  width: 100%;
+  height: 100%;
+  background-image: url('../Images/hero_pride_celebration.svg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 60%;
+  opacity: 0.15;
   z-index: 1;
-  transform: none !important;
-  animation: none !important;
-  transition: none !important;
+  pointer-events: none;
 }
 
-/* Force static background on all hero elements */
-.hero, .hero::before, .hero::after, .hero * {
-  background-attachment: scroll !important;
-  transform: none !important;
-  animation: none !important;
-}
-
+/* Rainbow top border */
 .hero::after {
   content: '';
   position: absolute;
@@ -730,6 +731,10 @@ nav a:focus {
   gap: var(--spacing-xxl);
   position: relative;
   z-index: 3;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
 }
 
 .hero-content {
@@ -744,7 +749,6 @@ nav a:focus {
   margin-bottom: var(--spacing-lg);
   font-weight: 700;
   color: var(--text);
-  position: relative;
   text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
 }
 
@@ -773,13 +777,7 @@ nav a:focus {
   object-fit: contain;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  transition: var(--transition);
   border: 4px solid rgba(255, 255, 255, 0.2);
-}
-
-.hero-image img:hover {
-  /* No hover movement */
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
 }
 
 .hero-button {
@@ -797,7 +795,6 @@ nav a:focus {
 }
 
 .hero-button:hover {
-  /* No transform movement */
   box-shadow: 0 12px 40px rgba(233, 30, 99, 0.4);
   text-decoration: none;
   border-color: rgba(255, 255, 255, 0.6);
@@ -809,18 +806,27 @@ nav a:focus {
   outline-offset: 4px;
 }
 
-/* No animations - completely static hero */
-
 /* Responsive Design for Hero */
 @media (max-width: 768px) {
+  .hero {
+    min-height: 400px;
+    padding: var(--spacing-xl) 0;
+  }
+  
+  .hero::before {
+    background-size: 80%;
+  }
+  
   .hero-container {
     flex-direction: column;
     text-align: center;
     gap: var(--spacing-xl);
+    padding: 0 var(--spacing-lg);
   }
   
   .hero-content {
     text-align: center;
+    max-width: 100%;
   }
 
   .hero-content h1 {
@@ -838,6 +844,7 @@ nav a:focus {
   .hero-image {
     margin-top: var(--spacing-lg);
     max-width: 400px;
+    width: 100%;
   }
 
   .hero-image img {
@@ -849,19 +856,19 @@ nav a:focus {
     font-size: 1.1rem;
     padding: var(--spacing-md) var(--spacing-xl);
   }
-  
-  .hero::before {
-    background-size: contain, cover;
-    background-position: center center, center center;
-    background-attachment: scroll !important, scroll !important;
-    transform: none !important;
-    animation: none !important;
-  }
 }
 
 @media (max-width: 480px) {
   .hero::before {
-    background-size: contain, cover;
+    background-size: 90%;
+  }
+  
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+  
+  .hero-content p {
+    font-size: 1rem;
   }
 }
 
