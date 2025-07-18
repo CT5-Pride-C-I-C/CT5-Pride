@@ -1,11 +1,6 @@
 backend:
-  name: github
-  repo: CT5-Pride-C-I-C/CT5-Pride
+  name: git-gateway
   branch: main
-  auth_type: oauth
-  base_url: https://api.netlify.com
-  auth_endpoint: auth
-  app_id: Ov23liR1E7aA7OU548q1
 
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
