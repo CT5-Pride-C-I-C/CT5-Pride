@@ -678,41 +678,20 @@ nav a:focus {
   }
 }
 
-/* Enhanced Hero Section - Fixed and Properly Aligned */
+/* Enhanced Hero Section - SIMPLIFIED AND FIXED */
 .hero {
-  background: var(--cosmic-gradient) !important;
-  padding: var(--spacing-xxl) 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 60px 0;
   position: relative;
-  overflow: hidden;
-  color: var(--text);
+  color: #333333;
   min-height: 500px;
-  display: flex;
-  align-items: center;
 }
 
-/* Override any section background inheritance */
-.hero.decorative-shapes {
-  background: var(--cosmic-gradient) !important;
-}
-
-/* Subtle Pride Celebration Background Overlay */
+/* Remove ALL pseudo-elements that might interfere */
 .hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('../Images/hero_pride_celebration.svg');
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: 50%;
-  opacity: 0.08;
-  z-index: 1;
-  pointer-events: none;
+  display: none !important;
 }
 
-/* Rainbow top border */
 .hero::after {
   content: '';
   position: absolute;
@@ -720,111 +699,90 @@ nav a:focus {
   left: 0;
   right: 0;
   height: 6px;
-  background: var(--rainbow-gradient);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(90deg, #e40303, #ff8c00, #ffed00, #008018, #004cff, #732982);
   z-index: 2;
 }
 
 .hero-container {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xxl);
-  position: relative;
-  z-index: 3;
-  width: 100%;
+  gap: 60px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
+  padding: 0 20px;
+  position: relative;
+  z-index: 3;
 }
 
 .hero-content {
   flex: 1;
   max-width: 600px;
-  text-align: left;
 }
 
 .hero-content h1 {
   font-size: 3.5rem;
   line-height: 1.2;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 24px;
   font-weight: 700;
-  color: var(--text);
+  color: #333333;
   text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
 }
 
 .hero-content p {
   font-size: 1.25rem;
   line-height: 1.6;
-  margin-bottom: var(--spacing-xl);
-  color: var(--text);
+  margin-bottom: 32px;
+  color: #333333;
   text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.6);
 }
 
 .hero-image {
   flex: 1;
   max-width: 500px;
-  position: relative;
-  z-index: 3;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  z-index: 10;
 }
 
 .hero-image img {
   width: 100%;
   height: auto;
   max-height: 400px;
-  object-fit: contain;
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   border: 4px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.95);
-  padding: var(--spacing-sm);
+  padding: 8px;
 }
 
 .hero-button {
   font-size: 1.25rem;
-  padding: var(--spacing-lg) var(--spacing-xxl);
-  background: var(--accent);
+  padding: 16px 32px;
+  background: #e91e63;
   color: white;
   border-radius: 50px;
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
-  z-index: 1;
+  text-decoration: none;
+  display: inline-block;
   box-shadow: 0 8px 30px rgba(233, 30, 99, 0.3);
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   border: 3px solid rgba(255, 255, 255, 0.3);
 }
 
 .hero-button:hover {
+  background: #c2185b;
   box-shadow: 0 12px 40px rgba(233, 30, 99, 0.4);
   text-decoration: none;
-  border-color: rgba(255, 255, 255, 0.6);
-  background: var(--primary-dark);
-}
-
-.hero-button:focus {
-  outline: 4px solid var(--vibrant-blue);
-  outline-offset: 4px;
 }
 
 /* Responsive Design for Hero */
 @media (max-width: 768px) {
   .hero {
     min-height: 400px;
-    padding: var(--spacing-xl) 0;
-  }
-  
-  .hero::before {
-    background-size: 60%;
-    opacity: 0.05;
+    padding: 40px 0;
   }
   
   .hero-container {
     flex-direction: column;
     text-align: center;
-    gap: var(--spacing-xl);
-    padding: 0 var(--spacing-lg);
+    gap: 40px;
+    padding: 0 20px;
   }
   
   .hero-content {
@@ -834,18 +792,13 @@ nav a:focus {
 
   .hero-content h1 {
     font-size: 2.5rem;
-    color: var(--text);
-    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
   }
 
   .hero-content p {
     font-size: 1.1rem;
-    color: var(--text);
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.6);
   }
 
   .hero-image {
-    margin-top: var(--spacing-lg);
     max-width: 400px;
     width: 100%;
   }
@@ -857,16 +810,11 @@ nav a:focus {
   
   .hero-button {
     font-size: 1.1rem;
-    padding: var(--spacing-md) var(--spacing-xl);
+    padding: 12px 24px;
   }
 }
 
 @media (max-width: 480px) {
-  .hero::before {
-    background-size: 70%;
-    opacity: 0.03;
-  }
-  
   .hero-content h1 {
     font-size: 2rem;
   }
