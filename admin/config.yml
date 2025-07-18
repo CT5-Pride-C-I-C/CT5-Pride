@@ -2,10 +2,10 @@ backend:
   name: github
   repo: CT5-Pride-C-I-C/CT5-Pride
   branch: main
-  base_url: https://api.github.com
-  auth_endpoint: oauth/authorize
-  client_id: Ov23liR1E7aA7OU548q1
-  auth_type: implicit
+  auth_type: oauth
+  base_url: https://api.netlify.com
+  auth_endpoint: auth
+  app_id: Ov23liR1E7aA7OU548q1
 
 media_folder: "images/uploads"
 public_folder: "/images/uploads"
