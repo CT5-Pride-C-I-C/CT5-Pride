@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<!-- CT5 Pride Admin Interface - Netlify CMS -->
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CT5 Pride - Content Management</title>
-    <!-- Include Netlify Identity Widget for authentication -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <!-- Include Auth0 SDK -->
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <style>
       /* Custom styles for the admin interface */
       :root {
@@ -34,12 +33,29 @@
         padding: 2rem;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       }
+
+      /* Login button styles */
+      .login-button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      .login-button:hover {
+        background: var(--secondary-color);
+      }
     </style>
   </head>
   <body>
     <div class="loading-message">
-      <h2>Setting up your admin access...</h2>
-      <p>If you're not redirected automatically, please click the login button below.</p>
+      <h2>CT5 Pride Admin Panel</h2>
+      <p>Please log in to access the content management system.</p>
+      <button id="login" class="login-button" style="display: none;">Log In</button>
     </div>
 
     <!-- Include the Netlify CMS -->
@@ -48,28 +64,69 @@
       // Add preview styles
       CMS.registerPreviewStyle("/css/style.css");
       
-      // Handle invitation acceptance and login
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on("init", user => {
-          // Force show login modal if user is not logged in
-          if (!user) {
-            window.netlifyIdentity.open();
-          }
+      // Initialize Auth0
+      let auth0 = null;
+      const configureClient = async () => {
+        auth0 = await createAuth0Client({
+          domain: "dev-4t26fj1ccsqqr50h.us.auth0.com",
+          client_id: "S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG",
+          redirect_uri: window.location.origin + "/admin/"
         });
 
-        // After login, redirect to admin
-        window.netlifyIdentity.on("login", () => {
-          document.location.href = "/admin/";
-        });
+        // Update UI
+        updateUI();
 
-        // Handle invitation acceptance
-        window.netlifyIdentity.on("error", err => {
-          if (err?.message?.includes("invite")) {
-            // Reload the page if there's an invitation error
-            window.location.reload();
-          }
-        });
-      }
+        // Handle redirect
+        const query = window.location.search;
+        if (query.includes("code=") && query.includes("state=")) {
+          await auth0.handleRedirectCallback();
+          updateUI();
+          // Replace URL without query parameters
+          window.history.replaceState({}, document.title, "/admin/");
+        }
+      };
+
+      // Update UI based on auth state
+      const updateUI = async () => {
+        const isAuthenticated = await auth0.isAuthenticated();
+        const loginButton = document.getElementById("login");
+
+        if (isAuthenticated) {
+          // User is authenticated, initialize CMS
+          const token = await auth0.getTokenSilently();
+          window.localStorage.setItem('netlify-cms-auth', token);
+          window.location.reload();
+        } else {
+          // Show login button
+          loginButton.style.display = "block";
+          loginButton.onclick = () => auth0.loginWithRedirect();
+        }
+      };
+
+      // Initialize Auth0 when the page loads
+      window.onload = configureClient;
+
+      // Configure Netlify CMS to use Auth0
+      window.CMS_MANUAL_INIT = true;
+      CMS.init({
+        config: {
+          backend: {
+            name: 'github',
+            repo: 'CT5-Pride-C-I-C/CT5-Pride',
+            branch: 'main',
+            auth_type: 'pkce',
+            base_url: 'https://api.netlify.com',
+            auth_endpoint: 'auth',
+            app_id: '',  // Will be provided by Auth0
+            auth_scope: 'repo'
+          },
+          media_folder: "images/uploads",
+          public_folder: "/images/uploads",
+          collections: [
+            // Collections will be loaded from config.yml
+          ]
+        }
+      });
     </script>
   </body>
 </html> 
