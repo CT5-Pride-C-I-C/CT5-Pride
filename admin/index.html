@@ -142,16 +142,9 @@
 
             // Initialize CMS
             log('Initializing CMS...');
-            if (!window.netlifyIdentity) {
-              window.netlifyIdentity = {
-                currentUser: () => user,
-                on: () => {},
-                init: () => {}
-              };
-            }
-
             window.CMS.init({
               config: {
+                load_config_file: false, // Don't load external config
                 backend: {
                   name: 'github',
                   repo: 'CT5-Pride-C-I-C/CT5-Pride',
@@ -164,10 +157,11 @@
                 public_folder: '/images/uploads',
                 collections: [
                   {
-                    name: 'volunteer_roles',
+                    name: 'roles',
                     label: 'Volunteer Roles',
                     folder: 'data/roles',
                     create: true,
+                    slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
                     fields: [
                       { label: 'Title', name: 'title', widget: 'string' },
                       { label: 'Summary', name: 'summary', widget: 'text' },
@@ -187,6 +181,21 @@
                         widget: 'select',
                         options: ['Open', 'Closed', 'Paused']
                       }
+                    ]
+                  },
+                  {
+                    name: 'submissions',
+                    label: 'Applications',
+                    folder: 'data/applications',
+                    create: true,
+                    slug: '{{year}}{{month}}{{day}}-{{hour}}{{minute}}-{{slug}}',
+                    fields: [
+                      { label: 'Full Name', name: 'full_name', widget: 'string' },
+                      { label: 'Email', name: 'email', widget: 'string' },
+                      { label: 'Cover Letter', name: 'cover_letter', widget: 'text' },
+                      { label: 'CV Upload', name: 'cv_upload', widget: 'file' },
+                      { label: 'Applied Role', name: 'applied_role', widget: 'string' },
+                      { label: 'Submission Date', name: 'submission_date', widget: 'datetime' }
                     ]
                   }
                 ]
