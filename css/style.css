@@ -639,17 +639,17 @@ nav a:focus {
   }
 }
 
-/* Enhanced Hero Section with Contained Animation */
+/* Enhanced Hero Section - Completely Static */
 .hero {
   background: var(--cosmic-gradient);
-  background-attachment: fixed;
+  background-attachment: scroll !important;
   padding: var(--spacing-xxl) 0;
   position: relative;
   overflow: hidden;
   color: white;
 }
 
-/* Hero Pride Celebration Background - Static and Contained */
+/* Hero Pride Celebration Background - Completely Static */
 .hero::before {
   content: '';
   position: absolute;
@@ -658,14 +658,23 @@ nav a:focus {
   right: 0;
   bottom: 0;
   background: 
-    url('../Images/hero_pride_celebration.svg') no-repeat,
+    url('../Images/hero_pride_celebration.svg') no-repeat center center,
     var(--cosmic-gradient);
-  background-size: contain;
-  background-position: center center;
-  background-attachment: scroll;
+  background-size: contain, cover;
+  background-position: center center, center center;
+  background-attachment: scroll !important, scroll !important;
   opacity: 0.2;
   z-index: 1;
-  transform: none;
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Force static background on all hero elements */
+.hero, .hero::before, .hero::after, .hero * {
+  background-attachment: scroll !important;
+  transform: none !important;
+  animation: none !important;
 }
 
 .hero::after {
