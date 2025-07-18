@@ -650,7 +650,7 @@ nav a:focus {
   color: white;
 }
 
-/* Hero Pride Celebration Background - Static Positioning */
+/* Hero Pride Celebration Background - Static and Contained */
 .hero::before {
   content: '';
   position: absolute;
@@ -659,12 +659,14 @@ nav a:focus {
   right: 0;
   bottom: 0;
   background: 
-    url('../Images/hero_pride_celebration.svg') center/contain no-repeat,
+    url('../Images/hero_pride_celebration.svg') no-repeat,
     var(--cosmic-gradient);
-  background-size: 80% auto;
+  background-size: contain;
   background-position: center center;
+  background-attachment: scroll;
   opacity: 0.2;
   z-index: 1;
+  transform: none;
 }
 
 .hero::after {
@@ -844,7 +846,10 @@ nav a:focus {
   }
   
   .hero::before {
-    background-size: 90% auto;
+    background-size: contain;
+    background-position: center center;
+    background-attachment: scroll;
+    transform: none;
   }
 }
 
