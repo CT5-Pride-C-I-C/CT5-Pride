@@ -6,7 +6,7 @@
     <title>CT5 Pride - Content Management</title>
     <!-- Include Auth0 SDK -->
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
-    <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
+    <script src="https://unpkg.com/netlify-cms@^2.10.192/dist/netlify-cms.js" defer></script>
     <style>
       /* Custom styles for the admin interface */
       :root {
@@ -57,6 +57,8 @@
         text-align: left;
         font-family: monospace;
         font-size: 12px;
+        max-height: 200px;
+        overflow-y: auto;
       }
     </style>
   </head>
@@ -75,12 +77,8 @@
         const debugEl = document.getElementById('debug');
         const time = new Date().toLocaleTimeString();
         debugEl.innerHTML += `[${time}] ${message}<br>`;
+        debugEl.scrollTop = debugEl.scrollHeight;
       }
-
-      // Wait for CMS to be available
-      window.CMS_MANUAL_INIT = true;
-
-      log('Starting initialization...');
 
       // Initialize Auth0
       let auth0Client = null;
@@ -135,6 +133,14 @@
 
             // Initialize CMS
             log('Initializing CMS...');
+            if (!window.netlifyIdentity) {
+              window.netlifyIdentity = {
+                currentUser: () => user,
+                on: () => {},
+                init: () => {}
+              };
+            }
+
             window.CMS.init({
               config: {
                 backend: {
@@ -144,6 +150,7 @@
                   auth_type: 'github',
                   token: token
                 },
+                publish_mode: 'editorial_workflow',
                 media_folder: 'images/uploads',
                 public_folder: '/images/uploads',
                 collections: [
@@ -199,14 +206,24 @@
         }
       }
 
+      // Check if CMS is loaded
+      function checkCMS() {
+        log('Checking for CMS...');
+        log('window.CMS exists: ' + (!!window.CMS));
+        if (window.CMS) {
+          log('CMS object properties: ' + Object.keys(window.CMS).join(', '));
+        }
+        return window.CMS && typeof window.CMS.init === 'function';
+      }
+
       // Initialize when both Auth0 and CMS are ready
       function init() {
-        if (window.CMS) {
+        if (checkCMS()) {
           log('CMS loaded, starting initialization...');
           initAuth().catch(e => log('Error in init: ' + e.message));
         } else {
           log('Waiting for CMS to load...');
-          setTimeout(init, 100);
+          setTimeout(init, 1000);
         }
       }
 
