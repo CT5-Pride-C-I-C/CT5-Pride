@@ -102,7 +102,6 @@
             clientId: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
             authorizationParams: {
               redirect_uri: window.location.origin + '/admin/',
-              audience: 'https://api.github.com',
               scope: 'openid profile email'
             }
           });
@@ -138,11 +137,9 @@
                   name: 'github',
                   repo: 'CT5-Pride-C-I-C/CT5-Pride',
                   branch: 'main',
-                  base_url: 'https://api.github.com',
-                  auth_endpoint: 'auth',
-                  api_root: 'https://api.github.com',
-                  auth_type: 'github',
-                  token: token
+                  auth_type: 'oauth',
+                  base_url: 'https://api.netlify.com',
+                  auth_endpoint: 'auth'
                 },
                 media_folder: 'images/uploads',
                 public_folder: '/images/uploads',
