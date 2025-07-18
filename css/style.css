@@ -119,6 +119,35 @@
   --warm-gradient: #333333;
   --pastel-gradient: #333333;
   --cosmic-gradient: #333333;
+  filter: contrast(150%) brightness(110%);
+}
+
+.high-contrast *,
+.high-contrast *::before,
+.high-contrast *::after {
+  background-color: white !important;
+  color: black !important;
+  border-color: black !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.high-contrast .button,
+.high-contrast .hero-button,
+.high-contrast .nav-toggle {
+  background-color: black !important;
+  color: white !important;
+  border: 2px solid black !important;
+}
+
+.high-contrast header {
+  background-color: white !important;
+  border-bottom: 3px solid black !important;
+}
+
+.high-contrast footer {
+  background-color: black !important;
+  color: white !important;
 }
 
 /* Reduced Motion */
@@ -215,10 +244,12 @@ body {
   padding: 0 var(--spacing-md);
 }
 
-/* Enhanced Button Styles with No Movement */
+/* Enhanced Button Styles with Proper Tap Targets */
 .button {
   display: inline-block;
   padding: var(--spacing-md) var(--spacing-xl);
+  min-height: 44px;
+  min-width: 44px;
   background: var(--accent);
   color: white;
   text-decoration: none;
@@ -233,6 +264,10 @@ body {
   box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   border: 2px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .button::before {
@@ -649,7 +684,7 @@ nav a:focus {
   color: white;
 }
 
-/* Hero Pride Celebration Background - Completely Static */
+/* Hero Pride Celebration Background - Fully Visible */
 .hero::before {
   content: '';
   position: absolute;
@@ -660,7 +695,7 @@ nav a:focus {
   background: 
     url('../Images/hero_pride_celebration.svg') no-repeat center center,
     var(--cosmic-gradient);
-  background-size: contain, cover;
+  background-size: 75% auto, cover;
   background-position: center center, center center;
   background-attachment: scroll !important, scroll !important;
   opacity: 0.2;
@@ -816,10 +851,17 @@ nav a:focus {
   }
   
   .hero::before {
-    background-size: contain;
-    background-position: center center;
-    background-attachment: scroll;
-    transform: none;
+    background-size: 85% auto, cover;
+    background-position: center center, center center;
+    background-attachment: scroll !important, scroll !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero::before {
+    background-size: 95% auto, cover;
   }
 }
 
@@ -2893,4 +2935,50 @@ footer::after {
   text-decoration: none;
   border-color: rgba(255, 255, 255, 0.6);
   background: var(--primary-dark);
+}
+
+/* Focus States for Accessibility */
+*:focus {
+  outline: 3px solid var(--vibrant-blue);
+  outline-offset: 2px;
+}
+
+.button:focus,
+.hero-button:focus {
+  outline: 4px solid var(--vibrant-blue);
+  outline-offset: 4px;
+}
+
+.nav-toggle:focus {
+  outline: 3px solid var(--vibrant-blue);
+  outline-offset: 2px;
+}
+
+nav a:focus {
+  outline: 2px solid var(--vibrant-blue);
+  outline-offset: 2px;
+  background-color: rgba(33, 150, 243, 0.1);
+}
+
+.accessibility-toggle:focus {
+  outline: 3px solid var(--vibrant-blue);
+  outline-offset: 2px;
+}
+
+.accessibility-toggle-switch:focus {
+  outline: 2px solid var(--vibrant-blue);
+  outline-offset: 1px;
+}
+
+.dropdown-menu a:focus {
+  background-color: var(--vibrant-blue);
+  color: white;
+  outline: none;
+}
+
+/* Skip to Main Content */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
 }
