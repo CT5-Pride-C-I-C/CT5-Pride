@@ -58,7 +58,7 @@ class AccessibilityManager {
         // Text Size
         body.classList.remove('text-small', 'text-large', 'text-extra-large');
         if (this.settings.textSize !== 'normal') {
-            body.classList.add(`text-${this.settings.textSize.replace('-', '-')}`);
+            body.classList.add(`text-${this.settings.textSize}`);
         }
         
         this.updateUI();
