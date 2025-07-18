@@ -1,5 +1,164 @@
+// Accessibility Manager
+class AccessibilityManager {
+    constructor() {
+        this.settings = {
+            highContrast: false,
+            dyslexiaFriendly: false,
+            reduceMotion: false,
+            textSize: 'normal'
+        };
+        
+        this.init();
+    }
+    
+    init() {
+        this.loadSettings();
+        this.applySettings();
+        this.bindEvents();
+    }
+    
+    // Load settings from localStorage
+    loadSettings() {
+        const saved = localStorage.getItem('ct5-pride-accessibility');
+        if (saved) {
+            this.settings = { ...this.settings, ...JSON.parse(saved) };
+        }
+    }
+    
+    // Save settings to localStorage
+    saveSettings() {
+        localStorage.setItem('ct5-pride-accessibility', JSON.stringify(this.settings));
+    }
+    
+    // Apply all accessibility settings to the page
+    applySettings() {
+        const body = document.body;
+        
+        // High Contrast Mode
+        if (this.settings.highContrast) {
+            body.classList.add('high-contrast');
+        } else {
+            body.classList.remove('high-contrast');
+        }
+        
+        // Dyslexia-Friendly Font
+        if (this.settings.dyslexiaFriendly) {
+            body.classList.add('dyslexia-friendly');
+        } else {
+            body.classList.remove('dyslexia-friendly');
+        }
+        
+        // Reduce Motion
+        if (this.settings.reduceMotion) {
+            body.classList.add('reduce-motion');
+        } else {
+            body.classList.remove('reduce-motion');
+        }
+        
+        // Text Size
+        body.classList.remove('text-small', 'text-large', 'text-extra-large');
+        if (this.settings.textSize !== 'normal') {
+            body.classList.add(`text-${this.settings.textSize.replace('-', '-')}`);
+        }
+        
+        this.updateUI();
+    }
+    
+    // Update UI to reflect current settings
+    updateUI() {
+        // Update toggle switches
+        const toggles = {
+            'high-contrast-toggle': this.settings.highContrast,
+            'dyslexia-toggle': this.settings.dyslexiaFriendly,
+            'reduce-motion-toggle': this.settings.reduceMotion
+        };
+        
+        Object.entries(toggles).forEach(([id, active]) => {
+            const toggle = document.getElementById(id);
+            if (toggle) {
+                toggle.classList.toggle('active', active);
+                toggle.setAttribute('aria-checked', active.toString());
+            }
+        });
+        
+        // Update text size buttons
+        document.querySelectorAll('.text-size-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.size === this.settings.textSize);
+        });
+    }
+    
+    // Bind event listeners
+    bindEvents() {
+        // Accessibility panel toggle
+        const accessibilityToggle = document.querySelector('.accessibility-toggle');
+        const accessibilityMenu = document.querySelector('.accessibility-menu');
+        
+        if (accessibilityToggle && accessibilityMenu) {
+            accessibilityToggle.addEventListener('click', () => {
+                const isOpen = accessibilityMenu.classList.contains('active');
+                accessibilityMenu.classList.toggle('active');
+                accessibilityToggle.setAttribute('aria-expanded', (!isOpen).toString());
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.accessibility-panel')) {
+                    accessibilityMenu.classList.remove('active');
+                    accessibilityToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
+            
+            // Close menu on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && accessibilityMenu.classList.contains('active')) {
+                    accessibilityMenu.classList.remove('active');
+                    accessibilityToggle.setAttribute('aria-expanded', 'false');
+                    accessibilityToggle.focus();
+                }
+            });
+        }
+        
+        // Toggle switches
+        this.bindToggleSwitch('high-contrast-toggle', 'highContrast');
+        this.bindToggleSwitch('dyslexia-toggle', 'dyslexiaFriendly');
+        this.bindToggleSwitch('reduce-motion-toggle', 'reduceMotion');
+        
+        // Text size buttons
+        document.querySelectorAll('.text-size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.settings.textSize = btn.dataset.size;
+                this.saveSettings();
+                this.applySettings();
+            });
+        });
+    }
+    
+    // Bind toggle switch functionality
+    bindToggleSwitch(id, setting) {
+        const toggle = document.getElementById(id);
+        if (!toggle) return;
+        
+        const handleToggle = () => {
+            this.settings[setting] = !this.settings[setting];
+            this.saveSettings();
+            this.applySettings();
+        };
+        
+        toggle.addEventListener('click', handleToggle);
+        toggle.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                handleToggle();
+            }
+        });
+    }
+}
+
 // Header Functionality
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Accessibility Manager
+    const accessibilityManager = new AccessibilityManager();
+    
     // Elements
     const header = document.querySelector('header');
     const navToggle = document.querySelector('.nav-toggle');
@@ -33,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 nav.classList.remove('active');
                 navToggle.setAttribute('aria-expanded', 'false');
                 document.body.style.overflow = 'auto';
+                navToggle.focus();
             }
         });
     }
@@ -47,6 +207,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.innerWidth <= 768) {
                 e.preventDefault();
                 dropdown.classList.toggle('active');
+            }
+        });
+        
+        // Keyboard navigation for dropdowns
+        dropdownLink.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                if (window.innerWidth <= 768) {
+                    e.preventDefault();
+                    dropdown.classList.toggle('active');
+                }
             }
         });
     });
@@ -65,6 +235,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         lastScroll = currentScroll;
+    });
+    
+    // Enhanced Button Hover Effects (respects reduced motion)
+    const buttons = document.querySelectorAll('.button');
+    buttons.forEach(button => {
+        button.addEventListener('mouseenter', () => {
+            if (!document.body.classList.contains('reduce-motion')) {
+                button.style.transform = 'translateY(-2px)';
+            }
+        });
+        
+        button.addEventListener('mouseleave', () => {
+            if (!document.body.classList.contains('reduce-motion')) {
+                button.style.transform = 'translateY(0)';
+            }
+        });
+    });
+    
+    // Pride flag icon interactions
+    const prideFlags = document.querySelectorAll('.pride-flag-icon');
+    prideFlags.forEach(flag => {
+        flag.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                // Could add flag information modal here
+                console.log(`Activated ${flag.getAttribute('aria-label')}`);
+            }
+        });
+    });
+    
+    // Focus management for skip link
+    const skipLink = document.querySelector('.skip-link');
+    const mainContent = document.getElementById('main-content');
+    
+    if (skipLink && mainContent) {
+        skipLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            mainContent.focus();
+            mainContent.scrollIntoView();
+        });
+    }
+    
+    // Smooth scrolling for internal links (respects reduced motion)
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            const target = document.querySelector(link.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                if (document.body.classList.contains('reduce-motion')) {
+                    target.scrollIntoView();
+                } else {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+                target.focus();
+            }
+        });
     });
 });
 
@@ -307,6 +533,9 @@ function openRoleDetailModal(roleId) {
     // Show modal
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
+    
+    // Focus management
+    modal.focus();
 }
 
 // Enhanced Volunteer Role Board
@@ -344,6 +573,15 @@ function loadRoles() {
                 const roleId = card.getAttribute('data-role-id');
                 openRoleDetailModal(roleId);
             });
+            
+            // Keyboard accessibility
+            card.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const roleId = card.getAttribute('data-role-id');
+                    openRoleDetailModal(roleId);
+                }
+            });
         });
 
     } catch (error) {
@@ -375,7 +613,7 @@ function createRoleCard(role) {
     const isOpen = role.status === 'open';
     
     return `
-        <div class="role-card ${!isOpen ? 'closed' : ''}" data-role-id="${role.id}" style="cursor: pointer;">
+        <div class="role-card ${!isOpen ? 'closed' : ''}" data-role-id="${role.id}" style="cursor: pointer;" tabindex="0" role="button" aria-label="View details for ${role.title}">
             <div class="role-card-header">
                 <div class="role-card-icon">${roleIcons[role.icon] || roleIcons['volunteers']}</div>
                 <div class="role-card-meta">
@@ -385,11 +623,11 @@ function createRoleCard(role) {
             </div>
             <p>${role.summary}</p>
             <div class="role-card-actions">
-                <button class="button secondary view-details" onclick="event.stopPropagation(); openRoleDetailModal('${role.id}')">View Details</button>
+                <button class="button secondary view-details" onclick="event.stopPropagation(); openRoleDetailModal('${role.id}')" aria-label="View details for ${role.title}">View Details</button>
                 ${isOpen ? `
-                    <a href="apply.html" class="button primary" onclick="event.stopPropagation()">Apply Now</a>
+                    <a href="apply.html" class="button primary" onclick="event.stopPropagation()" aria-label="Apply for ${role.title}">Apply Now</a>
                 ` : `
-                    <span class="button disabled">Applications Closed</span>
+                    <span class="button disabled" aria-label="Applications closed for ${role.title}">Applications Closed</span>
                 `}
             </div>
         </div>
@@ -399,7 +637,9 @@ function createRoleCard(role) {
 // Initialize all functionality when page loads
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize role detail modal
-    initializeRoleDetailModal();
+    if (document.getElementById('roleDetailModal')) {
+        initializeRoleDetailModal();
+    }
     
     // Load roles if we're on the volunteer page
     if (window.location.pathname.includes('volunteer')) {

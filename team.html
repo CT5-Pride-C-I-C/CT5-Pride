@@ -12,18 +12,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Skip to Main Content -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Progress Pride Flag Stripe -->
+    <div class="pride-stripe" role="presentation"></div>
+    
     <header>
         <div class="container">
             <div class="header-content">
                 <a href="index.html" class="logo">CT5 Pride</a>
-                <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+                <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
                 <nav>
                     <ul>
                         <li><a href="index.html">Home</a></li>
                         <li class="dropdown">
                             <a href="about.html">About</a>
                             <div class="dropdown-content">
-                                <a href="team.html">Team</a>
+                                <a href="team.html" aria-current="page">Team</a>
                             </div>
                         </li>
                         <li><a href="events.html">Events</a></li>
@@ -40,7 +46,7 @@
         </div>
     </header>
 
-    <main>
+    <main id="main-content">
         <!-- Hero Section -->
         <section class="hero">
             <div class="container">
@@ -49,102 +55,115 @@
             </div>
         </section>
 
-        <!-- Team Grid -->
+        <div class="section-divider"></div>
+
+        <!-- Team Members Section -->
         <section class="cta-section">
             <div class="container">
-                <div class="team-grid">
-                    <!-- Team Member 1 -->
-                    <div class="team-member">
-                        <svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="75" cy="75" r="75" fill="#f0f0f0"/>
-                            <circle cx="75" cy="60" r="25" fill="#d0d0d0"/>
-                            <path d="M75 95C50 95 35 110 35 125V150H115V125C115 110 100 95 75 95Z" fill="#d0d0d0"/>
-                        </svg>
-                        <h3>Alex Thompson</h3>
-                        <p class="role">Chair</p>
-                        <p>Passionate about creating inclusive spaces and building community connections. Leading CT5 Pride's strategic direction and partnerships.</p>
+                <h2>Our Leadership Team</h2>
+                <p class="text-center">CT5 Pride is led by passionate community members who volunteer their time and expertise to make our organization thrive.</p>
+                
+                <div class="cta-grid" style="margin-top: var(--spacing-xl);">
+                    <div style="text-align: center; padding: var(--spacing-xl); background: var(--gray); border-radius: var(--border-radius); position: relative;">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--rainbow-gradient); border-radius: var(--border-radius) var(--border-radius) 0 0;"></div>
+                        <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--primary); margin: 0 auto var(--spacing-lg) auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold;">
+                            JD
+                        </div>
+                        <h3 style="margin-bottom: var(--spacing-sm); color: var(--primary);">Jane Doe</h3>
+                        <p style="color: var(--text-light); font-weight: 600; margin-bottom: var(--spacing-sm);">Chair & Founder</p>
+                        <p>Jane founded CT5 Pride to create the inclusive community space she wished had existed when she first moved to Whitstable. With a background in community organizing, she leads our strategic vision.</p>
                     </div>
-
-                    <!-- Team Member 2 -->
-                    <div class="team-member">
-                        <svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="75" cy="75" r="75" fill="#f0f0f0"/>
-                            <circle cx="75" cy="60" r="25" fill="#d0d0d0"/>
-                            <path d="M75 95C50 95 35 110 35 125V150H115V125C115 110 100 95 75 95Z" fill="#d0d0d0"/>
-                        </svg>
-                        <h3>Sam Rivera</h3>
-                        <p class="role">Events Director</p>
-                        <p>Bringing creativity and energy to our events programming. Committed to making our events accessible and enjoyable for everyone.</p>
+                    
+                    <div style="text-align: center; padding: var(--spacing-xl); background: var(--gray); border-radius: var(--border-radius); position: relative;">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--rainbow-gradient); border-radius: var(--border-radius) var(--border-radius) 0 0;"></div>
+                        <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--secondary); margin: 0 auto var(--spacing-lg) auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold;">
+                            AS
+                        </div>
+                        <h3 style="margin-bottom: var(--spacing-sm); color: var(--primary);">Alex Smith</h3>
+                        <p style="color: var(--text-light); font-weight: 600; margin-bottom: var(--spacing-sm);">Events Coordinator</p>
+                        <p>Alex brings years of event planning experience to CT5 Pride, coordinating our annual parade and monthly community gatherings with creativity and attention to detail.</p>
                     </div>
-
-                    <!-- Team Member 3 -->
-                    <div class="team-member">
-                        <svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="75" cy="75" r="75" fill="#f0f0f0"/>
-                            <circle cx="75" cy="60" r="25" fill="#d0d0d0"/>
-                            <path d="M75 95C50 95 35 110 35 125V150H115V125C115 110 100 95 75 95Z" fill="#d0d0d0"/>
-                        </svg>
-                        <h3>Jordan Lee</h3>
-                        <p class="role">Community Outreach</p>
-                        <p>Focused on building strong relationships with local organizations and ensuring CT5 Pride serves our diverse community.</p>
-                    </div>
-
-                    <!-- Team Member 4 -->
-                    <div class="team-member">
-                        <svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="75" cy="75" r="75" fill="#f0f0f0"/>
-                            <circle cx="75" cy="60" r="25" fill="#d0d0d0"/>
-                            <path d="M75 95C50 95 35 110 35 125V150H115V125C115 110 100 95 75 95Z" fill="#d0d0d0"/>
-                        </svg>
-                        <h3>Morgan Chen</h3>
-                        <p class="role">Treasurer</p>
-                        <p>Managing our finances and ensuring we can sustainably deliver our programs and support to the community.</p>
-                    </div>
-
-                    <!-- Team Member 5 -->
-                    <div class="team-member">
-                        <svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="75" cy="75" r="75" fill="#f0f0f0"/>
-                            <circle cx="75" cy="60" r="25" fill="#d0d0d0"/>
-                            <path d="M75 95C50 95 35 110 35 125V150H115V125C115 110 100 95 75 95Z" fill="#d0d0d0"/>
-                        </svg>
-                        <h3>Charlie Wilson</h3>
-                        <p class="role">Secretary</p>
-                        <p>Keeping our organization running smoothly and ensuring effective communication between our team and community.</p>
-                    </div>
-
-                    <!-- Team Member 6 -->
-                    <div class="team-member">
-                        <svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="75" cy="75" r="75" fill="#f0f0f0"/>
-                            <circle cx="75" cy="60" r="25" fill="#d0d0d0"/>
-                            <path d="M75 95C50 95 35 110 35 125V150H115V125C115 110 100 95 75 95Z" fill="#d0d0d0"/>
-                        </svg>
-                        <h3>Pat Taylor</h3>
-                        <p class="role">Volunteer Coordinator</p>
-                        <p>Supporting our amazing volunteer team and helping new volunteers find their place in our community.</p>
+                    
+                    <div style="text-align: center; padding: var(--spacing-xl); background: var(--gray); border-radius: var(--border-radius); position: relative;">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--rainbow-gradient); border-radius: var(--border-radius) var(--border-radius) 0 0;"></div>
+                        <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--primary); margin: 0 auto var(--spacing-lg) auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: bold;">
+                            MJ
+                        </div>
+                        <h3 style="margin-bottom: var(--spacing-sm); color: var(--primary);">Morgan Johnson</h3>
+                        <p style="color: var(--text-light); font-weight: 600; margin-bottom: var(--spacing-sm);">Community Outreach Lead</p>
+                        <p>Morgan connects CT5 Pride with local businesses, schools, and other organizations to build bridges and foster understanding throughout our community.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Join the Team CTA -->
+        <div class="section-divider"></div>
+
+        <!-- Join Our Team Section -->
         <section class="cta-section" style="background: var(--gray);">
             <div class="container">
                 <h2>Join Our Team</h2>
-                <p class="text-center mb-lg">Interested in taking on a leadership role with CT5 Pride? We're always looking for passionate people to join our team.</p>
-                <div class="text-center">
-                    <a href="volunteer.html" class="button">View Open Positions</a>
+                <p class="text-center">We're always looking for passionate volunteers to help strengthen and grow our community. Whether you have a few hours a month or want to take on a leadership role, we'd love to have you join us.</p>
+                
+                <div class="text-center mt-lg">
+                    <a href="volunteer.html" class="button">View Volunteer Opportunities</a>
+                    <a href="contact.html" class="button secondary">Get in Touch</a>
                 </div>
             </div>
         </section>
     </main>
+
+    <!-- Accessibility Panel -->
+    <div class="accessibility-panel">
+        <button class="accessibility-toggle" aria-label="Open accessibility options" aria-expanded="false">
+            ♿
+        </button>
+        <div class="accessibility-menu" role="dialog" aria-labelledby="accessibility-heading">
+            <h3 id="accessibility-heading">Accessibility Options</h3>
+            
+            <div class="accessibility-option">
+                <label for="high-contrast-toggle">High Contrast Mode</label>
+                <div class="accessibility-toggle-switch" id="high-contrast-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="high-contrast-toggle">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label for="dyslexia-toggle">Dyslexia-Friendly Font</label>
+                <div class="accessibility-toggle-switch" id="dyslexia-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="dyslexia-toggle">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label for="reduce-motion-toggle">Reduce Motion</label>
+                <div class="accessibility-toggle-switch" id="reduce-motion-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="reduce-motion-toggle">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label>Text Size</label>
+                <div class="text-size-controls">
+                    <button class="text-size-btn" data-size="small" aria-label="Small text">A</button>
+                    <button class="text-size-btn active" data-size="normal" aria-label="Normal text">A</button>
+                    <button class="text-size-btn" data-size="large" aria-label="Large text">A</button>
+                    <button class="text-size-btn" data-size="extra-large" aria-label="Extra large text">A</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="container">
             <div class="footer-content">
                 <p>CT5 Pride CIC | Community Interest Company No. [placeholder]</p>
                 <p>Email: <a href="mailto:hello@ct5pride.org.uk">hello@ct5pride.org.uk</a></p>
+                
+                <!-- Pride Flag Icons -->
+                <div class="pride-flags">
+                    <div class="pride-flag-icon rainbow-flag" title="Pride Flag" role="img" aria-label="Rainbow Pride Flag" tabindex="0"></div>
+                    <div class="pride-flag-icon trans-flag" title="Transgender Pride Flag" role="img" aria-label="Transgender Pride Flag" tabindex="0"></div>
+                    <div class="pride-flag-icon nonbinary-flag" title="Non-Binary Pride Flag" role="img" aria-label="Non-Binary Pride Flag" tabindex="0"></div>
+                </div>
+                
                 <div class="social-links">
                     <a href="#" aria-label="Follow us on Instagram">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">

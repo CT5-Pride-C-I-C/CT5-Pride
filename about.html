@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About CT5 Pride | LGBTQIA+ Community in Whitstable</title>
-    <meta name="description" content="Learn about CT5 Pride's mission to support and celebrate the LGBTQIA+ community in Whitstable, Tankerton, Seasalter, Swalecliffe, Chestfield, and Yorkletts.">
+    <meta name="description" content="Learn about CT5 Pride's mission to support and celebrate the LGBTQIA+ community in Whitstable and surrounding areas.">
     <link rel="stylesheet" href="css/style.css">
     <!-- Load Inter font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,22 +12,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header class="site-header">
+    <!-- Skip to Main Content -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Progress Pride Flag Stripe -->
+    <div class="pride-stripe" role="presentation"></div>
+    
+    <header>
         <div class="container">
             <div class="header-content">
-                <a href="index.html" class="logo-link" aria-label="CT5 Pride - Return to homepage">
-                    <img src="images/Logo-with-Transparent-background.svg" alt="CT5 Pride logo" class="site-logo" width="auto" height="70">
-                </a>
-                
-                <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
-                    <span class="hamburger"></span>
-                </button>
-
-                <nav class="main-nav" aria-label="Main navigation">
+                <a href="index.html" class="logo">CT5 Pride</a>
+                <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+                <nav>
                     <ul>
                         <li><a href="index.html">Home</a></li>
                         <li class="dropdown">
-                            <a href="about.html">About</a>
+                            <a href="about.html" aria-current="page">About</a>
                             <div class="dropdown-content">
                                 <a href="team.html">Team</a>
                             </div>
@@ -46,100 +46,142 @@
         </div>
     </header>
 
-    <main>
-        <!-- Hero Section -->
+    <main id="main-content">
         <section class="hero">
             <div class="container">
                 <h1>About CT5 Pride</h1>
-                <p>We're a community organization dedicated to celebrating and supporting LGBTQIA+ people in Whitstable and the surrounding areas.</p>
+                <p>We're a grassroots community organization dedicated to supporting, celebrating, and advocating for LGBTQIA+ people in the CT5 area and beyond.</p>
             </div>
         </section>
 
-        <!-- Mission Section -->
+        <div class="section-divider"></div>
+
         <section class="cta-section">
             <div class="container">
                 <h2>Our Mission</h2>
                 <div class="cta-grid">
                     <div>
                         <h3>Celebrate</h3>
-                        <p>Create joyful spaces and events that celebrate the diversity and vibrancy of our LGBTQIA+ community in the CT5 area.</p>
+                        <p>We organize events and activities that celebrate the diversity, achievements, and contributions of LGBTQIA+ people in our community.</p>
                     </div>
                     <div>
                         <h3>Support</h3>
-                        <p>Provide resources, connections, and support to LGBTQIA+ individuals and their allies in our local community.</p>
+                        <p>We provide a safe, welcoming space and resources for LGBTQIA+ individuals, families, and allies in the CT5 area.</p>
                     </div>
                     <div>
-                        <h3>Connect</h3>
-                        <p>Build bridges between LGBTQIA+ people, local organizations, and the wider community to create lasting positive change.</p>
+                        <h3>Advocate</h3>
+                        <p>We work to promote equality, understanding, and acceptance while addressing issues that affect our community.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Our Story Section -->
-        <section class="cta-section" style="background: var(--gray);">
+        <div class="section-divider"></div>
+
+        <section style="padding: var(--spacing-xl) 0; background: var(--gray);">
             <div class="container">
-                <h2>Our Story</h2>
-                <p class="text-center mb-lg">CT5 Pride was founded by local LGBTQIA+ residents who saw the need for a dedicated community organization in the Whitstable area. What started as informal meetups has grown into a vibrant community organization serving Whitstable, Tankerton, Seasalter, Swalecliffe, Chestfield, and Yorkletts.</p>
-                
-                <div class="cta-grid">
-                    <div>
-                        <h3>Community-Led</h3>
-                        <p>We're run by and for the local LGBTQIA+ community, ensuring our work reflects real needs and aspirations.</p>
+                <h2 class="text-center">Our Values</h2>
+                <div style="max-width: 800px; margin: 0 auto; text-align: left;">
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary); margin-bottom: var(--spacing-md);">Inclusion</h3>
+                        <p>We welcome people of all backgrounds, identities, and experiences. Our community is stronger when everyone feels valued and included.</p>
                     </div>
-                    <div>
-                        <h3>Inclusive</h3>
-                        <p>We celebrate the full spectrum of LGBTQIA+ identities and experiences, creating spaces where everyone can be themselves.</p>
+                    
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary); margin-bottom: var(--spacing-md);">Respect</h3>
+                        <p>We treat everyone with dignity and respect, creating spaces where people can be authentically themselves without fear of judgment.</p>
                     </div>
+                    
+                    <div style="margin-bottom: var(--spacing-xl);">
+                        <h3 style="color: var(--primary); margin-bottom: var(--spacing-md);">Community</h3>
+                        <p>We believe in the power of community to create positive change, provide support, and celebrate our shared experiences.</p>
+                    </div>
+                    
                     <div>
-                        <h3>Local Focus</h3>
-                        <p>Our deep connection to the CT5 area helps us create meaningful impact in our community.</p>
+                        <h3 style="color: var(--primary); margin-bottom: var(--spacing-md);">Empowerment</h3>
+                        <p>We empower LGBTQIA+ people to live openly, pursue their goals, and make positive contributions to our broader community.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- What We Do Section -->
+        <div class="section-divider"></div>
+
         <section class="cta-section">
             <div class="container">
-                <h2>What We Do</h2>
+                <h2>Get Involved</h2>
                 <div class="cta-grid">
                     <div>
-                        <h3>Annual Pride</h3>
-                        <p>Our flagship event brings the community together for a day of celebration, visibility, and connection.</p>
-                        <a href="events.html" class="button">Learn More</a>
+                        <h3>Volunteer</h3>
+                        <p>Join our team of dedicated volunteers and help make a real difference in our community.</p>
+                        <a href="volunteer.html" class="button">View Opportunities</a>
                     </div>
                     <div>
-                        <h3>Regular Events</h3>
-                        <p>From social meetups to support groups, we create spaces for connection throughout the year.</p>
-                        <a href="events.html" class="button">See Calendar</a>
+                        <h3>Attend Events</h3>
+                        <p>Come to our events, meet new people, and be part of our vibrant community.</p>
+                        <a href="events.html" class="button">See Events</a>
                     </div>
                     <div>
-                        <h3>Community Support</h3>
-                        <p>We provide resources, information, and connections to support our local LGBTQIA+ community.</p>
-                        <a href="get-involved.html" class="button">Get Support</a>
+                        <h3>Stay Connected</h3>
+                        <p>Follow us on social media and stay updated on all our news and activities.</p>
+                        <a href="contact.html" class="button">Contact Us</a>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Get Involved CTA -->
-        <section class="cta-section" style="background: var(--gray);">
-            <div class="container">
-                <h2>Be Part of Our Story</h2>
-                <p class="text-center mb-lg">Whether you're LGBTQIA+, an ally, or just want to support your local community, there are many ways to get involved with CT5 Pride.</p>
-                <div class="text-center">
-                    <a href="get-involved.html" class="button">Get Involved</a>
                 </div>
             </div>
         </section>
     </main>
+
+    <!-- Accessibility Panel -->
+    <div class="accessibility-panel">
+        <button class="accessibility-toggle" aria-label="Open accessibility options" aria-expanded="false">
+            ♿
+        </button>
+        <div class="accessibility-menu" role="dialog" aria-labelledby="accessibility-heading">
+            <h3 id="accessibility-heading">Accessibility Options</h3>
+            
+            <div class="accessibility-option">
+                <label for="high-contrast-toggle">High Contrast Mode</label>
+                <div class="accessibility-toggle-switch" id="high-contrast-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="high-contrast-toggle">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label for="dyslexia-toggle">Dyslexia-Friendly Font</label>
+                <div class="accessibility-toggle-switch" id="dyslexia-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="dyslexia-toggle">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label for="reduce-motion-toggle">Reduce Motion</label>
+                <div class="accessibility-toggle-switch" id="reduce-motion-toggle" role="switch" aria-checked="false" tabindex="0" aria-labelledby="reduce-motion-toggle">
+                </div>
+            </div>
+            
+            <div class="accessibility-option">
+                <label>Text Size</label>
+                <div class="text-size-controls">
+                    <button class="text-size-btn" data-size="small" aria-label="Small text">A</button>
+                    <button class="text-size-btn active" data-size="normal" aria-label="Normal text">A</button>
+                    <button class="text-size-btn" data-size="large" aria-label="Large text">A</button>
+                    <button class="text-size-btn" data-size="extra-large" aria-label="Extra large text">A</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="container">
             <div class="footer-content">
                 <p>CT5 Pride CIC | Community Interest Company No. [placeholder]</p>
                 <p>Email: <a href="mailto:hello@ct5pride.org.uk">hello@ct5pride.org.uk</a></p>
+                
+                <!-- Pride Flag Icons -->
+                <div class="pride-flags">
+                    <div class="pride-flag-icon rainbow-flag" title="Pride Flag" role="img" aria-label="Rainbow Pride Flag" tabindex="0"></div>
+                    <div class="pride-flag-icon trans-flag" title="Transgender Pride Flag" role="img" aria-label="Transgender Pride Flag" tabindex="0"></div>
+                    <div class="pride-flag-icon nonbinary-flag" title="Non-Binary Pride Flag" role="img" aria-label="Non-Binary Pride Flag" tabindex="0"></div>
+                </div>
+                
                 <div class="social-links">
                     <a href="#" aria-label="Follow us on Instagram">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
