@@ -33,6 +33,11 @@
         button:hover {
             background: #7C4DFF;
         }
+        .debug {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -40,26 +45,69 @@
         <h1>CT5 Pride Admin Access</h1>
         <p>Create your admin account to access the content management system.</p>
         
-        <button onclick="netlifyIdentity.open('signup')">Sign Up</button>
-        <button onclick="netlifyIdentity.open('login')">Log In</button>
+        <button onclick="openSignup()">Sign Up</button>
+        <button onclick="openLogin()">Log In</button>
         
         <p><a href="/admin/">Go to Admin Panel</a></p>
+        
+        <div class="debug" id="debug">
+            Loading Netlify Identity...
+        </div>
     </div>
 
     <script>
-        if (window.netlifyIdentity) {
-            window.netlifyIdentity.on("init", user => {
-                if (!user) {
-                    console.log("Ready for signup/login");
-                } else {
-                    window.location.href = "/admin/";
-                }
-            });
-            
-            window.netlifyIdentity.on("login", user => {
-                window.location.href = "/admin/";
-            });
+        function openSignup() {
+            console.log('Signup button clicked');
+            if (window.netlifyIdentity) {
+                window.netlifyIdentity.open('signup');
+            } else {
+                alert('Netlify Identity not loaded. Please refresh the page.');
+            }
         }
+        
+        function openLogin() {
+            console.log('Login button clicked');
+            if (window.netlifyIdentity) {
+                window.netlifyIdentity.open('login');
+            } else {
+                alert('Netlify Identity not loaded. Please refresh the page.');
+            }
+        }
+
+        // Check if Netlify Identity is loaded
+        function checkIdentity() {
+            const debug = document.getElementById('debug');
+            if (window.netlifyIdentity) {
+                debug.innerHTML = 'Netlify Identity loaded successfully!';
+                
+                window.netlifyIdentity.on("init", user => {
+                    if (user) {
+                        debug.innerHTML += '<br>User already logged in, redirecting to admin...';
+                        window.location.href = "/admin/";
+                    } else {
+                        debug.innerHTML += '<br>Ready for signup/login';
+                    }
+                });
+                
+                window.netlifyIdentity.on("login", user => {
+                    debug.innerHTML += '<br>Login successful, redirecting...';
+                    window.location.href = "/admin/";
+                });
+                
+                window.netlifyIdentity.on("signup", user => {
+                    debug.innerHTML += '<br>Signup successful!';
+                });
+                
+            } else {
+                debug.innerHTML = 'Netlify Identity failed to load. Please check your internet connection and refresh.';
+                setTimeout(checkIdentity, 1000); // Keep checking
+            }
+        }
+
+        // Start checking when page loads
+        window.addEventListener('load', () => {
+            setTimeout(checkIdentity, 1000); // Give it a second to load
+        });
     </script>
 </body>
 </html> 
