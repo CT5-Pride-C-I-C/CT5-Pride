@@ -6,6 +6,7 @@
     <title>CT5 Pride - Content Management</title>
     <!-- Include Auth0 SDK -->
     <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <style>
       /* Custom styles for the admin interface */
       :root {
@@ -55,78 +56,104 @@
     <div class="loading-message">
       <h2>CT5 Pride Admin Panel</h2>
       <p>Please log in to access the content management system.</p>
-      <button id="login" class="login-button" style="display: none;">Log In</button>
+      <button id="login" class="login-button">Log In with Auth0</button>
     </div>
 
-    <!-- Include the Netlify CMS -->
-    <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
     <script>
-      // Add preview styles
-      CMS.registerPreviewStyle("/css/style.css");
-      
       // Initialize Auth0
-      let auth0 = null;
-      const configureClient = async () => {
-        auth0 = await createAuth0Client({
-          domain: "dev-4t26fj1ccsqqr50h.us.auth0.com",
-          client_id: "S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG",
-          redirect_uri: window.location.origin + "/admin/"
-        });
-
-        // Update UI
-        updateUI();
-
-        // Handle redirect
-        const query = window.location.search;
-        if (query.includes("code=") && query.includes("state=")) {
-          await auth0.handleRedirectCallback();
-          updateUI();
-          // Replace URL without query parameters
-          window.history.replaceState({}, document.title, "/admin/");
-        }
-      };
-
-      // Update UI based on auth state
-      const updateUI = async () => {
-        const isAuthenticated = await auth0.isAuthenticated();
-        const loginButton = document.getElementById("login");
-
-        if (isAuthenticated) {
-          // User is authenticated, initialize CMS
-          const token = await auth0.getTokenSilently();
-          window.localStorage.setItem('netlify-cms-auth', token);
-          window.location.reload();
-        } else {
-          // Show login button
-          loginButton.style.display = "block";
-          loginButton.onclick = () => auth0.loginWithRedirect();
-        }
-      };
-
-      // Initialize Auth0 when the page loads
-      window.onload = configureClient;
-
-      // Configure Netlify CMS to use Auth0
-      window.CMS_MANUAL_INIT = true;
-      CMS.init({
-        config: {
-          backend: {
-            name: 'github',
-            repo: 'CT5-Pride-C-I-C/CT5-Pride',
-            branch: 'main',
-            auth_type: 'pkce',
-            base_url: 'https://api.netlify.com',
-            auth_endpoint: 'auth',
-            app_id: '',  // Will be provided by Auth0
-            auth_scope: 'repo'
-          },
-          media_folder: "images/uploads",
-          public_folder: "/images/uploads",
-          collections: [
-            // Collections will be loaded from config.yml
-          ]
-        }
+      const auth0 = new auth0.createAuth0Client({
+        domain: 'dev-4t26fj1ccsqqr50h.us.auth0.com',
+        client_id: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
+        redirect_uri: window.location.origin + '/admin/',
+        cacheLocation: 'localstorage'
       });
+
+      // Handle the authentication flow
+      async function initAuth() {
+        try {
+          // Check for callback
+          if (window.location.search.includes('code=')) {
+            await auth0.handleRedirectCallback();
+            window.history.replaceState({}, document.title, '/admin/');
+          }
+
+          const isAuthenticated = await auth0.isAuthenticated();
+          const loginButton = document.getElementById('login');
+
+          if (isAuthenticated) {
+            const token = await auth0.getTokenSilently();
+            // Initialize CMS with Auth0 token
+            window.CMS.init({
+              config: {
+                backend: {
+                  name: 'github',
+                  repo: 'CT5-Pride-C-I-C/CT5-Pride',
+                  branch: 'main',
+                  auth_type: 'implicit',
+                  auth_endpoint: 'auth',
+                  app_id: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
+                  auth_token: token
+                },
+                load_config_file: false,
+                media_folder: 'images/uploads',
+                public_folder: '/images/uploads',
+                collections: [
+                  {
+                    name: 'volunteer_roles',
+                    label: 'Volunteer Roles',
+                    folder: 'data/roles',
+                    create: true,
+                    slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+                    fields: [
+                      { label: 'Title', name: 'title', widget: 'string' },
+                      { label: 'Summary', name: 'summary', widget: 'text' },
+                      { label: 'Job Description', name: 'job_description', widget: 'markdown' },
+                      { label: 'Essential Criteria', name: 'essential_criteria', widget: 'list' },
+                      { label: 'Desirable Criteria', name: 'desirable_criteria', widget: 'list' },
+                      {
+                        label: 'Department',
+                        name: 'department',
+                        widget: 'select',
+                        options: ['Outreach', 'Production', 'Marketing', 'Operations', 'Admin']
+                      },
+                      { label: 'Application Deadline', name: 'application_deadline', widget: 'datetime' },
+                      {
+                        label: 'Status',
+                        name: 'status',
+                        widget: 'select',
+                        options: ['Open', 'Closed', 'Paused']
+                      }
+                    ]
+                  },
+                  {
+                    name: 'applications',
+                    label: 'Applications',
+                    folder: 'data/applications',
+                    create: true,
+                    slug: '{{year}}{{month}}{{day}}-{{hour}}{{minute}}-{{slug}}',
+                    fields: [
+                      { label: 'Full Name', name: 'full_name', widget: 'string' },
+                      { label: 'Email', name: 'email', widget: 'string' },
+                      { label: 'Cover Letter', name: 'cover_letter', widget: 'text' },
+                      { label: 'CV Upload', name: 'cv_upload', widget: 'file' },
+                      { label: 'Submission Date', name: 'submission_date', widget: 'datetime' }
+                    ]
+                  }
+                ]
+              }
+            });
+            loginButton.style.display = 'none';
+          } else {
+            loginButton.onclick = () => auth0.loginWithRedirect();
+            loginButton.style.display = 'block';
+          }
+        } catch (error) {
+          console.error('Error during authentication:', error);
+        }
+      }
+
+      // Initialize when the page loads
+      window.addEventListener('load', initAuth);
     </script>
   </body>
 </html> 
