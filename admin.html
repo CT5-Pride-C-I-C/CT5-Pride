@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | CT5 Pride</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="notification-toast" style="display: none;">
+        <span id="notificationMessage"></span>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="admin-login-screen">
+        <div class="admin-login-container">
+            <img src="images/Logo-with-Transparent-background.svg" alt="CT5 Pride logo" class="admin-logo" width="200" height="auto">
+            <h1>CT5 Pride Admin</h1>
+            <form id="loginForm" class="admin-login-form">
+                <div class="form-group">
+                    <label for="password">Admin Password</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="button">Login</button>
+                <p id="loginError" class="error-message" style="display: none;">Incorrect password. Please try again.</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Interface -->
+    <div id="adminInterface" class="admin-interface" style="display: none;">
+        <header class="site-header">
+            <div class="container">
+                <div class="header-content">
+                    <a href="index.html" class="logo-link">
+                        <img src="images/Logo-with-Transparent-background.svg" alt="CT5 Pride logo" class="site-logo" width="auto" height="70">
+                    </a>
+                    <h1>Role Management</h1>
+                    <button id="logoutButton" class="button secondary">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container admin-main">
+            <div class="admin-instructions">
+                <p>Use this secure admin panel to manage CT5 Pride volunteer roles. Changes are saved automatically to your browser's storage. When ready, export the roles file.</p>
+            </div>
+
+            <!-- Role Management Controls -->
+            <section class="admin-section role-controls">
+                <div class="role-filters">
+                    <select id="filterCategory" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="Year-Round">Year-Round</option>
+                        <option value="Event-Based">Event-Based</option>
+                    </select>
+                    <select id="filterStatus" class="filter-select">
+                        <option value="">All Statuses</option>
+                        <option value="open">Open</option>
+                        <option value="closed">Closed</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                    <button id="addNewButton" class="button">+ Add New Role</button>
+                </div>
+            </section>
+
+            <!-- Add/Edit Role Form -->
+            <section id="roleFormSection" class="admin-section" style="display: none;">
+                <h2 id="formTitle">Add New Role</h2>
+                <form id="roleForm" class="admin-form">
+                    <input type="hidden" id="roleIndex" value="">
+                    <div class="form-group">
+                        <label for="roleTitle">Role Title *</label>
+                        <input type="text" id="roleTitle" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="roleSummary">Summary *</label>
+                        <textarea id="roleSummary" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="roleCategory">Category *</label>
+                        <select id="roleCategory" required>
+                            <option value="Year-Round">Year-Round</option>
+                            <option value="Event-Based">Event-Based</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="roleStatus">Status *</label>
+                        <select id="roleStatus" required>
+                            <option value="open">Open</option>
+                            <option value="closed">Closed</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="roleApplyLink">Apply Link</label>
+                        <input type="url" id="roleApplyLink" placeholder="https://...">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="button">Save Role</button>
+                        <button type="button" id="cancelEdit" class="button secondary">Cancel</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Existing Roles -->
+            <section class="admin-section">
+                <h2>Existing Roles</h2>
+                <div id="rolesList" class="roles-list">
+                    <!-- Roles will be populated here -->
+                </div>
+            </section>
+
+            <!-- Export Section -->
+            <section class="admin-section">
+                <h2>Save Changes</h2>
+                <p>Click below to download the updated roles.json file:</p>
+                <button id="exportButton" class="button">Download roles.json</button>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html> 

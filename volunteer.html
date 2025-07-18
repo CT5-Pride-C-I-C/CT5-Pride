@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer with CT5 Pride | LGBTQIA+ Community in Whitstable</title>
+    <meta name="description" content="Join our team of volunteers at CT5 Pride and help support the LGBTQIA+ community in Whitstable and surrounding areas.">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Load Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">CT5 Pride</a>
+                <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="team.html">Team</a></li>
+                        <li><a href="events.html">Events</a></li>
+                        <li><a href="get-involved.html">Get Involved</a></li>
+                        <li><a href="volunteer.html">Volunteer</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <h1>Volunteer with CT5 Pride</h1>
+                <p>Join our passionate team of volunteers and help create positive change in our community. Whether you're looking to gain experience, meet new people, or give back to the LGBTQIA+ community, we'd love to have you on board.</p>
+            </div>
+        </section>
+
+        <!-- Why Volunteer Section -->
+        <section class="cta-section">
+            <div class="container">
+                <h2>Why Volunteer with Us?</h2>
+                <div class="cta-grid">
+                    <div>
+                        <h3>Make a Difference</h3>
+                        <p>Your time and skills can help create a more inclusive and supportive community for LGBTQIA+ people in the CT5 area.</p>
+                    </div>
+                    <div>
+                        <h3>Build Skills</h3>
+                        <p>Gain valuable experience in event planning, community organizing, leadership, and more while working with a supportive team.</p>
+                    </div>
+                    <div>
+                        <h3>Meet People</h3>
+                        <p>Connect with like-minded individuals who share your passion for creating positive change in our community.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Role Board Section -->
+        <section class="cta-section" style="background: var(--gray);">
+            <div class="container">
+                <h2>Current Opportunities</h2>
+                <p class="text-center mb-lg">Browse our current volunteer opportunities and find a role that matches your interests and availability.</p>
+                
+                <!-- Role board will be populated by JavaScript -->
+                <div class="role-board">
+                    <div class="text-center">
+                        <p>Loading volunteer opportunities...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Support Section -->
+        <section class="cta-section">
+            <div class="container">
+                <h2>Supporting Our Volunteers</h2>
+                <p class="text-center mb-lg">We're committed to making volunteering with CT5 Pride a rewarding experience. Here's what you can expect:</p>
+                <div class="cta-grid">
+                    <div>
+                        <h3>Training & Support</h3>
+                        <p>Full induction and ongoing support from experienced team members to help you succeed in your role.</p>
+                    </div>
+                    <div>
+                        <h3>Flexible Commitment</h3>
+                        <p>Choose from one-off events or regular roles that fit around your schedule and other commitments.</p>
+                    </div>
+                    <div>
+                        <h3>Inclusive Environment</h3>
+                        <p>A welcoming space where everyone is valued, respected, and supported to be themselves.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Application Form Modal -->
+    <div id="applicationModal" class="modal">
+        <div class="modal-content">
+            <button type="button" class="modal-close" aria-label="Close application form">&times;</button>
+            <h2>Apply for: <span id="roleTitle"></span></h2>
+            
+            <form id="applicationForm" novalidate>
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number (optional)</label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+
+                <div class="form-group">
+                    <label for="cv">Upload CV *</label>
+                    <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required>
+                    <small>Accepted formats: PDF, DOC, DOCX</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="motivation">Tell us why you want to volunteer for CT5 Pride *</label>
+                    <textarea id="motivation" name="motivation" rows="5" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="agreement" name="agreement" required>
+                        I agree to become a member of CT5 Pride CIC as a volunteer, and support the aims of the organisation *
+                    </label>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" class="button">Submit Application</button>
+                    <button type="button" class="button secondary modal-cancel">Cancel</button>
+                </div>
+            </form>
+
+            <!-- Success Message (hidden by default) -->
+            <div id="successMessage" class="success-message" style="display: none;">
+                <h3>Thank you for your application!</h3>
+                <p>We'll be in touch soon about the next steps.</p>
+                <button type="button" class="button modal-close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>CT5 Pride CIC | Community Interest Company No. [placeholder]</p>
+                <p>Email: <a href="mailto:hello@ct5pride.org.uk">hello@ct5pride.org.uk</a></p>
+                <div class="social-links">
+                    <a href="#" aria-label="Follow us on Instagram">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+                    <a href="#" aria-label="Follow us on Facebook">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html> 
