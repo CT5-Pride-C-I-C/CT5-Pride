@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CT5 Pride - Content Management</title>
-    <!-- Include Auth0 SDK -->
-    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
+    <!-- Include Netlify Identity Widget -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <style>
       /* Custom styles for the admin interface */
@@ -28,42 +28,10 @@
         }
       }
 
-      /* Loading message styles */
       .loading-message {
         text-align: center;
         padding: 2rem;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      }
-
-      /* Login button styles */
-      .login-button {
-        background: var(--primary-color);
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 4px;
-        font-size: 16px;
-        cursor: pointer;
-        margin-top: 20px;
-      }
-
-      .login-button:hover {
-        background: var(--secondary-color);
-      }
-
-      .error-message {
-        color: red;
-        margin-top: 1rem;
-      }
-
-      .debug-info {
-        margin-top: 2rem;
-        padding: 1rem;
-        background: #f5f5f5;
-        border-radius: 4px;
-        text-align: left;
-        font-family: monospace;
-        display: none;
       }
     </style>
   </head>
@@ -71,112 +39,72 @@
     <div class="loading-message">
       <h2>CT5 Pride Admin Panel</h2>
       <p>Please log in to access the content management system.</p>
-      <button id="login" class="login-button">Log In with Auth0</button>
-      <div id="error" class="error-message"></div>
-      <div id="debug" class="debug-info"></div>
     </div>
 
     <script>
-      const debugEl = document.getElementById('debug');
-      const errorEl = document.getElementById('error');
-      const loginButton = document.getElementById('login');
-
-      function showError(message) {
-        errorEl.textContent = message;
-        console.error(message);
-      }
-
-      function showDebug(message) {
-        debugEl.style.display = 'block';
-        debugEl.innerHTML += message + '<br>';
-        console.log(message);
-      }
-
-      // Initialize Auth0
-      async function initializeAuth0() {
-        try {
-          showDebug('Initializing Auth0...');
-          
-          const auth0Client = await auth0.createAuth0Client({
-            domain: 'dev-4t26fj1ccsqqr50h.us.auth0.com',
-            clientId: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
-            authorizationParams: {
-              redirect_uri: window.location.origin + '/admin/',
-              scope: 'openid profile email'
-            }
-          });
-
-          showDebug('Auth0 client initialized');
-
-          // Check for callback
-          if (window.location.search.includes('code=') || window.location.search.includes('error=')) {
-            showDebug('Handling callback...');
-            try {
-              await auth0Client.handleRedirectCallback();
-              showDebug('Callback handled successfully');
-              window.history.replaceState({}, document.title, '/admin/');
-            } catch (callbackError) {
-              showError('Error handling callback: ' + callbackError.message);
-              return;
-            }
-          }
-
-          // Check authentication status
-          const isAuthenticated = await auth0Client.isAuthenticated();
-          showDebug('Is authenticated: ' + isAuthenticated);
-
-          if (isAuthenticated) {
-            showDebug('User is authenticated, getting token...');
-            const token = await auth0Client.getTokenSilently();
-            showDebug('Token received');
-
-            // Initialize CMS
-            window.CMS.init({
-              config: {
-                backend: {
-                  name: 'github',
-                  repo: 'CT5-Pride-C-I-C/CT5-Pride',
-                  branch: 'main',
-                  auth_type: 'oauth',
-                  base_url: window.location.origin,
-                  auth_endpoint: 'https://github.com/login/oauth/authorize',
-                  app_id: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG'
-                },
-                media_folder: 'images/uploads',
-                public_folder: '/images/uploads',
-                collections: [
-                  {
-                    name: 'volunteer_roles',
-                    label: 'Volunteer Roles',
-                    folder: 'data/roles',
-                    create: true,
-                    fields: [
-                      { label: 'Title', name: 'title', widget: 'string' },
-                      { label: 'Summary', name: 'summary', widget: 'text' },
-                      { label: 'Department', name: 'department', widget: 'select', options: ['Outreach', 'Production', 'Marketing', 'Operations', 'Admin'] },
-                      { label: 'Status', name: 'status', widget: 'select', options: ['Open', 'Closed', 'Paused'] }
-                    ]
-                  }
-                ]
-              }
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", user => {
+          if (!user) {
+            window.netlifyIdentity.on("login", () => {
+              document.location.href = "/admin/";
             });
-
-            loginButton.style.display = 'none';
-          } else {
-            showDebug('User not authenticated, showing login button');
-            loginButton.onclick = () => {
-              showDebug('Login button clicked, redirecting...');
-              auth0Client.loginWithRedirect();
-            };
-            loginButton.style.display = 'block';
           }
-        } catch (error) {
-          showError('Initialization error: ' + error.message);
-        }
+        });
       }
 
-      // Start the auth process when the page loads
-      window.addEventListener('load', initializeAuth0);
+      // Initialize the CMS
+      CMS.init({
+        config: {
+          backend: {
+            name: 'git-gateway',
+            branch: 'main'
+          },
+          media_folder: 'images/uploads',
+          public_folder: '/images/uploads',
+          collections: [
+            {
+              name: 'volunteer_roles',
+              label: 'Volunteer Roles',
+              folder: 'data/roles',
+              create: true,
+              fields: [
+                { label: 'Title', name: 'title', widget: 'string' },
+                { label: 'Summary', name: 'summary', widget: 'text' },
+                { label: 'Job Description', name: 'job_description', widget: 'markdown' },
+                { label: 'Essential Criteria', name: 'essential_criteria', widget: 'list' },
+                { label: 'Desirable Criteria', name: 'desirable_criteria', widget: 'list' },
+                {
+                  label: 'Department',
+                  name: 'department',
+                  widget: 'select',
+                  options: ['Outreach', 'Production', 'Marketing', 'Operations', 'Admin']
+                },
+                { label: 'Application Deadline', name: 'application_deadline', widget: 'datetime' },
+                {
+                  label: 'Status',
+                  name: 'status',
+                  widget: 'select',
+                  options: ['Open', 'Closed', 'Paused']
+                }
+              ]
+            },
+            {
+              name: 'applications',
+              label: 'Applications',
+              folder: 'data/applications',
+              create: true,
+              fields: [
+                { label: 'Full Name', name: 'full_name', widget: 'string' },
+                { label: 'Email', name: 'email', widget: 'string' },
+                { label: 'Cover Letter', name: 'cover_letter', widget: 'text' },
+                { label: 'CV Upload', name: 'cv_upload', widget: 'file' },
+                { label: 'Applied Role', name: 'applied_role', widget: 'string' },
+                { label: 'Submission Date', name: 'submission_date', widget: 'datetime' }
+              ]
+            }
+          ]
+        }
+      });
     </script>
   </body>
 </html> 
