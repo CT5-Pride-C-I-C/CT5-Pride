@@ -4,9 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CT5 Pride - Content Management</title>
-    <!-- Include Auth0 SDK -->
-    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js" defer></script>
-    <script src="https://unpkg.com/netlify-cms@^2.10.192/dist/netlify-cms.js" defer></script>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script src="https://unpkg.com/netlify-cms@^2.10.192/dist/netlify-cms.js"></script>
     <style>
       /* Custom styles for the admin interface */
       :root {
@@ -33,230 +32,74 @@
         padding: 2rem;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       }
-
-      .login-button {
-        background: var(--primary-color);
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 4px;
-        font-size: 16px;
-        cursor: pointer;
-        margin-top: 20px;
-      }
-
-      .login-button:hover {
-        background: var(--secondary-color);
-      }
-
-      .debug-log {
-        margin-top: 20px;
-        padding: 10px;
-        background: #f5f5f5;
-        border-radius: 4px;
-        text-align: left;
-        font-family: monospace;
-        font-size: 12px;
-        max-height: 200px;
-        overflow-y: auto;
-      }
     </style>
   </head>
   <body>
-    <div class="loading-message">
-      <h2>CT5 Pride Admin Panel</h2>
-      <p>Please log in to access the content management system.</p>
-      <button id="login" class="login-button">Log In with Auth0</button>
-      <div id="debug" class="debug-log"></div>
-    </div>
-
     <script>
-      // Debug logging function
-      function log(message) {
-        console.log(message);
-        const debugEl = document.getElementById('debug');
-        const time = new Date().toLocaleTimeString();
-        debugEl.innerHTML += `[${time}] ${message}<br>`;
-        debugEl.scrollTop = debugEl.scrollHeight;
-      }
-
-      // Initialize Auth0
-      let auth0Client = null;
-
-      async function setupAuth0() {
-        try {
-          log('Creating Auth0 client...');
-          log('Waiting for Auth0 SDK to load...');
-          
-          // Wait for Auth0 SDK to load
-          while (!window.auth0) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-          }
-          
-          log('Auth0 SDK loaded');
-          
-          auth0Client = await window.auth0.createAuth0Client({
-            domain: 'dev-4t26fj1ccsqqr50h.us.auth0.com',
-            clientId: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
-            authorizationParams: {
-              redirect_uri: window.location.origin + '/admin/'
-            }
-          });
-          log('Auth0 client created successfully');
-          return auth0Client;
-        } catch (e) {
-          log('Error creating Auth0 client: ' + e.message);
-          throw e;
-        }
-      }
-
-      // Handle authentication flow
-      async function initAuth() {
-        try {
-          log('Initializing authentication...');
-          
-          if (!auth0Client) {
-            await setupAuth0();
-          }
-
-          // Check for callback
-          if (window.location.search.includes('code=')) {
-            log('Processing authentication callback...');
-            await auth0Client.handleRedirectCallback();
-            window.history.replaceState({}, document.title, '/admin/');
-            log('Callback processed successfully');
-          }
-
-          const isAuthenticated = await auth0Client.isAuthenticated();
-          log('Authentication status: ' + (isAuthenticated ? 'Authenticated' : 'Not authenticated'));
-
-          const loginButton = document.getElementById('login');
-
-          if (isAuthenticated) {
-            log('Getting access token...');
-            const token = await auth0Client.getTokenSilently();
-            log('Token received');
-
-            const user = await auth0Client.getUser();
-            log('User info received: ' + user.email);
-
-            // Initialize CMS
-            log('Initializing CMS...');
-            window.CMS.init({
-              config: {
-                load_config_file: false,
-                backend: {
-                  name: 'github',
-                  repo: 'CT5-Pride-C-I-C/CT5-Pride',
-                  branch: 'main',
-                  base_url: 'https://api.github.com',
-                  auth_endpoint: 'auth',
-                  app_id: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
-                  auth_type: 'pkce'
+      // Configure the CMS
+      window.CMS.init({
+        config: {
+          backend: {
+            name: 'github',
+            repo: 'CT5-Pride-C-I-C/CT5-Pride',
+            branch: 'main',
+            base_url: 'https://api.github.com',
+            auth_endpoint: 'oauth/authorize',
+            client_id: 'Ov23liR1E7aA7OU548q1',
+            auth_type: 'implicit'
+          },
+          media_folder: 'images/uploads',
+          public_folder: '/images/uploads',
+          display_url: 'https://ct5pride.co.uk',
+          site_url: 'https://ct5pride.co.uk',
+          logo_url: '/images/Logo-with-Transparent-background.svg',
+          show_preview_links: true,
+          collections: [
+            {
+              name: 'roles',
+              label: 'Volunteer Roles',
+              folder: 'data/roles',
+              create: true,
+              slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+              summary: '{{title}} - {{department}} ({{status}})',
+              fields: [
+                { label: 'Title', name: 'title', widget: 'string' },
+                { label: 'Summary', name: 'summary', widget: 'text' },
+                { label: 'Job Description', name: 'job_description', widget: 'markdown' },
+                { label: 'Essential Criteria', name: 'essential_criteria', widget: 'list' },
+                { label: 'Desirable Criteria', name: 'desirable_criteria', widget: 'list' },
+                {
+                  label: 'Department',
+                  name: 'department',
+                  widget: 'select',
+                  options: ['Outreach', 'Production', 'Marketing', 'Operations', 'Admin']
                 },
-                local_backend: true,
-                publish_mode: 'editorial_workflow',
-                media_folder: 'images/uploads',
-                public_folder: '/images/uploads',
-                display_url: 'https://ct5pride.co.uk',
-                site_url: 'https://ct5pride.co.uk',
-                logo_url: '/images/Logo-with-Transparent-background.svg',
-                show_preview_links: true,
-                collections: [
-                  {
-                    name: 'roles',
-                    label: 'Volunteer Roles',
-                    folder: 'data/roles',
-                    create: true,
-                    slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
-                    summary: '{{title}} - {{department}} ({{status}})',
-                    fields: [
-                      { label: 'Title', name: 'title', widget: 'string' },
-                      { label: 'Summary', name: 'summary', widget: 'text' },
-                      { label: 'Job Description', name: 'job_description', widget: 'markdown' },
-                      { label: 'Essential Criteria', name: 'essential_criteria', widget: 'list' },
-                      { label: 'Desirable Criteria', name: 'desirable_criteria', widget: 'list' },
-                      {
-                        label: 'Department',
-                        name: 'department',
-                        widget: 'select',
-                        options: ['Outreach', 'Production', 'Marketing', 'Operations', 'Admin']
-                      },
-                      { label: 'Application Deadline', name: 'application_deadline', widget: 'datetime' },
-                      {
-                        label: 'Status',
-                        name: 'status',
-                        widget: 'select',
-                        options: ['Open', 'Closed', 'Paused']
-                      }
-                    ]
-                  },
-                  {
-                    name: 'submissions',
-                    label: 'Applications',
-                    folder: 'data/applications',
-                    create: true,
-                    slug: '{{year}}{{month}}{{day}}-{{hour}}{{minute}}-{{slug}}',
-                    fields: [
-                      { label: 'Full Name', name: 'full_name', widget: 'string' },
-                      { label: 'Email', name: 'email', widget: 'string' },
-                      { label: 'Cover Letter', name: 'cover_letter', widget: 'text' },
-                      { label: 'CV Upload', name: 'cv_upload', widget: 'file' },
-                      { label: 'Applied Role', name: 'applied_role', widget: 'string' },
-                      { label: 'Submission Date', name: 'submission_date', widget: 'datetime' }
-                    ]
-                  }
-                ]
-              }
-            });
-            log('CMS initialized');
-
-            loginButton.style.display = 'none';
-          } else {
-            loginButton.onclick = async () => {
-              log('Login button clicked');
-              try {
-                await auth0Client.loginWithRedirect();
-                log('Redirecting to Auth0...');
-              } catch (e) {
-                log('Error during login: ' + e.message);
-              }
-            };
-            loginButton.style.display = 'block';
-          }
-        } catch (error) {
-          log('Error during initialization: ' + error.message);
-          document.querySelector('.loading-message').innerHTML += `
-            <p style="color: red; margin-top: 1rem;">Error: ${error.message}</p>
-          `;
+                { label: 'Application Deadline', name: 'application_deadline', widget: 'datetime' },
+                {
+                  label: 'Status',
+                  name: 'status',
+                  widget: 'select',
+                  options: ['Open', 'Closed', 'Paused']
+                }
+              ]
+            },
+            {
+              name: 'submissions',
+              label: 'Applications',
+              folder: 'data/applications',
+              create: true,
+              slug: '{{year}}{{month}}{{day}}-{{hour}}{{minute}}-{{slug}}',
+              fields: [
+                { label: 'Full Name', name: 'full_name', widget: 'string' },
+                { label: 'Email', name: 'email', widget: 'string' },
+                { label: 'Cover Letter', name: 'cover_letter', widget: 'text' },
+                { label: 'CV Upload', name: 'cv_upload', widget: 'file' },
+                { label: 'Applied Role', name: 'applied_role', widget: 'string' },
+                { label: 'Submission Date', name: 'submission_date', widget: 'datetime' }
+              ]
+            }
+          ]
         }
-      }
-
-      // Check if CMS is loaded
-      function checkCMS() {
-        log('Checking for CMS...');
-        log('window.CMS exists: ' + (!!window.CMS));
-        if (window.CMS) {
-          log('CMS object properties: ' + Object.keys(window.CMS).join(', '));
-        }
-        return window.CMS && typeof window.CMS.init === 'function';
-      }
-
-      // Initialize when both Auth0 and CMS are ready
-      function init() {
-        if (checkCMS()) {
-          log('CMS loaded, starting initialization...');
-          initAuth().catch(e => log('Error in init: ' + e.message));
-        } else {
-          log('Waiting for CMS to load...');
-          setTimeout(init, 1000);
-        }
-      }
-
-      // Start initialization when the page loads
-      window.addEventListener('load', () => {
-        log('Page loaded, starting init...');
-        init();
       });
     </script>
   </body>
