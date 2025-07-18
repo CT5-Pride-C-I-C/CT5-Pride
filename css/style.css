@@ -541,6 +541,171 @@ nav a:focus {
     }
 }
 
+/* Enhanced Hero Section with Pride Elements */
+.hero {
+  background: linear-gradient(135deg, var(--background) 0%, var(--gray) 100%);
+  padding: var(--spacing-xxl) 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--rainbow-gradient);
+}
+
+.hero-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxl);
+  position: relative;
+  z-index: 1;
+}
+
+.hero-content {
+  flex: 1;
+  max-width: 600px;
+  text-align: left;
+}
+
+.hero-content h1 {
+  font-size: 3.5rem;
+  line-height: 1.2;
+  margin-bottom: var(--spacing-lg);
+  font-weight: 700;
+  color: var(--text);
+  position: relative;
+}
+
+.hero-content p {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin-bottom: var(--spacing-xl);
+  color: var(--text-light);
+}
+
+.hero-image {
+  flex: 1;
+  max-width: 600px;
+  position: relative;
+}
+
+.hero-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  transition: var(--transition);
+}
+
+.hero-image img:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+}
+
+.hero-button {
+  font-size: 1.25rem;
+  padding: var(--spacing-lg) var(--spacing-xxl);
+  background: var(--primary);
+  color: white;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  text-decoration: none;
+}
+
+.hero-button:focus {
+  outline: 3px solid var(--secondary);
+  outline-offset: 3px;
+}
+
+/* Animations for hero elements */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.hero-content {
+  animation: fadeInUp 1s ease forwards;
+}
+
+.hero-image {
+  animation: fadeInUp 1s ease forwards 0.3s;
+  opacity: 0;
+}
+
+.reduce-motion .hero-content,
+.reduce-motion .hero-image {
+  animation: none;
+  opacity: 1;
+}
+
+.reduce-motion .hero-image img:hover,
+.reduce-motion .hero-button:hover {
+  transform: none;
+}
+
+/* Responsive Design for Hero */
+@media (max-width: 768px) {
+  .hero-container {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-xl);
+  }
+  
+  .hero-content {
+    text-align: center;
+  }
+
+  .hero-content h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero-content p {
+    font-size: 1.1rem;
+  }
+
+  .hero-image {
+    margin-top: var(--spacing-lg);
+  }
+
+  .hero-image img {
+    max-width: 90%;
+    margin: 0 auto;
+  }
+  
+  .hero-button {
+    font-size: 1.1rem;
+    padding: var(--spacing-md) var(--spacing-xl);
+  }
+}
+
 /* Content Sections */
 section {
   padding: var(--spacing-xl) 0;
