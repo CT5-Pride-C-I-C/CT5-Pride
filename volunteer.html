@@ -100,57 +100,55 @@
         </section>
     </main>
 
-    <!-- Application Form Modal -->
-    <div id="applicationModal" class="modal">
-        <div class="modal-content">
-            <button type="button" class="modal-close" aria-label="Close application form">&times;</button>
-            <h2>Apply for: <span id="roleTitle"></span></h2>
+    <!-- Role Detail Modal -->
+    <div id="roleDetailModal" class="modal">
+        <div class="modal-content role-detail-modal">
+            <button type="button" class="modal-close" aria-label="Close role details">&times;</button>
             
-            <form id="applicationForm" novalidate>
-                <div class="form-group">
-                    <label for="fullName">Full Name *</label>
-                    <input type="text" id="fullName" name="fullName" required>
+            <!-- Role Header -->
+            <div class="role-header">
+                <div class="role-icon">
+                    <!-- SVG icon will be inserted here by JavaScript -->
                 </div>
-
-                <div class="form-group">
-                    <label for="email">Email Address *</label>
-                    <input type="email" id="email" name="email" required>
+                <div class="role-title-section">
+                    <h2 id="roleDetailTitle">Role Title</h2>
+                    <span id="roleDetailDepartment" class="role-department">Department</span>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="phone">Phone Number (optional)</label>
-                    <input type="tel" id="phone" name="phone">
+            <!-- Role Summary -->
+            <div class="role-summary">
+                <p id="roleDetailSummary">Role summary will appear here...</p>
+            </div>
+
+            <!-- Role Description -->
+            <div class="role-description">
+                <h3>About This Role</h3>
+                <div id="roleDetailDescription">
+                    <p>Detailed role description will appear here...</p>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="cv">Upload CV *</label>
-                    <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required>
-                    <small>Accepted formats: PDF, DOC, DOCX</small>
-                </div>
+            <!-- Essential Criteria -->
+            <div class="role-criteria">
+                <h3>Essential Criteria</h3>
+                <ul id="roleEssentialCriteria" class="criteria-list">
+                    <!-- Essential criteria will be populated by JavaScript -->
+                </ul>
+            </div>
 
-                <div class="form-group">
-                    <label for="motivation">Tell us why you want to volunteer for CT5 Pride *</label>
-                    <textarea id="motivation" name="motivation" rows="5" required></textarea>
-                </div>
+            <!-- Desirable Criteria -->
+            <div class="role-criteria">
+                <h3>Desirable Criteria</h3>
+                <ul id="roleDesirableCriteria" class="criteria-list">
+                    <!-- Desirable criteria will be populated by JavaScript -->
+                </ul>
+            </div>
 
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="agreement" name="agreement" required>
-                        I agree to become a member of CT5 Pride CIC as a volunteer, and support the aims of the organisation *
-                    </label>
-                </div>
-
-                <div class="form-buttons">
-                    <button type="submit" class="button">Submit Application</button>
-                    <button type="button" class="button secondary modal-cancel">Cancel</button>
-                </div>
-            </form>
-
-            <!-- Success Message (hidden by default) -->
-            <div id="successMessage" class="success-message" style="display: none;">
-                <h3>Thank you for your application!</h3>
-                <p>We'll be in touch soon about the next steps.</p>
-                <button type="button" class="button modal-close">Close</button>
+            <!-- Action Buttons -->
+            <div class="role-actions">
+                <a href="apply.html" class="button primary">Apply for This Role</a>
+                <button class="button secondary modal-close">Close</button>
             </div>
         </div>
     </div>

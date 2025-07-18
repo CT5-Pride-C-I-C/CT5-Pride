@@ -54,108 +54,248 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Volunteer Role Board - Embedded Data
+// Enhanced Volunteer Role Data with Full Job Descriptions
 const rolesData = [
     {
+        "id": "parade-coordinator",
         "title": "Parade Coordinator",
         "category": "Year-Round",
+        "department": "Events",
         "status": "open",
         "summary": "Help plan and coordinate our annual pride parade. Looking for someone with event planning experience and great organizational skills.",
-        "applyLink": "#apply"
+        "description": `
+            <p>As our Parade Coordinator, you'll play a vital role in organizing CT5 Pride's flagship annual event. This is a hands-on role that involves working with local authorities, coordinating with participants, and ensuring our parade is both spectacular and safe.</p>
+            
+            <p>You'll be responsible for liaison with Canterbury City Council, Kent Police, and other stakeholders to secure necessary permits and ensure compliance with safety regulations. You'll also coordinate with local LGBTQIA+ groups, allies, and supporters to encourage participation.</p>
+            
+            <p>This role offers the opportunity to make a significant impact on our community's most visible celebration of LGBTQIA+ pride and visibility.</p>
+        `,
+        "essentialCriteria": [
+            "Previous event planning or coordination experience",
+            "Strong organizational and project management skills",
+            "Excellent communication and liaison abilities",
+            "Ability to work under pressure and meet deadlines",
+            "Commitment to LGBTQIA+ rights and inclusion",
+            "Available for weekend and evening work during peak periods"
+        ],
+        "desirableCriteria": [
+            "Experience with street events or parades",
+            "Knowledge of local council processes and regulations",
+            "Experience working with emergency services",
+            "Event management qualifications",
+            "Connections within the local LGBTQIA+ community"
+        ],
+        "icon": "parade"
     },
     {
+        "id": "social-media-manager",
         "title": "Social Media Manager",
         "category": "Year-Round",
+        "department": "Marketing",
         "status": "open",
-        "summary": "Create engaging content and manage our social media presence across Instagram and Facebook.",
-        "applyLink": "#apply"
+        "summary": "Create engaging content and manage our social media presence across Instagram and Facebook to build our community online.",
+        "description": `
+            <p>Join our team as Social Media Manager and help amplify CT5 Pride's voice across digital platforms. You'll be responsible for creating engaging, authentic content that celebrates our community and promotes our events and initiatives.</p>
+            
+            <p>Working closely with our Communications team, you'll develop and implement our social media strategy, ensuring consistent messaging that reflects our values of inclusion, celebration, and community support.</p>
+            
+            <p>This role offers creative freedom to showcase the vibrancy of our community while building meaningful connections with LGBTQIA+ individuals and allies across the CT5 area.</p>
+        `,
+        "essentialCriteria": [
+            "Experience managing social media for organizations or brands",
+            "Strong writing skills and visual content creation abilities",
+            "Understanding of social media best practices and analytics",
+            "Commitment to LGBTQIA+ representation and inclusion",
+            "Ability to work independently and meet deadlines",
+            "Available for 5-10 hours per week, with flexibility around events"
+        ],
+        "desirableCriteria": [
+            "Experience with Instagram, Facebook, and TikTok",
+            "Graphic design skills (Canva, Photoshop, etc.)",
+            "Photography or video editing experience",
+            "Previous work with LGBTQIA+ organizations or causes",
+            "Understanding of community engagement strategies"
+        ],
+        "icon": "social-media"
     },
     {
+        "id": "community-outreach-lead",
         "title": "Community Outreach Lead",
         "category": "Year-Round",
+        "department": "Outreach",
         "status": "closed",
-        "summary": "Build relationships with local LGBTQIA+ organizations and allies in the CT5 area.",
-        "applyLink": ""
+        "summary": "Build relationships with local LGBTQIA+ organizations and allies in the CT5 area to strengthen our community network.",
+        "description": `
+            <p>As Community Outreach Lead, you'll be the bridge between CT5 Pride and the wider LGBTQIA+ community. This role involves building meaningful partnerships with local organizations, businesses, and community groups.</p>
+            
+            <p>You'll represent CT5 Pride at community events, facilitate collaborative projects, and help identify opportunities for mutual support and advocacy within our local area.</p>
+        `,
+        "essentialCriteria": [
+            "Strong interpersonal and networking skills",
+            "Experience in community engagement or partnership building",
+            "Commitment to LGBTQIA+ advocacy and inclusion"
+        ],
+        "desirableCriteria": [
+            "Existing connections within the local LGBTQIA+ community",
+            "Experience with non-profit organizations"
+        ],
+        "icon": "outreach"
     },
     {
+        "id": "volunteer-coordinator",
         "title": "Volunteer Coordinator",
         "category": "Year-Round",
+        "department": "Operations",
         "status": "closed",
-        "summary": "Manage our amazing volunteer team and help match people with the right opportunities.",
-        "applyLink": ""
+        "summary": "Manage our amazing volunteer team and help match people with the right opportunities to maximize their impact.",
+        "description": `
+            <p>Our Volunteer Coordinator ensures that every volunteer has a meaningful and rewarding experience with CT5 Pride. You'll be responsible for recruitment, onboarding, and ongoing support of our volunteer team.</p>
+            
+            <p>This role involves matching volunteers with opportunities that suit their skills and interests, providing training and support, and maintaining regular communication to ensure engagement and satisfaction.</p>
+        `,
+        "essentialCriteria": [
+            "Experience in volunteer management or human resources",
+            "Strong organizational and people management skills",
+            "Excellent communication abilities"
+        ],
+        "desirableCriteria": [
+            "Experience with volunteer management systems",
+            "Background in training and development"
+        ],
+        "icon": "volunteers"
     },
     {
+        "id": "fundraising-director",
         "title": "Fundraising Director",
         "category": "Year-Round",
+        "department": "Fundraising",
         "status": "draft",
-        "summary": "Lead our fundraising efforts and develop relationships with sponsors and donors.",
-        "applyLink": ""
+        "summary": "Lead our fundraising efforts and develop relationships with sponsors and donors to support our mission.",
+        "description": `
+            <p>As Fundraising Director, you'll develop and implement comprehensive fundraising strategies to ensure CT5 Pride has the resources needed to serve our community effectively.</p>
+            
+            <p>This strategic role involves grant writing, corporate partnership development, individual donor cultivation, and event-based fundraising initiatives.</p>
+        `,
+        "essentialCriteria": [
+            "Proven experience in fundraising or development",
+            "Grant writing experience",
+            "Strong relationship building skills"
+        ],
+        "desirableCriteria": [
+            "Experience with LGBTQIA+ organizations",
+            "Corporate partnership experience"
+        ],
+        "icon": "fundraising"
     },
     {
+        "id": "youth-engagement-officer",
         "title": "Youth Engagement Officer",
         "category": "Year-Round",
+        "department": "Programs",
         "status": "draft",
-        "summary": "Create and coordinate programs specifically for LGBTQIA+ youth in our community.",
-        "applyLink": ""
+        "summary": "Create and coordinate programs specifically for LGBTQIA+ youth in our community, providing support and safe spaces.",
+        "description": `
+            <p>Our Youth Engagement Officer will develop and deliver programs specifically designed to support LGBTQIA+ young people in the CT5 area. This includes creating safe spaces, educational workshops, and social activities.</p>
+            
+            <p>Working with schools, youth services, and families, you'll help ensure that young LGBTQIA+ people in our community have access to support, resources, and positive role models.</p>
+        `,
+        "essentialCriteria": [
+            "Experience working with young people",
+            "Understanding of LGBTQIA+ youth issues",
+            "Enhanced DBS check (or willingness to obtain)",
+            "Strong safeguarding awareness"
+        ],
+        "desirableCriteria": [
+            "Youth work qualifications",
+            "Experience with LGBTQIA+ support services",
+            "Mental health first aid training"
+        ],
+        "icon": "youth"
     }
 ];
 
-// Application Form Handling
-function initializeApplicationForm() {
-    const modal = document.getElementById('applicationModal');
-    const form = document.getElementById('applicationForm');
-    const successMessage = document.getElementById('successMessage');
-    const roleTitleElement = document.getElementById('roleTitle');
+// SVG Icons for different role types
+const roleIcons = {
+    "parade": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
+    "social-media": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.92 5.01C18.72 4.42 18.16 4 17.5 4h-11c-.66 0-1.22.42-1.42 1.01L3 11v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8l-2.08-5.99zM9 16H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>`,
+    "outreach": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.84 1.84 0 0 0 18.2 7c-.8 0-1.54.5-1.85 1.26l-1.92 5.76c-.15.45.15.98.64.98.18 0 .35-.06.49-.16l2.44-1.68V22h2zm-7.5-10.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5zM5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2zm2.5 16v-7H9.5l-1.32-3.96c-.26-.79-.98-1.29-1.85-1.29C5.76 9.75 5.2 10.42 5.2 11.2c0 .27.08.53.22.74L7 16h1v6h2z"/></svg>`,
+    "volunteers": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3 6.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5zM8 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm8 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-8 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>`,
+    "fundraising": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>`,
+    "youth": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`
+};
+
+// Role Detail Modal Functions
+function initializeRoleDetailModal() {
+    const modal = document.getElementById('roleDetailModal');
 
     // Close modal function
-    function closeModal() {
+    function closeRoleDetailModal() {
         modal.style.display = 'none';
-        form.reset();
-        form.style.display = 'block';
-        successMessage.style.display = 'none';
         document.body.style.overflow = 'auto';
     }
 
     // Add close handlers
-    document.querySelectorAll('.modal-close, .modal-cancel').forEach(button => {
-        button.addEventListener('click', closeModal);
+    document.querySelectorAll('#roleDetailModal .modal-close').forEach(button => {
+        button.addEventListener('click', closeRoleDetailModal);
     });
 
     // Close on outside click
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
-            closeModal();
+            closeRoleDetailModal();
         }
     });
 
     // Close on Escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modal.style.display === 'block') {
-            closeModal();
+            closeRoleDetailModal();
         }
-    });
-
-    // Form submission
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        // Validate form
-        if (!form.checkValidity()) {
-            // Trigger browser's native validation UI
-            form.reportValidity();
-            return;
-        }
-
-        // Hide form and show success message
-        form.style.display = 'none';
-        successMessage.style.display = 'block';
-
-        // Close modal after 3 seconds
-        setTimeout(closeModal, 3000);
     });
 }
 
-// Volunteer Role Board
+function openRoleDetailModal(roleId) {
+    const role = rolesData.find(r => r.id === roleId);
+    if (!role) return;
+
+    const modal = document.getElementById('roleDetailModal');
+    
+    // Populate modal content
+    document.getElementById('roleDetailTitle').textContent = role.title;
+    document.getElementById('roleDetailDepartment').textContent = role.department;
+    document.getElementById('roleDetailSummary').textContent = role.summary;
+    document.getElementById('roleDetailDescription').innerHTML = role.description;
+
+    // Populate essential criteria
+    const essentialList = document.getElementById('roleEssentialCriteria');
+    essentialList.innerHTML = role.essentialCriteria.map(criteria => 
+        `<li>${criteria}</li>`
+    ).join('');
+
+    // Populate desirable criteria
+    const desirableList = document.getElementById('roleDesirableCriteria');
+    desirableList.innerHTML = role.desirableCriteria.map(criteria => 
+        `<li>${criteria}</li>`
+    ).join('');
+
+    // Add role icon
+    const iconContainer = modal.querySelector('.role-icon');
+    iconContainer.innerHTML = roleIcons[role.icon] || roleIcons['volunteers'];
+
+    // Update apply button state - now just shows/hides the link
+    const applyButton = modal.querySelector('.role-actions a');
+    if (role.status === 'open') {
+        applyButton.style.display = 'inline-block';
+    } else {
+        applyButton.style.display = 'none';
+    }
+
+    // Show modal
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+// Enhanced Volunteer Role Board
 function loadRoles() {
     try {
         // Check if we should show draft roles
@@ -183,12 +323,12 @@ function loadRoles() {
             if (column) roleBoard.appendChild(column);
         });
 
-        // Add click handlers for apply buttons
-        document.querySelectorAll('[data-role-title]').forEach(button => {
-            button.addEventListener('click', (e) => {
+        // Add click handlers for role cards (to show details)
+        document.querySelectorAll('[data-role-id]').forEach(card => {
+            card.addEventListener('click', (e) => {
                 e.preventDefault();
-                const roleTitle = button.getAttribute('data-role-title');
-                openApplicationModal(roleTitle);
+                const roleId = card.getAttribute('data-role-id');
+                openRoleDetailModal(roleId);
             });
         });
 
@@ -221,28 +361,34 @@ function createRoleCard(role) {
     const isOpen = role.status === 'open';
     
     return `
-        <div class="role-card ${!isOpen ? 'closed' : ''}">
-            <h4>${role.title}</h4>
+        <div class="role-card ${!isOpen ? 'closed' : ''}" data-role-id="${role.id}" style="cursor: pointer;">
+            <div class="role-card-header">
+                <div class="role-card-icon">${roleIcons[role.icon] || roleIcons['volunteers']}</div>
+                <div class="role-card-meta">
+                    <h4>${role.title}</h4>
+                    <span class="role-department">${role.department}</span>
+                </div>
+            </div>
             <p>${role.summary}</p>
-            ${isOpen ? `
-                <button class="button" data-role-title="${role.title}">Apply Now</button>
-            ` : `
-                <span class="button" style="opacity: 0.5; cursor: not-allowed;">Applications Closed</span>
-            `}
+            <div class="role-card-actions">
+                <button class="button secondary view-details" onclick="event.stopPropagation(); openRoleDetailModal('${role.id}')">View Details</button>
+                ${isOpen ? `
+                    <a href="apply.html" class="button primary" onclick="event.stopPropagation()">Apply Now</a>
+                ` : `
+                    <span class="button disabled">Applications Closed</span>
+                `}
+            </div>
         </div>
     `;
 }
 
-function openApplicationModal(roleTitle) {
-    const modal = document.getElementById('applicationModal');
-    const roleTitleElement = document.getElementById('roleTitle');
+// Initialize all functionality when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize role detail modal
+    initializeRoleDetailModal();
     
-    roleTitleElement.textContent = roleTitle;
-    modal.style.display = 'block';
-    document.body.style.overflow = 'hidden';
-}
-
-// Initialize role board if we're on the volunteer page
-if (window.location.pathname.includes('volunteer')) {
-    loadRoles();
-} 
+    // Load roles if we're on the volunteer page
+    if (window.location.pathname.includes('volunteer')) {
+        loadRoles();
+    }
+}); 
