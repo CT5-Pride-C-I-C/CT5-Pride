@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CT5 Pride - Content Management</title>
-    <!-- Include Netlify Identity Widget -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <!-- Include Auth0 SDK -->
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <style>
       /* Custom styles for the admin interface */
@@ -33,78 +33,132 @@
         padding: 2rem;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       }
+
+      .login-button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      .login-button:hover {
+        background: var(--secondary-color);
+      }
     </style>
   </head>
   <body>
     <div class="loading-message">
       <h2>CT5 Pride Admin Panel</h2>
       <p>Please log in to access the content management system.</p>
+      <button id="login" class="login-button">Log In with Auth0</button>
     </div>
 
     <script>
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on("init", user => {
-          if (!user) {
-            window.netlifyIdentity.on("login", () => {
-              document.location.href = "/admin/";
-            });
-          }
-        });
-      }
-
-      // Initialize the CMS
-      CMS.init({
-        config: {
-          backend: {
-            name: 'git-gateway',
-            branch: 'main'
-          },
-          media_folder: 'images/uploads',
-          public_folder: '/images/uploads',
-          collections: [
-            {
-              name: 'volunteer_roles',
-              label: 'Volunteer Roles',
-              folder: 'data/roles',
-              create: true,
-              fields: [
-                { label: 'Title', name: 'title', widget: 'string' },
-                { label: 'Summary', name: 'summary', widget: 'text' },
-                { label: 'Job Description', name: 'job_description', widget: 'markdown' },
-                { label: 'Essential Criteria', name: 'essential_criteria', widget: 'list' },
-                { label: 'Desirable Criteria', name: 'desirable_criteria', widget: 'list' },
-                {
-                  label: 'Department',
-                  name: 'department',
-                  widget: 'select',
-                  options: ['Outreach', 'Production', 'Marketing', 'Operations', 'Admin']
-                },
-                { label: 'Application Deadline', name: 'application_deadline', widget: 'datetime' },
-                {
-                  label: 'Status',
-                  name: 'status',
-                  widget: 'select',
-                  options: ['Open', 'Closed', 'Paused']
-                }
-              ]
-            },
-            {
-              name: 'applications',
-              label: 'Applications',
-              folder: 'data/applications',
-              create: true,
-              fields: [
-                { label: 'Full Name', name: 'full_name', widget: 'string' },
-                { label: 'Email', name: 'email', widget: 'string' },
-                { label: 'Cover Letter', name: 'cover_letter', widget: 'text' },
-                { label: 'CV Upload', name: 'cv_upload', widget: 'file' },
-                { label: 'Applied Role', name: 'applied_role', widget: 'string' },
-                { label: 'Submission Date', name: 'submission_date', widget: 'datetime' }
-              ]
-            }
-          ]
+      // Initialize Auth0
+      const auth0Promise = auth0.createAuth0Client({
+        domain: 'dev-4t26fj1ccsqqr50h.us.auth0.com',
+        clientId: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
+        authorizationParams: {
+          redirect_uri: window.location.origin + '/admin/',
+          scope: 'openid profile email'
         }
       });
+
+      // Handle authentication flow
+      async function initAuth() {
+        try {
+          const auth0Client = await auth0Promise;
+
+          // Check for callback
+          if (window.location.search.includes('code=')) {
+            await auth0Client.handleRedirectCallback();
+            window.history.replaceState({}, document.title, '/admin/');
+          }
+
+          const isAuthenticated = await auth0Client.isAuthenticated();
+          const loginButton = document.getElementById('login');
+
+          if (isAuthenticated) {
+            const token = await auth0Client.getTokenSilently();
+            const user = await auth0Client.getUser();
+
+            // Initialize CMS
+            CMS.init({
+              config: {
+                backend: {
+                  name: 'github',
+                  repo: 'CT5-Pride-C-I-C/CT5-Pride',
+                  branch: 'main',
+                  auth_type: 'github',
+                  auth_token: token,
+                  app_id: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG'
+                },
+                media_folder: 'images/uploads',
+                public_folder: '/images/uploads',
+                collections: [
+                  {
+                    name: 'volunteer_roles',
+                    label: 'Volunteer Roles',
+                    folder: 'data/roles',
+                    create: true,
+                    fields: [
+                      { label: 'Title', name: 'title', widget: 'string' },
+                      { label: 'Summary', name: 'summary', widget: 'text' },
+                      { label: 'Job Description', name: 'job_description', widget: 'markdown' },
+                      { label: 'Essential Criteria', name: 'essential_criteria', widget: 'list' },
+                      { label: 'Desirable Criteria', name: 'desirable_criteria', widget: 'list' },
+                      {
+                        label: 'Department',
+                        name: 'department',
+                        widget: 'select',
+                        options: ['Outreach', 'Production', 'Marketing', 'Operations', 'Admin']
+                      },
+                      { label: 'Application Deadline', name: 'application_deadline', widget: 'datetime' },
+                      {
+                        label: 'Status',
+                        name: 'status',
+                        widget: 'select',
+                        options: ['Open', 'Closed', 'Paused']
+                      }
+                    ]
+                  },
+                  {
+                    name: 'applications',
+                    label: 'Applications',
+                    folder: 'data/applications',
+                    create: true,
+                    fields: [
+                      { label: 'Full Name', name: 'full_name', widget: 'string' },
+                      { label: 'Email', name: 'email', widget: 'string' },
+                      { label: 'Cover Letter', name: 'cover_letter', widget: 'text' },
+                      { label: 'CV Upload', name: 'cv_upload', widget: 'file' },
+                      { label: 'Applied Role', name: 'applied_role', widget: 'string' },
+                      { label: 'Submission Date', name: 'submission_date', widget: 'datetime' }
+                    ]
+                  }
+                ]
+              }
+            });
+
+            loginButton.style.display = 'none';
+          } else {
+            loginButton.onclick = () => auth0Client.loginWithRedirect();
+            loginButton.style.display = 'block';
+          }
+        } catch (error) {
+          console.error('Error during authentication:', error);
+          document.querySelector('.loading-message').innerHTML += `
+            <p style="color: red; margin-top: 1rem;">Error: ${error.message}</p>
+          `;
+        }
+      }
+
+      // Initialize when the page loads
+      window.addEventListener('load', initAuth);
     </script>
   </body>
 </html> 
