@@ -1,9 +1,9 @@
 // Header Functionality
 document.addEventListener('DOMContentLoaded', () => {
     // Elements
-    const header = document.querySelector('.site-header');
+    const header = document.querySelector('header');
     const navToggle = document.querySelector('.nav-toggle');
-    const nav = document.querySelector('.main-nav');
+    const nav = document.querySelector('nav');
     
     // Mobile Menu Toggle
     if (navToggle && nav) {
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Close menu when clicking outside
         document.addEventListener('click', (e) => {
             if (nav.classList.contains('active') && 
-                !e.target.closest('.main-nav') && 
+                !e.target.closest('nav') && 
                 !e.target.closest('.nav-toggle')) {
                 nav.classList.remove('active');
                 navToggle.setAttribute('aria-expanded', 'false');
@@ -36,6 +36,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Mobile Dropdown Functionality
+    const dropdowns = document.querySelectorAll('.dropdown');
+    dropdowns.forEach(dropdown => {
+        const dropdownLink = dropdown.querySelector('a');
+        
+        // On mobile, make dropdown links toggle the submenu
+        dropdownLink.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                dropdown.classList.toggle('active');
+            }
+        });
+    });
 
     // Scroll Effect
     let lastScroll = 0;
