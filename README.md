@@ -1,81 +1,87 @@
 # CT5 Pride Website
 
-A static website for CT5 Pride, featuring a Netlify CMS-powered admin panel for managing volunteer roles and applications.
+A beautiful, accessible static website for CT5 Pride Community Interest Company, celebrating and supporting the LGBTQIA+ community in Whitstable and surrounding areas.
 
-## Deployment Instructions
+## Features
 
-1. **Create a GitHub Repository**
-   - Create a new repository on GitHub
-   - Push this codebase to the repository
+- **Responsive Design**: Works perfectly on desktop, tablet, and mobile devices
+- **Accessibility Features**: High contrast mode, dyslexia-friendly fonts, reduced motion, and text size controls
+- **Modern Styling**: Beautiful gradient backgrounds, pride flag elements, and vibrant design
+- **Interactive Elements**: Volunteer role browser with modal details, social media integration
+- **SEO Optimized**: Proper meta tags, semantic HTML, and performance optimizations
 
-2. **Deploy to Netlify**
-   - Go to [Netlify](https://www.netlify.com/)
-   - Click "New site from Git"
-   - Choose your GitHub repository
-   - Configure build settings:
-     - Build command: leave empty
-     - Publish directory: `/`
-   - Click "Deploy site"
+## Pages
 
-3. **Enable Netlify Identity**
-   - Go to your site settings in Netlify
-   - Navigate to "Identity"
-   - Click "Enable Identity"
-   - Under "Registration preferences", choose "Invite only"
-   - Enable "Git Gateway" in Identity > Services
-
-4. **Configure Netlify CMS**
-   - Go to Settings > Identity
-   - Scroll to "External providers" and add GitHub
-   - Under "Services > Git Gateway", click "Enable Git Gateway"
-
-5. **Invite Admin Users**
-   - Go to the Identity tab in your Netlify dashboard
-   - Click "Invite users"
-   - Enter email addresses for admin access
-   - Users will receive an invitation email
+- **Homepage**: Welcome message, mission, and key information
+- **About**: Organization details and mission statement
+- **Team**: Meet the leadership team
+- **Events**: Upcoming community events and celebrations
+- **Get Involved**: Ways to support through volunteering, donations, and partnerships
+- **Volunteer**: Browse current volunteer opportunities
+- **Contact**: Get in touch with the organization
 
 ## Local Development
 
 1. Clone the repository
-2. Serve the site using a local server
-3. Access the admin panel at `/admin/`
+2. Open any HTML file in a web browser, or
+3. Serve using a local web server:
+   ```bash
+   # Using Python 3
+   python -m http.server 8000
+   
+   # Using Node.js
+   npx http-server
+   
+   # Using PHP
+   php -S localhost:8000
+   ```
+4. Access the site at `http://localhost:8000`
+
+## Deployment
+
+This is a static website that can be deployed to any web hosting service:
+
+- **GitHub Pages**: Push to GitHub and enable Pages in repository settings
+- **Netlify**: Drag and drop the folder or connect to GitHub repository
+- **Vercel**: Connect GitHub repository for automatic deployments
+- **Traditional Hosting**: Upload files via FTP to any web host
 
 ## File Structure
 
 ```
 /
-├── admin/
-│   ├── index.html    # CMS entry point
-│   └── config.yml    # CMS configuration
-├── data/
-│   ├── roles/        # Volunteer role markdown files
-│   └── applications/ # Application markdown files
 ├── css/
-│   └── style.css
+│   └── style.css          # Main stylesheet
 ├── js/
-│   └── main.js
-├── images/
-└── netlify.toml      # Netlify configuration
+│   └── main.js           # JavaScript functionality
+├── Images/
+│   └── ...               # SVG logos and graphics
+├── index.html            # Homepage
+├── about.html            # About page
+├── team.html             # Team page
+├── events.html           # Events page
+├── get-involved.html     # Get Involved page
+├── volunteer.html        # Volunteer opportunities
+├── contact.html          # Contact page
+└── apply.html            # Application page
 ```
 
-## Content Management
+## Contributing
 
-- Access the admin panel at `your-site.netlify.app/admin/`
-- Create and manage volunteer roles
-- View submitted applications
-- Upload and manage media files
+To contribute to this website:
 
-## Security
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly across devices
+5. Submit a pull request
 
-- Admin panel access is restricted to invited users only
-- All content changes are version-controlled
-- Secure file uploads handled by Netlify
-- HTTPS enforced by default
+## License
 
-## Support
+Copyright © CT5 Pride Community Interest Company. All rights reserved.
 
-For technical support or questions about the CMS:
-1. Check Netlify's documentation: https://docs.netlify.com/
-2. Contact your development team
-3. Visit Netlify CMS docs: https://www.netlifycms.org/docs/intro/
+## Contact
+
+For website issues or suggestions:
+- Email: hello@ct5pride.co.uk
+- Website: [CT5 Pride](https://ct5pride.co.uk)
