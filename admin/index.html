@@ -144,17 +144,24 @@
             log('Initializing CMS...');
             window.CMS.init({
               config: {
-                load_config_file: false, // Don't load external config
+                load_config_file: false,
                 backend: {
                   name: 'github',
                   repo: 'CT5-Pride-C-I-C/CT5-Pride',
                   branch: 'main',
-                  auth_type: 'github',
-                  token: token
+                  base_url: 'https://api.github.com',
+                  auth_endpoint: 'auth',
+                  app_id: 'S7ZTJG2Q4bJm8rRlyb1rhgHYL8gHCrkG',
+                  auth_type: 'pkce'
                 },
+                local_backend: true,
                 publish_mode: 'editorial_workflow',
                 media_folder: 'images/uploads',
                 public_folder: '/images/uploads',
+                display_url: 'https://ct5pride.co.uk',
+                site_url: 'https://ct5pride.co.uk',
+                logo_url: '/images/Logo-with-Transparent-background.svg',
+                show_preview_links: true,
                 collections: [
                   {
                     name: 'roles',
@@ -162,6 +169,7 @@
                     folder: 'data/roles',
                     create: true,
                     slug: '{{year}}-{{month}}-{{day}}-{{slug}}',
+                    summary: '{{title}} - {{department}} ({{status}})',
                     fields: [
                       { label: 'Title', name: 'title', widget: 'string' },
                       { label: 'Summary', name: 'summary', widget: 'text' },
