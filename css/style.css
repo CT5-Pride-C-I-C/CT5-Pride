@@ -684,7 +684,7 @@ nav a:focus {
   padding: var(--spacing-xxl) 0;
   position: relative;
   overflow: hidden;
-  color: white;
+  color: var(--text);
   min-height: 500px;
   display: flex;
   align-items: center;
@@ -695,7 +695,7 @@ nav a:focus {
   background: var(--cosmic-gradient) !important;
 }
 
-/* Completely Remove Background Image Issues */
+/* Subtle Pride Celebration Background Overlay */
 .hero::before {
   content: '';
   position: absolute;
@@ -706,8 +706,8 @@ nav a:focus {
   background-image: url('../Images/hero_pride_celebration.svg');
   background-repeat: no-repeat;
   background-position: center center;
-  background-size: 60%;
-  opacity: 0.15;
+  background-size: 50%;
+  opacity: 0.08;
   z-index: 1;
   pointer-events: none;
 }
@@ -778,6 +778,8 @@ nav a:focus {
   border-radius: 20px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   border: 4px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  padding: var(--spacing-sm);
 }
 
 .hero-button {
@@ -814,7 +816,8 @@ nav a:focus {
   }
   
   .hero::before {
-    background-size: 80%;
+    background-size: 60%;
+    opacity: 0.05;
   }
   
   .hero-container {
@@ -860,7 +863,8 @@ nav a:focus {
 
 @media (max-width: 480px) {
   .hero::before {
-    background-size: 90%;
+    background-size: 70%;
+    opacity: 0.03;
   }
   
   .hero-content h1 {
