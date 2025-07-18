@@ -440,7 +440,7 @@ header.scrolled {
   }
 }
 
-/* Enhanced Navigation Styles with Vibrant Colors */
+/* Enhanced Navigation Styles with Simple Hover Effects */
 nav ul {
   display: flex;
   list-style: none;
@@ -466,28 +466,11 @@ nav a {
   overflow: hidden;
 }
 
-nav a::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--warm-gradient);
-  transition: left 0.4s ease;
-  z-index: -1;
-  border-radius: 20px;
-}
-
-nav a:hover::before {
-  left: 0;
-}
-
 nav a:hover {
-  color: white;
+  color: var(--primary);
+  background: rgba(233, 30, 99, 0.1);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 nav a:focus {
