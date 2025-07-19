@@ -37,11 +37,13 @@ function runCommand(command) {
         exec(command, { cwd: __dirname }, (err, stdout, stderr) => {
             if (err) {
                 console.error(`❌ Command failed: ${command}`);
-                console.error(`Error: ${err.message}`);
-                return reject(stderr || err.message);
+                console.error(`Error: ${err && err.message ? err.message : 'Unknown error'}`);
+                // For git commands, stderr might contain useful info even on "success"
+                const errorMessage = stderr || (err && err.message) || 'Unknown error occurred';
+                return reject(errorMessage);
             }
             console.log(`✅ Command successful: ${command}`);
-            resolve(stdout);
+            resolve(stdout || '');
         });
     });
 }
@@ -66,6 +68,22 @@ app.post('/api/submit-role', async (req, res) => {
         // Add all changes
         await runCommand('git add .');
         console.log('✅ Files staged for commit');
+
+        // Check if there are any staged changes to commit
+        const status = await runCommand('git status --porcelain');
+        if (!status.trim()) {
+            console.log('ℹ️ No changes to commit.');
+            return res.status(400).json({
+                success: false,
+                message: 'ℹ️ No changes detected — nothing to commit.',
+                details: {
+                    roleTitle: roleData.title,
+                    roleId: roleData.id,
+                    timestamp: new Date().toISOString(),
+                    reason: 'No file changes were detected after staging'
+                }
+            });
+        }
 
         // Commit changes
         const commitMessage = `Add new role: ${roleData.title}`;
@@ -92,17 +110,20 @@ app.post('/api/submit-role', async (req, res) => {
         
         // Provide more specific error messages
         let errorMessage = '❌ Failed to submit role to GitHub';
-        let errorDetails = error.message;
+        let errorDetails = error && error.message ? error.message : 'Unknown error occurred';
         
-        if (error.message.includes('repository') && error.message.includes('not found')) {
+        if (error && error.message && error.message.includes('repository') && error.message.includes('not found')) {
             errorMessage = '❌ GitHub repository not found';
             errorDetails = 'The repository URL is incorrect or the repository doesn\'t exist. Please check your repository settings.';
-        } else if (error.message.includes('authentication')) {
+        } else if (error && error.message && error.message.includes('authentication')) {
             errorMessage = '❌ Authentication failed';
             errorDetails = 'Your GitHub token may be invalid or expired. Please check your token permissions.';
-        } else if (error.message.includes('network')) {
+        } else if (error && error.message && error.message.includes('network')) {
             errorMessage = '❌ Network error';
             errorDetails = 'Unable to connect to GitHub. Please check your internet connection.';
+        } else if (error && error.message && error.message.includes('nothing to commit')) {
+            errorMessage = 'ℹ️ No changes to commit';
+            errorDetails = 'No file changes were detected. The role may already exist or no modifications were made.';
         }
         
         res.status(500).json({
@@ -110,10 +131,13 @@ app.post('/api/submit-role', async (req, res) => {
             message: errorMessage,
             error: errorDetails,
             troubleshooting: {
-                checkRepository: 'Verify the repository URL in server.js',
+                checkRepository: 'Verify the repository URL in config.js',
                 checkToken: 'Ensure your GitHub token has repo permissions',
-                checkNetwork: 'Test your internet connection'
-            }
+                checkNetwork: 'Test your internet connection',
+                checkChanges: 'Ensure the role submission creates actual file changes',
+                checkGitStatus: 'Run "git status" to see current repository state'
+            },
+            timestamp: new Date().toISOString()
         });
     }
 });
@@ -128,13 +152,60 @@ app.get('/api/git-status', async (req, res) => {
             success: true,
             isClean: isClean,
             hasChanges: !isClean,
-            status: status || 'Working directory clean'
+            status: status || 'Working directory clean',
+            timestamp: new Date().toISOString()
         });
     } catch (error) {
         res.status(500).json({
             success: false,
             message: '❌ Failed to get Git status',
-            error: error.message
+            error: error && error.message ? error.message : 'Unknown error occurred',
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+// API endpoint to check if role submission would create changes
+app.post('/api/check-changes', async (req, res) => {
+    try {
+        const roleData = req.body.roleData;
+        
+        if (!roleData) {
+            return res.status(400).json({ 
+                success: false, 
+                message: '❌ No role data provided' 
+            });
+        }
+
+        // Get current status before staging
+        const beforeStatus = await runCommand('git status --porcelain');
+        
+        // Stage changes (this simulates what would happen during submission)
+        await runCommand('git add .');
+        
+        // Get status after staging
+        const afterStatus = await runCommand('git status --porcelain');
+        
+        // Reset staging area to original state
+        await runCommand('git reset');
+        
+        const hasChanges = afterStatus.trim() !== beforeStatus.trim();
+        
+        res.json({
+            success: true,
+            hasChanges: hasChanges,
+            message: hasChanges ? '✅ Changes detected' : 'ℹ️ No changes detected',
+            beforeStatus: beforeStatus || 'Working directory clean',
+            afterStatus: afterStatus || 'Working directory clean',
+            timestamp: new Date().toISOString()
+        });
+        
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: '❌ Failed to check for changes',
+            error: error && error.message ? error.message : 'Unknown error occurred',
+            timestamp: new Date().toISOString()
         });
     }
 });
