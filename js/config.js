@@ -7,7 +7,7 @@ export const roles = [
         "title": "Director of Legal & Compliance",
         "category": "governance",
         "department": "Board of Directors",
-        "status": "open",
+        "status": "closed",
         "icon": "volunteers",
         "summary": "Join our Board of Directors as Director of Legal & Compliance, providing essential governance oversight and ensuring CT5 Pride operates within legal and regulatory frameworks.",
         "location": "CT5 Area (Whitstable, Seasalter, Tankerton, Chestfield, Swalecliffe, Yorkletts)",
