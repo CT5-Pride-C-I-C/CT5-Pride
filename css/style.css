@@ -178,6 +178,33 @@
   background: transparent !important;
 }
 
+/* FORCE NAVIGATION VISIBILITY IN HIGH CONTRAST */
+.high-contrast nav ul,
+.high-contrast nav li,
+.high-contrast .nav-toggle {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+.high-contrast .nav-toggle {
+  border: 2px solid #ffffff !important;
+}
+
+.high-contrast .dropdown-menu {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+.high-contrast .dropdown-menu a {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+.high-contrast .dropdown-menu a:hover {
+  color: #ffff00 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
 /* Accessibility panel is now excluded by design - no overrides needed */
 
 /* TARGETED FIX: Keep accessibility panel positioned correctly in high contrast */
