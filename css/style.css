@@ -3189,11 +3189,17 @@ nav a:focus {
 }
 
 .role-card .role-department {
-  color: var(--text-light);
-  font-size: 0.95rem;
-  font-weight: 600;
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  background: rgba(233, 30, 99, 0.1);
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  display: inline-block;
+  border: 1px solid rgba(233, 30, 99, 0.2);
+  margin-top: 0.25rem;
 }
 
 .role-card .draft-badge {
@@ -3368,12 +3374,17 @@ nav a:focus {
 }
 
 .modal .role-department {
-  color: var(--text-light);
-  font-size: 1.1rem;
+  color: var(--primary);
+  font-size: 1rem;
   margin-bottom: 2rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  background: rgba(233, 30, 99, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  display: inline-block;
+  border: 1px solid rgba(233, 30, 99, 0.2);
 }
 
 .modal .role-description {
@@ -3524,7 +3535,8 @@ nav a:focus {
   }
   
   .role-card .role-department {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.7rem;
   }
   
   .role-card .role-summary {
@@ -3543,7 +3555,8 @@ nav a:focus {
   }
   
   .modal .role-department {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    padding: 0.4rem 0.8rem;
   }
   
   .modal .role-criteria h3 {
