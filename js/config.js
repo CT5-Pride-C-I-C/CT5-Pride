@@ -83,7 +83,7 @@ export const roles = [
         ]
     },
     {
-        "id": "custom-new-role",
+        "id": "director-marketing-advertising",
         "title": "Director of Marketing & Advertising",
         "category": "marketing",
         "department": "Board of Directors",
