@@ -3,17 +3,28 @@ on:
   repository_dispatch:
     types: [add-role]
 
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   update-role:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
+          
+      - name: Debug - Show event data
+        run: |
+          echo "Event type: ${{ github.event_name }}"
+          echo "Client payload: ${{ toJSON(github.event.client_payload) }}"
           
       - name: Update main.js with new role
         run: |
@@ -138,8 +149,9 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add js/main.js
+          git status
           git commit -m "Add new volunteer role: ${{ github.event.client_payload.roleData.title }}"
-          git push
+          git push origin main
           
       - name: Success message
         run: |
