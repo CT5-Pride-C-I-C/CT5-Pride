@@ -354,21 +354,27 @@
                     <span class="close">&times;</span>
                     <h2>${role.title}</h2>
                     <p class="role-department">${role.department}</p>
-                    <div class="role-description">${role.description}</div>
+                    <div class="role-description">${role.description || '<p>No detailed description available for this role.</p>'}</div>
                     <div class="role-criteria">
                         <h3>Essential Criteria</h3>
                         <ul>
-                            ${role.essentialCriteria.map(criteria => `<li>${criteria}</li>`).join('')}
+                            ${role.essentialCriteria && role.essentialCriteria.length > 0 
+                                ? role.essentialCriteria.map(criteria => `<li>${criteria}</li>`).join('')
+                                : '<li>No essential criteria specified</li>'
+                            }
                         </ul>
                         <h3>Desirable Criteria</h3>
                         <ul>
-                            ${role.desirableCriteria.map(criteria => `<li>${criteria}</li>`).join('')}
+                            ${role.desirableCriteria && role.desirableCriteria.length > 0
+                                ? role.desirableCriteria.map(criteria => `<li>${criteria}</li>`).join('')
+                                : '<li>No desirable criteria specified</li>'
+                            }
                         </ul>
                     </div>
                     <div class="role-details">
-                        <p><strong>Location:</strong> ${role.location}</p>
-                        <p><strong>Time Commitment:</strong> ${role.timeCommitment}</p>
-                        <p><strong>Reporting Line:</strong> ${role.reportingLine}</p>
+                        <p><strong>Location:</strong> ${role.location || 'Not specified'}</p>
+                        <p><strong>Time Commitment:</strong> ${role.timeCommitment || 'Not specified'}</p>
+                        <p><strong>Reporting Line:</strong> ${role.reportingLine || 'Not specified'}</p>
                     </div>
                     <a href="mailto:hello@ct5pride.org.uk?subject=Volunteer%20Role:%20${encodeURIComponent(role.title)}" class="apply-button">Apply by email</a>
                 </div>
@@ -405,41 +411,49 @@
             // Create role grid
             container.innerHTML = visibleRoles.map(role => createRoleCard(role)).join('');
 
-            // Add click handlers for role cards
-            document.querySelectorAll('[data-role-id]').forEach(card => {
-                card.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const roleId = card.getAttribute('data-role-id');
-                    const role = roles.find(r => r.id === roleId);
-                    if (role) {
-                        openRoleModal(role);
-                    }
-                });
-                
-                // Keyboard accessibility
-                card.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+            // IMPORTANT: Add event listeners AFTER roles are injected into DOM
+            // Use setTimeout to ensure DOM is fully updated
+            setTimeout(() => {
+                // Add click handlers for view buttons (these are the "View details / Apply" buttons)
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
                         e.preventDefault();
-                        const roleId = card.getAttribute('data-role-id');
+                        e.stopPropagation();
+                        const roleId = btn.getAttribute('data-id');
                         const role = roles.find(r => r.id === roleId);
                         if (role) {
                             openRoleModal(role);
                         }
-                    }
+                    });
                 });
-            });
 
-            // Add click handlers for view buttons
-            document.querySelectorAll('.view-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const roleId = btn.getAttribute('data-id');
-                    const role = roles.find(r => r.id === roleId);
-                    if (role) {
-                        openRoleModal(role);
-                    }
+                // Add click handlers for role cards (for accessibility and general interaction)
+                document.querySelectorAll('[data-role-id]').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        // Only trigger if clicking on the card itself, not on buttons/links
+                        if (e.target === card || e.target.closest('.role-header') || e.target.closest('.role-summary')) {
+                            e.preventDefault();
+                            const roleId = card.getAttribute('data-role-id');
+                            const role = roles.find(r => r.id === roleId);
+                            if (role) {
+                                openRoleModal(role);
+                            }
+                        }
+                    });
+                    
+                    // Keyboard accessibility
+                    card.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            const roleId = card.getAttribute('data-role-id');
+                            const role = roles.find(r => r.id === roleId);
+                            if (role) {
+                                openRoleModal(role);
+                            }
+                        }
+                    });
                 });
-            });
+            }, 100); // Small delay to ensure DOM is ready
         }
 
         // Function to open role modal
@@ -447,7 +461,7 @@
             const modal = createRoleModal(role);
             document.body.appendChild(modal);
             
-            // Show modal
+            // Show modal with animation
             setTimeout(() => modal.classList.add('show'), 10);
             
             // Close handlers
@@ -456,7 +470,10 @@
                 setTimeout(() => modal.remove(), 300);
             };
             
+            // Close button handler
             modal.querySelector('.close').onclick = closeModal;
+            
+            // Click outside modal to close
             modal.onclick = (e) => {
                 if (e.target === modal) closeModal();
             };
@@ -470,8 +487,11 @@
             };
             document.addEventListener('keydown', handleEscape);
             
-            // Focus management
-            modal.focus();
+            // Focus management - focus the close button for accessibility
+            setTimeout(() => {
+                const closeBtn = modal.querySelector('.close');
+                if (closeBtn) closeBtn.focus();
+            }, 100);
         }
 
         // Initialize when DOM is loaded

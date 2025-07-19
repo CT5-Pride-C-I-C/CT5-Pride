@@ -475,8 +475,8 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeRoleDetailModal();
     }
     
-    // Load roles if we're on the volunteer page
-    if (window.location.pathname.includes('volunteer')) {
+    // Load roles if we're on the volunteer page (but not if we have the dynamic script)
+    if (window.location.pathname.includes('volunteer') && !document.querySelector('script[type="module"]')) {
         loadRoles();
     }
 }); 
