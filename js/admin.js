@@ -269,46 +269,59 @@ class AdminRoleManager {
         submitBtn.disabled = true;
 
         try {
-            // Send to GitHub Actions via repository dispatch
-            const response = await fetch('https://api.github.com/repos/CT5-Pride-C-I-C/CT5-Pride/dispatches', {
+            // Send to local server API
+            const response = await fetch('/api/submit-role', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `token ${this.getGitHubToken()}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/vnd.github.v3+json'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    event_type: 'add-role',
-                    client_payload: {
-                        roleData: roleData
-                    }
+                    roleData: roleData
                 })
             });
 
-            if (response.ok) {
+            const result = await response.json();
+
+            if (result.success) {
                 this.showSuccessMessage(`
                     <h3>✅ Role Submitted Successfully!</h3>
-                    <p>Your new role has been sent to GitHub and will be processed automatically.</p>
+                    <p>${result.message}</p>
                     <div class="processing-info">
-                        <h4>What's happening now:</h4>
+                        <h4>What just happened:</h4>
                         <ol>
-                            <li>🔄 GitHub Actions is processing your role</li>
-                            <li>📝 Updating js/main.js with the new role</li>
-                            <li>💾 Committing and pushing changes</li>
+                            <li>✅ Role data validated</li>
+                            <li>✅ Changes committed to Git</li>
+                            <li>✅ Changes pushed to GitHub</li>
                             <li>🚀 Netlify will automatically deploy the updates</li>
                         </ol>
                         <p><strong>⏱️ Your website will update in 1-2 minutes!</strong></p>
-                        <p>You can check the progress in your GitHub repository's Actions tab.</p>
+                        <div class="success-details">
+                            <p><strong>Role:</strong> ${result.details.roleTitle}</p>
+                            <p><strong>ID:</strong> ${result.details.roleId}</p>
+                            <p><strong>Time:</strong> ${new Date(result.details.timestamp).toLocaleString()}</p>
+                        </div>
                     </div>
                 `);
                 this.clearForm();
             } else {
-                const errorData = await response.json();
-                throw new Error(`GitHub API Error: ${errorData.message || response.statusText}`);
+                throw new Error(result.message || 'Unknown error occurred');
             }
         } catch (error) {
             console.error('Error submitting role:', error);
-            alert(`Error submitting role: ${error.message}\n\nPlease check your GitHub token and repository settings.`);
+            this.showErrorMessage(`
+                <h3>❌ Submission Failed</h3>
+                <p>Error: ${error.message}</p>
+                <div class="error-details">
+                    <h4>Possible causes:</h4>
+                    <ul>
+                        <li>GitHub token not configured in .env file</li>
+                        <li>Network connection issues</li>
+                        <li>Git repository not properly initialized</li>
+                        <li>Server not running</li>
+                    </ul>
+                    <p>Please check the server console for more details.</p>
+                </div>
+            `);
         } finally {
             // Reset button state
             submitBtn.textContent = originalText;
@@ -316,14 +329,16 @@ class AdminRoleManager {
         }
     }
 
-    getGitHubToken() {
-        // Get token from environment variable or prompt user
-        // For security, the token should be stored in Netlify environment variables
-        const token = prompt('Please enter your GitHub Personal Access Token (admin-roles-token):');
-        if (!token) {
-            throw new Error('GitHub token is required');
-        }
-        return token;
+    showErrorMessage(content) {
+        this.successMessage.innerHTML = content;
+        this.successMessage.style.display = 'block';
+        this.successMessage.scrollIntoView({ behavior: 'smooth' });
+        
+        // Add error styling
+        this.successMessage.classList.add('error-message');
+        
+        // Show "Try Again" button
+        document.querySelector('.add-another-section').style.display = 'block';
     }
 
     clearForm() {
@@ -338,6 +353,9 @@ class AdminRoleManager {
         this.successMessage.innerHTML = content;
         this.successMessage.style.display = 'block';
         this.successMessage.scrollIntoView({ behavior: 'smooth' });
+        
+        // Remove error styling if present
+        this.successMessage.classList.remove('error-message');
         
         // Show "Add Another" button
         document.querySelector('.add-another-section').style.display = 'block';

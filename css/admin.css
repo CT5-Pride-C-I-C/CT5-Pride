@@ -454,4 +454,56 @@
     .password-header h2 {
         font-size: 1.3rem;
     }
+}
+
+/* Error message styling */
+.error-message .success-content {
+    background: #f8d7da;
+    border: 1px solid #dc3545;
+    color: #721c24;
+}
+
+.error-message .success-content h3 {
+    color: #721c24;
+}
+
+.error-message .processing-info {
+    background: #f8d7da;
+    border: 1px solid #dc3545;
+}
+
+.error-details {
+    background: #f8d7da;
+    border: 1px solid #dc3545;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.error-details h4 {
+    color: #721c24;
+    margin-bottom: 1rem;
+}
+
+.error-details ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.error-details li {
+    margin-bottom: 0.5rem;
+    color: #721c24;
+}
+
+.success-details {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.success-details p {
+    margin-bottom: 0.5rem;
+    color: #155724;
 } 
