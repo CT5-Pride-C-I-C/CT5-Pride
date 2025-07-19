@@ -38,6 +38,49 @@ export const roles = [
             "Experience in developing and delivering training on legal and compliance matters",
             "Understanding of social media and digital communication compliance requirements"
         ]
+    },
+    {
+        "id": "custom-director-of-administration-board-secretary-officer",
+        "title": "Director of Administration & Board Secretary",
+        "category": "governance",
+        "department": "Board of Directors",
+        "status": "open",
+        "icon": "volunteers",
+        "summary": "The Director of Administration & Board Secretary ensures the smooth and compliant operation of CT5 Pride through effective administrative management and governance support. This includes coordinating board meetings, maintaining accurate records, managing internal communications, and upholding confidentiality. The role is central to the organisation’s structure and offers a potential pathway to senior leadership.",
+        "location": "Kent, England",
+        "reportingLine": "Senior Directors",
+        "timeCommitment": "10-12 hours per month",
+        "description": "The Director of Administration & Board Secretary (Officer) will be responsible for ensuring that CT5 Pride operates smoothly & efficiently through effective administration and governance. In this key leadership role, you will manage & oversee the administrative functions of the organisation, ensuring compliance with relevant laws and regulations. As the Board Secretary, you will facilitate the functioning of the Board of Directors by supporting governance processes, scheduling meetings, maintaining records, and ensuring proper communication between Board members and the wider organization. Your role will also involve managing sensitive & confidential information, acting as a key point of contact for Board members, and supporting organisational operations. Scope for this role to become a senior director in due course.\n\nWe are seeking a detail-oriented and highly organized individual with a strong understanding of governance and administrative functions in non-profit or community-based organizations. The ideal candidate will have experience in supporting boards and senior leadership teams, along with the ability to manage multiple administrative tasks simultaneously. You will be an excellent communicator, able to navigate complex situations and provide strategic administrative support to ensure CT5 Pride’s activities and operations are carried out effectively. Your commitment to maintaining transparency, confidentiality, and good governance will be key to your success in this role.",
+        "essentialCriteria": [
+            "- Applicants must be 18 years of age or over with no unspent convictions.",
+            "- Be fluent in English written and spoken.",
+            "- Not be barred from working with Children or vulnerable people.",
+            "- A commitment to LGBTQIA+ inclusion and community-led values.",
+            "- Willingness and ability undertake an active hands-on role.",
+            "- Commitment to continuous learning and training.",
+            "- Willingness to leverage professional and person networks to support fundraising and awareness efforts.",
+            "- Proven experience (minimum 3 years) in an administrative role, with a focus on governance and supporting Board of Directors or senior leadership teams.",
+            "- Policy & Procedure writing experience.",
+            "- Strong understanding of governance structures, legal requirements, and board operations in the non-profit or community sector.",
+            "- Experience in managing and maintaining accurate records, meeting minutes, and correspondence.",
+            "- Excellent written and verbal communication skills, with experience preparing formal reports, minutes, and correspondence for Board members.",
+            "- Ability to effectively communicate with Board members, staff, volunteers, and external stakeholders.",
+            "- Strong commitment to confidentiality, with the ability to handle sensitive information with discretion and professionalism.",
+            "- High ethical standards and integrity in dealing with governance and administrative matters."
+        ],
+        "desirableCriteria": [
+            "- Previous experience serving as a company secretary, board officer, or in a governance or compliance role.",
+            "- Understanding of the legal and regulatory framework for Community Interest Companies or charities.",
+            "- Familiarity with filing requirements for Companies House or similar public bodies.",
+            "- Experience supporting or developing policies, internal procedures, or organisational systems.",
+            "- Knowledge of equality, diversity, and inclusion frameworks in practice.",
+            "- Experience working or volunteering within LGBTQIA+ organisations or equalities-focused initiatives.",
+            "- Strong written communication skills, with experience preparing formal documents or board papers.",
+            "- Ability to manage shared drives or document storage systems such as Google Workspace or Microsoft 365.",
+            "- Familiarity with coordinating AGMs, board recruitment, or director inductions.",
+            "- A visible presence or active network within the CT5 area or broader Kent community.",
+            "- Line-management experience in managing volunteers and/or staff."
+        ]
     }
 ];
 
