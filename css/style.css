@@ -122,20 +122,24 @@
   filter: contrast(150%) brightness(110%);
 }
 
-/* REBUILT HIGH CONTRAST MODE - Clean Architecture */
-.high-contrast {
-  /* Only affect major layout containers */
-}
-
+/* WORKING HIGH CONTRAST MODE - BLACK BACKGROUND, WHITE TEXT */
+.high-contrast,
 .high-contrast body {
   background: #000000 !important;
   color: #ffffff !important;
 }
 
+.high-contrast *:not(.accessibility-panel):not(.accessibility-panel *) {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
 .high-contrast main,
-.high-contrast section:not(.accessibility-panel),
 .high-contrast header,
-.high-contrast footer {
+.high-contrast footer,
+.high-contrast section,
+.high-contrast nav,
+.high-contrast .container {
   background: #000000 !important;
   color: #ffffff !important;
 }
@@ -146,12 +150,14 @@
   background: transparent !important;
 }
 
-.high-contrast p {
+.high-contrast p,
+.high-contrast span,
+.high-contrast div {
   color: #ffffff !important;
   background: transparent !important;
 }
 
-.high-contrast a:not(.accessibility-panel a) {
+.high-contrast a {
   color: #ffff00 !important;
   background: transparent !important;
 }
@@ -159,55 +165,64 @@
 .high-contrast button:not(.accessibility-panel button) {
   background: #ffffff !important;
   color: #000000 !important;
-  border: 2px solid #ffff00 !important;
+  border: 2px solid #ffffff !important;
 }
 
-/* ACCESSIBILITY PANEL - COMPLETELY ISOLATED */
-.accessibility-panel {
-  position: fixed !important;
-  bottom: 20px !important;
-  right: 20px !important;
-  z-index: 9999 !important;
+.high-contrast nav a {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+.high-contrast nav a:hover {
+  color: #ffff00 !important;
+  background: transparent !important;
 }
 
 /* Accessibility panel is now excluded by design - no overrides needed */
 
-/* CLEAN ACCESSIBILITY PANEL HIGH CONTRAST STYLING */
+/* TARGETED FIX: Keep accessibility panel positioned correctly in high contrast */
+.high-contrast .accessibility-panel {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 1000 !important;
+}
+
 .high-contrast .accessibility-toggle {
-  background: #ffff00 !important;
-  color: #000000 !important;
-  border: 2px solid #000000 !important;
+  background: #e91e63 !important;
+  color: white !important;
+  border: 2px solid white !important;
 }
 
 .high-contrast .accessibility-menu {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border: 2px solid #000000 !important;
+  background: white !important;
+  color: black !important;
+  border: 2px solid black !important;
 }
 
 .high-contrast .accessibility-menu h3,
 .high-contrast .accessibility-option label {
-  color: #000000 !important;
+  color: black !important;
 }
 
 .high-contrast .accessibility-toggle-switch {
-  background: #666666 !important;
-  border: 2px solid #000000 !important;
+  background: #ccc !important;
+  border: 2px solid black !important;
 }
 
 .high-contrast .accessibility-toggle-switch.active {
-  background: #ffff00 !important;
+  background: #e91e63 !important;
 }
 
 .high-contrast .text-size-btn {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border: 2px solid #000000 !important;
+  background: white !important;
+  color: black !important;
+  border: 2px solid black !important;
 }
 
 .high-contrast .text-size-btn.active {
-  background: #ffff00 !important;
-  color: #000000 !important;
+  background: #e91e63 !important;
+  color: white !important;
 }
 
 .high-contrast .button,
@@ -248,51 +263,64 @@
   font-family: inherit !important;
 }
 
-/* REBUILT TEXT SIZE CONTROLS - Comprehensive Coverage */
+/* FIXED TEXT SIZE CONTROLS - EXCLUDES HERO/BANNER HEADERS */
 .text-small {
-  font-size: 14px !important;
+  font-size: 14px;
 }
 
-.text-small *:not(.accessibility-panel *) {
-  font-size: inherit !important;
+.text-small main h1:not(.hero h1),
+.text-small main h2:not(.hero h2),
+.text-small main h3:not(.hero h3),
+.text-small section:not(.hero) h1,
+.text-small section:not(.hero) h2,
+.text-small section:not(.hero) h3,
+.text-small article h1,
+.text-small article h2,
+.text-small article h3 {
+  font-size: 1.2em;
 }
-
-.text-small h1 { font-size: 2.2rem !important; }
-.text-small h2 { font-size: 1.8rem !important; }
-.text-small h3 { font-size: 1.4rem !important; }
-.text-small h4 { font-size: 1.2rem !important; }
-.text-small h5 { font-size: 1.1rem !important; }
-.text-small h6 { font-size: 1rem !important; }
 
 .text-large {
-  font-size: 18px !important;
+  font-size: 18px;
 }
 
-.text-large *:not(.accessibility-panel *) {
-  font-size: inherit !important;
+.text-large main h1:not(.hero h1),
+.text-large main h2:not(.hero h2),
+.text-large main h3:not(.hero h3),
+.text-large section:not(.hero) h1,
+.text-large section:not(.hero) h2,
+.text-large section:not(.hero) h3,
+.text-large article h1,
+.text-large article h2,
+.text-large article h3 {
+  font-size: 1.4em;
 }
-
-.text-large h1 { font-size: 3.8rem !important; }
-.text-large h2 { font-size: 3.2rem !important; }
-.text-large h3 { font-size: 2.6rem !important; }
-.text-large h4 { font-size: 2.2rem !important; }
-.text-large h5 { font-size: 1.8rem !important; }
-.text-large h6 { font-size: 1.6rem !important; }
 
 .text-extra-large {
-  font-size: 22px !important;
+  font-size: 22px;
 }
 
-.text-extra-large *:not(.accessibility-panel *) {
-  font-size: inherit !important;
+.text-extra-large main h1:not(.hero h1),
+.text-extra-large main h2:not(.hero h2),
+.text-extra-large main h3:not(.hero h3),
+.text-extra-large section:not(.hero) h1,
+.text-extra-large section:not(.hero) h2,
+.text-extra-large section:not(.hero) h3,
+.text-extra-large article h1,
+.text-extra-large article h2,
+.text-extra-large article h3 {
+  font-size: 1.6em;
 }
 
-.text-extra-large h1 { font-size: 4.6rem !important; }
-.text-extra-large h2 { font-size: 4.0rem !important; }
-.text-extra-large h3 { font-size: 3.4rem !important; }
-.text-extra-large h4 { font-size: 2.8rem !important; }
-.text-extra-large h5 { font-size: 2.4rem !important; }
-.text-extra-large h6 { font-size: 2.0rem !important; }
+/* PRESERVE HERO/BANNER HEADERS - Never affected by text size changes */
+.text-small .hero h1,
+.text-large .hero h1,
+.text-extra-large .hero h1,
+.text-small .hero-content h1,
+.text-large .hero-content h1,
+.text-extra-large .hero-content h1 {
+  font-size: 3.5rem !important;
+}
 
 /* Skip to Main Content */
 .skip-link {
@@ -1610,16 +1638,12 @@ footer::after {
   outline-offset: 3px;
 }
 
-/* Enhanced Accessibility Panel - BULLETPROOF POSITIONING */
+/* SIMPLE ACCESSIBILITY PANEL POSITIONING */
 .accessibility-panel {
-  position: fixed !important;
-  bottom: 20px !important;
-  right: 20px !important;
-  z-index: 9999 !important;
-  top: auto !important;
-  left: auto !important;
-  transform: none !important;
-  margin: 0 !important;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
 }
 
 .accessibility-toggle {
