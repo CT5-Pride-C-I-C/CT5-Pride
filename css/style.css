@@ -790,6 +790,49 @@ nav a:focus {
   transform: rotate(180deg);
 }
 
+/* Donate Button Styles */
+.donate-button {
+  margin-left: var(--spacing-md);
+}
+
+.donate-link {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white !important;
+  padding: var(--spacing-sm) var(--spacing-lg) !important;
+  border-radius: 25px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.donate-link:hover {
+  background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 187, 106, 0.5);
+  color: white !important;
+}
+
+.donate-link:focus {
+  outline: 3px solid var(--secondary);
+  outline-offset: 2px;
+  color: white !important;
+}
+
+/* High contrast mode for donate button */
+.high-contrast .donate-link {
+  background: #ff0000 !important;
+  color: white !important;
+  border: 2px solid white;
+}
+
+.high-contrast .donate-link:hover {
+  background: #cc0000 !important;
+  color: white !important;
+}
+
 /* Mobile Navigation Toggle */
 .nav-toggle {
     display: none;
@@ -876,6 +919,30 @@ nav a:focus {
 
   .dropdown.active .dropdown-content {
     display: block;
+  }
+
+  /* Mobile donate button styling */
+  .donate-button {
+    display: block;
+    width: 100%;
+    margin: var(--spacing-sm) 0;
+  }
+
+  .donate-link {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white !important;
+    padding: var(--spacing-md) var(--spacing-lg) !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    text-align: center;
+    display: block;
+    margin: 0 var(--spacing-lg);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  }
+
+  .donate-link:hover {
+    background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+    color: white !important;
   }
 
   .dropdown > a {
