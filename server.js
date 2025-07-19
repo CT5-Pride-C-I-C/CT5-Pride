@@ -523,6 +523,46 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// API endpoint to get current roles
+app.get('/api/roles', (req, res) => {
+    try {
+        // Load current config.js
+        const configPath = path.join(__dirname, 'js', 'config.js');
+        let configContent = fs.readFileSync(configPath, 'utf8');
+        
+        // Parse the roles array from config.js
+        const rolesMatch = configContent.match(/export const roles = (\[[\s\S]*?\]);/);
+        if (!rolesMatch) {
+            throw new Error('Could not find roles array in config.js');
+        }
+        
+        // Parse the roles array - use JSON.parse instead of eval for safety
+        const rolesString = rolesMatch[1];
+        let roles;
+        try {
+            roles = JSON.parse(rolesString);
+        } catch (parseError) {
+            console.error('Error parsing roles:', parseError);
+            throw new Error('Invalid JSON in roles array');
+        }
+        
+        res.json({
+            success: true,
+            roles: roles,
+            timestamp: new Date().toISOString()
+        });
+        
+    } catch (error) {
+        console.error('❌ Failed to load roles:', error);
+        res.status(500).json({
+            success: false,
+            message: '❌ Failed to load roles',
+            error: error.message,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 // Serve the main application
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));

@@ -185,9 +185,18 @@ class AdminRoleManager {
         try {
             this.showLoading();
             
-            // Load roles from config.js
-            const { roles } = await import('./config.js');
-            this.roles = roles || [];
+            // Load roles from server API to get fresh data
+            const response = await fetch('/api/roles');
+            const result = await response.json();
+            
+            if (result.success) {
+                this.roles = result.roles || [];
+                console.log('📋 Loaded roles from server:', this.roles.map(r => r.id));
+            } else {
+                console.error('Failed to load roles:', result.message);
+                this.showToast('Failed to load roles', 'error');
+                this.roles = [];
+            }
             
             this.filteredRoles = [...this.roles];
             this.renderRoles();
@@ -196,6 +205,7 @@ class AdminRoleManager {
         } catch (error) {
             console.error('Error loading roles:', error);
             this.showToast('Error loading roles', 'error');
+            this.roles = [];
         } finally {
             this.hideLoading();
         }
