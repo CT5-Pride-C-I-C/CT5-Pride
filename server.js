@@ -1,6 +1,7 @@
 const express = require('express');
 const { exec } = require('child_process');
 const path = require('path');
+const config = require('./config');
 require('dotenv').config();
 
 const app = express();
@@ -18,7 +19,7 @@ function configureGitRemote() {
         return false;
     }
 
-    const remoteUrl = `https://x-access-token:${token}@github.com/ct5pride/CT5-pride.git`;
+    const remoteUrl = `https://x-access-token:${token}@github.com/${config.github.owner}/${config.github.repo}.git`;
     
     exec(`git remote set-url origin "${remoteUrl}"`, (err, stdout, stderr) => {
         if (err) {
@@ -88,10 +89,31 @@ app.post('/api/submit-role', async (req, res) => {
 
     } catch (error) {
         console.error('❌ Git operation failed:', error);
+        
+        // Provide more specific error messages
+        let errorMessage = '❌ Failed to submit role to GitHub';
+        let errorDetails = error.message;
+        
+        if (error.message.includes('repository') && error.message.includes('not found')) {
+            errorMessage = '❌ GitHub repository not found';
+            errorDetails = 'The repository URL is incorrect or the repository doesn\'t exist. Please check your repository settings.';
+        } else if (error.message.includes('authentication')) {
+            errorMessage = '❌ Authentication failed';
+            errorDetails = 'Your GitHub token may be invalid or expired. Please check your token permissions.';
+        } else if (error.message.includes('network')) {
+            errorMessage = '❌ Network error';
+            errorDetails = 'Unable to connect to GitHub. Please check your internet connection.';
+        }
+        
         res.status(500).json({
             success: false,
-            message: '❌ Failed to submit role to GitHub',
-            error: error.message
+            message: errorMessage,
+            error: errorDetails,
+            troubleshooting: {
+                checkRepository: 'Verify the repository URL in server.js',
+                checkToken: 'Ensure your GitHub token has repo permissions',
+                checkNetwork: 'Test your internet connection'
+            }
         });
     }
 });
