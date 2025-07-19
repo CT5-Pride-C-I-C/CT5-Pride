@@ -44,7 +44,7 @@ export const roles = [
         "title": "Director of Administration & Board Secretary",
         "category": "governance",
         "department": "Board of Directors",
-        "status": "open",
+        "status": "closed",
         "icon": "volunteers",
         "summary": "The Director of Administration & Board Secretary ensures the smooth and compliant operation of CT5 Pride through effective administrative management and governance support. This includes coordinating board meetings, maintaining accurate records, managing internal communications, and upholding confidentiality. The role is central to the organisation’s structure and offers a potential pathway to senior leadership.",
         "location": "Kent, England",
