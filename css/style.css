@@ -1055,6 +1055,17 @@ section:nth-child(odd) {
   position: relative;
 }
 
+.cta-section .container {
+  position: relative;
+  z-index: 2;
+}
+
+.cta-section .button {
+  position: relative;
+  z-index: 3;
+  pointer-events: auto;
+}
+
 .cta-section::before {
   content: '';
   position: absolute;
@@ -1701,6 +1712,13 @@ footer::after {
   background: #1877f2;
   color: white;
   border-color: #1877f2;
+}
+
+/* LinkedIn Brand Colors on Hover */
+.social-links a[aria-label*="LinkedIn"]:hover {
+  background: #0077b5;
+  color: white;
+  border-color: #0077b5;
 }
 
 .social-links a:focus {
