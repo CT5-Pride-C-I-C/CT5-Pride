@@ -315,5 +315,167 @@
     </footer>
 
     <script src="js/main.js"></script>
+    
+    <!-- Dynamic Role Loading Script -->
+    <script type="module">
+        import { roles, roleIcons } from './js/config.js';
+
+        // Function to create role cards
+        function createRoleCard(role) {
+            const isOpen = role.status === 'open';
+            
+            return `
+                <div class="role-card ${!isOpen ? 'draft' : ''}" data-role-id="${role.id}" tabindex="0" role="button" aria-label="View details for ${role.title}">
+                    <div class="role-header">
+                        <div class="role-icon">${roleIcons[role.icon] || roleIcons['volunteers']}</div>
+                        <div class="role-info">
+                            <h3>${role.title}</h3>
+                            <span class="role-department">${role.department}</span>
+                            ${!isOpen ? '<span class="draft-badge">Preview</span>' : ''}
+                        </div>
+                    </div>
+                    <p class="role-summary">${role.summary}</p>
+                    <div class="role-actions">
+                        ${role.description ? 
+                            `<button class="view-btn" data-id="${role.id}">View details / Apply</button>` : 
+                            `<a class="apply-direct" href="mailto:hello@ct5pride.org.uk?subject=Volunteer%20Role:%20${encodeURIComponent(role.title)}">Apply now</a>`
+                        }
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to create modal for role details
+        function createRoleModal(role) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>${role.title}</h2>
+                    <p class="role-department">${role.department}</p>
+                    <div class="role-description">${role.description}</div>
+                    <div class="role-criteria">
+                        <h3>Essential Criteria</h3>
+                        <ul>
+                            ${role.essentialCriteria.map(criteria => `<li>${criteria}</li>`).join('')}
+                        </ul>
+                        <h3>Desirable Criteria</h3>
+                        <ul>
+                            ${role.desirableCriteria.map(criteria => `<li>${criteria}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="role-details">
+                        <p><strong>Location:</strong> ${role.location}</p>
+                        <p><strong>Time Commitment:</strong> ${role.timeCommitment}</p>
+                        <p><strong>Reporting Line:</strong> ${role.reportingLine}</p>
+                    </div>
+                    <a href="mailto:hello@ct5pride.org.uk?subject=Volunteer%20Role:%20${encodeURIComponent(role.title)}" class="apply-button">Apply by email</a>
+                </div>
+            `;
+            return modal;
+        }
+
+        // Initialize role loading
+        function initializeRoles() {
+            const container = document.getElementById('role-board');
+            if (!container) return;
+
+            // Check if we should show draft roles
+            const showDraft = new URLSearchParams(window.location.search).get('preview') === 'true';
+            
+            // Filter roles - only show open roles and draft roles if in preview mode
+            const visibleRoles = roles.filter(role => {
+                if (role.status === 'open') return true;
+                if (role.status === 'draft' && showDraft) return true;
+                return false; // Hide closed roles completely
+            });
+
+            if (!visibleRoles.length) {
+                container.innerHTML = `
+                    <div class="no-roles-message">
+                        <h3>🌈 No Open Positions Currently</h3>
+                        <p>We're not actively recruiting for new volunteer positions right now, but we'd still love to hear from you! 
+                        <a href="contact.html">Get in touch</a> to learn about future opportunities.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Create role grid
+            container.innerHTML = visibleRoles.map(role => createRoleCard(role)).join('');
+
+            // Add click handlers for role cards
+            document.querySelectorAll('[data-role-id]').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const roleId = card.getAttribute('data-role-id');
+                    const role = roles.find(r => r.id === roleId);
+                    if (role) {
+                        openRoleModal(role);
+                    }
+                });
+                
+                // Keyboard accessibility
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const roleId = card.getAttribute('data-role-id');
+                        const role = roles.find(r => r.id === roleId);
+                        if (role) {
+                            openRoleModal(role);
+                        }
+                    }
+                });
+            });
+
+            // Add click handlers for view buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const roleId = btn.getAttribute('data-id');
+                    const role = roles.find(r => r.id === roleId);
+                    if (role) {
+                        openRoleModal(role);
+                    }
+                });
+            });
+        }
+
+        // Function to open role modal
+        function openRoleModal(role) {
+            const modal = createRoleModal(role);
+            document.body.appendChild(modal);
+            
+            // Show modal
+            setTimeout(() => modal.classList.add('show'), 10);
+            
+            // Close handlers
+            const closeModal = () => {
+                modal.classList.remove('show');
+                setTimeout(() => modal.remove(), 300);
+            };
+            
+            modal.querySelector('.close').onclick = closeModal;
+            modal.onclick = (e) => {
+                if (e.target === modal) closeModal();
+            };
+            
+            // Close on Escape key
+            const handleEscape = (e) => {
+                if (e.key === 'Escape') {
+                    closeModal();
+                    document.removeEventListener('keydown', handleEscape);
+                }
+            };
+            document.addEventListener('keydown', handleEscape);
+            
+            // Focus management
+            modal.focus();
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeRoles);
+    </script>
 </body>
 </html> 
