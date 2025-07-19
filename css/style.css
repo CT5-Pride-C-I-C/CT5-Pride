@@ -122,14 +122,92 @@
   filter: contrast(150%) brightness(110%);
 }
 
-.high-contrast *,
-.high-contrast *::before,
-.high-contrast *::after {
-  background-color: white !important;
-  color: black !important;
-  border-color: black !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
+/* REBUILT HIGH CONTRAST MODE - Clean Architecture */
+.high-contrast {
+  /* Only affect major layout containers */
+}
+
+.high-contrast body {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast main,
+.high-contrast section:not(.accessibility-panel),
+.high-contrast header,
+.high-contrast footer {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast h1, .high-contrast h2, .high-contrast h3, 
+.high-contrast h4, .high-contrast h5, .high-contrast h6 {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+.high-contrast p {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
+.high-contrast a:not(.accessibility-panel a) {
+  color: #ffff00 !important;
+  background: transparent !important;
+}
+
+.high-contrast button:not(.accessibility-panel button) {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+/* ACCESSIBILITY PANEL - COMPLETELY ISOLATED */
+.accessibility-panel {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 9999 !important;
+}
+
+/* Accessibility panel is now excluded by design - no overrides needed */
+
+/* CLEAN ACCESSIBILITY PANEL HIGH CONTRAST STYLING */
+.high-contrast .accessibility-toggle {
+  background: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+
+.high-contrast .accessibility-menu {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+
+.high-contrast .accessibility-menu h3,
+.high-contrast .accessibility-option label {
+  color: #000000 !important;
+}
+
+.high-contrast .accessibility-toggle-switch {
+  background: #666666 !important;
+  border: 2px solid #000000 !important;
+}
+
+.high-contrast .accessibility-toggle-switch.active {
+  background: #ffff00 !important;
+}
+
+.high-contrast .text-size-btn {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+
+.high-contrast .text-size-btn.active {
+  background: #ffff00 !important;
+  color: #000000 !important;
 }
 
 .high-contrast .button,
@@ -150,10 +228,11 @@
   color: white !important;
 }
 
-/* Reduced Motion */
-.reduce-motion *,
-.reduce-motion *::before,
-.reduce-motion *::after {
+/* Reduced Motion - Specific targeting to avoid layout issues */
+.reduce-motion,
+.reduce-motion *:not(.accessibility-panel):not(.accessibility-panel *),
+.reduce-motion *:not(.accessibility-panel):not(.accessibility-panel *)::before,
+.reduce-motion *:not(.accessibility-panel):not(.accessibility-panel *)::after {
   animation-duration: 0.01ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
@@ -169,18 +248,51 @@
   font-family: inherit !important;
 }
 
-/* Text Size Controls */
+/* REBUILT TEXT SIZE CONTROLS - Comprehensive Coverage */
 .text-small {
-  font-size: 0.9em;
+  font-size: 14px !important;
 }
+
+.text-small *:not(.accessibility-panel *) {
+  font-size: inherit !important;
+}
+
+.text-small h1 { font-size: 2.2rem !important; }
+.text-small h2 { font-size: 1.8rem !important; }
+.text-small h3 { font-size: 1.4rem !important; }
+.text-small h4 { font-size: 1.2rem !important; }
+.text-small h5 { font-size: 1.1rem !important; }
+.text-small h6 { font-size: 1rem !important; }
 
 .text-large {
-  font-size: 1.2em;
+  font-size: 18px !important;
 }
 
-.text-extra-large {
-  font-size: 1.4em;
+.text-large *:not(.accessibility-panel *) {
+  font-size: inherit !important;
 }
+
+.text-large h1 { font-size: 3.8rem !important; }
+.text-large h2 { font-size: 3.2rem !important; }
+.text-large h3 { font-size: 2.6rem !important; }
+.text-large h4 { font-size: 2.2rem !important; }
+.text-large h5 { font-size: 1.8rem !important; }
+.text-large h6 { font-size: 1.6rem !important; }
+
+.text-extra-large {
+  font-size: 22px !important;
+}
+
+.text-extra-large *:not(.accessibility-panel *) {
+  font-size: inherit !important;
+}
+
+.text-extra-large h1 { font-size: 4.6rem !important; }
+.text-extra-large h2 { font-size: 4.0rem !important; }
+.text-extra-large h3 { font-size: 3.4rem !important; }
+.text-extra-large h4 { font-size: 2.8rem !important; }
+.text-extra-large h5 { font-size: 2.4rem !important; }
+.text-extra-large h6 { font-size: 2.0rem !important; }
 
 /* Skip to Main Content */
 .skip-link {
@@ -1498,12 +1610,16 @@ footer::after {
   outline-offset: 3px;
 }
 
-/* Enhanced Accessibility Panel */
+/* Enhanced Accessibility Panel - BULLETPROOF POSITIONING */
 .accessibility-panel {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 9999 !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  margin: 0 !important;
 }
 
 .accessibility-toggle {
@@ -1683,8 +1799,8 @@ footer::after {
 
 @media (max-width: 768px) {
   .accessibility-panel {
-    bottom: 15px;
-    right: 15px;
+    bottom: 15px !important;
+    right: 15px !important;
   }
   
   .accessibility-toggle {
