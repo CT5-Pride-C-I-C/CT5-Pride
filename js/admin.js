@@ -566,7 +566,21 @@ class AdminRoleManager {
             data[key.replace('role', '').toLowerCase()] = value;
         }
 
+        // Add criteria arrays
+        data.essentialCriteria = this.getCriteriaArray('roleEssentialCriteria');
+        data.desirableCriteria = this.getCriteriaArray('roleDesirableCriteria');
+
         return data;
+    }
+
+    getCriteriaArray(fieldId) {
+        const textarea = document.getElementById(fieldId);
+        if (!textarea) return [];
+        
+        return textarea.value
+            .split('\n')
+            .map(item => item.trim())
+            .filter(item => item.length > 0);
     }
 
     validateForm(data) {
@@ -577,6 +591,17 @@ class AdminRoleManager {
                 this.showToast(`${field.charAt(0).toUpperCase() + field.slice(1)} is required`, 'error');
                 return false;
             }
+        }
+
+        // Validate criteria arrays
+        if (!data.essentialCriteria || data.essentialCriteria.length === 0) {
+            this.showToast('At least one essential criteria is required', 'error');
+            return false;
+        }
+
+        if (!data.desirableCriteria || data.desirableCriteria.length === 0) {
+            this.showToast('At least one desirable criteria is required', 'error');
+            return false;
         }
 
         return true;

@@ -1,6 +1,7 @@
 const express = require('express');
 const { exec } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 const config = require('./config');
 require('dotenv').config();
 
@@ -60,30 +61,50 @@ app.post('/api/submit-role', async (req, res) => {
             });
         }
 
-        console.log('🔄 Starting Git operations...');
+        console.log('🔄 Adding new role:', roleData.title);
+
+        // Load current config.js
+        const configPath = path.join(__dirname, 'js', 'config.js');
+        let configContent = fs.readFileSync(configPath, 'utf8');
+        
+        // Parse the roles array from config.js
+        const rolesMatch = configContent.match(/export const roles = (\[[\s\S]*?\]);/);
+        if (!rolesMatch) {
+            throw new Error('Could not find roles array in config.js');
+        }
+        
+        // Parse the roles array
+        const rolesString = rolesMatch[1];
+        const roles = eval('(' + rolesString + ')');
+        
+        // Check if role with same ID already exists
+        if (roles.find(role => role.id === roleData.id)) {
+            return res.status(400).json({
+                success: false,
+                message: `❌ Role with ID "${roleData.id}" already exists`
+            });
+        }
+        
+        // Add the new role to the array
+        roles.push(roleData);
+        
+        // Create new config content with updated roles
+        const updatedRolesString = JSON.stringify(roles, null, 4);
+        const updatedConfigContent = configContent.replace(
+            /export const roles = (\[[\s\S]*?\]);/,
+            `export const roles = ${updatedRolesString};`
+        );
+        
+        // Write the updated config back to file
+        fs.writeFileSync(configPath, updatedConfigContent, 'utf8');
+        console.log('✅ Role added to config.js');
 
         // Configure Git remote if not already done
         configureGitRemote();
 
-        // Add all changes
-        await runCommand('git add .');
-        console.log('✅ Files staged for commit');
-
-        // Check if there are any staged changes to commit
-        const status = await runCommand('git status --porcelain');
-        if (!status.trim()) {
-            console.log('ℹ️ No changes to commit.');
-            return res.status(400).json({
-                success: false,
-                message: 'ℹ️ No changes detected — nothing to commit.',
-                details: {
-                    roleTitle: roleData.title,
-                    roleId: roleData.id,
-                    timestamp: new Date().toISOString(),
-                    reason: 'No file changes were detected after staging'
-                }
-            });
-        }
+        // Add the updated config.js file
+        await runCommand('git add js/config.js');
+        console.log('✅ Updated config.js staged for commit');
 
         // Commit changes
         const commitMessage = `Add new role: ${roleData.title}`;
@@ -106,10 +127,10 @@ app.post('/api/submit-role', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('❌ Git operation failed:', error);
+        console.error('❌ Submit operation failed:', error);
         
         // Provide more specific error messages
-        let errorMessage = '❌ Failed to submit role to GitHub';
+        let errorMessage = '❌ Failed to submit role';
         let errorDetails = error && error.message ? error.message : 'Unknown error occurred';
         
         if (error && error.message && error.message.includes('repository') && error.message.includes('not found')) {
@@ -121,9 +142,6 @@ app.post('/api/submit-role', async (req, res) => {
         } else if (error && error.message && error.message.includes('network')) {
             errorMessage = '❌ Network error';
             errorDetails = 'Unable to connect to GitHub. Please check your internet connection.';
-        } else if (error && error.message && error.message.includes('nothing to commit')) {
-            errorMessage = 'ℹ️ No changes to commit';
-            errorDetails = 'No file changes were detected. The role may already exist or no modifications were made.';
         }
         
         res.status(500).json({
@@ -224,28 +242,49 @@ app.put('/api/update-role', async (req, res) => {
 
         console.log('🔄 Updating role:', oldId);
 
+        // Load current config.js
+        const configPath = path.join(__dirname, 'js', 'config.js');
+        let configContent = fs.readFileSync(configPath, 'utf8');
+        
+        // Parse the roles array from config.js
+        const rolesMatch = configContent.match(/export const roles = (\[[\s\S]*?\]);/);
+        if (!rolesMatch) {
+            throw new Error('Could not find roles array in config.js');
+        }
+        
+        // Parse the roles array
+        const rolesString = rolesMatch[1];
+        const roles = eval('(' + rolesString + ')');
+        
+        // Find the role to update
+        const roleIndex = roles.findIndex(role => role.id === oldId);
+        if (roleIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                message: `❌ Role with ID "${oldId}" not found`
+            });
+        }
+        
+        // Update the role
+        roles[roleIndex] = { ...roles[roleIndex], ...updatedRole };
+        
+        // Create new config content with updated roles
+        const updatedRolesString = JSON.stringify(roles, null, 4);
+        const updatedConfigContent = configContent.replace(
+            /export const roles = (\[[\s\S]*?\]);/,
+            `export const roles = ${updatedRolesString};`
+        );
+        
+        // Write the updated config back to file
+        fs.writeFileSync(configPath, updatedConfigContent, 'utf8');
+        console.log('✅ Role updated in config.js');
+
         // Configure Git remote if not already done
         configureGitRemote();
 
-        // Add all changes
-        await runCommand('git add .');
-        console.log('✅ Files staged for commit');
-
-        // Check if there are any staged changes to commit
-        const status = await runCommand('git status --porcelain');
-        if (!status.trim()) {
-            console.log('ℹ️ No changes to commit.');
-            return res.status(400).json({
-                success: false,
-                message: 'ℹ️ No changes detected — nothing to commit.',
-                details: {
-                    roleTitle: updatedRole.title,
-                    roleId: updatedRole.id,
-                    timestamp: new Date().toISOString(),
-                    reason: 'No file changes were detected after staging'
-                }
-            });
-        }
+        // Add the updated config.js file
+        await runCommand('git add js/config.js');
+        console.log('✅ Updated config.js staged for commit');
 
         // Commit changes
         const commitMessage = `Edit role: ${updatedRole.title}`;
@@ -269,9 +308,9 @@ app.put('/api/update-role', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('❌ Git operation failed:', error);
+        console.error('❌ Update operation failed:', error);
         
-        let errorMessage = '❌ Failed to update role on GitHub';
+        let errorMessage = '❌ Failed to update role';
         let errorDetails = error && error.message ? error.message : 'Unknown error occurred';
         
         res.status(500).json({
@@ -297,30 +336,52 @@ app.delete('/api/delete-role/:id', async (req, res) => {
 
         console.log('🔄 Deleting role:', roleId);
 
+        // Load current config.js
+        const configPath = path.join(__dirname, 'js', 'config.js');
+        let configContent = fs.readFileSync(configPath, 'utf8');
+        
+        // Parse the roles array from config.js
+        const rolesMatch = configContent.match(/export const roles = (\[[\s\S]*?\]);/);
+        if (!rolesMatch) {
+            throw new Error('Could not find roles array in config.js');
+        }
+        
+        // Parse the roles array
+        const rolesString = rolesMatch[1];
+        const roles = eval('(' + rolesString + ')');
+        
+        // Find the role to delete
+        const roleToDelete = roles.find(role => role.id === roleId);
+        if (!roleToDelete) {
+            return res.status(404).json({
+                success: false,
+                message: `❌ Role with ID "${roleId}" not found`
+            });
+        }
+        
+        // Remove the role from the array
+        const updatedRoles = roles.filter(role => role.id !== roleId);
+        
+        // Create new config content with updated roles
+        const updatedRolesString = JSON.stringify(updatedRoles, null, 4);
+        const updatedConfigContent = configContent.replace(
+            /export const roles = (\[[\s\S]*?\]);/,
+            `export const roles = ${updatedRolesString};`
+        );
+        
+        // Write the updated config back to file
+        fs.writeFileSync(configPath, updatedConfigContent, 'utf8');
+        console.log('✅ Role removed from config.js');
+
         // Configure Git remote if not already done
         configureGitRemote();
 
-        // Add all changes
-        await runCommand('git add .');
-        console.log('✅ Files staged for commit');
-
-        // Check if there are any staged changes to commit
-        const status = await runCommand('git status --porcelain');
-        if (!status.trim()) {
-            console.log('ℹ️ No changes to commit.');
-            return res.status(400).json({
-                success: false,
-                message: 'ℹ️ No changes detected — nothing to commit.',
-                details: {
-                    roleId: roleId,
-                    timestamp: new Date().toISOString(),
-                    reason: 'No file changes were detected after staging'
-                }
-            });
-        }
+        // Add the updated config.js file
+        await runCommand('git add js/config.js');
+        console.log('✅ Updated config.js staged for commit');
 
         // Commit changes
-        const commitMessage = `Remove role: ${roleId}`;
+        const commitMessage = `Remove role: ${roleToDelete.title}`;
         await runCommand(`git commit -m "${commitMessage}"`);
         console.log('✅ Changes committed');
 
@@ -334,14 +395,15 @@ app.delete('/api/delete-role/:id', async (req, res) => {
             message: '✅ Role deleted and changes pushed to GitHub successfully!',
             details: {
                 roleId: roleId,
+                roleTitle: roleToDelete.title,
                 timestamp: new Date().toISOString()
             }
         });
 
     } catch (error) {
-        console.error('❌ Git operation failed:', error);
+        console.error('❌ Delete operation failed:', error);
         
-        let errorMessage = '❌ Failed to delete role from GitHub';
+        let errorMessage = '❌ Failed to delete role';
         let errorDetails = error && error.message ? error.message : 'Unknown error occurred';
         
         res.status(500).json({
