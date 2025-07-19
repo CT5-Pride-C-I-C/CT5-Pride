@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Volunteer Role - CT5 Pride Admin</title>
+    <title>Role Management - CT5 Pride Admin</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/admin.css">
     <link rel="icon" type="image/svg+xml" href="Images/Logo-with-Transparent-background.svg">
@@ -71,13 +71,94 @@
         <main>
             <section class="admin-hero">
                 <div class="container">
-                    <h1>🎯 Add New Volunteer Role</h1>
-                    <p>Create and publish new volunteer opportunities for CT5 Pride</p>
+                    <h1>🎯 Role Management Dashboard</h1>
+                    <p>Manage all volunteer roles for CT5 Pride - Create, Edit, Delete, and Update Status</p>
                 </div>
             </section>
 
-            <section class="admin-form-section">
+            <!-- Role Management Dashboard -->
+            <section class="role-management-section">
                 <div class="container">
+                    <!-- Dashboard Header -->
+                    <div class="dashboard-header">
+                        <div class="dashboard-stats">
+                            <div class="stat-card">
+                                <span class="stat-number" id="totalRoles">0</span>
+                                <span class="stat-label">Total Roles</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="liveRoles">0</span>
+                                <span class="stat-label">Live Roles</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="draftRoles">0</span>
+                                <span class="stat-label">Draft Roles</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="archivedRoles">0</span>
+                                <span class="stat-label">Archived</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-actions">
+                            <button id="addNewRoleBtn" class="button primary">➕ Add New Role</button>
+                            <button id="refreshRolesBtn" class="button secondary">🔄 Refresh</button>
+                        </div>
+                    </div>
+
+                    <!-- Search and Filter -->
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <input type="text" id="roleSearch" placeholder="Search roles by title, department, or ID...">
+                            <span class="search-icon">🔍</span>
+                        </div>
+                        <div class="filter-options">
+                            <select id="statusFilter">
+                                <option value="">All Statuses</option>
+                                <option value="open">Live</option>
+                                <option value="draft">Draft</option>
+                                <option value="closed">Archived</option>
+                            </select>
+                            <select id="departmentFilter">
+                                <option value="">All Departments</option>
+                                <option value="Marketing & Communications">Marketing & Communications</option>
+                                <option value="Events & Operations">Events & Operations</option>
+                                <option value="Community Outreach">Community Outreach</option>
+                                <option value="Fundraising">Fundraising</option>
+                                <option value="Youth Services">Youth Services</option>
+                                <option value="Governance & Administration">Governance & Administration</option>
+                                <option value="Volunteer Management">Volunteer Management</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Roles Table -->
+                    <div class="roles-table-container">
+                        <div id="rolesTable" class="roles-table">
+                            <!-- Roles will be loaded here dynamically -->
+                        </div>
+                        
+                        <div id="noRolesMessage" class="no-roles-message" style="display: none;">
+                            <h3>📝 No Roles Found</h3>
+                            <p>No volunteer roles have been created yet. Click "Add New Role" to create your first role.</p>
+                        </div>
+                        
+                        <div id="loadingRoles" class="loading-message">
+                            <div class="loading-spinner"></div>
+                            <p>Loading roles...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add/Edit Role Form Section (Initially Hidden) -->
+            <section id="roleFormSection" class="admin-form-section" style="display: none;">
+                <div class="container">
+                    <div class="form-header">
+                        <h2 id="formTitle">🎯 Add New Volunteer Role</h2>
+                        <button id="closeFormBtn" class="button outline">✕ Close</button>
+                    </div>
+                    
                     <div class="admin-form-container">
                         <form id="roleForm" class="admin-form">
                             <div class="form-grid">
@@ -103,10 +184,12 @@
                                             <label for="roleCategory">Category *</label>
                                             <select id="roleCategory" name="roleCategory" required>
                                                 <option value="">Select Category</option>
-                                                <option value="Year-Round">Year-Round</option>
-                                                <option value="Event-Specific">Event-Specific</option>
-                                                <option value="Seasonal">Seasonal</option>
-                                                <option value="Project-Based">Project-Based</option>
+                                                <option value="governance">Governance</option>
+                                                <option value="marketing">Marketing</option>
+                                                <option value="events">Events</option>
+                                                <option value="outreach">Outreach</option>
+                                                <option value="fundraising">Fundraising</option>
+                                                <option value="youth">Youth</option>
                                             </select>
                                         </div>
 
@@ -114,6 +197,7 @@
                                             <label for="roleDepartment">Department *</label>
                                             <select id="roleDepartment" name="roleDepartment" required>
                                                 <option value="">Select Department</option>
+                                                <option value="Board of Directors">Board of Directors</option>
                                                 <option value="Marketing & Communications">Marketing & Communications</option>
                                                 <option value="Events & Operations">Events & Operations</option>
                                                 <option value="Community Outreach">Community Outreach</option>
@@ -131,7 +215,7 @@
                                             <select id="roleStatus" name="roleStatus" required>
                                                 <option value="draft">Draft (Preview Only)</option>
                                                 <option value="open">Open (Live)</option>
-                                                <option value="closed">Closed</option>
+                                                <option value="closed">Archived</option>
                                             </select>
                                         </div>
 
@@ -238,13 +322,24 @@
                     <div id="successMessage" class="success-section" style="display: none;">
                         <!-- Success content will be populated by JavaScript -->
                     </div>
-
-                    <!-- Add Another Role Button -->
-                    <div class="add-another-section" style="display: none;">
-                        <button id="addAnotherBtn" class="button primary">➕ Add Another Role</button>
-                    </div>
                 </div>
             </section>
+
+            <!-- Delete Confirmation Modal -->
+            <div id="deleteModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <h3>🗑️ Confirm Delete</h3>
+                    <p>Are you sure you want to delete the role "<span id="deleteRoleTitle"></span>"?</p>
+                    <p><strong>This action cannot be undone.</strong></p>
+                    <div class="modal-actions">
+                        <button id="confirmDeleteBtn" class="button danger">🗑️ Delete Role</button>
+                        <button id="cancelDeleteBtn" class="button outline">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toast Notifications -->
+            <div id="toastContainer" class="toast-container"></div>
         </main>
 
         <footer>

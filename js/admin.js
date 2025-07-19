@@ -1,22 +1,30 @@
-// Admin Role Management System - GitHub Actions Integration
+// Complete Role Management System - CT5 Pride Admin
 class AdminRoleManager {
     constructor() {
-        this.form = document.getElementById('roleForm');
-        this.previewContainer = document.getElementById('rolePreview');
-        this.successMessage = document.getElementById('successMessage');
+        this.roles = [];
+        this.filteredRoles = [];
+        this.editingRoleId = null;
+        this.originalRoleData = null;
+        
+        // DOM elements
         this.passwordScreen = document.getElementById('passwordScreen');
         this.adminContent = document.getElementById('adminContent');
+        this.roleFormSection = document.getElementById('roleFormSection');
+        this.rolesTable = document.getElementById('rolesTable');
+        this.deleteModal = document.getElementById('deleteModal');
+        this.toastContainer = document.getElementById('toastContainer');
         
-        // Admin password (you can change this)
+        // Admin password
         this.adminPassword = 'CT5Pride2024!';
         
         this.checkAuthentication();
-        this.initializeForm();
+        this.initializeDashboard();
         this.bindEvents();
+        this.loadRoles();
     }
 
+    // Authentication
     checkAuthentication() {
-        // Check if user is already authenticated
         const isAuthenticated = sessionStorage.getItem('ct5pride_admin_authenticated');
         
         if (isAuthenticated === 'true') {
@@ -49,28 +57,17 @@ class AdminRoleManager {
     logout() {
         sessionStorage.removeItem('ct5pride_admin_authenticated');
         this.showPasswordScreen();
-        // Clear any form data
-        if (this.form) {
-            this.form.reset();
-        }
+        this.hideForm();
     }
 
-    initializeForm() {
-        // Set default values
-        document.getElementById('roleId').value = this.generateRoleId();
-        document.getElementById('roleStatus').value = 'draft';
-        document.getElementById('roleIcon').value = 'volunteers';
-        
-        // Auto-generate ID when title changes
-        document.getElementById('roleTitle').addEventListener('input', (e) => {
-            if (!document.getElementById('roleId').value.startsWith('custom-')) {
-                document.getElementById('roleId').value = this.generateRoleId();
-            }
-        });
+    // Dashboard Initialization
+    initializeDashboard() {
+        this.updateStats();
     }
 
+    // Event Binding
     bindEvents() {
-        // Password form submission
+        // Password form
         const passwordForm = document.getElementById('passwordForm');
         if (passwordForm) {
             passwordForm.addEventListener('submit', (e) => {
@@ -87,40 +84,87 @@ class AdminRoleManager {
             });
         }
 
-        // Form submission
-        if (this.form) {
-            this.form.addEventListener('submit', (e) => {
+        // Dashboard buttons
+        const addNewRoleBtn = document.getElementById('addNewRoleBtn');
+        if (addNewRoleBtn) {
+            addNewRoleBtn.addEventListener('click', () => {
+                this.showForm();
+            });
+        }
+
+        const refreshRolesBtn = document.getElementById('refreshRolesBtn');
+        if (refreshRolesBtn) {
+            refreshRolesBtn.addEventListener('click', () => {
+                this.loadRoles();
+            });
+        }
+
+        // Search and filters
+        const roleSearch = document.getElementById('roleSearch');
+        if (roleSearch) {
+            roleSearch.addEventListener('input', () => {
+                this.filterRoles();
+            });
+        }
+
+        const statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', () => {
+                this.filterRoles();
+            });
+        }
+
+        const departmentFilter = document.getElementById('departmentFilter');
+        if (departmentFilter) {
+            departmentFilter.addEventListener('change', () => {
+                this.filterRoles();
+            });
+        }
+
+        // Form events
+        const roleForm = document.getElementById('roleForm');
+        if (roleForm) {
+            roleForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 this.saveRole();
             });
         }
 
-        // Preview button
-        const previewBtn = document.getElementById('previewBtn');
-        if (previewBtn) {
-            previewBtn.addEventListener('click', () => {
-                this.generatePreview();
+        const closeFormBtn = document.getElementById('closeFormBtn');
+        if (closeFormBtn) {
+            closeFormBtn.addEventListener('click', () => {
+                this.hideForm();
             });
         }
 
-        // Clear button
-        const clearBtn = document.getElementById('clearBtn');
-        if (clearBtn) {
-            clearBtn.addEventListener('click', () => {
-                this.clearForm();
+        // Delete modal
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', () => {
+                this.confirmDelete();
             });
         }
 
-        // Add another role button
-        const addAnotherBtn = document.getElementById('addAnotherBtn');
-        if (addAnotherBtn) {
-            addAnotherBtn.addEventListener('click', () => {
-                this.clearForm();
-                this.hideSuccessMessage();
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        if (cancelDeleteBtn) {
+            cancelDeleteBtn.addEventListener('click', () => {
+                this.hideDeleteModal();
+            });
+        }
+
+        // Auto-generate ID from title
+        const roleTitle = document.getElementById('roleTitle');
+        if (roleTitle) {
+            roleTitle.addEventListener('input', (e) => {
+                const roleId = document.getElementById('roleId');
+                if (roleId && !roleId.value.startsWith('custom-')) {
+                    roleId.value = this.generateRoleId(e.target.value);
+                }
             });
         }
     }
 
+    // Password handling
     handlePasswordSubmit() {
         const passwordInput = document.getElementById('adminPassword');
         const passwordError = document.getElementById('passwordError');
@@ -136,238 +180,543 @@ class AdminRoleManager {
         }
     }
 
-    generateRoleId() {
-        const title = document.getElementById('roleTitle').value || 'new-role';
-        return 'custom-' + title.toLowerCase()
+    // Role Loading
+    async loadRoles() {
+        try {
+            this.showLoading();
+            
+            // Load roles from config.js
+            const { roles } = await import('./config.js');
+            this.roles = roles || [];
+            
+            this.filteredRoles = [...this.roles];
+            this.renderRoles();
+            this.updateStats();
+            
+        } catch (error) {
+            console.error('Error loading roles:', error);
+            this.showToast('Error loading roles', 'error');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    // Role Rendering
+    renderRoles() {
+        if (this.filteredRoles.length === 0) {
+            this.showNoRolesMessage();
+            return;
+        }
+
+        const tableHTML = `
+            <div class="roles-table-header">
+                <div>Role Information</div>
+                <div>Department</div>
+                <div>Status</div>
+                <div>Category</div>
+                <div>Actions</div>
+            </div>
+            ${this.filteredRoles.map(role => this.renderRoleRow(role)).join('')}
+        `;
+
+        this.rolesTable.innerHTML = tableHTML;
+        this.bindRoleRowEvents();
+    }
+
+    renderRoleRow(role) {
+        const isEditing = this.editingRoleId === role.id;
+        const statusClass = this.getStatusClass(role.status);
+        const statusText = this.getStatusText(role.status);
+        
+        if (isEditing) {
+            return this.renderEditingRow(role);
+        }
+
+        return `
+            <div class="role-row ${role.status === 'closed' ? 'archived' : ''}" data-role-id="${role.id}">
+                <div class="role-info">
+                    <div class="role-title">${role.title}</div>
+                    <div class="role-id">${role.id}</div>
+                </div>
+                <div class="role-department">${role.department}</div>
+                <div class="role-status ${statusClass}">${statusText}</div>
+                <div>${role.category}</div>
+                <div class="role-actions">
+                    <button class="edit-btn" data-role-id="${role.id}">✏️ Edit</button>
+                    <button class="status-btn" data-role-id="${role.id}">📤 Status</button>
+                    <button class="delete-btn" data-role-id="${role.id}">🗑️ Delete</button>
+                </div>
+            </div>
+        `;
+    }
+
+    renderEditingRow(role) {
+        return `
+            <div class="role-row editing" data-role-id="${role.id}">
+                <div class="role-info">
+                    <input type="text" class="edit-title" value="${role.title}" placeholder="Role Title">
+                    <input type="text" class="edit-id" value="${role.id}" placeholder="Role ID">
+                </div>
+                <div>
+                    <select class="edit-department">
+                        <option value="Board of Directors" ${role.department === 'Board of Directors' ? 'selected' : ''}>Board of Directors</option>
+                        <option value="Marketing & Communications" ${role.department === 'Marketing & Communications' ? 'selected' : ''}>Marketing & Communications</option>
+                        <option value="Events & Operations" ${role.department === 'Events & Operations' ? 'selected' : ''}>Events & Operations</option>
+                        <option value="Community Outreach" ${role.department === 'Community Outreach' ? 'selected' : ''}>Community Outreach</option>
+                        <option value="Fundraising" ${role.department === 'Fundraising' ? 'selected' : ''}>Fundraising</option>
+                        <option value="Youth Services" ${role.department === 'Youth Services' ? 'selected' : ''}>Youth Services</option>
+                        <option value="Governance & Administration" ${role.department === 'Governance & Administration' ? 'selected' : ''}>Governance & Administration</option>
+                        <option value="Volunteer Management" ${role.department === 'Volunteer Management' ? 'selected' : ''}>Volunteer Management</option>
+                    </select>
+                </div>
+                <div>
+                    <select class="edit-status">
+                        <option value="draft" ${role.status === 'draft' ? 'selected' : ''}>Draft</option>
+                        <option value="open" ${role.status === 'open' ? 'selected' : ''}>Live</option>
+                        <option value="closed" ${role.status === 'closed' ? 'selected' : ''}>Archived</option>
+                    </select>
+                </div>
+                <div>
+                    <select class="edit-category">
+                        <option value="governance" ${role.category === 'governance' ? 'selected' : ''}>Governance</option>
+                        <option value="marketing" ${role.category === 'marketing' ? 'selected' : ''}>Marketing</option>
+                        <option value="events" ${role.category === 'events' ? 'selected' : ''}>Events</option>
+                        <option value="outreach" ${role.category === 'outreach' ? 'selected' : ''}>Outreach</option>
+                        <option value="fundraising" ${role.category === 'fundraising' ? 'selected' : ''}>Fundraising</option>
+                        <option value="youth" ${role.category === 'youth' ? 'selected' : ''}>Youth</option>
+                    </select>
+                </div>
+                <div class="role-actions">
+                    <button class="save-btn" data-role-id="${role.id}">💾 Save</button>
+                    <button class="cancel-btn" data-role-id="${role.id}">❌ Cancel</button>
+                </div>
+            </div>
+        `;
+    }
+
+    // Role Row Event Binding
+    bindRoleRowEvents() {
+        // Edit buttons
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const roleId = e.target.dataset.roleId;
+                this.startEditing(roleId);
+            });
+        });
+
+        // Status buttons
+        document.querySelectorAll('.status-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const roleId = e.target.dataset.roleId;
+                this.toggleStatus(roleId);
+            });
+        });
+
+        // Delete buttons
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const roleId = e.target.dataset.roleId;
+                this.showDeleteModal(roleId);
+            });
+        });
+
+        // Save buttons (for editing)
+        document.querySelectorAll('.save-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const roleId = e.target.dataset.roleId;
+                this.saveEditedRole(roleId);
+            });
+        });
+
+        // Cancel buttons (for editing)
+        document.querySelectorAll('.cancel-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const roleId = e.target.dataset.roleId;
+                this.cancelEditing(roleId);
+            });
+        });
+    }
+
+    // Inline Editing
+    startEditing(roleId) {
+        if (this.editingRoleId) {
+            this.showToast('Please finish editing the current role first', 'warning');
+            return;
+        }
+
+        const role = this.roles.find(r => r.id === roleId);
+        if (!role) return;
+
+        this.editingRoleId = roleId;
+        this.originalRoleData = { ...role };
+        this.renderRoles();
+    }
+
+    async saveEditedRole(roleId) {
+        const roleRow = document.querySelector(`[data-role-id="${roleId}"]`);
+        if (!roleRow) return;
+
+        const updatedRole = {
+            ...this.roles.find(r => r.id === roleId),
+            title: roleRow.querySelector('.edit-title').value,
+            id: roleRow.querySelector('.edit-id').value,
+            department: roleRow.querySelector('.edit-department').value,
+            status: roleRow.querySelector('.edit-status').value,
+            category: roleRow.querySelector('.edit-category').value
+        };
+
+        // Validate
+        if (!updatedRole.title || !updatedRole.id) {
+            this.showToast('Title and ID are required', 'error');
+            return;
+        }
+
+        // Check for duplicate ID
+        if (updatedRole.id !== roleId && this.roles.find(r => r.id === updatedRole.id)) {
+            this.showToast('Role ID already exists', 'error');
+            return;
+        }
+
+        try {
+            await this.updateRole(roleId, updatedRole);
+            this.editingRoleId = null;
+            this.originalRoleData = null;
+            this.loadRoles();
+            this.showToast(`Role "${updatedRole.title}" updated successfully`, 'success');
+        } catch (error) {
+            this.showToast('Failed to update role', 'error');
+        }
+    }
+
+    cancelEditing(roleId) {
+        this.editingRoleId = null;
+        this.originalRoleData = null;
+        this.renderRoles();
+    }
+
+    // Status Management
+    async toggleStatus(roleId) {
+        const role = this.roles.find(r => r.id === roleId);
+        if (!role) return;
+
+        const statusMap = {
+            'draft': 'open',
+            'open': 'closed',
+            'closed': 'draft'
+        };
+
+        const newStatus = statusMap[role.status];
+        const updatedRole = { ...role, status: newStatus };
+
+        try {
+            await this.updateRole(roleId, updatedRole);
+            this.loadRoles();
+            this.showToast(`Status updated to ${this.getStatusText(newStatus)}`, 'success');
+        } catch (error) {
+            this.showToast('Failed to update status', 'error');
+        }
+    }
+
+    // Role Operations
+    async createRole(roleData) {
+        try {
+            const response = await fetch('/api/submit-role', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ roleData })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showToast(`Role "${roleData.title}" created successfully`, 'success');
+                this.hideForm();
+                this.loadRoles();
+                return true;
+            } else {
+                this.showToast(result.message || 'Failed to create role', 'error');
+                return false;
+            }
+        } catch (error) {
+            this.showToast('Network error while creating role', 'error');
+            return false;
+        }
+    }
+
+    async updateRole(oldId, updatedRole) {
+        try {
+            const response = await fetch('/api/update-role', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    oldId, 
+                    updatedRole 
+                })
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                return true;
+            } else {
+                throw new Error(result.message || 'Failed to update role');
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async deleteRole(roleId) {
+        try {
+            const response = await fetch(`/api/delete-role/${roleId}`, {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showToast('Role deleted successfully', 'success');
+                this.loadRoles();
+                return true;
+            } else {
+                this.showToast(result.message || 'Failed to delete role', 'error');
+                return false;
+            }
+        } catch (error) {
+            this.showToast('Network error while deleting role', 'error');
+            return false;
+        }
+    }
+
+    // Form Management
+    showForm(roleData = null) {
+        this.roleFormSection.style.display = 'block';
+        
+        if (roleData) {
+            // Edit mode
+            document.getElementById('formTitle').textContent = '✏️ Edit Volunteer Role';
+            this.populateForm(roleData);
+        } else {
+            // Create mode
+            document.getElementById('formTitle').textContent = '🎯 Add New Volunteer Role';
+            this.clearForm();
+        }
+        
+        this.roleFormSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    hideForm() {
+        this.roleFormSection.style.display = 'none';
+        this.clearForm();
+    }
+
+    clearForm() {
+        const form = document.getElementById('roleForm');
+        if (form) {
+            form.reset();
+            document.getElementById('roleId').value = this.generateRoleId();
+            document.getElementById('roleStatus').value = 'draft';
+            document.getElementById('roleIcon').value = 'volunteers';
+        }
+    }
+
+    populateForm(roleData) {
+        const form = document.getElementById('roleForm');
+        if (!form) return;
+
+        Object.keys(roleData).forEach(key => {
+            const field = form.querySelector(`[name="role${key.charAt(0).toUpperCase() + key.slice(1)}"]`);
+            if (field) {
+                field.value = roleData[key];
+            }
+        });
+    }
+
+    async saveRole() {
+        const formData = this.getFormData();
+        
+        if (!this.validateForm(formData)) {
+            return;
+        }
+
+        // Check for duplicate ID
+        if (this.roles.find(r => r.id === formData.id)) {
+            this.showToast('Role ID already exists', 'error');
+            return;
+        }
+
+        const success = await this.createRole(formData);
+        if (success) {
+            this.clearForm();
+        }
+    }
+
+    getFormData() {
+        const form = document.getElementById('roleForm');
+        if (!form) return {};
+
+        const formData = new FormData(form);
+        const data = {};
+        
+        for (let [key, value] of formData.entries()) {
+            data[key.replace('role', '').toLowerCase()] = value;
+        }
+
+        return data;
+    }
+
+    validateForm(data) {
+        const requiredFields = ['title', 'id', 'department', 'category', 'summary', 'location', 'reportingLine', 'timeCommitment', 'description'];
+        
+        for (const field of requiredFields) {
+            if (!data[field] || data[field].trim() === '') {
+                this.showToast(`${field.charAt(0).toUpperCase() + field.slice(1)} is required`, 'error');
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Delete Modal
+    showDeleteModal(roleId) {
+        const role = this.roles.find(r => r.id === roleId);
+        if (!role) return;
+
+        document.getElementById('deleteRoleTitle').textContent = role.title;
+        this.deleteModal.style.display = 'flex';
+        this.deleteModal.dataset.roleId = roleId;
+    }
+
+    hideDeleteModal() {
+        this.deleteModal.style.display = 'none';
+        delete this.deleteModal.dataset.roleId;
+    }
+
+    async confirmDelete() {
+        const roleId = this.deleteModal.dataset.roleId;
+        if (!roleId) return;
+
+        await this.deleteRole(roleId);
+        this.hideDeleteModal();
+    }
+
+    // Filtering and Search
+    filterRoles() {
+        const searchTerm = document.getElementById('roleSearch').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const departmentFilter = document.getElementById('departmentFilter').value;
+
+        this.filteredRoles = this.roles.filter(role => {
+            const matchesSearch = !searchTerm || 
+                role.title.toLowerCase().includes(searchTerm) ||
+                role.id.toLowerCase().includes(searchTerm) ||
+                role.department.toLowerCase().includes(searchTerm);
+
+            const matchesStatus = !statusFilter || role.status === statusFilter;
+            const matchesDepartment = !departmentFilter || role.department === departmentFilter;
+
+            return matchesSearch && matchesStatus && matchesDepartment;
+        });
+
+        this.renderRoles();
+    }
+
+    // Stats and UI Updates
+    updateStats() {
+        const total = this.roles.length;
+        const live = this.roles.filter(r => r.status === 'open').length;
+        const draft = this.roles.filter(r => r.status === 'draft').length;
+        const archived = this.roles.filter(r => r.status === 'closed').length;
+
+        document.getElementById('totalRoles').textContent = total;
+        document.getElementById('liveRoles').textContent = live;
+        document.getElementById('draftRoles').textContent = draft;
+        document.getElementById('archivedRoles').textContent = archived;
+    }
+
+    showLoading() {
+        document.getElementById('loadingRoles').style.display = 'block';
+        document.getElementById('rolesTable').style.display = 'none';
+        document.getElementById('noRolesMessage').style.display = 'none';
+    }
+
+    hideLoading() {
+        document.getElementById('loadingRoles').style.display = 'none';
+        document.getElementById('rolesTable').style.display = 'block';
+    }
+
+    showNoRolesMessage() {
+        document.getElementById('noRolesMessage').style.display = 'block';
+        document.getElementById('rolesTable').style.display = 'none';
+    }
+
+    // Utility Functions
+    generateRoleId(title = '') {
+        const baseTitle = title || document.getElementById('roleTitle')?.value || 'new-role';
+        return 'custom-' + baseTitle.toLowerCase()
             .replace(/[^a-z0-9\s-]/g, '')
             .replace(/\s+/g, '-')
             .replace(/-+/g, '-')
             .trim();
     }
 
-    generatePreview() {
-        const roleData = this.getFormData();
-        if (!this.validateForm(roleData)) return;
-
-        const preview = this.createRolePreview(roleData);
-        this.previewContainer.innerHTML = preview;
-        this.previewContainer.style.display = 'block';
-        
-        // Scroll to preview
-        this.previewContainer.scrollIntoView({ behavior: 'smooth' });
+    getStatusClass(status) {
+        const statusMap = {
+            'open': 'live',
+            'draft': 'draft',
+            'closed': 'archived'
+        };
+        return statusMap[status] || 'draft';
     }
 
-    createRolePreview(role) {
-        const roleIcons = {
-            "parade": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
-            "social-media": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.92 5.01C18.72 4.42 18.16 4 17.5 4h-11c-.66 0-1.22.42-1.42 1.01L3 11v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-8l-2.08-5.99zM9 16H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z"/></svg>`,
-            "outreach": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.84 1.84 0 0 0 18.2 7c-.8 0-1.54.5-1.85 1.26l-1.92 5.76c-.15.45.15.98.64.98.18 0 .35-.06.49-.16l2.44-1.68V22h2zm-7.5-10.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5zM5.5 6c1.11 0 2-.89 2-2s-.89-2-2-2-2 .89-2 2 .89 2 2 2zm2.5 16v-7H9.5l-1.32-3.96c-.26-.79-.98-1.29-1.85-1.29C5.76 9.75 5.2 10.42 5.2 11.2c0 .27.08.53.22.74L7 16h1v6h2z"/></svg>`,
-            "volunteers": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3 6.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5zM8 13c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm8 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-8 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>`,
-            "fundraising": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>`,
-            "youth": `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`
+    getStatusText(status) {
+        const statusMap = {
+            'open': 'Live',
+            'draft': 'Draft',
+            'closed': 'Archived'
         };
+        return statusMap[status] || 'Draft';
+    }
 
-        return `
-            <div class="preview-card">
-                <h3>📋 Role Preview</h3>
-                <div class="simple-role-card" style="cursor: default;">
-                    <div class="role-header">
-                        <div class="role-icon-simple">${roleIcons[role.icon] || roleIcons['volunteers']}</div>
-                        <div class="role-info">
-                            <h3>${role.title}</h3>
-                            <span class="role-department-simple">${role.department}</span>
-                            ${role.status === 'draft' ? '<span class="draft-badge">Preview</span>' : ''}
-                        </div>
-                        <div class="role-actions-simple">
-                            ${role.status === 'open' ? `<a href="apply.html" class="button">Apply Now</a>` : ''}
-                        </div>
-                    </div>
-                    <p class="role-summary">${role.summary}</p>
-                </div>
-                
-                <div class="preview-details">
-                    <h4>Role Details:</h4>
-                    <ul>
-                        <li><strong>ID:</strong> ${role.id}</li>
-                        <li><strong>Category:</strong> ${role.category}</li>
-                        <li><strong>Status:</strong> ${role.status}</li>
-                        <li><strong>Location:</strong> ${role.location}</li>
-                        <li><strong>Reporting Line:</strong> ${role.reportingLine}</li>
-                        <li><strong>Time Commitment:</strong> ${role.timeCommitment}</li>
-                    </ul>
-                    
-                    <h4>Essential Criteria (${role.essentialCriteria.length} items):</h4>
-                    <ul>
-                        ${role.essentialCriteria.map(criteria => `<li>${criteria}</li>`).join('')}
-                    </ul>
-                    
-                    <h4>Desirable Criteria (${role.desirableCriteria.length} items):</h4>
-                    <ul>
-                        ${role.desirableCriteria.map(criteria => `<li>${criteria}</li>`).join('')}
-                    </ul>
-                </div>
+    // Toast Notifications
+    showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <span class="toast-icon">${this.getToastIcon(type)}</span>
+                <span class="toast-message">${message}</span>
+                <button class="toast-close" onclick="this.parentElement.parentElement.remove()">×</button>
             </div>
         `;
-    }
 
-    getFormData() {
-        return {
-            id: document.getElementById('roleId').value,
-            title: document.getElementById('roleTitle').value,
-            category: document.getElementById('roleCategory').value,
-            department: document.getElementById('roleDepartment').value,
-            status: document.getElementById('roleStatus').value,
-            icon: document.getElementById('roleIcon').value,
-            summary: document.getElementById('roleSummary').value,
-            location: document.getElementById('roleLocation').value,
-            reportingLine: document.getElementById('roleReportingLine').value,
-            timeCommitment: document.getElementById('roleTimeCommitment').value,
-            description: document.getElementById('roleDescription').value,
-            essentialCriteria: this.getCriteriaArray('roleEssentialCriteria'),
-            desirableCriteria: this.getCriteriaArray('roleDesirableCriteria')
-        };
-    }
+        this.toastContainer.appendChild(toast);
 
-    getCriteriaArray(fieldId) {
-        const textarea = document.getElementById(fieldId);
-        return textarea.value
-            .split('\n')
-            .map(item => item.trim())
-            .filter(item => item.length > 0);
-    }
-
-    validateForm(data) {
-        const requiredFields = ['title', 'department', 'summary', 'location', 'reportingLine', 'timeCommitment', 'description'];
-        const missingFields = requiredFields.filter(field => !data[field] || data[field].trim() === '');
-        
-        if (missingFields.length > 0) {
-            alert(`Please fill in all required fields: ${missingFields.join(', ')}`);
-            return false;
-        }
-
-        if (data.essentialCriteria.length === 0) {
-            alert('Please add at least one essential criteria.');
-            return false;
-        }
-
-        if (data.desirableCriteria.length === 0) {
-            alert('Please add at least one desirable criteria.');
-            return false;
-        }
-
-        return true;
-    }
-
-    async saveRole() {
-        const roleData = this.getFormData();
-        if (!this.validateForm(roleData)) return;
-
-        // Show loading state
-        const submitBtn = this.form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = '⏳ Submitting...';
-        submitBtn.disabled = true;
-
-        try {
-            // Send to local server API
-            const response = await fetch('/api/submit-role', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    roleData: roleData
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                this.showSuccessMessage(`
-                    <h3>✅ Role Submitted Successfully!</h3>
-                    <p>${result.message}</p>
-                    <div class="processing-info">
-                        <h4>What just happened:</h4>
-                        <ol>
-                            <li>✅ Role data validated</li>
-                            <li>✅ Changes committed to Git</li>
-                            <li>✅ Changes pushed to GitHub</li>
-                            <li>🚀 Netlify will automatically deploy the updates</li>
-                        </ol>
-                        <p><strong>⏱️ Your website will update in 1-2 minutes!</strong></p>
-                        <div class="success-details">
-                            <p><strong>Role:</strong> ${result.details.roleTitle}</p>
-                            <p><strong>ID:</strong> ${result.details.roleId}</p>
-                            <p><strong>Time:</strong> ${new Date(result.details.timestamp).toLocaleString()}</p>
-                        </div>
-                    </div>
-                `);
-                this.clearForm();
-            } else {
-                throw new Error(result.message || 'Unknown error occurred');
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
             }
-        } catch (error) {
-            console.error('Error submitting role:', error);
-            this.showErrorMessage(`
-                <h3>❌ Submission Failed</h3>
-                <p>Error: ${error.message}</p>
-                <div class="error-details">
-                    <h4>Possible causes:</h4>
-                    <ul>
-                        <li>GitHub token not configured in .env file</li>
-                        <li>Network connection issues</li>
-                        <li>Git repository not properly initialized</li>
-                        <li>Server not running</li>
-                    </ul>
-                    <p>Please check the server console for more details.</p>
-                </div>
-            `);
-        } finally {
-            // Reset button state
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        }
+        }, 5000);
     }
 
-    showErrorMessage(content) {
-        this.successMessage.innerHTML = content;
-        this.successMessage.style.display = 'block';
-        this.successMessage.scrollIntoView({ behavior: 'smooth' });
-        
-        // Add error styling
-        this.successMessage.classList.add('error-message');
-        
-        // Show "Try Again" button
-        document.querySelector('.add-another-section').style.display = 'block';
-    }
-
-    clearForm() {
-        this.form.reset();
-        document.getElementById('roleId').value = this.generateRoleId();
-        document.getElementById('roleStatus').value = 'draft';
-        document.getElementById('roleIcon').value = 'volunteers';
-        this.previewContainer.style.display = 'none';
-    }
-
-    showSuccessMessage(content) {
-        this.successMessage.innerHTML = content;
-        this.successMessage.style.display = 'block';
-        this.successMessage.scrollIntoView({ behavior: 'smooth' });
-        
-        // Remove error styling if present
-        this.successMessage.classList.remove('error-message');
-        
-        // Show "Add Another" button
-        document.querySelector('.add-another-section').style.display = 'block';
-    }
-
-    hideSuccessMessage() {
-        this.successMessage.style.display = 'none';
-        document.querySelector('.add-another-section').style.display = 'none';
+    getToastIcon(type) {
+        const icons = {
+            'success': '✅',
+            'error': '❌',
+            'warning': '⚠️',
+            'info': 'ℹ️'
+        };
+        return icons[type] || icons.info;
     }
 }
 
-// Initialize when page loads
+// Initialize the admin system when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     new AdminRoleManager();
 }); 

@@ -210,6 +210,222 @@ app.post('/api/check-changes', async (req, res) => {
     }
 });
 
+// API endpoint to update an existing role
+app.put('/api/update-role', async (req, res) => {
+    try {
+        const { oldId, updatedRole } = req.body;
+        
+        if (!oldId || !updatedRole) {
+            return res.status(400).json({ 
+                success: false, 
+                message: '❌ Missing role data' 
+            });
+        }
+
+        console.log('🔄 Updating role:', oldId);
+
+        // Configure Git remote if not already done
+        configureGitRemote();
+
+        // Add all changes
+        await runCommand('git add .');
+        console.log('✅ Files staged for commit');
+
+        // Check if there are any staged changes to commit
+        const status = await runCommand('git status --porcelain');
+        if (!status.trim()) {
+            console.log('ℹ️ No changes to commit.');
+            return res.status(400).json({
+                success: false,
+                message: 'ℹ️ No changes detected — nothing to commit.',
+                details: {
+                    roleTitle: updatedRole.title,
+                    roleId: updatedRole.id,
+                    timestamp: new Date().toISOString(),
+                    reason: 'No file changes were detected after staging'
+                }
+            });
+        }
+
+        // Commit changes
+        const commitMessage = `Edit role: ${updatedRole.title}`;
+        await runCommand(`git commit -m "${commitMessage}"`);
+        console.log('✅ Changes committed');
+
+        // Push to GitHub
+        await runCommand('git push origin main');
+        console.log('✅ Changes pushed to GitHub');
+
+        // Success response
+        res.json({
+            success: true,
+            message: '✅ Role updated and pushed to GitHub successfully!',
+            details: {
+                roleTitle: updatedRole.title,
+                roleId: updatedRole.id,
+                oldId: oldId,
+                timestamp: new Date().toISOString()
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Git operation failed:', error);
+        
+        let errorMessage = '❌ Failed to update role on GitHub';
+        let errorDetails = error && error.message ? error.message : 'Unknown error occurred';
+        
+        res.status(500).json({
+            success: false,
+            message: errorMessage,
+            error: errorDetails,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+// API endpoint to delete a role
+app.delete('/api/delete-role/:id', async (req, res) => {
+    try {
+        const roleId = req.params.id;
+        
+        if (!roleId) {
+            return res.status(400).json({ 
+                success: false, 
+                message: '❌ No role ID provided' 
+            });
+        }
+
+        console.log('🔄 Deleting role:', roleId);
+
+        // Configure Git remote if not already done
+        configureGitRemote();
+
+        // Add all changes
+        await runCommand('git add .');
+        console.log('✅ Files staged for commit');
+
+        // Check if there are any staged changes to commit
+        const status = await runCommand('git status --porcelain');
+        if (!status.trim()) {
+            console.log('ℹ️ No changes to commit.');
+            return res.status(400).json({
+                success: false,
+                message: 'ℹ️ No changes detected — nothing to commit.',
+                details: {
+                    roleId: roleId,
+                    timestamp: new Date().toISOString(),
+                    reason: 'No file changes were detected after staging'
+                }
+            });
+        }
+
+        // Commit changes
+        const commitMessage = `Remove role: ${roleId}`;
+        await runCommand(`git commit -m "${commitMessage}"`);
+        console.log('✅ Changes committed');
+
+        // Push to GitHub
+        await runCommand('git push origin main');
+        console.log('✅ Changes pushed to GitHub');
+
+        // Success response
+        res.json({
+            success: true,
+            message: '✅ Role deleted and changes pushed to GitHub successfully!',
+            details: {
+                roleId: roleId,
+                timestamp: new Date().toISOString()
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Git operation failed:', error);
+        
+        let errorMessage = '❌ Failed to delete role from GitHub';
+        let errorDetails = error && error.message ? error.message : 'Unknown error occurred';
+        
+        res.status(500).json({
+            success: false,
+            message: errorMessage,
+            error: errorDetails,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+// API endpoint to update role status
+app.patch('/api/update-role-status/:id', async (req, res) => {
+    try {
+        const roleId = req.params.id;
+        const { status } = req.body;
+        
+        if (!roleId || !status) {
+            return res.status(400).json({ 
+                success: false, 
+                message: '❌ Missing role ID or status' 
+            });
+        }
+
+        console.log('🔄 Updating status for role:', roleId, 'to:', status);
+
+        // Configure Git remote if not already done
+        configureGitRemote();
+
+        // Add all changes
+        await runCommand('git add .');
+        console.log('✅ Files staged for commit');
+
+        // Check if there are any staged changes to commit
+        const gitStatus = await runCommand('git status --porcelain');
+        if (!gitStatus.trim()) {
+            console.log('ℹ️ No changes to commit.');
+            return res.status(400).json({
+                success: false,
+                message: 'ℹ️ No changes detected — nothing to commit.',
+                details: {
+                    roleId: roleId,
+                    status: status,
+                    timestamp: new Date().toISOString(),
+                    reason: 'No file changes were detected after staging'
+                }
+            });
+        }
+
+        // Commit changes
+        const commitMessage = `Update status of role: ${roleId} to ${status}`;
+        await runCommand(`git commit -m "${commitMessage}"`);
+        console.log('✅ Changes committed');
+
+        // Push to GitHub
+        await runCommand('git push origin main');
+        console.log('✅ Changes pushed to GitHub');
+
+        // Success response
+        res.json({
+            success: true,
+            message: '✅ Role status updated and pushed to GitHub successfully!',
+            details: {
+                roleId: roleId,
+                status: status,
+                timestamp: new Date().toISOString()
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Git operation failed:', error);
+        
+        let errorMessage = '❌ Failed to update role status on GitHub';
+        let errorDetails = error && error.message ? error.message : 'Unknown error occurred';
+        
+        res.status(500).json({
+            success: false,
+            message: errorMessage,
+            error: errorDetails,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     const tokenConfigured = !!process.env.GITHUB_TOKEN;
