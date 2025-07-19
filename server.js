@@ -73,9 +73,15 @@ app.post('/api/submit-role', async (req, res) => {
             throw new Error('Could not find roles array in config.js');
         }
         
-        // Parse the roles array
+        // Parse the roles array - use JSON.parse instead of eval for safety
         const rolesString = rolesMatch[1];
-        const roles = eval('(' + rolesString + ')');
+        let roles;
+        try {
+            roles = JSON.parse(rolesString);
+        } catch (parseError) {
+            console.error('Error parsing roles:', parseError);
+            throw new Error('Invalid JSON in roles array');
+        }
         
         // Check if role with same ID already exists
         if (roles.find(role => role.id === roleData.id)) {
@@ -252,9 +258,15 @@ app.put('/api/update-role', async (req, res) => {
             throw new Error('Could not find roles array in config.js');
         }
         
-        // Parse the roles array
+        // Parse the roles array - use JSON.parse instead of eval for safety
         const rolesString = rolesMatch[1];
-        const roles = eval('(' + rolesString + ')');
+        let roles;
+        try {
+            roles = JSON.parse(rolesString);
+        } catch (parseError) {
+            console.error('Error parsing roles:', parseError);
+            throw new Error('Invalid JSON in roles array');
+        }
         
         // Find the role to update
         const roleIndex = roles.findIndex(role => role.id === oldId);
@@ -338,7 +350,9 @@ app.delete('/api/delete-role/:id', async (req, res) => {
 
         // Load current config.js
         const configPath = path.join(__dirname, 'js', 'config.js');
+        console.log('📁 Config path:', configPath);
         let configContent = fs.readFileSync(configPath, 'utf8');
+        console.log('📄 Config file loaded, length:', configContent.length);
         
         // Parse the roles array from config.js
         const rolesMatch = configContent.match(/export const roles = (\[[\s\S]*?\]);/);
@@ -346,18 +360,28 @@ app.delete('/api/delete-role/:id', async (req, res) => {
             throw new Error('Could not find roles array in config.js');
         }
         
-        // Parse the roles array
+        // Parse the roles array - use JSON.parse instead of eval for safety
         const rolesString = rolesMatch[1];
-        const roles = eval('(' + rolesString + ')');
+        let roles;
+        try {
+            roles = JSON.parse(rolesString);
+        } catch (parseError) {
+            console.error('Error parsing roles:', parseError);
+            throw new Error('Invalid JSON in roles array');
+        }
         
         // Find the role to delete
+        console.log('🔍 Looking for role with ID:', roleId);
+        console.log('📋 Available roles:', roles.map(r => r.id));
         const roleToDelete = roles.find(role => role.id === roleId);
         if (!roleToDelete) {
+            console.log('❌ Role not found');
             return res.status(404).json({
                 success: false,
                 message: `❌ Role with ID "${roleId}" not found`
             });
         }
+        console.log('✅ Role found:', roleToDelete.title);
         
         // Remove the role from the array
         const updatedRoles = roles.filter(role => role.id !== roleId);

@@ -316,6 +316,7 @@ class AdminRoleManager {
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const roleId = e.target.dataset.roleId;
+                console.log('🗑️ Delete button clicked for role:', roleId);
                 this.showDeleteModal(roleId);
             });
         });
@@ -472,11 +473,14 @@ class AdminRoleManager {
 
     async deleteRole(roleId) {
         try {
+            console.log('🗑️ Attempting to delete role:', roleId);
             const response = await fetch(`/api/delete-role/${roleId}`, {
                 method: 'DELETE'
             });
 
+            console.log('📡 Delete response status:', response.status);
             const result = await response.json();
+            console.log('📡 Delete response:', result);
             
             if (result.success) {
                 this.showToast('Role deleted successfully', 'success');
@@ -487,6 +491,7 @@ class AdminRoleManager {
                 return false;
             }
         } catch (error) {
+            console.error('❌ Delete error:', error);
             this.showToast('Network error while deleting role', 'error');
             return false;
         }
