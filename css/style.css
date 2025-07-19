@@ -778,6 +778,13 @@ nav a:focus {
   transform: translateX(5px);
 }
 
+/* Ensure dropdown content works with both div and ul structures */
+.dropdown-content li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
 /* Dropdown Arrow Indicator */
 .dropdown > a::after {
   content: " ▼";
@@ -915,6 +922,11 @@ nav a:focus {
     background: linear-gradient(135deg, rgba(240, 255, 255, 0.8) 0%, rgba(255, 240, 245, 0.8) 100%);
     padding-left: var(--spacing-lg);
     border-radius: 0;
+  }
+  
+  .dropdown-content li {
+    margin: 0;
+    padding: 0;
   }
 
   .dropdown.active .dropdown-content {

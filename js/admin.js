@@ -14,6 +14,14 @@ class AdminRoleManager {
         this.deleteModal = document.getElementById('deleteModal');
         this.toastContainer = document.getElementById('toastContainer');
         
+        console.log('🔍 DOM Elements found:');
+        console.log('  - passwordScreen:', !!this.passwordScreen);
+        console.log('  - adminContent:', !!this.adminContent);
+        console.log('  - roleFormSection:', !!this.roleFormSection);
+        console.log('  - rolesTable:', !!this.rolesTable);
+        console.log('  - deleteModal:', !!this.deleteModal);
+        console.log('  - toastContainer:', !!this.toastContainer);
+        
         // Admin password
         this.adminPassword = 'CT5Pride2024!';
         
@@ -184,26 +192,43 @@ class AdminRoleManager {
     async loadRoles() {
         try {
             this.showLoading();
+            console.log('🔄 Loading roles...');
             
-            // Load roles from server API to get fresh data
-            const response = await fetch('/api/roles');
-            const result = await response.json();
-            
-            if (result.success) {
-                this.roles = result.roles || [];
-                console.log('📋 Loaded roles from server:', this.roles.map(r => r.id));
-            } else {
-                console.error('Failed to load roles:', result.message);
-                this.showToast('Failed to load roles', 'error');
-                this.roles = [];
+            // Try to load roles from server API first (for local development)
+            try {
+                console.log('📡 Attempting to fetch roles from /api/roles');
+                const response = await fetch('/api/roles');
+                const result = await response.json();
+                
+                if (result.success && result.roles) {
+                    this.roles = result.roles;
+                    console.log('✅ Loaded roles from server API:', this.roles.map(r => r.id));
+                } else {
+                    throw new Error('Invalid data format from server API');
+                }
+            } catch (serverError) {
+                console.log('🔄 Server API not available, loading from config.js directly');
+                console.log('Server error details:', serverError.message);
+                
+                // Fallback: Load roles directly from config.js
+                try {
+                    const configModule = await import('./config.js');
+                    this.roles = configModule.roles || [];
+                    console.log('✅ Loaded roles from config.js fallback:', this.roles.map(r => r.id));
+                } catch (configError) {
+                    console.error('❌ Failed to load roles from config.js:', configError);
+                    this.showToast('Failed to load roles from config file', 'error');
+                    this.roles = [];
+                }
             }
             
             this.filteredRoles = [...this.roles];
             this.renderRoles();
             this.updateStats();
+            console.log('✅ Roles loaded successfully, total:', this.roles.length);
             
         } catch (error) {
-            console.error('Error loading roles:', error);
+            console.error('❌ Error loading roles:', error);
             this.showToast('Error loading roles', 'error');
             this.roles = [];
         } finally {
@@ -213,7 +238,17 @@ class AdminRoleManager {
 
     // Role Rendering
     renderRoles() {
+        console.log('🎨 Rendering roles...');
+        console.log('📊 Filtered roles count:', this.filteredRoles.length);
+        console.log('📊 Roles data:', this.filteredRoles);
+        
+        if (!this.rolesTable) {
+            console.error('❌ rolesTable element not found!');
+            return;
+        }
+        
         if (this.filteredRoles.length === 0) {
+            console.log('📭 No roles to display, showing no roles message');
             this.showNoRolesMessage();
             return;
         }
@@ -229,8 +264,12 @@ class AdminRoleManager {
             ${this.filteredRoles.map(role => this.renderRoleRow(role)).join('')}
         `;
 
+        console.log('🎨 Generated table HTML:', tableHTML);
         this.rolesTable.innerHTML = tableHTML;
+        console.log('✅ Table HTML set successfully');
+        
         this.bindRoleRowEvents();
+        this.bindDeleteButtons(); // Ensure delete buttons are properly bound
     }
 
     renderRoleRow(role) {
@@ -252,9 +291,9 @@ class AdminRoleManager {
                 <div class="role-status ${statusClass}">${statusText}</div>
                 <div>${role.category}</div>
                 <div class="role-actions">
-                    <button class="edit-btn" data-role-id="${role.id}">✏️ Edit</button>
-                    <button class="status-btn" data-role-id="${role.id}">📤 Status</button>
-                    <button class="delete-btn" data-role-id="${role.id}">🗑️ Delete</button>
+                    <button class="edit-btn" data-role-id="${role.id}" title="Edit role" aria-label="Edit ${role.title}">✏️ Edit</button>
+                    <button class="status-btn" data-role-id="${role.id}" title="Change status" aria-label="Change status for ${role.title}">📤 Status</button>
+                    <button class="delete-btn" data-role-id="${role.id}" title="Delete role" aria-label="Delete ${role.title}">🗑️ Delete</button>
                 </div>
             </div>
         `;
@@ -306,46 +345,126 @@ class AdminRoleManager {
 
     // Role Row Event Binding
     bindRoleRowEvents() {
+        // Use event delegation for better reliability
+        const rolesTable = this.rolesTable;
+        
+        // Remove existing event listeners to prevent duplicates
+        rolesTable.removeEventListener('click', this.handleTableClick);
+        
+        // Add single event listener for all button clicks
+        rolesTable.addEventListener('click', this.handleTableClick.bind(this));
+    }
+
+    // Bind delete buttons specifically (backup method)
+    bindDeleteButtons() {
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        console.log('🔗 Binding delete buttons, found:', deleteButtons.length);
+        
+        deleteButtons.forEach((btn) => {
+            // Remove any existing listeners to prevent duplicates
+            btn.removeEventListener('click', this.handleDeleteClick);
+            btn.addEventListener('click', this.handleDeleteClick.bind(this));
+        });
+    }
+
+    // Individual delete button handler (backup method)
+    handleDeleteClick(event) {
+        const roleId = event.currentTarget.getAttribute('data-role-id');
+        console.log('🗑️ Delete button clicked (individual handler):', roleId);
+        this.handleDelete(roleId);
+    }
+
+    // Event delegation handler for all table button clicks
+    handleTableClick(e) {
+        const target = e.target;
+        
         // Edit buttons
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const roleId = e.target.dataset.roleId;
-                this.startEditing(roleId);
-            });
-        });
-
+        if (target.classList.contains('edit-btn')) {
+            const roleId = target.dataset.roleId;
+            console.log('✏️ Edit button clicked for role:', roleId);
+            this.startEditing(roleId);
+        }
+        
         // Status buttons
-        document.querySelectorAll('.status-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const roleId = e.target.dataset.roleId;
-                this.toggleStatus(roleId);
-            });
-        });
-
+        else if (target.classList.contains('status-btn')) {
+            const roleId = target.dataset.roleId;
+            console.log('📤 Status button clicked for role:', roleId);
+            this.toggleStatus(roleId);
+        }
+        
         // Delete buttons
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const roleId = e.target.dataset.roleId;
-                console.log('🗑️ Delete button clicked for role:', roleId);
-                this.showDeleteModal(roleId);
-            });
-        });
-
+        else if (target.classList.contains('delete-btn')) {
+            const roleId = target.dataset.roleId;
+            console.log('🗑️ Delete button clicked for role:', roleId);
+            this.handleDelete(roleId);
+        }
+        
         // Save buttons (for editing)
-        document.querySelectorAll('.save-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const roleId = e.target.dataset.roleId;
-                this.saveEditedRole(roleId);
-            });
-        });
-
+        else if (target.classList.contains('save-btn')) {
+            const roleId = target.dataset.roleId;
+            console.log('💾 Save button clicked for role:', roleId);
+            this.saveEditedRole(roleId);
+        }
+        
         // Cancel buttons (for editing)
-        document.querySelectorAll('.cancel-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const roleId = e.target.dataset.roleId;
-                this.cancelEditing(roleId);
+        else if (target.classList.contains('cancel-btn')) {
+            const roleId = target.dataset.roleId;
+            console.log('❌ Cancel button clicked for role:', roleId);
+            this.cancelEditing(roleId);
+        }
+    }
+
+    // Enhanced delete handler with confirmation and loading state
+    async handleDelete(roleId) {
+        const role = this.roles.find(r => r.id === roleId);
+        if (!role) {
+            this.showToast('Role not found', 'error');
+            return;
+        }
+
+        // Show confirmation dialog
+        const confirmed = confirm(`Are you sure you want to delete role "${role.title}"? This cannot be undone.`);
+        if (!confirmed) {
+            console.log('🗑️ Delete cancelled by user');
+            return;
+        }
+
+        // Find the delete button and show loading state
+        const deleteBtn = document.querySelector(`[data-role-id="${roleId}"].delete-btn`);
+        if (deleteBtn) {
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '⏳ Deleting...';
+        }
+
+        try {
+            console.log('🗑️ Attempting to delete role:', roleId);
+            
+            const response = await fetch(`/api/delete-role/${roleId}`, {
+                method: 'DELETE'
             });
-        });
+
+            console.log('📡 Delete response status:', response.status);
+            const result = await response.json();
+            console.log('📡 Delete response:', result);
+            
+            if (result.success) {
+                console.log('✅ Role deleted successfully:', roleId);
+                this.showToast(`✅ Role "${role.title}" deleted successfully!`, 'success');
+                this.loadRoles(); // Re-render the role list
+            } else {
+                console.error('❌ Server returned error:', result.message);
+                this.showToast(`❌ Delete failed: ${result.message || 'Unknown error'}`, 'error');
+            }
+        } catch (error) {
+            console.error('❌ Delete error:', error);
+            this.showToast('❌ Delete failed due to network or server error', 'error');
+        } finally {
+            // Reset button state
+            if (deleteBtn) {
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = '🗑️ Delete';
+            }
+        }
     }
 
     // Inline Editing
@@ -431,50 +550,73 @@ class AdminRoleManager {
     // Role Operations
     async createRole(roleData) {
         try {
-            const response = await fetch('/api/submit-role', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ roleData })
-            });
-
-            const result = await response.json();
+            console.log('🔄 Attempting to create role:', roleData.title);
+            console.log('📡 Role data being sent:', roleData);
             
-            if (result.success) {
-                this.showToast(`Role "${roleData.title}" created successfully`, 'success');
-                this.hideForm();
-                this.loadRoles();
-                return true;
-            } else {
-                this.showToast(result.message || 'Failed to create role', 'error');
+            // Try server API first (for local development)
+            try {
+                console.log('📡 Sending POST request to /api/submit-role');
+                const response = await fetch('/api/submit-role', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ roleData })
+                });
+
+                console.log('📡 Create response status:', response.status);
+                const result = await response.json();
+                console.log('📡 Create response:', result);
+                
+                if (result.success) {
+                    console.log('✅ Role created successfully:', roleData.title);
+                    this.showToast(`Role "${roleData.title}" created successfully`, 'success');
+                    this.hideForm();
+                    this.loadRoles();
+                    return true;
+                } else {
+                    console.error('❌ Server returned error:', result.message);
+                    throw new Error(result.message || 'Server create failed');
+                }
+            } catch (serverError) {
+                console.error('❌ Server API error:', serverError);
+                console.log('🔄 Server API not available, showing offline message');
+                this.showToast('Create functionality requires server connection. Please use local development server for full CRUD operations.', 'warning');
                 return false;
             }
         } catch (error) {
-            this.showToast('Network error while creating role', 'error');
+            console.error('❌ Create error:', error);
+            this.showToast('Error creating role', 'error');
             return false;
         }
     }
 
     async updateRole(oldId, updatedRole) {
         try {
-            const response = await fetch('/api/update-role', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    oldId, 
-                    updatedRole 
-                })
-            });
+            // Try server API first (for local development)
+            try {
+                const response = await fetch('/api/update-role', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        oldId, 
+                        updatedRole 
+                    })
+                });
 
-            const result = await response.json();
-            
-            if (result.success) {
-                return true;
-            } else {
-                throw new Error(result.message || 'Failed to update role');
+                const result = await response.json();
+                
+                if (result.success) {
+                    return true;
+                } else {
+                    throw new Error(result.message || 'Server update failed');
+                }
+            } catch (serverError) {
+                console.log('🔄 Server API not available, showing offline message');
+                this.showToast('Update functionality requires server connection. Please use local development server for full CRUD operations.', 'warning');
+                return false;
             }
         } catch (error) {
             throw error;
@@ -484,25 +626,35 @@ class AdminRoleManager {
     async deleteRole(roleId) {
         try {
             console.log('🗑️ Attempting to delete role:', roleId);
-            const response = await fetch(`/api/delete-role/${roleId}`, {
-                method: 'DELETE'
-            });
-
-            console.log('📡 Delete response status:', response.status);
-            const result = await response.json();
-            console.log('📡 Delete response:', result);
             
-            if (result.success) {
-                this.showToast('Role deleted successfully', 'success');
-                this.loadRoles();
-                return true;
-            } else {
-                this.showToast(result.message || 'Failed to delete role', 'error');
+            // Try server API first (for local development)
+            try {
+                const response = await fetch(`/api/delete-role/${roleId}`, {
+                    method: 'DELETE'
+                });
+
+                console.log('📡 Delete response status:', response.status);
+                const result = await response.json();
+                console.log('📡 Delete response:', result);
+                
+                if (result.success) {
+                    console.log('✅ Role deleted successfully:', roleId);
+                    this.showToast('Role deleted successfully', 'success');
+                    this.loadRoles();
+                    return true;
+                } else {
+                    console.error('❌ Server returned error:', result.message);
+                    this.showToast(result.message || 'Delete failed. Please try again.', 'error');
+                    return false;
+                }
+            } catch (serverError) {
+                console.log('🔄 Server API not available, showing offline message');
+                this.showToast('Delete functionality requires server connection. Please use local development server for full CRUD operations.', 'warning');
                 return false;
             }
         } catch (error) {
             console.error('❌ Delete error:', error);
-            this.showToast('Network error while deleting role', 'error');
+            this.showToast('Delete failed. Please try again.', 'error');
             return false;
         }
     }
@@ -578,7 +730,10 @@ class AdminRoleManager {
         const data = {};
         
         for (let [key, value] of formData.entries()) {
-            data[key.replace('role', '').toLowerCase()] = value;
+            // Remove 'role' prefix and convert to camelCase
+            const fieldName = key.replace('role', '');
+            const camelCaseName = fieldName.charAt(0).toLowerCase() + fieldName.slice(1);
+            data[camelCaseName] = value;
         }
 
         // Add criteria arrays
@@ -599,10 +754,13 @@ class AdminRoleManager {
     }
 
     validateForm(data) {
+        console.log('🔍 Validating form data:', data);
+        
         const requiredFields = ['title', 'id', 'department', 'category', 'summary', 'location', 'reportingLine', 'timeCommitment', 'description'];
         
         for (const field of requiredFields) {
             if (!data[field] || data[field].trim() === '') {
+                console.log(`❌ Missing or empty field: ${field}, value: "${data[field]}"`);
                 this.showToast(`${field.charAt(0).toUpperCase() + field.slice(1)} is required`, 'error');
                 return false;
             }
@@ -619,8 +777,11 @@ class AdminRoleManager {
             return false;
         }
 
+        console.log('✅ Form validation passed');
         return true;
     }
+
+
 
     // Delete Modal
     showDeleteModal(roleId) {
