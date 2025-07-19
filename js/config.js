@@ -38,49 +38,6 @@ export const roles = [
             "Experience in developing and delivering training on legal and compliance matters",
             "Understanding of social media and digital communication compliance requirements"
         ]
-    },
-    {
-        "id": "company-secretary",
-        "title": "Company Secretary",
-        "category": "governance",
-        "department": "Board of Directors",
-        "status": "open",
-        "icon": "volunteers",
-        "summary": "Support our Board of Directors as Company Secretary, ensuring proper governance procedures and maintaining accurate records for our Community Interest Company.",
-        "location": "CT5 Area (Whitstable, Seasalter, Tankerton, Chestfield, Swalecliffe, Yorkletts)",
-        "reportingLine": "Board of Directors",
-        "timeCommitment": "6-10 hours per month",
-        "description": "<p>As Company Secretary, you will provide essential administrative and governance support to CT5 Pride's Board of Directors. This role is crucial for maintaining proper corporate governance, ensuring compliance with Companies House requirements, and supporting effective board operations.</p><p>You will work closely with the Board Chair and other directors to coordinate meetings, maintain accurate records, and ensure all statutory and regulatory requirements are met. This position offers an excellent opportunity to contribute to the governance of a growing community organisation while supporting LGBTQIA+ inclusion in the CT5 area.</p>",
-        "essentialCriteria": [
-            "Strong organisational and administrative skills, with attention to detail and accuracy",
-            "Excellent written and verbal communication skills, with experience preparing formal reports and correspondence",
-            "Understanding of corporate governance principles and board operations",
-            "Experience in minute-taking and meeting coordination",
-            "Ability to maintain confidentiality and handle sensitive information appropriately",
-            "Strong commitment to equality, diversity, and inclusion",
-            "Willingness to leverage professional and person networks to support fundraising and awareness efforts",
-            "Proven experience (minimum 3 years) in an administrative role, with a focus on governance and supporting Board of Directors or senior leadership teams",
-            "Policy & Procedure writing experience",
-            "Strong understanding of governance structures, legal requirements, and board operations in the non-profit or community sector",
-            "Experience in managing and maintaining accurate records, meeting minutes, and correspondence",
-            "Excellent written and verbal communication skills, with experience preparing formal reports, minutes, and correspondence for Board members",
-            "Ability to effectively communicate with Board members, staff, volunteers, and external stakeholders",
-            "Strong commitment to confidentiality, with the ability to handle sensitive information with discretion and professionalism",
-            "High ethical standards and integrity in dealing with governance and administrative matters"
-        ],
-        "desirableCriteria": [
-            "Previous experience serving as a company secretary, board officer, or in a governance or compliance role",
-            "Understanding of the legal and regulatory framework for Community Interest Companies or charities",
-            "Familiarity with filing requirements for Companies House or similar public bodies",
-            "Experience supporting or developing policies, internal procedures, or organisational systems",
-            "Knowledge of equality, diversity, and inclusion frameworks in practice",
-            "Experience working or volunteering within LGBTQIA+ organisations or equalities-focused initiatives",
-            "Strong written communication skills, with experience preparing formal documents or board papers",
-            "Ability to manage shared drives or document storage systems such as Google Workspace or Microsoft 365",
-            "Familiarity with coordinating AGMs, board recruitment, or director inductions",
-            "A visible presence or active network within the CT5 area or broader Kent community",
-            "Line-management experience in managing volunteers and/or staff"
-        ]
     }
 ];
 
