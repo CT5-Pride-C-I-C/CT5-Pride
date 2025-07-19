@@ -162,10 +162,42 @@
   background: transparent !important;
 }
 
+/* IMPROVED BUTTON STYLING IN HIGH CONTRAST */
+.high-contrast .button,
+.high-contrast .button.primary,
+.high-contrast .button.secondary,
 .high-contrast button:not(.accessibility-panel button) {
   background: #ffffff !important;
   color: #000000 !important;
-  border: 2px solid #ffffff !important;
+  border: 3px solid #ffff00 !important;
+  font-weight: bold !important;
+  padding: 12px 24px !important;
+  box-shadow: 0 4px 12px rgba(255, 255, 0, 0.3) !important;
+}
+
+.high-contrast .button:hover,
+.high-contrast .button.primary:hover,
+.high-contrast .button.secondary:hover,
+.high-contrast button:not(.accessibility-panel button):hover {
+  background: #ffff00 !important;
+  color: #000000 !important;
+  border: 3px solid #ffffff !important;
+  box-shadow: 0 6px 18px rgba(255, 255, 255, 0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+.high-contrast .nav-toggle {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 3px solid #ffffff !important;
+  font-size: 1.2rem !important;
+  font-weight: bold !important;
+}
+
+.high-contrast .nav-toggle:hover {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 3px solid #ffff00 !important;
 }
 
 .high-contrast nav a {
@@ -203,6 +235,16 @@
 .high-contrast .dropdown-menu a:hover {
   color: #ffff00 !important;
   background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* IMPROVE LOGO VISIBILITY IN HIGH CONTRAST */
+.high-contrast .site-logo,
+.high-contrast .logo-link img {
+  filter: invert(1) hue-rotate(180deg) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  padding: 8px !important;
+  border-radius: 8px !important;
+  border: 2px solid #ffffff !important;
 }
 
 /* Accessibility panel is now excluded by design - no overrides needed */
@@ -1627,18 +1669,19 @@ footer::after {
 }
 
 .social-links a {
-  color: rgba(255, 255, 255, 0.9);
+  color: #333333;
   transition: var(--transition);
   padding: var(--spacing-md);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   width: 60px;
   height: 60px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .social-links a:hover {
