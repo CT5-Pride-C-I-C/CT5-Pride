@@ -3,43 +3,6 @@
 
 export const roles = [
     {
-        "id": "director-of-legal-and-compliance",
-        "title": "Director of Legal & Compliance",
-        "category": "governance",
-        "department": "Board of Directors",
-        "status": "open",
-        "icon": "volunteers",
-        "summary": "Join our Board of Directors as Director of Legal & Compliance, providing essential governance oversight and ensuring CT5 Pride operates within legal and regulatory frameworks.",
-        "location": "CT5 Area (Whitstable, Seasalter, Tankerton, Chestfield, Swalecliffe, Yorkletts)",
-        "reportingLine": "Board of Directors",
-        "timeCommitment": "8-12 hours per month",
-        "description": "<p>As Director of Legal & Compliance, you will play a crucial role in ensuring CT5 Pride operates with the highest standards of governance and legal compliance. This position is essential for maintaining our Community Interest Company status and building trust with our community and stakeholders.</p><p>You will work closely with the Board of Directors to develop and maintain robust governance frameworks, ensure compliance with relevant legislation, and provide strategic legal guidance to support our mission of serving the LGBTQIA+ community in the CT5 area.</p>",
-        "essentialCriteria": [
-            "Qualified solicitor or barrister with current practicing certificate, or equivalent legal qualification with relevant experience",
-            "Minimum 5 years of post-qualification experience in corporate law, governance, or compliance",
-            "Strong understanding of UK corporate law, particularly in relation to Community Interest Companies or similar structures",
-            "Experience in governance frameworks, board operations, and regulatory compliance",
-            "Excellent analytical and problem-solving skills, with the ability to provide clear, practical legal advice",
-            "Strong commitment to equality, diversity, and inclusion, with a passion for supporting LGBTQIA+ communities",
-            "Excellent communication skills, with the ability to explain complex legal concepts to non-legal stakeholders",
-            "Proven experience in policy development and implementation",
-            "Ability to work collaboratively with board members, staff, and external stakeholders",
-            "High ethical standards and integrity in dealing with sensitive legal and governance matters"
-        ],
-        "desirableCriteria": [
-            "Experience working with or advising non-profit organisations, charities, or community interest companies",
-            "Knowledge of equality law and LGBTQIA+ rights legislation",
-            "Experience in data protection and GDPR compliance",
-            "Understanding of fundraising regulations and compliance requirements",
-            "Experience in risk management and internal control frameworks",
-            "Knowledge of employment law and HR compliance matters",
-            "Experience working or volunteering within LGBTQIA+ organisations",
-            "Familiarity with the CT5 area and local community networks",
-            "Experience in developing and delivering training on legal and compliance matters",
-            "Understanding of social media and digital communication compliance requirements"
-        ]
-    },
-    {
         "id": "company-secretary",
         "title": "Company Secretary",
         "category": "governance",
