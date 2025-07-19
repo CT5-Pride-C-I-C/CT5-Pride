@@ -3189,16 +3189,16 @@ nav a:focus {
 }
 
 .role-card .role-department {
-  color: var(--primary);
+  color: white;
   font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  background: rgba(233, 30, 99, 0.1);
+  background: var(--primary);
   padding: 0.4rem 0.8rem;
   border-radius: 12px;
   display: inline-block;
-  border: 1px solid rgba(233, 30, 99, 0.2);
+  box-shadow: 0 2px 8px rgba(233, 30, 99, 0.3);
   margin-top: 0.25rem;
 }
 
@@ -3374,17 +3374,17 @@ nav a:focus {
 }
 
 .modal .role-department {
-  color: var(--primary);
+  color: white;
   font-size: 1rem;
   margin-bottom: 2rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  background: rgba(233, 30, 99, 0.1);
+  background: var(--primary);
   padding: 0.5rem 1rem;
   border-radius: 12px;
   display: inline-block;
-  border: 1px solid rgba(233, 30, 99, 0.2);
+  box-shadow: 0 2px 8px rgba(233, 30, 99, 0.3);
 }
 
 .modal .role-description {
