@@ -4,9 +4,55 @@ class AdminRoleManager {
         this.form = document.getElementById('roleForm');
         this.previewContainer = document.getElementById('rolePreview');
         this.successMessage = document.getElementById('successMessage');
+        this.passwordScreen = document.getElementById('passwordScreen');
+        this.adminContent = document.getElementById('adminContent');
         
+        // Admin password (you can change this)
+        this.adminPassword = 'CT5Pride2024!';
+        
+        this.checkAuthentication();
         this.initializeForm();
         this.bindEvents();
+    }
+
+    checkAuthentication() {
+        // Check if user is already authenticated
+        const isAuthenticated = sessionStorage.getItem('ct5pride_admin_authenticated');
+        
+        if (isAuthenticated === 'true') {
+            this.showAdminContent();
+        } else {
+            this.showPasswordScreen();
+        }
+    }
+
+    showPasswordScreen() {
+        this.passwordScreen.style.display = 'flex';
+        this.adminContent.style.display = 'none';
+    }
+
+    showAdminContent() {
+        this.passwordScreen.style.display = 'none';
+        this.adminContent.style.display = 'block';
+    }
+
+    authenticate(password) {
+        if (password === this.adminPassword) {
+            sessionStorage.setItem('ct5pride_admin_authenticated', 'true');
+            this.showAdminContent();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    logout() {
+        sessionStorage.removeItem('ct5pride_admin_authenticated');
+        this.showPasswordScreen();
+        // Clear any form data
+        if (this.form) {
+            this.form.reset();
+        }
     }
 
     initializeForm() {
@@ -24,27 +70,70 @@ class AdminRoleManager {
     }
 
     bindEvents() {
+        // Password form submission
+        const passwordForm = document.getElementById('passwordForm');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handlePasswordSubmit();
+            });
+        }
+
+        // Logout button
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                this.logout();
+            });
+        }
+
         // Form submission
-        this.form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.saveRole();
-        });
+        if (this.form) {
+            this.form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.saveRole();
+            });
+        }
 
         // Preview button
-        document.getElementById('previewBtn').addEventListener('click', () => {
-            this.generatePreview();
-        });
+        const previewBtn = document.getElementById('previewBtn');
+        if (previewBtn) {
+            previewBtn.addEventListener('click', () => {
+                this.generatePreview();
+            });
+        }
 
         // Clear button
-        document.getElementById('clearBtn').addEventListener('click', () => {
-            this.clearForm();
-        });
+        const clearBtn = document.getElementById('clearBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                this.clearForm();
+            });
+        }
 
         // Add another role button
-        document.getElementById('addAnotherBtn').addEventListener('click', () => {
-            this.clearForm();
-            this.hideSuccessMessage();
-        });
+        const addAnotherBtn = document.getElementById('addAnotherBtn');
+        if (addAnotherBtn) {
+            addAnotherBtn.addEventListener('click', () => {
+                this.clearForm();
+                this.hideSuccessMessage();
+            });
+        }
+    }
+
+    handlePasswordSubmit() {
+        const passwordInput = document.getElementById('adminPassword');
+        const passwordError = document.getElementById('passwordError');
+        const password = passwordInput.value;
+
+        if (this.authenticate(password)) {
+            passwordError.style.display = 'none';
+            passwordInput.value = '';
+        } else {
+            passwordError.style.display = 'block';
+            passwordInput.value = '';
+            passwordInput.focus();
+        }
     }
 
     generateRoleId() {
