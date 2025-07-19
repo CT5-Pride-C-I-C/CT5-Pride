@@ -1,0 +1,148 @@
+name: Add Volunteer Role
+on:
+  repository_dispatch:
+    types: [add-role]
+
+jobs:
+  update-role:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Update main.js with new role
+        run: |
+          # Create the add-role script
+          cat > add-role.js << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          
+          // Get role data from GitHub event
+          const roleData = JSON.parse('${{ toJSON(github.event.client_payload.roleData) }}');
+          
+          // Read current main.js
+          const mainJsPath = path.join(__dirname, 'js', 'main.js');
+          let content = fs.readFileSync(mainJsPath, 'utf8');
+          
+          // Generate new role JavaScript
+          function generateRoleJS(role) {
+              const essentialCriteria = role.essentialCriteria.map(criteria => 
+                  `"${criteria.replace(/"/g, '\\"')}"`
+              ).join(',\n            ');
+              
+              const desirableCriteria = role.desirableCriteria.map(criteria => 
+                  `"${criteria.replace(/"/g, '\\"')}"`
+              ).join(',\n            ');
+          
+              return `,
+      {
+          "id": "${role.id}",
+          "title": "${role.title.replace(/"/g, '\\"')}",
+          "category": "${role.category}",
+          "department": "${role.department.replace(/"/g, '\\"')}",
+          "status": "${role.status}",
+          "summary": "${role.summary.replace(/"/g, '\\"')}",
+          "location": "${role.location.replace(/"/g, '\\"')}",
+          "reportingLine": "${role.reportingLine.replace(/"/g, '\\"')}",
+          "timeCommitment": "${role.timeCommitment.replace(/"/g, '\\"')}",
+          "description": \`
+              <p>${role.description.replace(/`/g, '\\`').replace(/\$/g, '\\$')}</p>
+          \`,
+          "essentialCriteria": [
+              ${essentialCriteria}
+          ],
+          "desirableCriteria": [
+              ${desirableCriteria}
+          ],
+          "icon": "${role.icon}"
+      }`;
+          }
+          
+          // Insert role into content
+          function insertRoleIntoContent(content, newRoleJS) {
+              const roleDataStart = content.indexOf('const rolesData = [');
+              if (roleDataStart === -1) {
+                  throw new Error('Could not find rolesData array in main.js');
+              }
+          
+              // Find the end of the rolesData array
+              let bracketCount = 0;
+              let roleDataEnd = roleDataStart;
+              let inString = false;
+              let escapeNext = false;
+          
+              for (let i = roleDataStart; i < content.length; i++) {
+                  const char = content[i];
+                  
+                  if (escapeNext) {
+                      escapeNext = false;
+                      continue;
+                  }
+                  
+                  if (char === '\\') {
+                      escapeNext = true;
+                      continue;
+                  }
+                  
+                  if (char === '"' || char === "'" || char === '`') {
+                      if (!inString) {
+                          inString = char;
+                      } else if (inString === char) {
+                          inString = false;
+                      }
+                      continue;
+                  }
+                  
+                  if (!inString) {
+                      if (char === '[') {
+                          bracketCount++;
+                      } else if (char === ']') {
+                          bracketCount--;
+                          if (bracketCount === 0) {
+                              roleDataEnd = i;
+                              break;
+                          }
+                      }
+                  }
+              }
+          
+              // Insert the new role before the closing bracket
+              const beforeArray = content.substring(0, roleDataEnd);
+              const afterArray = content.substring(roleDataEnd);
+              
+              return beforeArray + newRoleJS + afterArray;
+          }
+          
+          // Add new role to rolesData array
+          const newRoleJS = generateRoleJS(roleData);
+          content = insertRoleIntoContent(content, newRoleJS);
+          
+          // Write updated content back
+          fs.writeFileSync(mainJsPath, content, 'utf8');
+          
+          console.log('✅ Role added successfully to main.js!');
+          console.log('Role ID:', roleData.id);
+          console.log('Role Title:', roleData.title);
+          EOF
+          
+          # Run the script
+          node add-role.js
+          
+      - name: Commit and push changes
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          git add js/main.js
+          git commit -m "Add new volunteer role: ${{ github.event.client_payload.roleData.title }}"
+          git push
+          
+      - name: Success message
+        run: |
+          echo "✅ Role added successfully!"
+          echo "📝 Role: ${{ github.event.client_payload.roleData.title }}"
+          echo "🌐 Netlify will automatically deploy the changes in 1-2 minutes" 

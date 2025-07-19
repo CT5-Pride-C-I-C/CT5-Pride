@@ -115,7 +115,7 @@
         <div class="section-divider" role="separator" aria-hidden="true"></div>
 
         <!-- Enhanced Volunteer Opportunities Section -->
-        <section id="volunteer-roles" class="decorative-shapes" style="padding: 4rem 0; background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(240,255,255,0.9) 100%);">
+        <section id="volunteer-roles" class="decorative-shapes" style="padding: 4rem 0; background: rgba(255,255,255,0.95);">
             <!-- IDEOGRAM GRAPHIC ACTIVE: volunteer_community_background.svg is displaying via CSS .role-board::before -->
             <div class="container">
                 <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--text); text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
@@ -225,9 +225,20 @@
                 </div>
             </div>
 
-            <!-- Role Summary -->
-            <div class="role-summary">
-                <p id="roleDetailSummary">Role summary will appear here...</p>
+            <!-- Role Details -->
+            <div class="role-details">
+                <div class="role-detail-item">
+                    <strong>📍 Location:</strong>
+                    <span id="roleDetailLocation">Location will appear here...</span>
+                </div>
+                <div class="role-detail-item">
+                    <strong>👥 Reporting Line:</strong>
+                    <span id="roleDetailReportingLine">Reporting line will appear here...</span>
+                </div>
+                <div class="role-detail-item">
+                    <strong>⏰ Time Commitment:</strong>
+                    <span id="roleDetailTimeCommitment">Time commitment will appear here...</span>
+                </div>
             </div>
 
             <!-- Role Description -->
@@ -257,7 +268,6 @@
             <!-- Action Buttons -->
             <div class="role-actions">
                 <a href="apply.html" class="button primary">Apply for This Role</a>
-                <button class="button secondary modal-close">Close</button>
             </div>
         </div>
     </div>

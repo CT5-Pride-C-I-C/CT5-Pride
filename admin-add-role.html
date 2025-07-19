@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Volunteer Role - CT5 Pride Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="icon" type="image/svg+xml" href="Images/Logo-with-Transparent-background.svg">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="Images/Logo-with-Transparent-background.svg" alt="CT5 Pride Logo" width="150" height="60">
+                    </a>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="events.html">Events</a></li>
+                        <li><a href="volunteer.html">Volunteer</a></li>
+                        <li><a href="get-involved.html">Get Involved</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <a href="apply.html" class="button">Apply Now</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="admin-hero">
+            <div class="container">
+                <h1>🎯 Add New Volunteer Role</h1>
+                <p>Create and publish new volunteer opportunities for CT5 Pride</p>
+            </div>
+        </section>
+
+        <section class="admin-form-section">
+            <div class="container">
+                <div class="admin-form-container">
+                    <form id="roleForm" class="admin-form">
+                        <div class="form-grid">
+                            <!-- Basic Information -->
+                            <div class="form-section">
+                                <h3>📋 Basic Information</h3>
+                                
+                                <div class="form-group">
+                                    <label for="roleId">Role ID *</label>
+                                    <input type="text" id="roleId" name="roleId" required 
+                                           placeholder="e.g., social-media-coordinator">
+                                    <small>Unique identifier for the role (auto-generated from title)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="roleTitle">Role Title *</label>
+                                    <input type="text" id="roleTitle" name="roleTitle" required 
+                                           placeholder="e.g., Social Media Coordinator">
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="roleCategory">Category *</label>
+                                        <select id="roleCategory" name="roleCategory" required>
+                                            <option value="">Select Category</option>
+                                            <option value="Year-Round">Year-Round</option>
+                                            <option value="Event-Specific">Event-Specific</option>
+                                            <option value="Seasonal">Seasonal</option>
+                                            <option value="Project-Based">Project-Based</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="roleDepartment">Department *</label>
+                                        <select id="roleDepartment" name="roleDepartment" required>
+                                            <option value="">Select Department</option>
+                                            <option value="Marketing & Communications">Marketing & Communications</option>
+                                            <option value="Events & Operations">Events & Operations</option>
+                                            <option value="Community Outreach">Community Outreach</option>
+                                            <option value="Fundraising">Fundraising</option>
+                                            <option value="Youth Services">Youth Services</option>
+                                            <option value="Governance & Administration">Governance & Administration</option>
+                                            <option value="Volunteer Management">Volunteer Management</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="roleStatus">Status *</label>
+                                        <select id="roleStatus" name="roleStatus" required>
+                                            <option value="draft">Draft (Preview Only)</option>
+                                            <option value="open">Open (Live)</option>
+                                            <option value="closed">Closed</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="roleIcon">Icon Type *</label>
+                                        <select id="roleIcon" name="roleIcon" required>
+                                            <option value="volunteers">Volunteers</option>
+                                            <option value="social-media">Social Media</option>
+                                            <option value="outreach">Outreach</option>
+                                            <option value="fundraising">Fundraising</option>
+                                            <option value="youth">Youth</option>
+                                            <option value="parade">Parade</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Role Details -->
+                            <div class="form-section">
+                                <h3>📍 Role Details</h3>
+                                
+                                <div class="form-group">
+                                    <label for="roleSummary">Role Summary *</label>
+                                    <textarea id="roleSummary" name="roleSummary" rows="3" required 
+                                              placeholder="Brief summary of the role (appears on the role card)"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="roleLocation">Location *</label>
+                                    <input type="text" id="roleLocation" name="roleLocation" required 
+                                           placeholder="e.g., CT5 Area, Kent">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="roleReportingLine">Reporting Line *</label>
+                                    <input type="text" id="roleReportingLine" name="roleReportingLine" required 
+                                           placeholder="e.g., Marketing Director">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="roleTimeCommitment">Time Commitment *</label>
+                                    <input type="text" id="roleTimeCommitment" name="roleTimeCommitment" required 
+                                           placeholder="e.g., 5-10 hours per week">
+                                </div>
+                            </div>
+
+                            <!-- Role Description -->
+                            <div class="form-section full-width">
+                                <h3>📝 Role Description</h3>
+                                
+                                <div class="form-group">
+                                    <label for="roleDescription">About This Role *</label>
+                                    <textarea id="roleDescription" name="roleDescription" rows="6" required 
+                                              placeholder="Detailed description of the role, responsibilities, and what the volunteer will be doing..."></textarea>
+                                    <small>Use HTML tags like &lt;p&gt;, &lt;strong&gt;, &lt;em&gt; for formatting</small>
+                                </div>
+                            </div>
+
+                            <!-- Criteria -->
+                            <div class="form-section">
+                                <h3>✅ Essential Criteria</h3>
+                                
+                                <div class="form-group">
+                                    <label for="roleEssentialCriteria">Essential Requirements *</label>
+                                    <textarea id="roleEssentialCriteria" name="roleEssentialCriteria" rows="8" required 
+                                              placeholder="List each requirement on a new line:
+• Must be 18+ years old
+• Fluent in English
+• Available weekends
+• Experience with social media"></textarea>
+                                    <small>One requirement per line, starting with a bullet point or dash</small>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h3>🌟 Desirable Criteria</h3>
+                                
+                                <div class="form-group">
+                                    <label for="roleDesirableCriteria">Desirable Requirements *</label>
+                                    <textarea id="roleDesirableCriteria" name="roleDesirableCriteria" rows="8" required 
+                                              placeholder="List each requirement on a new line:
+• Previous volunteer experience
+• Marketing background
+• Graphic design skills
+• Local community connections"></textarea>
+                                    <small>One requirement per line, starting with a bullet point or dash</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="button" id="previewBtn" class="button secondary">👁️ Preview Role</button>
+                            <button type="submit" class="button primary">💾 Save Role</button>
+                            <button type="button" id="clearBtn" class="button outline">🗑️ Clear Form</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Preview Section -->
+                <div id="rolePreview" class="preview-section" style="display: none;"></div>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="success-section" style="display: none;">
+                    <!-- Success content will be populated by JavaScript -->
+                </div>
+
+                <!-- Add Another Role Button -->
+                <div class="add-another-section" style="display: none;">
+                    <button id="addAnotherBtn" class="button primary">➕ Add Another Role</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>CT5 Pride</h3>
+                    <p>Celebrating diversity and promoting inclusion in the CT5 area of Kent.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="events.html">Events</a></li>
+                        <li><a href="volunteer.html">Volunteer</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Get Involved</h4>
+                    <ul>
+                        <li><a href="volunteer.html">Volunteer</a></li>
+                        <li><a href="get-involved.html">Ways to Help</a></li>
+                        <li><a href="apply.html">Apply Now</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <div class="social-links">
+                        <a href="#" aria-label="Facebook">📘</a>
+                        <a href="#" aria-label="Twitter">🐦</a>
+                        <a href="#" aria-label="Instagram">📷</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 CT5 Pride. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/admin.js"></script>
+</body>
+</html> 

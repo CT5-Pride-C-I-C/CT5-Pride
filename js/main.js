@@ -294,163 +294,56 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Enhanced Volunteer Role Data with Full Job Descriptions
+// Real Volunteer Role Data - Director of Administration & Board Secretary
 const rolesData = [
     {
-        "id": "parade-coordinator",
-        "title": "Parade Coordinator",
+        "id": "director-administration-board-secretary",
+        "title": "Director of Administration & Board Secretary (Officer)",
         "category": "Year-Round",
-        "department": "Events",
+        "department": "Governance & Administration",
         "status": "open",
-        "summary": "Help plan and coordinate our annual pride parade. Looking for someone with event planning experience and great organizational skills.",
+        "summary": "Key leadership role ensuring CT5 Pride operates smoothly through effective administration and governance, supporting the Board of Directors and organizational operations.",
+        "location": "CT5 Area, Kent",
+        "reportingLine": "Senior Directors incl; Chairperson & Founders",
+        "timeCommitment": "Adhoc - 10-12 hours per month",
         "description": `
-            <p>As our Parade Coordinator, you'll play a vital role in organizing CT5 Pride's flagship annual event. This is a hands-on role that involves working with local authorities, coordinating with participants, and ensuring our parade is both spectacular and safe.</p>
+            <p>The Director of Administration & Board Secretary (Officer) will be responsible for ensuring that CT5 Pride operates smoothly & efficiently through effective administration and governance. In this key leadership role, you will manage & oversee the administrative functions of the organisation, ensuring compliance with relevant laws and regulations.</p>
             
-            <p>You'll be responsible for liaison with Canterbury City Council, Kent Police, and other stakeholders to secure necessary permits and ensure compliance with safety regulations. You'll also coordinate with local LGBTQIA+ groups, allies, and supporters to encourage participation.</p>
+            <p>As the Board Secretary, you will facilitate the functioning of the Board of Directors by supporting governance processes, scheduling meetings, maintaining records, and ensuring proper communication between Board members and the wider organization. Your role will also involve managing sensitive & confidential information, acting as a key point of contact for Board members, and supporting organisational operations.</p>
             
-            <p>This role offers the opportunity to make a significant impact on our community's most visible celebration of LGBTQIA+ pride and visibility.</p>
+            <p>Scope for this role to become a senior director in due course.</p>
         `,
         "essentialCriteria": [
-            "Previous event planning or coordination experience",
-            "Strong organizational and project management skills",
-            "Excellent communication and liaison abilities",
-            "Ability to work under pressure and meet deadlines",
-            "Commitment to LGBTQIA+ rights and inclusion",
-            "Available for weekend and evening work during peak periods"
+            "Applicants must be 18 years of age or over with no unspent convictions",
+            "Be fluent in English written and spoken",
+            "Not be barred from working with Children or vulnerable people",
+            "A commitment to LGBTQIA+ inclusion and community-led values",
+            "Willingness and ability undertake an active hands-on role",
+            "Commitment to continuous learning and training",
+            "Willingness to leverage professional and person networks to support fundraising and awareness efforts",
+            "Proven experience (minimum 3 years) in an administrative role, with a focus on governance and supporting Board of Directors or senior leadership teams",
+            "Policy & Procedure writing experience",
+            "Strong understanding of governance structures, legal requirements, and board operations in the non-profit or community sector",
+            "Experience in managing and maintaining accurate records, meeting minutes, and correspondence",
+            "Excellent written and verbal communication skills, with experience preparing formal reports, minutes, and correspondence for Board members",
+            "Ability to effectively communicate with Board members, staff, volunteers, and external stakeholders",
+            "Strong commitment to confidentiality, with the ability to handle sensitive information with discretion and professionalism",
+            "High ethical standards and integrity in dealing with governance and administrative matters"
         ],
         "desirableCriteria": [
-            "Experience with street events or parades",
-            "Knowledge of local council processes and regulations",
-            "Experience working with emergency services",
-            "Event management qualifications",
-            "Connections within the local LGBTQIA+ community"
-        ],
-        "icon": "parade"
-    },
-    {
-        "id": "social-media-manager",
-        "title": "Social Media Manager",
-        "category": "Year-Round",
-        "department": "Marketing",
-        "status": "open",
-        "summary": "Create engaging content and manage our social media presence across Instagram and Facebook to build our community online.",
-        "description": `
-            <p>Join our team as Social Media Manager and help amplify CT5 Pride's voice across digital platforms. You'll be responsible for creating engaging, authentic content that celebrates our community and promotes our events and initiatives.</p>
-            
-            <p>Working closely with our Communications team, you'll develop and implement our social media strategy, ensuring consistent messaging that reflects our values of inclusion, celebration, and community support.</p>
-            
-            <p>This role offers creative freedom to showcase the vibrancy of our community while building meaningful connections with LGBTQIA+ individuals and allies across the CT5 area.</p>
-        `,
-        "essentialCriteria": [
-            "Experience managing social media for organizations or brands",
-            "Strong writing skills and visual content creation abilities",
-            "Understanding of social media best practices and analytics",
-            "Commitment to LGBTQIA+ representation and inclusion",
-            "Ability to work independently and meet deadlines",
-            "Available for 5-10 hours per week, with flexibility around events"
-        ],
-        "desirableCriteria": [
-            "Experience with Instagram, Facebook, and TikTok",
-            "Graphic design skills (Canva, Photoshop, etc.)",
-            "Photography or video editing experience",
-            "Previous work with LGBTQIA+ organizations or causes",
-            "Understanding of community engagement strategies"
-        ],
-        "icon": "social-media"
-    },
-    {
-        "id": "community-outreach-lead",
-        "title": "Community Outreach Lead",
-        "category": "Year-Round",
-        "department": "Outreach",
-        "status": "closed",
-        "summary": "Build relationships with local LGBTQIA+ organizations and allies in the CT5 area to strengthen our community network.",
-        "description": `
-            <p>As Community Outreach Lead, you'll be the bridge between CT5 Pride and the wider LGBTQIA+ community. This role involves building meaningful partnerships with local organizations, businesses, and community groups.</p>
-            
-            <p>You'll represent CT5 Pride at community events, facilitate collaborative projects, and help identify opportunities for mutual support and advocacy within our local area.</p>
-        `,
-        "essentialCriteria": [
-            "Strong interpersonal and networking skills",
-            "Experience in community engagement or partnership building",
-            "Commitment to LGBTQIA+ advocacy and inclusion"
-        ],
-        "desirableCriteria": [
-            "Existing connections within the local LGBTQIA+ community",
-            "Experience with non-profit organizations"
-        ],
-        "icon": "outreach"
-    },
-    {
-        "id": "volunteer-coordinator",
-        "title": "Volunteer Coordinator",
-        "category": "Year-Round",
-        "department": "Operations",
-        "status": "closed",
-        "summary": "Manage our amazing volunteer team and help match people with the right opportunities to maximize their impact.",
-        "description": `
-            <p>Our Volunteer Coordinator ensures that every volunteer has a meaningful and rewarding experience with CT5 Pride. You'll be responsible for recruitment, onboarding, and ongoing support of our volunteer team.</p>
-            
-            <p>This role involves matching volunteers with opportunities that suit their skills and interests, providing training and support, and maintaining regular communication to ensure engagement and satisfaction.</p>
-        `,
-        "essentialCriteria": [
-            "Experience in volunteer management or human resources",
-            "Strong organizational and people management skills",
-            "Excellent communication abilities"
-        ],
-        "desirableCriteria": [
-            "Experience with volunteer management systems",
-            "Background in training and development"
+            "Previous experience serving as a company secretary, board officer, or in a governance or compliance role",
+            "Understanding of the legal and regulatory framework for Community Interest Companies or charities",
+            "Familiarity with filing requirements for Companies House or similar public bodies",
+            "Experience supporting or developing policies, internal procedures, or organisational systems",
+            "Knowledge of equality, diversity, and inclusion frameworks in practice",
+            "Experience working or volunteering within LGBTQIA+ organisations or equalities-focused initiatives",
+            "Strong written communication skills, with experience preparing formal documents or board papers",
+            "Ability to manage shared drives or document storage systems such as Google Workspace or Microsoft 365",
+            "Familiarity with coordinating AGMs, board recruitment, or director inductions",
+            "A visible presence or active network within the CT5 area or broader Kent community",
+            "Line-management experience in managing volunteers and/or staff"
         ],
         "icon": "volunteers"
-    },
-    {
-        "id": "fundraising-director",
-        "title": "Fundraising Director",
-        "category": "Year-Round",
-        "department": "Fundraising",
-        "status": "draft",
-        "summary": "Lead our fundraising efforts and develop relationships with sponsors and donors to support our mission.",
-        "description": `
-            <p>As Fundraising Director, you'll develop and implement comprehensive fundraising strategies to ensure CT5 Pride has the resources needed to serve our community effectively.</p>
-            
-            <p>This strategic role involves grant writing, corporate partnership development, individual donor cultivation, and event-based fundraising initiatives.</p>
-        `,
-        "essentialCriteria": [
-            "Proven experience in fundraising or development",
-            "Grant writing experience",
-            "Strong relationship building skills"
-        ],
-        "desirableCriteria": [
-            "Experience with LGBTQIA+ organizations",
-            "Corporate partnership experience"
-        ],
-        "icon": "fundraising"
-    },
-    {
-        "id": "youth-engagement-officer",
-        "title": "Youth Engagement Officer",
-        "category": "Year-Round",
-        "department": "Programs",
-        "status": "draft",
-        "summary": "Create and coordinate programs specifically for LGBTQIA+ youth in our community, providing support and safe spaces.",
-        "description": `
-            <p>Our Youth Engagement Officer will develop and deliver programs specifically designed to support LGBTQIA+ young people in the CT5 area. This includes creating safe spaces, educational workshops, and social activities.</p>
-            
-            <p>Working with schools, youth services, and families, you'll help ensure that young LGBTQIA+ people in our community have access to support, resources, and positive role models.</p>
-        `,
-        "essentialCriteria": [
-            "Experience working with young people",
-            "Understanding of LGBTQIA+ youth issues",
-            "Enhanced DBS check (or willingness to obtain)",
-            "Strong safeguarding awareness"
-        ],
-        "desirableCriteria": [
-            "Youth work qualifications",
-            "Experience with LGBTQIA+ support services",
-            "Mental health first aid training"
-        ],
-        "icon": "youth"
     }
 ];
 
@@ -503,7 +396,9 @@ function openRoleDetailModal(roleId) {
     // Populate modal content
     document.getElementById('roleDetailTitle').textContent = role.title;
     document.getElementById('roleDetailDepartment').textContent = role.department;
-    document.getElementById('roleDetailSummary').textContent = role.summary;
+    document.getElementById('roleDetailLocation').textContent = role.location;
+    document.getElementById('roleDetailReportingLine').textContent = role.reportingLine;
+    document.getElementById('roleDetailTimeCommitment').textContent = role.timeCommitment;
     document.getElementById('roleDetailDescription').innerHTML = role.description;
 
     // Populate essential criteria
