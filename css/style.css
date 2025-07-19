@@ -2291,7 +2291,7 @@ footer::after {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
   border-bottom: 2px solid var(--gray);
 }
@@ -2322,7 +2322,7 @@ footer::after {
 .requirement-item {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-md);
+    gap: var(--spacing-md);
   padding: var(--spacing-md);
   background: var(--gray);
   border-radius: 8px;
@@ -2330,7 +2330,7 @@ footer::after {
 }
 
 .requirement-icon {
-  font-size: 1.5rem;
+    font-size: 1.5rem;
   flex-shrink: 0;
   width: 40px;
   text-align: center;
@@ -2352,8 +2352,8 @@ footer::after {
 .email-details {
   background: var(--primary);
   color: white;
-  padding: var(--spacing-lg);
-  border-radius: 8px;
+    padding: var(--spacing-lg);
+    border-radius: 8px;
   margin: var(--spacing-lg) 0;
   text-align: center;
 }
@@ -2430,7 +2430,7 @@ footer::after {
 
 .email-button {
   flex: 2;
-  text-align: center;
+        text-align: center;
   padding: var(--spacing-md);
   font-size: 1rem;
   font-weight: 600;
@@ -2447,7 +2447,7 @@ footer::after {
 
 .modal-actions .button {
   flex: 1;
-  padding: var(--spacing-md);
+        padding: var(--spacing-md);
   text-align: center;
 }
 
@@ -2551,7 +2551,7 @@ nav a:focus {
 
 /* Simplified Role Board - Clean Single Column Layout */
 .role-board-simple {
-  display: flex;
+    display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
   max-width: 800px;
@@ -2579,8 +2579,8 @@ nav a:focus {
 }
 
 .role-header {
-  display: flex;
-  align-items: flex-start;
+    display: flex;
+    align-items: flex-start;
   gap: var(--spacing-lg);
   margin-bottom: var(--spacing-md);
 }
@@ -2723,15 +2723,15 @@ nav a:focus {
 /* Mobile Responsive for Simplified Layout */
 @media (max-width: 768px) {
   .role-header {
-    flex-direction: column;
+        flex-direction: column;
     gap: var(--spacing-md);
     text-align: center;
-  }
-  
+    }
+
   .role-actions-simple {
-    width: 100%;
-  }
-  
+        width: 100%;
+    }
+
   .role-actions-simple .button {
     width: 100%;
     text-align: center;
