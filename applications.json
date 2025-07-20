@@ -1,0 +1,40 @@
+{
+  "applications": [
+    {
+      "id": "app_1753041342230_wnnburfr4",
+      "roleId": "director-of-legal-and-compliance",
+      "roleTitle": "Director of Legal & Compliance",
+      "applicantName": "Joe Doe",
+      "applicantEmail": "joedoe.gary@123.fd",
+      "cvType": "file",
+      "coverLetterType": "text",
+      "cvFile": "Embroidered_polo_Guideline_1753041342226.pdf",
+      "cvText": null,
+      "coverLetterFile": null,
+      "coverLetterText": "frank is cool",
+      "status": "pending",
+      "submittedAt": "2025-07-20T19:55:42.230Z",
+      "reviewedAt": null,
+      "reviewedBy": null
+    },
+    {
+      "id": "app_1753041726342_hpgv1svxy",
+      "roleId": "director-of-legal-and-compliance",
+      "roleTitle": "Director of Legal & Compliance",
+      "applicantName": "Joe Doe",
+      "applicantEmail": "joe.doe@fuckoff.com",
+      "cvType": "text",
+      "coverLetterType": "text",
+      "cvFile": null,
+      "cvText": "hu",
+      "coverLetterFile": null,
+      "coverLetterText": "hee",
+      "status": "pending",
+      "submittedAt": "2025-07-20T20:02:06.342Z",
+      "reviewedAt": null,
+      "reviewedBy": null
+    }
+  ],
+  "lastUpdated": "2025-07-20T20:02:06.342Z",
+  "version": "1.0.0"
+}
