@@ -906,9 +906,7 @@
     margin-bottom: 2rem;
 }
 
-.password-header img {
-    margin-bottom: 1rem;
-}
+/* Removed conflicting img style - now using .site-logo class */
 
 .password-header h2 {
     color: #495057;
@@ -1050,4 +1048,56 @@
 .success-details p {
     margin-bottom: 0.5rem;
     color: #155724;
+}
+
+/* Logo Styling for Admin Panel - Override main styles */
+.admin-content .site-logo,
+.password-screen .site-logo {
+    max-width: 180px !important;
+    height: auto !important;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Password screen logo specific styling */
+.password-header .site-logo {
+    max-width: 120px !important;
+    margin-bottom: 1rem;
+}
+
+/* Header logo specific styling */
+.logo .site-logo {
+    max-width: 150px !important;
+    margin: 0;
+}
+
+/* Responsive logo sizing */
+@media (max-width: 768px) {
+    .admin-content .site-logo,
+    .password-screen .site-logo {
+        max-width: 140px !important;
+    }
+    
+    .password-header .site-logo {
+        max-width: 100px !important;
+    }
+    
+    .logo .site-logo {
+        max-width: 120px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-content .site-logo,
+    .password-screen .site-logo {
+        max-width: 120px !important;
+    }
+    
+    .password-header .site-logo {
+        max-width: 80px !important;
+    }
+    
+    .logo .site-logo {
+        max-width: 100px !important;
+    }
 } 

@@ -17,17 +17,28 @@ function configureGitRemote() {
     const token = process.env.GITHUB_TOKEN;
     if (!token) {
         console.error('❌ GITHUB_TOKEN not found in environment variables');
+        console.log('⚠️  Git operations will be skipped until token is configured');
         return false;
+    }
+
+    // Validate token format (basic check)
+    if (!token.startsWith('github_pat_') && !token.startsWith('ghp_')) {
+        console.warn('⚠️  Token format may be invalid. Expected format: github_pat_... or ghp_...');
     }
 
     const remoteUrl = `https://x-access-token:${token}@github.com/${config.github.owner}/${config.github.repo}.git`;
     
     exec(`git remote set-url origin "${remoteUrl}"`, (err, stdout, stderr) => {
         if (err) {
-            console.error('❌ Failed to configure Git remote:', err);
+            console.error('❌ Failed to configure Git remote:', err.message);
+            console.error('💡 This may be due to:');
+            console.error('   - Invalid GitHub token');
+            console.error('   - Repository not found');
+            console.error('   - Insufficient token permissions');
             return false;
         }
         console.log('✅ Git remote configured successfully');
+        console.log(`🔗 Repository: ${config.github.owner}/${config.github.repo}`);
         return true;
     });
 }
@@ -660,10 +671,14 @@ app.listen(PORT, () => {
     
     // Check if GitHub token is configured
     if (process.env.GITHUB_TOKEN) {
-        console.log('✅ GitHub token configured');
+        console.log('✅ GitHub token loaded from .env');
+        console.log(`🔑 Token: ${process.env.GITHUB_TOKEN.substring(0, 10)}...${process.env.GITHUB_TOKEN.substring(process.env.GITHUB_TOKEN.length - 4)}`);
         configureGitRemote();
     } else {
-        console.log('❌ GitHub token not found in environment variables');
-        console.log('Please create a .env file with GITHUB_TOKEN=your_token_here');
+        console.log('⚠️  GITHUB_TOKEN not found in environment variables');
+        console.log('📝 Please create a .env file in the root directory with:');
+        console.log('   GITHUB_TOKEN=your_actual_token_here');
+        console.log('🔗 Get a token from: https://github.com/settings/tokens');
+        console.log('⚠️  Git operations will be skipped until token is configured');
     }
 }); 
