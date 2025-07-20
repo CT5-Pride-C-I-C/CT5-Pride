@@ -1,0 +1,19 @@
+{
+  "events": [
+    {
+      "id": "1507950112379",
+      "title": "Test for API key",
+      "description": "Come join us for a hands-on session to test out your API key in person!",
+      "start_date": "2025-08-31T17:00:00Z",
+      "end_date": "2025-08-31T19:00:00Z",
+      "status": "live",
+      "url": "https://www.eventbrite.co.uk/e/test-for-api-key-tickets-1507950112379",
+      "venue": null,
+      "logo": "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F1077302903%2F2840348402211%2F1%2Foriginal.png?h=200&w=450&auto=format%2Ccompress&q=75&sharp=10&rect=0%2C0%2C940%2C470&s=1ffb736bfbe8d408e54a15ca5ea354e9",
+      "customSummary": null,
+      "customCta": null
+    }
+  ],
+  "lastUpdated": "2025-07-20T15:26:27.331Z",
+  "version": "1.0.0"
+}
