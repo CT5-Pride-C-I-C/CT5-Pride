@@ -533,24 +533,34 @@
 }
 
 .admin-info-box {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
-    padding: 1.5rem;
+    border-radius: 12px;
+    padding: 2rem;
     margin-top: 2rem;
     backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.admin-info-box h2 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
 .admin-info-box h3 {
-    color: white;
+    color: #333;
     margin-bottom: 1rem;
     font-size: 1.1rem;
+    font-weight: 600;
 }
 
 .admin-info-box p {
-    color: rgba(255, 255, 255, 0.9);
+    color: #444;
     margin-bottom: 0.75rem;
     font-size: 1rem;
+    line-height: 1.6;
 }
 
 .admin-info-box code {
@@ -567,7 +577,7 @@
     gap: 1.5rem;
     margin-top: 1rem;
     padding-top: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
     flex-wrap: wrap;
 }
 
@@ -576,7 +586,11 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: #555;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
 }
 
 .status-icon {
@@ -589,18 +603,284 @@
 
 #currentDateTime {
     font-family: monospace;
-    color: #ffeb3b;
+    color: #667eea;
+    font-weight: 600;
 }
 
 #bannerRoleCount {
     font-weight: 700;
-    color: #ffeb3b;
+    color: #667eea;
 }
 
 @media (max-width: 768px) {
+    .admin-info-box {
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .admin-info-box h2 {
+        font-size: 1.3rem;
+    }
+    
     .admin-status-indicators {
         flex-direction: column;
         gap: 0.75rem;
+    }
+    
+    .status-item {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Admin Tab Navigation */
+.admin-tabs-section {
+    background: white;
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 2rem;
+}
+
+.admin-tabs {
+    display: flex;
+    gap: 0;
+    border-radius: 0;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.tab-button:hover {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.tab-button.active {
+    background: white;
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-icon {
+    font-size: 1.2rem;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Events Management Styles */
+.events-management-section {
+    padding: 2rem 0;
+    background: #f8f9fa;
+}
+
+.events-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.events-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.events-table-header {
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 1rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.event-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.event-row:hover {
+    background: #f8f9fa;
+}
+
+.event-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.event-title {
+    font-weight: 600;
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+.event-id {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-family: monospace;
+}
+
+.event-date {
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+.event-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.event-status.upcoming {
+    background: #d4edda;
+    color: #155724;
+}
+
+.event-status.past {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.event-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.event-actions button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.delete-event-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.delete-event-btn:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.no-events-message {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6c757d;
+}
+
+.no-events-message h3 {
+    margin-bottom: 1rem;
+    color: #495057;
+}
+
+/* Event Preview Styles */
+.event-preview {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.event-preview h4 {
+    margin: 0 0 1rem 0;
+    color: #495057;
+    font-size: 1.2rem;
+}
+
+.event-preview .event-details {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.event-preview .event-detail {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.event-preview .event-detail strong {
+    color: #495057;
+    min-width: 80px;
+}
+
+.event-preview .event-description {
+    background: white;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .admin-tabs {
+        flex-direction: column;
+    }
+    
+    .tab-button {
+        border-bottom: none;
+        border-right: 3px solid transparent;
+    }
+    
+    .tab-button.active {
+        border-right-color: #667eea;
+        border-bottom-color: transparent;
+    }
+    
+    .event-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .event-actions {
+        justify-content: center;
     }
 }
 

@@ -96,8 +96,24 @@
                 </div>
             </section>
 
+            <!-- Admin Tab Navigation -->
+            <section class="admin-tabs-section">
+                <div class="container">
+                    <div class="admin-tabs">
+                        <button class="tab-button active" data-tab="roles">
+                            <span class="tab-icon">👥</span>
+                            <span class="tab-text">Manage Roles</span>
+                        </button>
+                        <button class="tab-button" data-tab="events">
+                            <span class="tab-icon">🎉</span>
+                            <span class="tab-text">Manage Events</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
             <!-- Role Management Dashboard -->
-            <section class="role-management-section">
+            <section id="rolesTab" class="role-management-section tab-content active">
                 <div class="container">
                     <!-- Dashboard Header -->
                     <div class="dashboard-header">
@@ -341,6 +357,132 @@
                     <!-- Success Message -->
                     <div id="successMessage" class="success-section" style="display: none;">
                         <!-- Success content will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Events Management Dashboard -->
+            <section id="eventsTab" class="events-management-section tab-content">
+                <div class="container">
+                    <!-- Events Dashboard Header -->
+                    <div class="dashboard-header">
+                        <div class="dashboard-stats">
+                            <div class="stat-card">
+                                <span class="stat-number" id="totalEvents">0</span>
+                                <span class="stat-label">Total Events</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="upcomingEvents">0</span>
+                                <span class="stat-label">Upcoming</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="pastEvents">0</span>
+                                <span class="stat-label">Past Events</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-actions">
+                            <button id="addNewEventBtn" class="button primary">➕ Add Event</button>
+                            <button id="refreshEventsBtn" class="button secondary">🔄 Refresh</button>
+                        </div>
+                    </div>
+
+                    <!-- Events Table -->
+                    <div class="events-table-container">
+                        <div id="eventsTable" class="events-table">
+                            <!-- Events will be loaded here dynamically -->
+                        </div>
+                        
+                        <div id="noEventsMessage" class="no-events-message" style="display: none;">
+                            <h3>📅 No Events Found</h3>
+                            <p>No events have been added yet. Click "Add Event" to add your first event from Eventbrite.</p>
+                        </div>
+                        
+                        <div id="loadingEvents" class="loading-message">
+                            <div class="loading-spinner"></div>
+                            <p>Loading events...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Event Form Section (Initially Hidden) -->
+            <section id="eventFormSection" class="admin-form-section" style="display: none;">
+                <div class="container">
+                    <div class="form-header">
+                        <h2 id="eventFormTitle">🎉 Add New Event</h2>
+                        <button id="closeEventFormBtn" class="button outline">✕ Close</button>
+                    </div>
+                    
+                    <div class="admin-form-container">
+                        <form id="eventForm" class="admin-form">
+                            <div class="form-grid">
+                                <!-- Event Source -->
+                                <div class="form-section">
+                                    <h3>🔗 Event Source</h3>
+                                    
+                                    <div class="form-group">
+                                        <label for="eventSource">How would you like to add the event?</label>
+                                        <select id="eventSource" name="eventSource" required>
+                                            <option value="">Select option</option>
+                                            <option value="url">Paste Eventbrite URL</option>
+                                            <option value="id">Enter Event ID manually</option>
+                                        </select>
+                                    </div>
+
+                                    <div id="eventUrlGroup" class="form-group" style="display: none;">
+                                        <label for="eventUrl">Eventbrite Event URL *</label>
+                                        <input type="url" id="eventUrl" name="eventUrl" 
+                                               placeholder="https://www.eventbrite.co.uk/e/event-name-123456789">
+                                        <small>Paste the full Eventbrite event URL</small>
+                                    </div>
+
+                                    <div id="eventIdGroup" class="form-group" style="display: none;">
+                                        <label for="eventId">Eventbrite Event ID *</label>
+                                        <input type="text" id="eventId" name="eventId" 
+                                               placeholder="123456789">
+                                        <small>Enter the Eventbrite event ID (numbers only)</small>
+                                    </div>
+
+                                    <button type="button" id="fetchEventBtn" class="button secondary" style="display: none;">
+                                        🔍 Fetch Event Details
+                                    </button>
+                                </div>
+
+                                <!-- Event Preview -->
+                                <div id="eventPreviewSection" class="form-section" style="display: none;">
+                                    <h3>👁️ Event Preview</h3>
+                                    <div id="eventPreview" class="event-preview">
+                                        <!-- Event preview will be populated here -->
+                                    </div>
+                                </div>
+
+                                <!-- Custom Details -->
+                                <div class="form-section">
+                                    <h3>📝 Custom Details (Optional)</h3>
+                                    
+                                    <div class="form-group">
+                                        <label for="eventSummary">Custom Summary</label>
+                                        <textarea id="eventSummary" name="eventSummary" rows="3" 
+                                                  placeholder="Add a custom summary or description for this event..."></textarea>
+                                        <small>This will override the default Eventbrite description</small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="eventCta">RSVP Call-to-Action</label>
+                                        <input type="text" id="eventCta" name="eventCta" 
+                                               placeholder="e.g., 'Join us for this amazing celebration!'">
+                                        <small>Custom text for the RSVP button</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="form-actions">
+                                <button type="submit" class="button primary">💾 Save Event</button>
+                                <button type="button" id="clearEventBtn" class="button outline">🗑️ Clear Form</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </section>

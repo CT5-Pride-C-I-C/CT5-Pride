@@ -6,6 +6,11 @@ class AdminRoleManager {
         this.editingRoleId = null;
         this.originalRoleData = null;
         
+        // Events management
+        this.events = [];
+        this.filteredEvents = [];
+        this.currentEventData = null;
+        
         // DOM elements
         this.passwordScreen = document.getElementById('passwordScreen');
         this.adminContent = document.getElementById('adminContent');
@@ -13,6 +18,10 @@ class AdminRoleManager {
         this.rolesTable = document.getElementById('rolesTable');
         this.deleteModal = document.getElementById('deleteModal');
         this.toastContainer = document.getElementById('toastContainer');
+        
+        // Events DOM elements
+        this.eventFormSection = document.getElementById('eventFormSection');
+        this.eventsTable = document.getElementById('eventsTable');
         
         // DOM elements initialized successfully
         
@@ -23,6 +32,7 @@ class AdminRoleManager {
         this.initializeDashboard();
         this.bindEvents();
         this.loadRoles();
+        this.loadEvents();
         this.initializeStatusIndicators();
     }
 
@@ -163,6 +173,67 @@ class AdminRoleManager {
                 if (roleId && !roleId.value.startsWith('custom-')) {
                     roleId.value = this.generateRoleId(e.target.value);
                 }
+            });
+        }
+
+        // Tab switching
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                this.switchTab(button.dataset.tab);
+            });
+        });
+
+        // Events management
+        const addNewEventBtn = document.getElementById('addNewEventBtn');
+        if (addNewEventBtn) {
+            addNewEventBtn.addEventListener('click', () => {
+                this.showEventForm();
+            });
+        }
+
+        const refreshEventsBtn = document.getElementById('refreshEventsBtn');
+        if (refreshEventsBtn) {
+            refreshEventsBtn.addEventListener('click', () => {
+                this.loadEvents();
+            });
+        }
+
+        // Event form
+        const eventForm = document.getElementById('eventForm');
+        if (eventForm) {
+            eventForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.saveEvent();
+            });
+        }
+
+        const closeEventFormBtn = document.getElementById('closeEventFormBtn');
+        if (closeEventFormBtn) {
+            closeEventFormBtn.addEventListener('click', () => {
+                this.hideEventForm();
+            });
+        }
+
+        const clearEventBtn = document.getElementById('clearEventBtn');
+        if (clearEventBtn) {
+            clearEventBtn.addEventListener('click', () => {
+                this.clearEventForm();
+            });
+        }
+
+        // Event source selection
+        const eventSource = document.getElementById('eventSource');
+        if (eventSource) {
+            eventSource.addEventListener('change', () => {
+                this.handleEventSourceChange();
+            });
+        }
+
+        const fetchEventBtn = document.getElementById('fetchEventBtn');
+        if (fetchEventBtn) {
+            fetchEventBtn.addEventListener('click', () => {
+                this.fetchEventDetails();
             });
         }
     }
@@ -921,6 +992,373 @@ class AdminRoleManager {
         
         // Update banner role count
         this.updateBannerRoleCount();
+    }
+
+    // Tab Management
+    switchTab(tabName) {
+        // Update tab buttons
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+        // Update tab content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`${tabName}Tab`).classList.add('active');
+
+        // Update page title and actions
+        if (tabName === 'events') {
+            document.querySelector('.admin-hero h1').textContent = '🎉 Events Management Dashboard';
+            document.querySelector('.admin-hero p').textContent = 'Manage CT5 Pride events from Eventbrite - Add, Edit, and Remove Events';
+        } else {
+            document.querySelector('.admin-hero h1').textContent = '🎯 Role Management Dashboard';
+            document.querySelector('.admin-hero p').textContent = 'Manage all volunteer roles for CT5 Pride - Create, Edit, Delete, and Update Status';
+        }
+    }
+
+    // Events Management
+    async loadEvents() {
+        try {
+            this.showEventsLoading();
+            console.log('🔄 Loading events...');
+            
+            try {
+                const response = await fetch('/api/eventbrite-events');
+                const result = await response.json();
+                
+                if (result.success && result.events) {
+                    this.events = result.events;
+                } else {
+                    throw new Error('Invalid data format from server API');
+                }
+            } catch (serverError) {
+                console.log('⚠️ Server API not available, loading from local config');
+                // Fallback: Load events from local config
+                try {
+                    const response = await fetch('/events-config.json');
+                    const config = await response.json();
+                    this.events = config.events || [];
+                } catch (configError) {
+                    console.error('❌ Failed to load events from config:', configError);
+                    this.showToast('Failed to load events from config file', 'error');
+                    this.events = [];
+                }
+            }
+            
+            this.filteredEvents = [...this.events];
+            this.renderEvents();
+            this.updateEventStats();
+            
+        } catch (error) {
+            console.error('❌ Error loading events:', error);
+            this.showToast('Error loading events', 'error');
+            this.events = [];
+        } finally {
+            this.hideEventsLoading();
+        }
+    }
+
+    renderEvents() {
+        if (!this.eventsTable) {
+            console.error('❌ eventsTable element not found!');
+            return;
+        }
+        
+        if (this.filteredEvents.length === 0) {
+            this.showNoEventsMessage();
+            return;
+        }
+
+        const tableHTML = `
+            <div class="events-table-header">
+                <div>Event Information</div>
+                <div>Date & Time</div>
+                <div>Status</div>
+                <div>Actions</div>
+            </div>
+            ${this.filteredEvents.map(event => this.renderEventRow(event)).join('')}
+        `;
+
+        this.eventsTable.innerHTML = tableHTML;
+        this.bindEventRowEvents();
+    }
+
+    renderEventRow(event) {
+        const eventDate = new Date(event.start_date);
+        const now = new Date();
+        const isUpcoming = eventDate > now;
+        const statusClass = isUpcoming ? 'upcoming' : 'past';
+        const statusText = isUpcoming ? 'Upcoming' : 'Past';
+
+        return `
+            <div class="event-row" data-event-id="${event.id}">
+                <div class="event-info">
+                    <div class="event-title">${event.title}</div>
+                    <div class="event-id">ID: ${event.id}</div>
+                </div>
+                <div class="event-date">
+                    ${eventDate.toLocaleDateString('en-GB', { 
+                        weekday: 'short', 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    })}
+                    <br>
+                    ${eventDate.toLocaleTimeString('en-GB', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    })}
+                </div>
+                <div class="event-status ${statusClass}">
+                    ${statusText}
+                </div>
+                <div class="event-actions">
+                    <button class="delete-event-btn" data-event-id="${event.id}">
+                        🗑️ Delete
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    bindEventRowEvents() {
+        const deleteButtons = document.querySelectorAll('.delete-event-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const eventId = button.dataset.eventId;
+                this.deleteEvent(eventId);
+            });
+        });
+    }
+
+    async deleteEvent(eventId) {
+        const event = this.events.find(e => e.id === eventId);
+        if (!event) return;
+
+        if (!confirm(`Are you sure you want to delete the event "${event.title}"?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/delete-event/${eventId}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                this.showToast(`Event "${event.title}" deleted successfully`, 'success');
+                await this.loadEvents();
+            } else {
+                throw new Error(result.message || 'Failed to delete event');
+            }
+        } catch (error) {
+            console.error('❌ Error deleting event:', error);
+            this.showToast('Error deleting event', 'error');
+        }
+    }
+
+    updateEventStats() {
+        const total = this.events.length;
+        const now = new Date();
+        const upcoming = this.events.filter(e => new Date(e.start_date) > now).length;
+        const past = total - upcoming;
+
+        document.getElementById('totalEvents').textContent = total;
+        document.getElementById('upcomingEvents').textContent = upcoming;
+        document.getElementById('pastEvents').textContent = past;
+    }
+
+    showEventsLoading() {
+        document.getElementById('loadingEvents').style.display = 'block';
+        document.getElementById('eventsTable').style.display = 'none';
+        document.getElementById('noEventsMessage').style.display = 'none';
+    }
+
+    hideEventsLoading() {
+        document.getElementById('loadingEvents').style.display = 'none';
+        document.getElementById('eventsTable').style.display = 'block';
+    }
+
+    showNoEventsMessage() {
+        document.getElementById('noEventsMessage').style.display = 'block';
+        document.getElementById('eventsTable').style.display = 'none';
+    }
+
+    // Event Form Management
+    showEventForm() {
+        this.eventFormSection.style.display = 'block';
+        this.clearEventForm();
+    }
+
+    hideEventForm() {
+        this.eventFormSection.style.display = 'none';
+        this.clearEventForm();
+    }
+
+    clearEventForm() {
+        const form = document.getElementById('eventForm');
+        if (form) form.reset();
+        
+        document.getElementById('eventUrlGroup').style.display = 'none';
+        document.getElementById('eventIdGroup').style.display = 'none';
+        document.getElementById('fetchEventBtn').style.display = 'none';
+        document.getElementById('eventPreviewSection').style.display = 'none';
+        
+        this.currentEventData = null;
+    }
+
+    handleEventSourceChange() {
+        const source = document.getElementById('eventSource').value;
+        const urlGroup = document.getElementById('eventUrlGroup');
+        const idGroup = document.getElementById('eventIdGroup');
+        const fetchBtn = document.getElementById('fetchEventBtn');
+
+        urlGroup.style.display = 'none';
+        idGroup.style.display = 'none';
+        fetchBtn.style.display = 'none';
+
+        if (source === 'url') {
+            urlGroup.style.display = 'block';
+            fetchBtn.style.display = 'inline-block';
+        } else if (source === 'id') {
+            idGroup.style.display = 'block';
+            fetchBtn.style.display = 'inline-block';
+        }
+    }
+
+    async fetchEventDetails() {
+        const source = document.getElementById('eventSource').value;
+        let eventId = '';
+
+        if (source === 'url') {
+            const url = document.getElementById('eventUrl').value;
+            if (!url) {
+                this.showToast('Please enter an Eventbrite URL', 'error');
+                return;
+            }
+            eventId = this.extractEventIdFromUrl(url);
+            if (!eventId) {
+                this.showToast('Invalid Eventbrite URL', 'error');
+                return;
+            }
+        } else if (source === 'id') {
+            eventId = document.getElementById('eventId').value;
+            if (!eventId) {
+                this.showToast('Please enter an Event ID', 'error');
+                return;
+            }
+        }
+
+        try {
+            const response = await fetch('/api/fetch-event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ eventId })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.currentEventData = result.event;
+                this.showEventPreview(result.event);
+            } else {
+                throw new Error(result.message || 'Failed to fetch event details');
+            }
+        } catch (error) {
+            console.error('❌ Error fetching event details:', error);
+            this.showToast('Error fetching event details', 'error');
+        }
+    }
+
+    extractEventIdFromUrl(url) {
+        const match = url.match(/\/e\/[^\/]*-(\d+)/);
+        return match ? match[1] : null;
+    }
+
+    showEventPreview(event) {
+        const previewSection = document.getElementById('eventPreviewSection');
+        const preview = document.getElementById('eventPreview');
+
+        const eventDate = new Date(event.start_date);
+        const eventEndDate = new Date(event.end_date);
+
+        preview.innerHTML = `
+            <h4>${event.title}</h4>
+            <div class="event-details">
+                <div class="event-detail">
+                    <strong>Date:</strong> ${eventDate.toLocaleDateString('en-GB', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    })}
+                </div>
+                <div class="event-detail">
+                    <strong>Time:</strong> ${eventDate.toLocaleTimeString('en-GB', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    })} - ${eventEndDate.toLocaleTimeString('en-GB', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    })}
+                </div>
+                <div class="event-detail">
+                    <strong>Location:</strong> ${event.venue?.name || 'TBD'}
+                </div>
+                <div class="event-detail">
+                    <strong>Status:</strong> ${event.status}
+                </div>
+            </div>
+            <div class="event-description">
+                ${event.description || 'No description available'}
+            </div>
+        `;
+
+        previewSection.style.display = 'block';
+    }
+
+    async saveEvent() {
+        if (!this.currentEventData) {
+            this.showToast('Please fetch event details first', 'error');
+            return;
+        }
+
+        const customSummary = document.getElementById('eventSummary').value;
+        const customCta = document.getElementById('eventCta').value;
+
+        const eventData = {
+            ...this.currentEventData,
+            customSummary: customSummary || null,
+            customCta: customCta || null
+        };
+
+        try {
+            const response = await fetch('/api/add-event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(eventData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.showToast(`Event "${eventData.title}" added successfully`, 'success');
+                this.hideEventForm();
+                await this.loadEvents();
+            } else {
+                throw new Error(result.message || 'Failed to add event');
+            }
+        } catch (error) {
+            console.error('❌ Error adding event:', error);
+            this.showToast('Error adding event', 'error');
+        }
     }
 }
 
