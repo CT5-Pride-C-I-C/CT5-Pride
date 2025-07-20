@@ -81,6 +81,46 @@ export const roles = [
             "- A visible presence or active network within the CT5 area or broader Kent community.",
             "- Line-management experience in managing volunteers and/or staff."
         ]
+    },
+    {
+        "id": "director-marketing-advertising",
+        "title": "Director of Marketing and Advertising",
+        "category": "marketing",
+        "department": "Board of Directors",
+        "status": "open",
+        "icon": "social-media",
+        "summary": "Lead CT5 Pride’s marketing strategy, shape public presence, manage campaigns, and guide a creative team to promote inclusion, diversity, and LGBTQIA+ visibility across all platforms.",
+        "location": "CT5 Area, Kent",
+        "reportingLine": "Senior Directors",
+        "timeCommitment": "Adhoc, 8-10 hours per month may increase closer to Pride dates.",
+        "description": "<p>The Director of Marketing and Advertising will play a critical role in shaping the public face of CT5 Pride. As the leader of the marketing team, you will be responsible for developing and executing marketing strategies that promote CT5 Pride’s mission, events, and campaigns. Working closely with the Senior Director, you will guide the public presence of CT5 Pride, helping to build awareness, engagement, and support within the community. You will lead the marketing team, including the Social Media Manager, and ensure that CT5 Pride’s voice is consistent, impactful, and inclusive across all platforms.</p>\n\n<p>We are looking for a creative and dynamic leader with a passion for marketing, advertising, and community outreach. The ideal candidate will have experience in leading marketing teams, managing digital campaigns, and representing an organization in public-facing activities. You should be an excellent communicator, both written and verbal, with the ability to inspire and motivate a team. Additionally, you should possess the skills to innovate and adapt to evolving marketing trends while remaining true to the values of CT5 Pride: inclusion, diversity, and LGBTQIA+ visibility. </p>",
+        "essentialCriteria": [
+            "Applicants must be 18 years of age or over with no unspent convictions.",
+            "Be fluent in English written and spoken.",
+            "Not be barred from working with Children or vulnerable people.",
+            "A commitment to LGBTQIA+ inclusion and community-led values.",
+            "Willingness and ability undertake an active hands-on role.",
+            "Have a minimum of 2-years connect to the CT5 Area.",
+            "A minimum of 5 years in marketing, advertising, or communications, with at least 2 years in a leadership role.",
+            "Proven experience developing and executing digital marketing strategies and campaigns, including paid advertising.",
+            "Strong leadership abilities with experience managing and mentoring a team.",
+            "Proven ability to work cross-functionally with senior leadership and other departments to meet organisational goals.",
+            "Expertise in social media marketing and content creation, including experience with Facebook, Instagram, Twitter, LinkedIn, etc.",
+            "Proficiency with digital marketing tools (Google Analytics, Hootsuite, etc.) to track, analyse, and optimise campaign performance.",
+            "Exceptional written and verbal communication skills, with experience writing for diverse audiences.",
+            "Exceptional written and verbal communication skills, with experience writing for diverse audiences.",
+            "Comfortable in a public-facing role, speaking at events or representing the organisation in media interviews.",
+            "Strong creative skills and the ability to develop engaging content that resonates with the LGBTQIA+ community.",
+            "Ability to think strategically and adapt marketing efforts to meet organisational needs.",
+            "Excellent organisational and time-management skills, with the ability to manage multiple projects simultaneously and deliver results within deadlines.",
+            "Basic graphic design skills or familiarity with design tools (Adobe Creative Suite, Canva, etc.) to create marketing materials."
+        ],
+        "desirableCriteria": [
+            "Experience in non-profit marketing or working with community-centered organisations is a plus.",
+            "Experience in promoting community events or large-scale initiatives, especially those in the LGBTQIA+ space.",
+            "Experience in supporting fundraising efforts or working with development teams to create marketing strategies that support financial goals.",
+            "Experience in writing, submitting and bidding for Grants."
+        ]
     }
 ];
 
