@@ -11,6 +11,11 @@ class AdminRoleManager {
         this.filteredEvents = [];
         this.currentEventData = null;
         
+        // Applications management
+        this.applications = [];
+        this.filteredApplications = [];
+        this.currentApplicationId = null;
+        
         // DOM elements
         this.passwordScreen = document.getElementById('passwordScreen');
         this.adminContent = document.getElementById('adminContent');
@@ -23,6 +28,10 @@ class AdminRoleManager {
         this.eventFormSection = document.getElementById('eventFormSection');
         this.eventsTable = document.getElementById('eventsTable');
         
+        // Applications DOM elements
+        this.applicationsTable = document.getElementById('applicationsTable');
+        this.applicationModal = document.getElementById('applicationModal');
+        
         // DOM elements initialized successfully
         
         // Admin password
@@ -33,6 +42,7 @@ class AdminRoleManager {
         this.bindEvents();
         this.loadRoles();
         this.loadEvents();
+        this.loadApplications();
         this.initializeStatusIndicators();
     }
 
@@ -236,6 +246,65 @@ class AdminRoleManager {
                 this.fetchEventDetails();
             });
         }
+
+        // Applications management
+        const refreshApplicationsBtn = document.getElementById('refreshApplicationsBtn');
+        if (refreshApplicationsBtn) {
+            refreshApplicationsBtn.addEventListener('click', () => {
+                this.loadApplications();
+            });
+        }
+
+        const exportApplicationsBtn = document.getElementById('exportApplicationsBtn');
+        if (exportApplicationsBtn) {
+            exportApplicationsBtn.addEventListener('click', () => {
+                this.exportApplicationsCSV();
+            });
+        }
+
+        // Applications search and filters
+        const applicationSearch = document.getElementById('applicationSearch');
+        if (applicationSearch) {
+            applicationSearch.addEventListener('input', () => {
+                this.filterApplications();
+            });
+        }
+
+        const applicationStatusFilter = document.getElementById('applicationStatusFilter');
+        if (applicationStatusFilter) {
+            applicationStatusFilter.addEventListener('change', () => {
+                this.filterApplications();
+            });
+        }
+
+        const applicationRoleFilter = document.getElementById('applicationRoleFilter');
+        if (applicationRoleFilter) {
+            applicationRoleFilter.addEventListener('change', () => {
+                this.filterApplications();
+            });
+        }
+
+        // Application modal events
+        const updateStatusBtn = document.getElementById('updateStatusBtn');
+        if (updateStatusBtn) {
+            updateStatusBtn.addEventListener('click', () => {
+                this.updateApplicationStatus();
+            });
+        }
+
+        const deleteApplicationBtn = document.getElementById('deleteApplicationBtn');
+        if (deleteApplicationBtn) {
+            deleteApplicationBtn.addEventListener('click', () => {
+                if (this.currentApplicationId) {
+                    this.deleteApplication(this.currentApplicationId);
+                }
+            });
+        }
+
+        // Global function for closing application modal
+        window.closeApplicationModal = () => {
+            this.closeApplicationModal();
+        };
     }
 
     // Password handling
@@ -1359,6 +1428,344 @@ class AdminRoleManager {
             console.error('❌ Error adding event:', error);
             this.showToast('Error adding event', 'error');
         }
+    }
+
+    // Applications Management
+    async loadApplications() {
+        try {
+            this.showApplicationsLoading();
+            
+            const response = await fetch('/api/applications');
+            const result = await response.json();
+            
+            if (result.success) {
+                this.applications = result.applications || [];
+                this.filteredApplications = [...this.applications];
+                this.renderApplications();
+                this.updateApplicationStats();
+                this.populateRoleFilter();
+            } else {
+                this.showToast('Failed to load applications: ' + result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error loading applications:', error);
+            this.showToast('Failed to load applications', 'error');
+        } finally {
+            this.hideApplicationsLoading();
+        }
+    }
+
+    renderApplications() {
+        if (!this.applicationsTable) return;
+
+        if (this.filteredApplications.length === 0) {
+            this.showNoApplicationsMessage();
+            return;
+        }
+
+        this.hideNoApplicationsMessage();
+        
+        const applicationsHTML = this.filteredApplications.map(app => this.renderApplicationRow(app)).join('');
+        this.applicationsTable.innerHTML = applicationsHTML;
+        this.bindApplicationRowEvents();
+    }
+
+    renderApplicationRow(application) {
+        const statusClass = this.getApplicationStatusClass(application.status);
+        const statusText = this.getApplicationStatusText(application.status);
+        const submittedDate = new Date(application.submittedAt).toLocaleDateString();
+        
+        return `
+            <div class="application-row" data-application-id="${application.id}">
+                <div class="application-info">
+                    <div class="applicant-details">
+                        <h4>${application.applicantName}</h4>
+                        <p class="applicant-email">${application.applicantEmail}</p>
+                        <p class="role-title">${application.roleTitle}</p>
+                    </div>
+                    <div class="application-meta">
+                        <span class="application-status ${statusClass}">${statusText}</span>
+                        <span class="application-date">${submittedDate}</span>
+                    </div>
+                </div>
+                <div class="application-actions">
+                    <button class="view-application-btn" data-id="${application.id}">👁️ View</button>
+                    <button class="delete-application-btn" data-id="${application.id}">🗑️ Delete</button>
+                </div>
+            </div>
+        `;
+    }
+
+    bindApplicationRowEvents() {
+        // View application buttons
+        document.querySelectorAll('.view-application-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const applicationId = btn.getAttribute('data-id');
+                this.showApplicationModal(applicationId);
+            });
+        });
+
+        // Delete application buttons
+        document.querySelectorAll('.delete-application-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const applicationId = btn.getAttribute('data-id');
+                this.deleteApplication(applicationId);
+            });
+        });
+    }
+
+    async showApplicationModal(applicationId) {
+        const application = this.applications.find(app => app.id === applicationId);
+        if (!application) return;
+
+        this.currentApplicationId = applicationId;
+        
+        const modal = document.getElementById('applicationModal');
+        const modalTitle = document.getElementById('applicationModalTitle');
+        const applicationDetails = document.getElementById('applicationDetails');
+        const statusSelect = document.getElementById('applicationStatusSelect');
+
+        modalTitle.textContent = `Application: ${application.applicantName}`;
+        statusSelect.value = application.status;
+
+        // Build application details HTML
+        const detailsHTML = this.buildApplicationDetailsHTML(application);
+        applicationDetails.innerHTML = detailsHTML;
+
+        modal.style.display = 'flex';
+    }
+
+    buildApplicationDetailsHTML(application) {
+        const submittedDate = new Date(application.submittedAt).toLocaleString();
+        const reviewedDate = application.reviewedAt ? new Date(application.reviewedAt).toLocaleString() : 'Not reviewed';
+
+        let cvContent = '';
+        if (application.cvType === 'file' && application.cvFile) {
+            cvContent = `<p><strong>CV File:</strong> ${application.cvFile}</p>`;
+        } else if (application.cvType === 'text' && application.cvText) {
+            cvContent = `
+                <p><strong>CV Content:</strong></p>
+                <div class="text-content">${application.cvText.replace(/\n/g, '<br>')}</div>
+            `;
+        }
+
+        let coverLetterContent = '';
+        if (application.coverLetterType === 'file' && application.coverLetterFile) {
+            coverLetterContent = `<p><strong>Cover Letter File:</strong> ${application.coverLetterFile}</p>`;
+        } else if (application.coverLetterType === 'text' && application.coverLetterText) {
+            coverLetterContent = `
+                <p><strong>Cover Letter Content:</strong></p>
+                <div class="text-content">${application.coverLetterText.replace(/\n/g, '<br>')}</div>
+            `;
+        }
+
+        return `
+            <div class="application-detail-section">
+                <h4>Applicant Information</h4>
+                <p><strong>Name:</strong> ${application.applicantName}</p>
+                <p><strong>Email:</strong> ${application.applicantEmail}</p>
+                <p><strong>Role:</strong> ${application.roleTitle}</p>
+                <p><strong>Submitted:</strong> ${submittedDate}</p>
+                <p><strong>Status:</strong> ${this.getApplicationStatusText(application.status)}</p>
+                ${application.reviewedAt ? `<p><strong>Reviewed:</strong> ${reviewedDate}</p>` : ''}
+                ${application.reviewedBy ? `<p><strong>Reviewed By:</strong> ${application.reviewedBy}</p>` : ''}
+            </div>
+            
+            <div class="application-detail-section">
+                <h4>CV</h4>
+                <p><strong>Type:</strong> ${application.cvType === 'file' ? 'File Upload' : 'Text Input'}</p>
+                ${cvContent}
+            </div>
+            
+            <div class="application-detail-section">
+                <h4>Cover Letter</h4>
+                <p><strong>Type:</strong> ${application.coverLetterType === 'file' ? 'File Upload' : 'Text Input'}</p>
+                ${coverLetterContent}
+            </div>
+        `;
+    }
+
+    closeApplicationModal() {
+        const modal = document.getElementById('applicationModal');
+        modal.style.display = 'none';
+        this.currentApplicationId = null;
+    }
+
+    async updateApplicationStatus() {
+        if (!this.currentApplicationId) return;
+
+        const statusSelect = document.getElementById('applicationStatusSelect');
+        const newStatus = statusSelect.value;
+
+        try {
+            const response = await fetch(`/api/applications/${this.currentApplicationId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    reviewedBy: 'admin'
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.showToast('Application status updated successfully!', 'success');
+                this.closeApplicationModal();
+                this.loadApplications();
+            } else {
+                this.showToast('Failed to update status: ' + result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error updating application status:', error);
+            this.showToast('Failed to update application status', 'error');
+        }
+    }
+
+    async deleteApplication(applicationId) {
+        if (!confirm('Are you sure you want to delete this application? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/applications/${applicationId}`, {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.showToast('Application deleted successfully!', 'success');
+                this.loadApplications();
+            } else {
+                this.showToast('Failed to delete application: ' + result.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting application:', error);
+            this.showToast('Failed to delete application', 'error');
+        }
+    }
+
+    filterApplications() {
+        const searchTerm = document.getElementById('applicationSearch').value.toLowerCase();
+        const statusFilter = document.getElementById('applicationStatusFilter').value;
+        const roleFilter = document.getElementById('applicationRoleFilter').value;
+
+        this.filteredApplications = this.applications.filter(app => {
+            const matchesSearch = !searchTerm || 
+                app.applicantName.toLowerCase().includes(searchTerm) ||
+                app.applicantEmail.toLowerCase().includes(searchTerm) ||
+                app.roleTitle.toLowerCase().includes(searchTerm);
+            
+            const matchesStatus = !statusFilter || app.status === statusFilter;
+            const matchesRole = !roleFilter || app.roleTitle === roleFilter;
+
+            return matchesSearch && matchesStatus && matchesRole;
+        });
+
+        this.renderApplications();
+    }
+
+    updateApplicationStats() {
+        const total = this.applications.length;
+        const pending = this.applications.filter(app => app.status === 'pending').length;
+        const reviewed = this.applications.filter(app => app.status === 'reviewed').length;
+        const accepted = this.applications.filter(app => app.status === 'accepted').length;
+
+        document.getElementById('totalApplications').textContent = total;
+        document.getElementById('pendingApplications').textContent = pending;
+        document.getElementById('reviewedApplications').textContent = reviewed;
+        document.getElementById('acceptedApplications').textContent = accepted;
+    }
+
+    populateRoleFilter() {
+        const roleFilter = document.getElementById('applicationRoleFilter');
+        if (!roleFilter) return;
+
+        const roles = [...new Set(this.applications.map(app => app.roleTitle))];
+        const currentValue = roleFilter.value;
+
+        roleFilter.innerHTML = '<option value="">All Roles</option>';
+        roles.forEach(role => {
+            const option = document.createElement('option');
+            option.value = role;
+            option.textContent = role;
+            roleFilter.appendChild(option);
+        });
+
+        roleFilter.value = currentValue;
+    }
+
+    exportApplicationsCSV() {
+        const headers = ['Name', 'Email', 'Role', 'Status', 'Submitted', 'CV Type', 'Cover Letter Type'];
+        const csvContent = [
+            headers.join(','),
+            ...this.filteredApplications.map(app => [
+                `"${app.applicantName}"`,
+                `"${app.applicantEmail}"`,
+                `"${app.roleTitle}"`,
+                `"${app.status}"`,
+                `"${new Date(app.submittedAt).toLocaleDateString()}"`,
+                `"${app.cvType}"`,
+                `"${app.coverLetterType}"`
+            ].join(','))
+        ].join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `applications_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+        this.showToast('Applications exported successfully!', 'success');
+    }
+
+    showApplicationsLoading() {
+        const loading = document.getElementById('loadingApplications');
+        if (loading) loading.style.display = 'flex';
+    }
+
+    hideApplicationsLoading() {
+        const loading = document.getElementById('loadingApplications');
+        if (loading) loading.style.display = 'none';
+    }
+
+    showNoApplicationsMessage() {
+        const message = document.getElementById('noApplicationsMessage');
+        if (message) message.style.display = 'block';
+    }
+
+    hideNoApplicationsMessage() {
+        const message = document.getElementById('noApplicationsMessage');
+        if (message) message.style.display = 'none';
+    }
+
+    getApplicationStatusClass(status) {
+        const statusClasses = {
+            'pending': 'status-pending',
+            'reviewed': 'status-reviewed',
+            'accepted': 'status-accepted',
+            'rejected': 'status-rejected'
+        };
+        return statusClasses[status] || 'status-pending';
+    }
+
+    getApplicationStatusText(status) {
+        const statusTexts = {
+            'pending': 'Pending Review',
+            'reviewed': 'Reviewed',
+            'accepted': 'Accepted',
+            'rejected': 'Rejected'
+        };
+        return statusTexts[status] || 'Pending Review';
     }
 }
 

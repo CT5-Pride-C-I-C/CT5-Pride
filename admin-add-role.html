@@ -61,7 +61,7 @@
                         </ul>
                     </nav>
                     <div class="header-actions">
-                        <a href="apply.html" class="button">Apply Now</a>
+
                         <button id="logoutBtn" class="button outline">🚪 Logout</button>
                     </div>
                 </div>
@@ -107,6 +107,10 @@
                         <button class="tab-button" data-tab="events">
                             <span class="tab-icon">🎉</span>
                             <span class="tab-text">Manage Events</span>
+                        </button>
+                        <button class="tab-button" data-tab="applications">
+                            <span class="tab-icon">📝</span>
+                            <span class="tab-text">Applications</span>
                         </button>
                     </div>
                 </div>
@@ -487,6 +491,110 @@
                 </div>
             </section>
 
+            <!-- Applications Management Dashboard -->
+            <section id="applicationsTab" class="applications-management-section tab-content">
+                <div class="container">
+                    <!-- Applications Dashboard Header -->
+                    <div class="dashboard-header">
+                        <div class="dashboard-stats">
+                            <div class="stat-card">
+                                <span class="stat-number" id="totalApplications">0</span>
+                                <span class="stat-label">Total Applications</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="pendingApplications">0</span>
+                                <span class="stat-label">Pending Review</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="reviewedApplications">0</span>
+                                <span class="stat-label">Reviewed</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-number" id="acceptedApplications">0</span>
+                                <span class="stat-label">Accepted</span>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-actions">
+                            <button id="exportApplicationsBtn" class="button secondary">📊 Export CSV</button>
+                            <button id="refreshApplicationsBtn" class="button secondary">🔄 Refresh</button>
+                        </div>
+                    </div>
+
+                    <!-- Applications Search and Filter -->
+                    <div class="search-filter-bar">
+                        <div class="search-box">
+                            <input type="text" id="applicationSearch" placeholder="Search applications by name, email, or role...">
+                            <span class="search-icon">🔍</span>
+                        </div>
+                        <div class="filter-options">
+                            <select id="applicationStatusFilter">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="reviewed">Reviewed</option>
+                                <option value="accepted">Accepted</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                            <select id="applicationRoleFilter">
+                                <option value="">All Roles</option>
+                                <!-- Role options will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Applications Table -->
+                    <div class="applications-table-container">
+                        <div id="applicationsTable" class="applications-table">
+                            <!-- Applications will be loaded here dynamically -->
+                        </div>
+                        
+                        <div id="noApplicationsMessage" class="no-applications-message" style="display: none;">
+                            <h3>📝 No Applications Found</h3>
+                            <p>No volunteer applications have been submitted yet. Applications will appear here once candidates apply for roles.</p>
+                        </div>
+                        
+                        <div id="loadingApplications" class="loading-message">
+                            <div class="loading-spinner"></div>
+                            <p>Loading applications...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Application Detail Modal -->
+            <div id="applicationModal" class="modal" style="display: none;">
+                <div class="modal-content application-modal-content">
+                    <div class="modal-header">
+                        <h3 id="applicationModalTitle">Application Details</h3>
+                        <button class="modal-close" onclick="closeApplicationModal()">&times;</button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <div id="applicationDetails">
+                            <!-- Application details will be populated here -->
+                        </div>
+                        
+                        <div class="application-actions">
+                            <div class="status-update-section">
+                                <h4>Update Status</h4>
+                                <select id="applicationStatusSelect">
+                                    <option value="pending">Pending</option>
+                                    <option value="reviewed">Reviewed</option>
+                                    <option value="accepted">Accepted</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                                <button id="updateStatusBtn" class="button primary">Update Status</button>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button id="deleteApplicationBtn" class="button danger">🗑️ Delete Application</button>
+                                <button onclick="closeApplicationModal()" class="button outline">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Delete Confirmation Modal -->
             <div id="deleteModal" class="modal" style="display: none;">
                 <div class="modal-content">
@@ -525,7 +633,7 @@
                         <ul>
                             <li><a href="volunteer.html">Volunteer</a></li>
                             <li><a href="get-involved.html">Ways to Help</a></li>
-                            <li><a href="apply.html">Apply Now</a></li>
+    
                         </ul>
                     </div>
                     <div class="footer-section">

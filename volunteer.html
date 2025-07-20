@@ -41,7 +41,7 @@
                             <ul class="dropdown-content" role="menu">
                                 <li role="none"><a href="get-involved.html" role="menuitem">Overview</a></li>
                                 <li role="none"><a href="volunteer.html" role="menuitem" aria-current="page">Volunteer Opportunities</a></li>
-                                <li role="none"><a href="apply.html" role="menuitem">Apply for Roles</a></li>
+        
                                 <li role="none"><a href="contact.html" role="menuitem">Contact Us</a></li>
                             </ul>
                         </li>
@@ -317,7 +317,243 @@
         </div>
     </footer>
 
+    <!-- Application Modal -->
+    <div id="applicationModal" class="application-modal" style="display: none;">
+        <div class="application-modal-content">
+            <div class="application-modal-header">
+                <h2 id="applicationModalTitle">Apply for Volunteer Role</h2>
+                <button class="application-close" onclick="closeApplicationModal()" aria-label="Close application form">&times;</button>
+            </div>
+            
+            <form id="applicationForm" class="application-form" enctype="multipart/form-data">
+                <input type="hidden" id="roleId" name="roleId">
+                <input type="hidden" id="roleTitle" name="roleTitle">
+                
+                <div class="form-group">
+                    <label for="applicantName">Full Name *</label>
+                    <input type="text" id="applicantName" name="applicantName" required 
+                           placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="applicantEmail">Email Address *</label>
+                    <input type="email" id="applicantEmail" name="applicantEmail" required 
+                           placeholder="Enter your email address">
+                </div>
+                
+                <div class="form-group">
+                    <label for="cvType">CV Submission Method *</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="cvType" value="file" required>
+                            <span class="radio-text">Upload File (PDF, DOCX, TXT - max 5MB)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="cvType" value="text" required>
+                            <span class="radio-text">Type CV Content</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="cvFileGroup" style="display: none;">
+                    <label for="cvFile">CV File</label>
+                    <input type="file" id="cvFile" name="cvFile" accept=".pdf,.docx,.txt" 
+                           aria-describedby="cvFileHelp">
+                    <small id="cvFileHelp">Accepted formats: PDF, DOCX, TXT. Maximum size: 5MB</small>
+                </div>
+                
+                <div class="form-group" id="cvTextGroup" style="display: none;">
+                    <label for="cvText">CV Content</label>
+                    <textarea id="cvText" name="cvText" rows="8" 
+                              placeholder="Please provide your CV content here..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="coverLetterType">Covering Letter Submission Method *</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="coverLetterType" value="file" required>
+                            <span class="radio-text">Upload File (PDF, DOCX, TXT - max 5MB)</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="coverLetterType" value="text" required>
+                            <span class="radio-text">Type Covering Letter</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="coverLetterFileGroup" style="display: none;">
+                    <label for="coverLetterFile">Covering Letter File</label>
+                    <input type="file" id="coverLetterFile" name="coverLetterFile" accept=".pdf,.docx,.txt" 
+                           aria-describedby="coverLetterFileHelp">
+                    <small id="coverLetterFileHelp">Accepted formats: PDF, DOCX, TXT. Maximum size: 5MB</small>
+                </div>
+                
+                <div class="form-group" id="coverLetterTextGroup" style="display: none;">
+                    <label for="coverLetterText">Covering Letter Content</label>
+                    <textarea id="coverLetterText" name="coverLetterText" rows="6" 
+                              placeholder="Please provide your covering letter here..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="button secondary" onclick="closeApplicationModal()">Cancel</button>
+                    <button type="submit" class="button primary">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="js/main.js"></script>
+    
+    <!-- Application Modal JavaScript -->
+    <script>
+        // Global variables for application modal
+        let currentRoleId = null;
+        let currentRoleTitle = null;
+
+        // Function to open application modal
+        function openApplicationModal(roleId, roleTitle) {
+            currentRoleId = roleId;
+            currentRoleTitle = roleTitle;
+            
+            // Set modal title and hidden fields
+            document.getElementById('applicationModalTitle').textContent = `Apply for: ${roleTitle}`;
+            document.getElementById('roleId').value = roleId;
+            document.getElementById('roleTitle').value = roleTitle;
+            
+            // Show modal
+            document.getElementById('applicationModal').style.display = 'flex';
+            
+            // Focus on first input for accessibility
+            setTimeout(() => {
+                document.getElementById('applicantName').focus();
+            }, 100);
+            
+            // Add escape key handler
+            document.addEventListener('keydown', handleApplicationEscape);
+        }
+
+        // Function to close application modal
+        function closeApplicationModal() {
+            document.getElementById('applicationModal').style.display = 'none';
+            document.getElementById('applicationForm').reset();
+            
+            // Hide all conditional form groups
+            document.getElementById('cvFileGroup').style.display = 'none';
+            document.getElementById('cvTextGroup').style.display = 'none';
+            document.getElementById('coverLetterFileGroup').style.display = 'none';
+            document.getElementById('coverLetterTextGroup').style.display = 'none';
+            
+            // Remove escape key handler
+            document.removeEventListener('keydown', handleApplicationEscape);
+        }
+
+        // Handle escape key for application modal
+        function handleApplicationEscape(e) {
+            if (e.key === 'Escape') {
+                closeApplicationModal();
+            }
+        }
+
+        // Handle CV type selection
+        document.addEventListener('DOMContentLoaded', function() {
+            // CV type radio buttons
+            document.querySelectorAll('input[name="cvType"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const cvFileGroup = document.getElementById('cvFileGroup');
+                    const cvTextGroup = document.getElementById('cvTextGroup');
+                    
+                    if (this.value === 'file') {
+                        cvFileGroup.style.display = 'block';
+                        cvTextGroup.style.display = 'none';
+                        document.getElementById('cvText').removeAttribute('required');
+                        document.getElementById('cvFile').setAttribute('required', 'required');
+                    } else {
+                        cvFileGroup.style.display = 'none';
+                        cvTextGroup.style.display = 'block';
+                        document.getElementById('cvFile').removeAttribute('required');
+                        document.getElementById('cvText').setAttribute('required', 'required');
+                    }
+                });
+            });
+
+            // Cover letter type radio buttons
+            document.querySelectorAll('input[name="coverLetterType"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const coverLetterFileGroup = document.getElementById('coverLetterFileGroup');
+                    const coverLetterTextGroup = document.getElementById('coverLetterTextGroup');
+                    
+                    if (this.value === 'file') {
+                        coverLetterFileGroup.style.display = 'block';
+                        coverLetterTextGroup.style.display = 'none';
+                        document.getElementById('coverLetterText').removeAttribute('required');
+                        document.getElementById('coverLetterFile').setAttribute('required', 'required');
+                    } else {
+                        coverLetterFileGroup.style.display = 'none';
+                        coverLetterTextGroup.style.display = 'block';
+                        document.getElementById('coverLetterFile').removeAttribute('required');
+                        document.getElementById('coverLetterText').setAttribute('required', 'required');
+                    }
+                });
+            });
+
+            // Handle form submission
+            document.getElementById('applicationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitApplication();
+            });
+
+            // Close modal when clicking outside
+            document.getElementById('applicationModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeApplicationModal();
+                }
+            });
+        });
+
+        // Function to submit application
+        async function submitApplication() {
+            const form = document.getElementById('applicationForm');
+            const formData = new FormData(form);
+            
+            // Validate form
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/apply', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success message
+                    alert('✅ Application submitted successfully! We\'ll be in touch soon.');
+                    closeApplicationModal();
+                } else {
+                    // Show error message
+                    alert(`❌ Application failed: ${result.message || 'Unknown error occurred'}`);
+                }
+            } catch (error) {
+                console.error('Application submission error:', error);
+                alert('❌ Application failed: Network error. Please try again.');
+            } finally {
+                // Reset button state
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
     
     <!-- Dynamic Role Loading Script -->
     <script type="module">
@@ -379,7 +615,7 @@
                         <p><strong>Time Commitment:</strong> ${role.timeCommitment || 'Not specified'}</p>
                         <p><strong>Reporting Line:</strong> ${role.reportingLine || 'Not specified'}</p>
                     </div>
-                    <a href="mailto:hello@ct5pride.org.uk?subject=Volunteer%20Role:%20${encodeURIComponent(role.title)}" class="apply-button">Apply by email</a>
+                    <button class="apply-button" onclick="openApplicationModal('${role.id}', '${role.title}')">Apply for This Role</button>
                 </div>
             `;
             return modal;

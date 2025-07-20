@@ -11,3 +11,12 @@ desktop.ini
 
 # Environment variables
 .env
+
+# Application uploads
+# Ignore all files in /applications except allowed formats
+applications/*
+!applications/.keep
+!applications/**/*.txt
+!applications/**/*.pdf
+!applications/**/*.docx
+

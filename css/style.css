@@ -4006,4 +4006,275 @@ nav a:focus {
   .no-events-actions {
     flex-direction: column;
   }
+}
+
+/* Application Modal Styles */
+.application-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+}
+
+.application-modal-content {
+  background: var(--background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.application-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border);
+  background: var(--soft-lavender);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.application-modal-header h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.application-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--text-light);
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.application-close:hover {
+  background: var(--gray);
+  color: var(--text);
+}
+
+.application-close:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.application-form {
+  padding: var(--spacing-lg);
+}
+
+.application-form .form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.application-form label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.application-form input[type="text"],
+.application-form input[type="email"],
+.application-form textarea {
+  width: 100%;
+  padding: var(--spacing-md);
+  border: 2px solid var(--border);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: var(--transition);
+  box-sizing: border-box;
+}
+
+.application-form input[type="text"]:focus,
+.application-form input[type="email"]:focus,
+.application-form textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+}
+
+.application-form input[type="file"] {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 2px dashed var(--border);
+  border-radius: var(--border-radius);
+  background: var(--gray);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.application-form input[type="file"]:hover {
+  border-color: var(--primary);
+  background: var(--soft-lavender);
+}
+
+.application-form input[type="file"]:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+}
+
+.application-form small {
+  display: block;
+  margin-top: var(--spacing-xs);
+  color: var(--text-light);
+  font-size: 0.875rem;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  border: 2px solid var(--border);
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.radio-label:hover {
+  border-color: var(--primary);
+  background: var(--soft-lavender);
+}
+
+.radio-label input[type="radio"] {
+  margin: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+.radio-label input[type="radio"]:checked + .radio-text {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.radio-text {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border);
+}
+
+.form-actions .button {
+  min-width: 120px;
+}
+
+/* High contrast mode support */
+.high-contrast .application-modal-content {
+  border: 2px solid var(--text);
+}
+
+.high-contrast .application-modal-header {
+  background: var(--text);
+  color: var(--background);
+}
+
+.high-contrast .application-modal-header h2 {
+  color: var(--background);
+}
+
+.high-contrast .application-close {
+  color: var(--background);
+}
+
+.high-contrast .application-close:hover {
+  background: var(--background);
+  color: var(--text);
+}
+
+.high-contrast .radio-label {
+  border-color: var(--text);
+}
+
+.high-contrast .radio-label:hover {
+  background: var(--text);
+  color: var(--background);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .application-modal-content {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .application-modal-header {
+    padding: var(--spacing-md);
+  }
+  
+  .application-modal-header h2 {
+    font-size: 1.25rem;
+  }
+  
+  .application-form {
+    padding: var(--spacing-md);
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions .button {
+    width: 100%;
+  }
+  
+  .radio-group {
+    gap: var(--spacing-xs);
+  }
+  
+  .radio-label {
+    padding: var(--spacing-xs);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .application-modal-content {
+    animation: none;
+  }
 } 

@@ -1423,4 +1423,270 @@
     .logo .site-logo {
         max-width: 100px !important;
     }
+}
+
+/* Applications Management Styles */
+.applications-management-section {
+    padding: 2rem 0;
+    background: #f8f9fa;
+}
+
+.applications-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+}
+
+.applications-table {
+    width: 100%;
+}
+
+.application-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.3s ease;
+}
+
+.application-row:last-child {
+    border-bottom: none;
+}
+
+.application-row:hover {
+    background-color: #f8f9fa;
+}
+
+.application-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+    gap: 2rem;
+}
+
+.applicant-details h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.applicant-email {
+    margin: 0 0 0.25rem 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.role-title {
+    margin: 0;
+    color: #667eea;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.application-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.application-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.application-status.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.application-status.status-reviewed {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.application-status.status-accepted {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.application-status.status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.application-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.application-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+.application-actions button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.view-application-btn {
+    background-color: #667eea;
+    color: white;
+}
+
+.view-application-btn:hover {
+    background-color: #5a6fd8;
+}
+
+.delete-application-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-application-btn:hover {
+    background-color: #c82333;
+}
+
+.no-applications-message {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6c757d;
+}
+
+.no-applications-message h3 {
+    margin: 0 0 1rem 0;
+    color: #495057;
+}
+
+/* Application Modal Styles */
+.application-modal-content {
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.application-detail-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.application-detail-section h4 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.application-detail-section p {
+    margin: 0.5rem 0;
+    line-height: 1.6;
+}
+
+.application-detail-section strong {
+    color: #333;
+    font-weight: 600;
+}
+
+.text-content {
+    background: white;
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+    margin-top: 0.5rem;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.application-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.status-update-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.status-update-section h4 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+.status-update-section select {
+    padding: 0.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    margin-right: 1rem;
+    font-size: 0.9rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+/* Mobile Responsiveness for Applications */
+@media (max-width: 768px) {
+    .application-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .application-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .application-meta {
+        align-items: flex-start;
+    }
+
+    .application-actions {
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .application-modal-content {
+        margin: 1rem;
+        max-height: calc(100vh - 2rem);
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .status-update-section select {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
 } 
