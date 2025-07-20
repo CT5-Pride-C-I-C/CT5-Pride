@@ -205,6 +205,45 @@ export const roles = [
             "Previous experience working within the LGBTQIA+ community or in advocacy-related events, bringing an understanding of how to create inclusive and engaging retail experiences.",
             "Knowledge of managing product licenses, ensuring that all merchandise complies with legal and trademark regulations."
         ]
+    },
+    {
+        "id": "social-media-manager",
+        "title": "Social Media Manager",
+        "category": "marketing",
+        "department": "Marketing & Communications",
+        "status": "open",
+        "icon": "social-media",
+        "summary": "Lead CT5 Pride’s social media strategy, manage content and a designer, grow community engagement, and ensure our values of inclusion, diversity, and LGBTQIA+ visibility shine online.",
+        "location": "Kent, England or Remote",
+        "reportingLine": "Director of Marketing and Advertising",
+        "timeCommitment": "Adhoc 4-5 hours per month may increase closer to Pride dates.",
+        "description": "<p>The Social Media Manager will lead CT5 Pride’s social media presence, developing and executing strategies to engage and grow our community online. You will line manage a Graphic Designer. Reporting to the Director of Marketing and Advertising, you'll create content, manage platforms, and foster interaction with followers, ensuring our mission of inclusion, diversity, and LGBTQIA+ visibility is at the forefront of everything we share.</p>\n<p>We seek a creative and strategic individual with strong social media expertise and line management capabilities. You should have a passion for the LGBTQIA+ community and be skilled in growing online engagement. The ideal candidate will have the ability to create compelling content and effectively communicate CT5 Pride’s mission across all platforms, while engaging with our audience authentically and inclusively.</p>",
+        "essentialCriteria": [
+            "Applicants must be 18 years of age or over with no unspent convictions.",
+            "Be fluent in English written and spoken.",
+            "Not be barred from working with Children or vulnerable people.",
+            "A commitment to LGBTQIA+ inclusion and community-led values.",
+            "Willingness and ability undertake an active hands-on role.",
+            "Have a minimum of 2-years connect to the CT5 Area.",
+            "Proficiency in managing Facebook, Instagram, Twitter, TikTok, etc., and using scheduling/analytics tools like Hootsuite or Buffer.",
+            "Ability to create engaging, on-brand content (posts, videos, stories) that resonates with diverse audiences.",
+            "Excellent writing and communication skills, able to engage the community effectively and professionally.",
+            "Strong creative skills to develop fresh content ideas and campaigns.",
+            "Have access to internet and computer.",
+            "Understanding basics of SEO, paid ads, and digital marketing strategies.",
+            "Willingness to attend CT5 Pride events to capture live content and represent the organisation online."
+        ],
+        "desirableCriteria": [
+            "Prior experience managing social media for a charity, grassroots group, or community organisation.",
+            "Familiarity with LGBTQIA+ advocacy, campaigns, or awareness events.",
+            "Experience using Canva, Adobe Express, or similar tools for creating graphics and visual content.",
+            "Basic video editing skills for producing short-form content (e.g., Reels, TikToks, Stories).",
+            "Confidence in engaging with followers via comments, messages, and live streams in a professional and inclusive manner.",
+            "Experience in using data insights to adjust content strategy and improve engagement.",
+            "Understanding of safeguarding and ethical considerations when posting content involving volunteers or the public.",
+            "Experience working collaboratively with teams, including marketing, events, and fundraising.",
+            "An understanding of the local CT5 community, including its culture, demographics, and key LGBTQIA+ spaces or issues."
+        ]
     }
 ];
 
