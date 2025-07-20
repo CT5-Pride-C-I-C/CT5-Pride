@@ -63,20 +63,14 @@ function runCommand(command) {
 // API endpoint to handle role submissions and Git operations
 app.post('/api/submit-role', async (req, res) => {
     try {
-        console.log('📋 POST /api/submit-role - Received role submission request');
-        console.log('📋 Request body:', req.body);
-        
         const roleData = req.body.roleData;
         
         if (!roleData) {
-            console.log('❌ No role data provided in request');
             return res.status(400).json({ 
                 success: false, 
                 message: '❌ No role data provided' 
             });
         }
-
-        console.log('🔄 Adding new role:', roleData.title);
 
         // Load current config.js
         const configPath = path.join(__dirname, 'js', 'config.js');
@@ -118,23 +112,19 @@ app.post('/api/submit-role', async (req, res) => {
         
         // Write the updated config back to file
         fs.writeFileSync(configPath, updatedConfigContent, 'utf8');
-        console.log('✅ Role added to config.js');
 
         // Configure Git remote if not already done
         configureGitRemote();
 
         // Add the updated config.js file
         await runCommand('git add js/config.js');
-        console.log('✅ Updated config.js staged for commit');
 
         // Commit changes
         const commitMessage = `Add new role: ${roleData.title}`;
         await runCommand(`git commit -m "${commitMessage}"`);
-        console.log('✅ Changes committed');
 
         // Push to GitHub
         await runCommand('git push origin main');
-        console.log('✅ Changes pushed to GitHub');
 
         // Success response
         res.json({
@@ -354,27 +344,19 @@ app.delete('/api/delete-role/:id', async (req, res) => {
     try {
         const roleId = req.params.id;
         
-        console.log("🗑️ DELETE /api/delete-role/:id endpoint hit");
-        console.log("🗑️ Attempting to delete role:", roleId);
-        
         if (!roleId) {
-            console.log('❌ No role ID provided in request');
             return res.status(400).json({ 
                 success: false, 
                 message: '❌ No role ID provided' 
             });
         }
 
-        console.log('🔄 Starting delete operation for role:', roleId);
-
         // Load current config.js
         const configPath = path.join(__dirname, 'js', 'config.js');
-        console.log('📁 Config path:', configPath);
         
         let configContent;
         try {
             configContent = fs.readFileSync(configPath, 'utf8');
-            console.log('📄 Config file loaded successfully, length:', configContent.length);
         } catch (fileError) {
             console.error('❌ Failed to read config.js:', fileError);
             return res.status(500).json({
@@ -399,7 +381,6 @@ app.delete('/api/delete-role/:id', async (req, res) => {
         let roles;
         try {
             roles = JSON.parse(rolesString);
-            console.log('✅ Roles parsed successfully, count:', roles.length);
         } catch (parseError) {
             console.error('❌ Error parsing roles JSON:', parseError);
             return res.status(500).json({
@@ -410,22 +391,16 @@ app.delete('/api/delete-role/:id', async (req, res) => {
         }
         
         // Find the role to delete
-        console.log('🔍 Looking for role with ID:', roleId);
-        console.log('📋 Available roles:', roles.map(r => r.id));
-        
         const roleToDelete = roles.find(role => role.id === roleId);
         if (!roleToDelete) {
-            console.log('❌ Role not found:', roleId);
             return res.status(404).json({
                 success: false,
                 message: `❌ Role with ID "${roleId}" not found`
             });
         }
-        console.log('✅ Role found:', roleToDelete.title);
         
         // Remove the role from the array
         const updatedRoles = roles.filter(role => role.id !== roleId);
-        console.log('✅ Role removed from array, new count:', updatedRoles.length);
         
         // Create new config content with updated roles
         const updatedRolesString = JSON.stringify(updatedRoles, null, 4);
@@ -437,7 +412,6 @@ app.delete('/api/delete-role/:id', async (req, res) => {
         // Write the updated config back to file
         try {
             fs.writeFileSync(configPath, updatedConfigContent, 'utf8');
-            console.log('✅ Role removed from config.js successfully');
         } catch (writeError) {
             console.error('❌ Failed to write config.js:', writeError);
             return res.status(500).json({
@@ -450,7 +424,6 @@ app.delete('/api/delete-role/:id', async (req, res) => {
         // Configure Git remote if not already done
         try {
             configureGitRemote();
-            console.log('✅ Git remote configured');
         } catch (gitConfigError) {
             console.error('❌ Git configuration failed:', gitConfigError);
             return res.status(500).json({
@@ -463,7 +436,6 @@ app.delete('/api/delete-role/:id', async (req, res) => {
         // Add the updated config.js file
         try {
             await runCommand('git add js/config.js');
-            console.log('✅ Updated config.js staged for commit');
         } catch (addError) {
             console.error('❌ Git add failed:', addError);
             return res.status(500).json({
@@ -477,7 +449,6 @@ app.delete('/api/delete-role/:id', async (req, res) => {
         const commitMessage = `Remove role: ${roleToDelete.title}`;
         try {
             await runCommand(`git commit -m "${commitMessage}"`);
-            console.log('✅ Changes committed successfully');
         } catch (commitError) {
             console.error('❌ Git commit failed:', commitError);
             return res.status(500).json({
@@ -490,7 +461,6 @@ app.delete('/api/delete-role/:id', async (req, res) => {
         // Push to GitHub
         try {
             await runCommand('git push origin main');
-            console.log('✅ Changes pushed to GitHub successfully');
         } catch (pushError) {
             console.error('❌ Git push failed:', pushError);
             return res.status(500).json({
@@ -499,8 +469,6 @@ app.delete('/api/delete-role/:id', async (req, res) => {
                 error: pushError.message
             });
         }
-
-        console.log('🎉 Role deleted successfully:', roleId);
 
         // Success response
         res.json({
@@ -615,17 +583,13 @@ app.get('/api/health', (req, res) => {
 // API endpoint to get current roles
 app.get('/api/roles', (req, res) => {
     try {
-        console.log('📋 GET /api/roles - Loading roles from config.js');
-        
         // Load current config.js
         const configPath = path.join(__dirname, 'js', 'config.js');
         let configContent = fs.readFileSync(configPath, 'utf8');
-        console.log('📄 Config file loaded, length:', configContent.length);
         
         // Parse the roles array from config.js
         const rolesMatch = configContent.match(/export const roles = (\[[\s\S]*?\]);/);
         if (!rolesMatch) {
-            console.error('❌ Could not find roles array in config.js');
             throw new Error('Could not find roles array in config.js');
         }
         
@@ -634,13 +598,10 @@ app.get('/api/roles', (req, res) => {
         let roles;
         try {
             roles = JSON.parse(rolesString);
-            console.log('✅ Roles parsed successfully, count:', roles.length);
         } catch (parseError) {
             console.error('❌ Error parsing roles JSON:', parseError);
             throw new Error('Invalid JSON in roles array');
         }
-        
-        console.log('📋 Returning roles:', roles.map(r => r.id));
         
         res.json({
             success: true,
