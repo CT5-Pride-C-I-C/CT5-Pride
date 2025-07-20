@@ -40,7 +40,7 @@ export const roles = [
         ]
     },
     {
-        "id": "custom-director-of-administration-board-secretary-officer",
+        "id": "custom-director-of-administration-board-secretary",
         "title": "Director of Administration & Board Secretary",
         "category": "governance",
         "department": "Board of Directors",
