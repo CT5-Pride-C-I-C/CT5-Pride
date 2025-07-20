@@ -23,6 +23,7 @@ class AdminRoleManager {
         this.initializeDashboard();
         this.bindEvents();
         this.loadRoles();
+        this.initializeStatusIndicators();
     }
 
     // Authentication
@@ -870,6 +871,56 @@ class AdminRoleManager {
             'info': 'ℹ️'
         };
         return icons[type] || icons.info;
+    }
+
+    // Status Indicators
+    initializeStatusIndicators() {
+        this.updateDateTime();
+        this.updateBannerRoleCount();
+        
+        // Update date/time every second
+        setInterval(() => {
+            this.updateDateTime();
+        }, 1000);
+    }
+
+    updateDateTime() {
+        const dateTimeElement = document.getElementById('currentDateTime');
+        if (dateTimeElement) {
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            dateTimeElement.textContent = now.toLocaleDateString('en-GB', options);
+        }
+    }
+
+    updateBannerRoleCount() {
+        const bannerRoleCount = document.getElementById('bannerRoleCount');
+        if (bannerRoleCount) {
+            bannerRoleCount.textContent = this.roles.length;
+        }
+    }
+
+    // Override updateStats to also update banner count
+    updateStats() {
+        const total = this.roles.length;
+        const live = this.roles.filter(r => r.status === 'open').length;
+        const draft = this.roles.filter(r => r.status === 'draft').length;
+        const archived = this.roles.filter(r => r.status === 'closed').length;
+
+        document.getElementById('totalRoles').textContent = total;
+        document.getElementById('liveRoles').textContent = live;
+        document.getElementById('draftRoles').textContent = draft;
+        document.getElementById('archivedRoles').textContent = archived;
+        
+        // Update banner role count
+        this.updateBannerRoleCount();
     }
 }
 

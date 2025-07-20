@@ -74,9 +74,24 @@
                     <h1>🎯 Role Management Dashboard</h1>
                     <p>Manage all volunteer roles for CT5 Pride - Create, Edit, Delete, and Update Status</p>
                     <div class="admin-info-box">
-                        <h3>ℹ️ How This Works</h3>
-                        <p><strong>Live Web Version:</strong> View and manage existing roles. Full CRUD operations require the local development server.</p>
-                        <p><strong>Local Development:</strong> Run <code>$env:PORT=3001; node server.js</code> for complete functionality including Git integration.</p>
+                        <h2>Manage Volunteer Roles for CT5 Pride</h2>
+                        <p>
+                            All changes are synced to GitHub and deployed live. Create, edit, or delete roles in real time.
+                        </p>
+                        <div class="admin-status-indicators">
+                            <div class="status-item">
+                                <span class="status-icon">✅</span>
+                                <span class="status-text">GitHub Sync: Active</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-icon">📅</span>
+                                <span class="status-text" id="currentDateTime">Loading...</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-icon">📊</span>
+                                <span class="status-text">Total Roles: <span id="bannerRoleCount">0</span></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
