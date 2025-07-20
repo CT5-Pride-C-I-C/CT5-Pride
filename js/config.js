@@ -162,6 +162,49 @@ export const roles = [
             "Established network within the corporate, nonprofit, and philanthropic communities, particularly those interested in supporting LGBTQIA+ initiatives.",
             "Have professional experience in event and marketing sponsorship opportunities."
         ]
+    },
+    {
+        "id": "director-retail-merchadise",
+        "title": "Director of Retail & Merchandise",
+        "category": "events",
+        "department": "Events & Operations",
+        "status": "draft",
+        "icon": "volunteers",
+        "summary": "Oversee CT5 Pride’s retail and merchandise, coordinating vendors, stalls, and sales. Work with fundraising and marketing teams to enhance visibility, engagement, and income at events.",
+        "location": "Kent, England",
+        "reportingLine": "Senior Directors incl; Chairperson & Founders.",
+        "timeCommitment": "Adhoc, 8-10 hours per month may increase closer to Pride dates.",
+        "description": "<p>The Retail & Merchandise Director will manage all aspects of retail and merchandise at CT5 Pride events. This includes overseeing stall bookings, merchandise sales, vendor coordination, and collaborating with the Director of Fundraising & Sponsorship and Director of Marketing & Advertising to maximise retail opportunities and drive engagement.</p>\n<p>We’re seeking an organized, strategic individual with experience in retail management and event coordination. The ideal candidate will have a proven track record in managing merchandise sales, overseeing vendor relations, and working cross-functionally to drive retail success at events.</p>",
+        "essentialCriteria": [
+            "Applicants must be 18 years of age or over with no unspent convictions.",
+            "Be fluent in English written and spoken.",
+            "Not be barred from working with Children or vulnerable people.",
+            "A commitment to LGBTQIA+ inclusion and community-led values.",
+            "Willingness and ability undertake an active hands-on role.",
+            "Have a minimum of 2-years connect to the CT5 Area.",
+            "Proven experience in coordinating and managing vendor relationships, including booking retail stalls, negotiating contracts, and ensuring compliance with event guidelines and policies.",
+            "Experience in establishing relationships with buyers and sellers to build a retail space.",
+            "Ability to work closely with cross-functional teams, particularly the Director of Fundraising & Sponsorship and Director of Marketing & Advertising, to integrate retail strategies with overall fundraising and marketing goals.",
+            "Strong expertise in retail sales and merchandise management, including product selection, inventory tracking, and the development of pricing strategies.",
+            "5+ years in retail management, merchandising, or event coordination.",
+            "Proven experience managing vendors and retail stall operations at events.",
+            "Strong design mindset to maximise product display value.",
+            "Excellent communication skills, both written and verbal, for interacting with vendors, sponsors, and internal stakeholders.",
+            "Creative mindset to incorporate new idea with colleague such as marketing to source new retail opportunities.",
+            "Ability to track retail sales, evaluate performance, and provide data-driven insights and recommendations for future events.",
+            "Experience preparing post-event reports, summarizing sales, vendor satisfaction, and overall retail operations performance.",
+            "Experience of recruiting managing a team of Volunteers.",
+            "Experience in managing stakeholder relationships for stall bookings.Comfortable collaborating with the Event Manager to identify and maximize retail opportunities within event programming.",
+            "Experience managing the logistics of vendor setup, inventory management, and coordination during events.",
+            "Experience managing online retail platforms, including integration with event sales and merchandising efforts.",
+            "Ability to work with marketing or design teams to develop creative merchandising strategies, including branded products and visually compelling displays.",
+            "Experience creating and managing budgets for retail and merchandise operations, ensuring cost-efficiency while meeting sales goals.",
+            "Experience promoting retail opportunities via digital channels, social media, and event marketing materials to boost visibility and increase sales."
+        ],
+        "desirableCriteria": [
+            "Previous experience working within the LGBTQIA+ community or in advocacy-related events, bringing an understanding of how to create inclusive and engaging retail experiences.",
+            "Knowledge of managing product licenses, ensuring that all merchandise complies with legal and trademark regulations."
+        ]
     }
 ];
 
