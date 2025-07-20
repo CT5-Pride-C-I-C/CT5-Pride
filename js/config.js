@@ -121,6 +121,47 @@ export const roles = [
             "Experience in supporting fundraising efforts or working with development teams to create marketing strategies that support financial goals.",
             "Experience in writing, submitting and bidding for Grants."
         ]
+    },
+    {
+        "id": "director-fundraising-sponsorship",
+        "title": "Director of Fundraising & Sponsorship",
+        "category": "fundraising",
+        "department": "Board of Directors",
+        "status": "open",
+        "icon": "fundraising",
+        "summary": "Drive CT5 Pride’s fundraising strategy, securing sponsorships, donations, and grants. Build key relationships to ensure financial sustainability while championing LGBTQIA+ inclusion and community impact.",
+        "location": "CT5 Area, Kent",
+        "reportingLine": "Senior Directors",
+        "timeCommitment": "Adhoc  8-10 hours per month may increase closer to Pride dates.",
+        "description": "<p>The Director of Fundraising & Sponsorship will lead the development and execution of CT5 Pride's fundraising strategy. This role is key in securing financial support through donations, corporate partnerships, grants, and events. You will build and maintain relationships with donors and sponsors, ensuring CT5 Pride has the resources needed to support its mission and activities.</p>\n\n<p>We are seeking an experienced, strategic, and results-driven fundraiser with a proven track record in securing sponsorships, donations, and grants. The ideal candidate will be a skilled relationship-builder, able to engage a diverse range of stakeholders and lead successful fundraising campaigns. A passion for LGBTQIA+ advocacy and a commitment to CT5 Pride’s values are essential.</p>",
+        "essentialCriteria": [
+            "Applicants must be 18 years of age or over with no unspent convictions.",
+            "Be fluent in English written and spoken.",
+            "Not be barred from working with Children or vulnerable people.",
+            "A commitment to LGBTQIA+ inclusion and community-led values.",
+            "Willingness and ability undertake an active hands-on role.",
+            "Have a minimum of 2-years connect to the CT5 Area.",
+            "Strong Confident & Sales oriented person,",
+            "Minimum 5 years in fundraising, sponsorship, or a similar senior role, with a proven record of securing major donations, corporate sponsorships, and grants.",
+            "Proven experience developing and executing fundraising strategies.",
+            "Strong leadership skills, with experience managing teams and driving fundraising initiatives.",
+            "Excellent at building and maintaining relationships with donors, sponsors, and partners.",
+            "Strong project management abilities, with experience managing multiple campaigns and meeting fundraising targets.",
+            "Proven ability to work cross-functionally with senior leadership and other departments to meet organisational goals.",
+            "Proven ability to write compelling and successful grant applications, including detailed proposals and reports, and managing the full grant lifecycle.",
+            "Experience in researching and identifying potential sponsors, and creating and presenting tailored sponsorship packages that align with organisational goals.",
+            "Ability to work collaboratively with the Director of Marketing and Advertising to create content that supports fundraising campaigns, including promotional materials, sponsorship assets, and event collateral.",
+            "Strong negotiation skills to secure favorable terms in sponsorship agreements, ensuring both the organization and sponsors achieve their objectives.",
+            "Comfortable with networking and outreach, particularly via LinkedIn and other professional channels, to identify new sponsorship and partnership opportunities.",
+            "Proficiency in using digital tools and platforms for fundraising (e.g., fundraising software, CRM systems, LinkedIn, etc.) and creating digital sponsorship content.",
+            "Ability to develop innovative fundraising ideas and sponsorship proposals that stand out in a competitive market."
+        ],
+        "desirableCriteria": [
+            "Experience in non-profit marketing or working with community-centered organisations is a plus.",
+            "Experience in promoting community events or large-scale initiatives, especially those in the LGBTQIA+ space.",
+            "Established network within the corporate, nonprofit, and philanthropic communities, particularly those interested in supporting LGBTQIA+ initiatives.",
+            "Have professional experience in event and marketing sponsorship opportunities."
+        ]
     }
 ];
 
