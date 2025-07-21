@@ -46,7 +46,11 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
-app.use(express.static('.'));
+// app.use(express.static('.'));
+// Serve only admin dashboard assets
+app.use('/css', express.static(path.join(__dirname, 'css')));
+app.use('/js', express.static(path.join(__dirname, 'js')));
+app.use('/Images', express.static(path.join(__dirname, 'Images')));
 
 // Configure Git remote with token
 function configureGitRemote() {
@@ -1296,7 +1300,7 @@ app.patch('/api/applications/:id/status', async (req, res) => {
 
 // Serve the main application
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'admin-add-role.html'));
 });
 
 // Start server
