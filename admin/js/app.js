@@ -1211,12 +1211,40 @@ window.addEventListener("DOMContentLoaded", async () => {
   
   showLoadingState('Initializing authentication...');
   
+  // Add a timeout fallback to prevent infinite loading
+  setTimeout(() => {
+    console.log('⚠️ TIMEOUT DEBUG - Checking if still loading after 10 seconds...');
+    const loadingElement = document.querySelector('.loading-container');
+    if (loadingElement) {
+      console.log('⚠️ TIMEOUT DEBUG - Still showing loading screen, forcing route...');
+      const currentHash = window.location.hash;
+      console.log('⚠️ TIMEOUT DEBUG - Current hash:', currentHash);
+      
+      if (!currentHash || currentHash === '#/' || currentHash === '#/login') {
+        window.location.hash = '#/login';
+        route();
+      }
+    }
+  }, 10000);
+  
   try {
     // ========== STEP 1: OAUTH TOKEN PROCESSING ==========
     const hash = window.location.hash;
-    console.log('🔍 Checking URL for OAuth tokens...');
-    console.log('📍 Current URL:', window.location.href);
-    console.log('📍 Hash:', hash);
+    console.log('🔍 OAUTH DEBUG - Checking URL for OAuth tokens...');
+    console.log('📍 OAUTH DEBUG - Current URL:', window.location.href);
+    console.log('📍 OAUTH DEBUG - Hash:', hash);
+    console.log('📍 OAUTH DEBUG - Hash length:', hash.length);
+    console.log('📍 OAUTH DEBUG - Contains access_token:', hash.includes('access_token'));
+    
+    // Log all URL parameters for debugging
+    if (hash) {
+      const hashParams = new URLSearchParams(hash.substring(1));
+      console.log('📍 OAUTH DEBUG - All hash parameters:');
+      for (const [key, value] of hashParams) {
+        const displayValue = key.includes('token') ? value.substring(0, 20) + '...' : value;
+        console.log(`  ${key}: ${displayValue}`);
+      }
+    }
     
     if (hash && hash.includes("access_token")) {
       console.log('✅ GitHub OAuth redirect detected!');
@@ -1242,18 +1270,30 @@ window.addEventListener("DOMContentLoaded", async () => {
         showLoadingState('Processing GitHub login...');
         
         try {
+          console.log('🔑 OAUTH DEBUG - About to call supabase.auth.setSession...');
+          
           // Create Supabase session with OAuth tokens
           const { data, error } = await supabase.auth.setSession({
             access_token: access_token,
             refresh_token: refresh_token
           });
           
-          console.log('📊 Supabase setSession result:', {
+          console.log('📊 OAUTH DEBUG - Supabase setSession result:', {
             success: !error,
             hasSession: !!data?.session,
             hasUser: !!data?.session?.user,
-            error: error?.message || 'None'
+            error: error?.message || 'None',
+            fullError: error
           });
+          
+          if (data?.session) {
+            console.log('📊 OAUTH DEBUG - Session details:', {
+              userId: data.session.user?.id,
+              userEmail: data.session.user?.email,
+              provider: data.session.user?.app_metadata?.provider,
+              sessionExpiry: data.session.expires_at
+            });
+          }
           
           // Handle session setup failure clearly
           if (error) {
@@ -1378,10 +1418,18 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
     
     // ========== STEP 2: CHECK EXISTING SESSION ==========
-    console.log('🔍 No OAuth tokens found, checking for existing session...');
+    console.log('🔍 SESSION DEBUG - No OAuth tokens found, checking for existing session...');
     
     try {
+      console.log('🔍 SESSION DEBUG - Calling supabase.auth.getSession()...');
       const { data, error } = await supabase.auth.getSession();
+      
+      console.log('🔍 SESSION DEBUG - getSession result:', {
+        hasData: !!data,
+        hasSession: !!data?.session,
+        hasUser: !!data?.session?.user,
+        error: error?.message || 'None'
+      });
       
       if (error) {
         console.warn('⚠️ Session check error:', error.message);
@@ -1457,12 +1505,15 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
     
     // ========== STEP 4: NO AUTHENTICATION - SHOW LOGIN ==========
-    console.log('🔓 No authentication found, showing login page');
+    console.log('🔓 LOGIN DEBUG - No authentication found, showing login page');
+    console.log('🔓 LOGIN DEBUG - Current hash before redirect:', window.location.hash);
     
     if (!window.location.hash || window.location.hash === '#/') {
+      console.log('🔓 LOGIN DEBUG - Setting hash to #/login');
       window.location.hash = '#/login';
     }
     
+    console.log('🔓 LOGIN DEBUG - About to call route()');
     route();
     
   } catch (criticalError) {
