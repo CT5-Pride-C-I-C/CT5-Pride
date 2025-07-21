@@ -1,225 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CT5 Pride Admin Dashboard</title>
-  <meta name="description" content="Secure admin dashboard for CT5 Pride Community Interest Company volunteer management">
-  <link rel="icon" type="image/svg+xml" href="/Images/Logo-with-Transparent-background.svg">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/admin.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    /* Enhanced Admin Styles with CT5 Pride Branding */
-    html, body { 
-      height: 100%; 
-      margin: 0; 
-      padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Permissions-Policy" content="interest-cohort=(), bounces=(), browsing-topics=()">
+    <title>CT5 Pride - Admin Dashboard</title>
+    <meta name="description" content="Secure admin dashboard for CT5 Pride volunteer management and events">
     
-    body { 
-      min-height: 100vh; 
-      display: flex; 
-      flex-direction: column; 
-      background: var(--soft-rainbow-bg, linear-gradient(135deg, rgba(228, 3, 3, 0.05), rgba(115, 41, 130, 0.05))); 
-      color: var(--text, #333);
-      line-height: 1.6;
-    }
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/Images/Logo-with-Transparent-background.svg">
     
-    /* Progress Pride Flag Stripe */
-    .pride-stripe {
-      height: 4px;
-      background: var(--progress-pride-gradient);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/Images/Logo-with-Transparent-background.svg" as="image">
     
-    /* Enhanced Admin Header with CT5 Branding */
-    .admin-header { 
-      background: var(--cosmic-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%)); 
-      padding: 2rem 0; 
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    }
+    <!-- Load Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    .admin-header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('/Images/hero_pride_celebration.svg') center/cover no-repeat;
-      opacity: 0.1;
-      z-index: 1;
-    }
+    <!-- Load Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    .admin-header-content {
-      position: relative;
-      z-index: 2;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-    }
+    <!-- Load Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    .admin-header img { 
-      height: 64px; 
-      margin-bottom: 1rem;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
-    }
-    
-    .admin-title { 
-      font-size: 2.5rem; 
-      font-weight: 700; 
-      color: white; 
-      letter-spacing: 1px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-      margin: 0;
-      margin-bottom: 0.5rem;
-    }
-    
-    .admin-subtitle {
-      font-size: 1.1rem;
-      color: rgba(255,255,255,0.9);
-      font-weight: 400;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-      margin: 0;
-    }
-    
-    /* Main Content Area */
-    #main-content { 
-      flex: 1; 
-      display: flex; 
-      flex-direction: column;
-      min-height: 0;
-    }
-    
-    #app { 
-      flex: 1; 
-      width: 100%;
-      min-height: 0;
-    }
-    
-    /* Enhanced Footer */
-    .admin-footer { 
-      margin-top: auto; 
-      padding: 2rem 0; 
-      text-align: center; 
-      color: var(--text-light, #666); 
-      font-size: 0.9rem;
-      background: rgba(255,255,255,0.8);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(0,0,0,0.1);
-    }
-    
-    .admin-footer a {
-      color: var(--primary, #e91e63);
-      text-decoration: none;
-      font-weight: 500;
-    }
-    
-    .admin-footer a:hover {
-      text-decoration: underline;
-    }
-    
-    /* Loading States */
-    .loading-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 4rem 2rem;
-      text-align: center;
-    }
-    
-    .loading-spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid rgba(102, 126, 234, 0.2);
-      border-left: 4px solid var(--primary, #e91e63);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 1rem;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    /* Responsive Design */
-    @media (max-width: 768px) { 
-      .admin-header { 
-        padding: 1.5rem 0;
-      }
-      
-      .admin-header-content {
-        padding: 0 1rem;
-      }
-      
-      .admin-title { 
-        font-size: 2rem;
-      }
-      
-      .admin-subtitle {
-        font-size: 1rem;
-      }
-      
-      .admin-header img { 
-        height: 56px;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .admin-title {
-        font-size: 1.75rem;
-      }
-      
-      .admin-header img {
-        height: 48px;
-      }
-    }
-  </style>
+    <!-- Admin Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
-  <!-- Progress Pride Flag Stripe -->
-  <div class="pride-stripe" role="banner" aria-label="Progress Pride Flag"></div>
-  
-  <header class="admin-header">
-    <div class="admin-header-content">
-      <img src="/Images/Logo-with-Transparent-background.svg" alt="CT5 Pride Logo">
-      <h1 class="admin-title">CT5 Pride Admin</h1>
-      <p class="admin-subtitle">Volunteer Management Dashboard</p>
+    <!-- Skip to Main Content -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Progress Pride Flag Stripe -->
+    <div class="pride-stripe" role="presentation"></div>
+    
+    <!-- Main App Container -->
+    <div id="app" role="main" aria-live="polite" tabindex="-1">
+        <!-- Content will be dynamically loaded here -->
+        <div class="loading-container">
+            <div class="hero-section">
+                <div class="hero-background"></div>
+                <div class="hero-content">
+                    <img src="/Images/Logo-with-Transparent-background.svg" alt="CT5 Pride Logo" class="hero-logo">
+                    <h1 class="hero-title">CT5 Pride</h1>
+                    <p class="hero-subtitle">Admin Dashboard</p>
+                </div>
+            </div>
+            <div class="loading-spinner"></div>
+            <p>Initializing admin dashboard...</p>
+        </div>
     </div>
-  </header>
-  
-  <main id="main-content">
-    <div id="app" tabindex="-1" aria-live="polite">
-      <!-- Initial loading state -->
-      <div class="loading-container">
-        <div class="loading-spinner"></div>
-        <h2>Loading Admin Dashboard...</h2>
-        <p>Please wait while we initialize the application.</p>
-      </div>
-    </div>
-  </main>
-  
-  <footer class="admin-footer">
-    <div>
-      &copy; 2024 CT5 Pride Community Interest Company &mdash; 
-      <a href="../privacy.html">Privacy Policy</a> &mdash; 
-      <a href="https://ct5pride.co.uk" target="_blank">Main Site</a>
-    </div>
-  </footer>
-  
-  <script src="js/app.js"></script>
+    
+    <!-- Footer with pride stripe -->
+    <div class="pride-stripe" role="presentation"></div>
+    
+    <footer class="admin-footer">
+        <div class="container">
+            <p>&copy; 2024 CT5 Pride Community Interest Company</p>
+            <div class="footer-links">
+                <a href="/privacy.html">Privacy Policy</a>
+                <a href="/">Main Site</a>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Load app JavaScript -->
+    <script src="js/app.js"></script>
 </body>
 </html> 

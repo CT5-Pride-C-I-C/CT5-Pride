@@ -28,6 +28,19 @@ app.use((req, res, next) => {
   }
 });
 
+// Security headers including Permissions-Policy to suppress Chrome warnings
+app.use((req, res, next) => {
+  // Permissions Policy to suppress Chrome tracking warnings
+  res.setHeader('Permissions-Policy', 'interest-cohort=(), browsing-topics=(), attribution-reporting=()');
+  
+  // Additional security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  
+  next();
+});
+
 // Supabase Auth Middleware
 async function requireSupabaseAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
