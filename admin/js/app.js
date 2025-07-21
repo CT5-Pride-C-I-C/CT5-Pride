@@ -99,15 +99,26 @@ function getAuthHeaders() {
 }
 
 async function handleLogout() {
+  console.log('Logging out user...');
   try {
+    // Clear Supabase session
     await supabase.auth.signOut();
+    
+    // Clear all local storage
     clearSession();
+    localStorage.removeItem("supabaseSession");
+    
+    console.log('Logout successful, redirecting to login');
     showSuccess('Logged out successfully.');
     window.location.hash = '#/login';
+    route(); // Ensure route is called
   } catch (err) {
     console.error('Logout error:', err);
+    // Clear local storage even if Supabase logout fails
     clearSession();
+    localStorage.removeItem("supabaseSession");
     window.location.hash = '#/login';
+    route();
   }
 }
 
@@ -378,6 +389,14 @@ async function handleLogin(e) {
 async function handleGitHubLogin() {
   try {
     console.log('Initiating GitHub OAuth login...');
+    
+    // Show loading state
+    const githubBtn = document.querySelector('.btn-github');
+    if (githubBtn) {
+      githubBtn.innerHTML = '🔄 Connecting to GitHub...';
+      githubBtn.disabled = true;
+    }
+    
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
@@ -388,12 +407,26 @@ async function handleGitHubLogin() {
     if (error) {
       console.error('GitHub login error:', error);
       showError(document.getElementById('app'), 'GitHub login failed: ' + error.message);
+      
+      // Reset button state
+      if (githubBtn) {
+        githubBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg> Continue with GitHub';
+        githubBtn.disabled = false;
+      }
     } else {
-      console.log('GitHub OAuth initiated successfully');
+      console.log('GitHub OAuth initiated successfully - redirecting...');
+      // OAuth redirect should happen automatically
     }
   } catch (err) {
     console.error('GitHub login error:', err);
     showError(document.getElementById('app'), 'GitHub login failed. Please try again.');
+    
+    // Reset button state
+    const githubBtn = document.querySelector('.btn-github');
+    if (githubBtn) {
+      githubBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg> Continue with GitHub';
+      githubBtn.disabled = false;
+    }
   }
 }
 
@@ -1044,6 +1077,58 @@ function renderNotFound() {
 // Initialize the app
 window.addEventListener('hashchange', route);
 
+// OAuth token extraction helper function
+function extractAccessTokenFromHash() {
+  const hash = window.location.hash;
+  console.log('Checking URL hash for access token:', hash);
+  
+  if (hash.includes('access_token=')) {
+    const params = new URLSearchParams(hash.substring(1)); // Remove # and parse as URLSearchParams
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const expiresIn = params.get('expires_in');
+    const tokenType = params.get('token_type');
+    
+    console.log('OAuth tokens found in URL:', {
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+      expiresIn,
+      tokenType
+    });
+    
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      expires_in: expiresIn ? parseInt(expiresIn) : null,
+      token_type: tokenType
+    };
+  }
+  
+  return null;
+}
+
+// Clean OAuth tokens from URL hash
+function cleanOAuthFromURL() {
+  console.log('Cleaning OAuth tokens from URL...');
+  // Remove the OAuth parameters but preserve any other hash content
+  const currentHash = window.location.hash;
+  if (currentHash.includes('access_token=')) {
+    // Clear the hash and set to dashboard
+    window.history.replaceState(null, null, window.location.pathname);
+    window.location.hash = '#/dashboard';
+  }
+}
+
+// Enhanced session management
+function storeSupabaseSession(session) {
+  if (session) {
+    console.log('Storing Supabase session in localStorage');
+    localStorage.setItem("supabaseSession", JSON.stringify(session));
+    setSession(session.access_token);
+    currentUser = session.user;
+  }
+}
+
 // On page load, check for OAuth redirect and session
 window.addEventListener('DOMContentLoaded', async () => {
   console.log('DOMContentLoaded - App initializing...');
@@ -1058,59 +1143,104 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     app.innerHTML = '<div style="padding: 2rem; text-align: center; color: #666;">🔄 Loading admin dashboard...</div>';
     
-    // Set default hash if none present
-    if (!window.location.hash) {
-      console.log('No hash present, setting default to #/login');
-      window.location.hash = '#/login';
+    // Step 1: Check for OAuth access token in URL fragment
+    const oauthTokens = extractAccessTokenFromHash();
+    if (oauthTokens && oauthTokens.access_token) {
+      console.log('OAuth redirect detected, processing tokens...');
+      
+      try {
+        // Set the session using the OAuth tokens
+        const { data, error } = await supabase.auth.setSession({
+          access_token: oauthTokens.access_token,
+          refresh_token: oauthTokens.refresh_token
+        });
+        
+        if (error) {
+          console.error('Error setting OAuth session:', error);
+          throw error;
+        }
+        
+        if (data?.session) {
+          console.log('OAuth session established successfully');
+          storeSupabaseSession(data.session);
+          cleanOAuthFromURL();
+          route(); // Call route after hash is cleaned
+          return;
+        } else {
+          console.error('No session returned from setSession');
+          throw new Error('Failed to establish session from OAuth tokens');
+        }
+      } catch (oauthError) {
+        console.error('OAuth processing failed:', oauthError);
+        cleanOAuthFromURL();
+        window.location.hash = '#/login';
+        app.innerHTML = `
+          <div style="padding: 2rem; text-align: center; color: #f44336;">
+            <h2>⚠️ Authentication Error</h2>
+            <p>Failed to process GitHub login. Please try again.</p>
+            <button onclick="window.location.hash='#/login'; route();" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+              Back to Login
+            </button>
+          </div>
+        `;
+        return;
+      }
     }
     
-    // Check for OAuth redirect first
+    // Step 2: Check for existing Supabase session
+    console.log('Checking for existing Supabase session...');
     try {
-      console.log('Checking for Supabase session...');
       const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Error getting session:', error);
+        throw error;
+      }
+      
       if (data?.session) {
-        console.log('Session found, storing token and redirecting to dashboard');
-        setSession(data.session.access_token);
-        currentUser = data.session.user;
-        window.location.hash = '#/dashboard';
-        route(); // Ensure route is called after hash change
+        console.log('Existing session found, user already authenticated');
+        storeSupabaseSession(data.session);
+        // If already authenticated, go to dashboard unless already on a specific route
+        if (!window.location.hash || window.location.hash === '#/' || window.location.hash === '#/login') {
+          window.location.hash = '#/dashboard';
+        }
+        route();
         return;
       } else {
-        console.log('No active session found');
+        console.log('No existing session found');
       }
-    } catch (err) {
-      console.error('OAuth session check error:', err);
+    } catch (sessionError) {
+      console.error('Session check failed:', sessionError);
+      clearSession();
     }
     
-    // Fallback to localStorage session validation
+    // Step 3: Check localStorage backup
     const existingToken = getSession();
     if (existingToken) {
-      console.log('Found existing token, validating...');
+      console.log('Found token in localStorage, validating...');
       try {
         const isValid = await validateSession();
-        if (!isValid) {
-          console.log('Token invalid, redirecting to login');
-          window.location.hash = '#/login';
-        } else {
-          console.log('Token valid, user authenticated');
-          // If authenticated but no specific route, go to dashboard
-          if (window.location.hash === '#/' || window.location.hash === '#/login') {
+        if (isValid && currentUser) {
+          console.log('localStorage token is valid, user authenticated');
+          if (!window.location.hash || window.location.hash === '#/' || window.location.hash === '#/login') {
             window.location.hash = '#/dashboard';
           }
+          route();
+          return;
+        } else {
+          console.log('localStorage token invalid, clearing...');
+          clearSession();
         }
-      } catch (err) {
-        console.error('Token validation error:', err);
+      } catch (validationError) {
+        console.error('Token validation error:', validationError);
         clearSession();
-        window.location.hash = '#/login';
-      }
-    } else {
-      console.log('No existing token found, going to login');
-      if (window.location.hash !== '#/login') {
-        window.location.hash = '#/login';
       }
     }
     
-    console.log('Calling route() with hash:', window.location.hash);
+    // Step 4: No authentication found, show login
+    console.log('No authentication found, redirecting to login');
+    if (!window.location.hash || window.location.hash === '#/') {
+      window.location.hash = '#/login';
+    }
     route();
     
   } catch (err) {
