@@ -41,7 +41,11 @@ if (!window.supabase) {
   throw new Error('Supabase library not available');
 }
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Supabase client - CRITICAL: Must be available before OAuth handling
+const supabase = window.supabase.createClient(
+  "https://rmhnrpwbgxyslfwttwzr.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtaG5ycHdiZ3h5c2xmd3R0d3pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTQyMDcsImV4cCI6MjA2ODY5MDIwN30.yNlkzFMfvUCoN6IwEY4LgL6_ihdR_ux22oqvDnkWTxg"
+);
 console.log('Supabase client initialized successfully');
 
 // Global state
@@ -186,13 +190,14 @@ function route() {
   }
   
   // Check authentication for protected routes
-  const token = getSession();
-  console.log('Token check for protected route:', token ? 'Token exists' : 'No token');
+  console.log('Authentication state:', {
+    hasUser: !!currentUser,
+    hasToken: !!getSession(),
+    isAuthenticated: isAuthenticated()
+  });
   
-  if (!token) {
-    console.log('No authentication token, redirecting to login');
-    window.location.hash = '#/login';
-    return;
+  if (!requireAuth()) {
+    return; // requireAuth handles the redirect
   }
   
   switch (hash) {
@@ -1077,167 +1082,181 @@ function renderNotFound() {
 // Initialize the app
 window.addEventListener('hashchange', route);
 
-// OAuth token extraction helper function
-function extractAccessTokenFromHash() {
-  const hash = window.location.hash;
-  console.log('Checking URL hash for access token:', hash);
-  
-  if (hash.includes('access_token=')) {
-    const params = new URLSearchParams(hash.substring(1)); // Remove # and parse as URLSearchParams
-    const accessToken = params.get('access_token');
-    const refreshToken = params.get('refresh_token');
-    const expiresIn = params.get('expires_in');
-    const tokenType = params.get('token_type');
-    
-    console.log('OAuth tokens found in URL:', {
-      hasAccessToken: !!accessToken,
-      hasRefreshToken: !!refreshToken,
-      expiresIn,
-      tokenType
-    });
-    
-    return {
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      expires_in: expiresIn ? parseInt(expiresIn) : null,
-      token_type: tokenType
-    };
-  }
-  
-  return null;
+// Session management helper functions
+function isAuthenticated() {
+  return !!currentUser && !!getSession();
 }
 
-// Clean OAuth tokens from URL hash
-function cleanOAuthFromURL() {
-  console.log('Cleaning OAuth tokens from URL...');
-  // Remove the OAuth parameters but preserve any other hash content
-  const currentHash = window.location.hash;
-  if (currentHash.includes('access_token=')) {
-    // Clear the hash and set to dashboard
-    window.history.replaceState(null, null, window.location.pathname);
-    window.location.hash = '#/dashboard';
+// Enhanced route protection
+function requireAuth() {
+  if (!isAuthenticated()) {
+    console.log('Authentication required, redirecting to login');
+    window.location.hash = '#/login';
+    return false;
   }
+  return true;
 }
 
-// Enhanced session management
-function storeSupabaseSession(session) {
-  if (session) {
-    console.log('Storing Supabase session in localStorage');
-    localStorage.setItem("supabaseSession", JSON.stringify(session));
-    setSession(session.access_token);
-    currentUser = session.user;
-  }
-}
-
-// On page load, check for OAuth redirect and session
-window.addEventListener('DOMContentLoaded', async () => {
+// Production-ready OAuth redirect handler - runs immediately on load
+window.addEventListener("DOMContentLoaded", async () => {
   console.log('DOMContentLoaded - App initializing...');
   
+  const app = document.getElementById('app');
+  if (!app) {
+    console.error('App container not found!');
+    return;
+  }
+  
+  // Show loading indicator
+  app.innerHTML = '<div style="padding: 2rem; text-align: center; color: #666;">🔄 Loading admin dashboard...</div>';
+  
   try {
-    // Add fallback loading indicator
-    const app = document.getElementById('app');
-    if (!app) {
-      console.error('App container not found!');
-      return;
-    }
+    // STEP 1: Check for OAuth tokens in URL hash
+    const hash = window.location.hash;
+    console.log('Checking URL hash:', hash);
     
-    app.innerHTML = '<div style="padding: 2rem; text-align: center; color: #666;">🔄 Loading admin dashboard...</div>';
-    
-    // Step 1: Check for OAuth access token in URL fragment
-    const oauthTokens = extractAccessTokenFromHash();
-    if (oauthTokens && oauthTokens.access_token) {
-      console.log('OAuth redirect detected, processing tokens...');
+    if (hash.includes("access_token")) {
+      console.log('OAuth redirect detected - processing tokens...');
       
-      try {
-        // Set the session using the OAuth tokens
-        const { data, error } = await supabase.auth.setSession({
-          access_token: oauthTokens.access_token,
-          refresh_token: oauthTokens.refresh_token
-        });
-        
-        if (error) {
-          console.error('Error setting OAuth session:', error);
-          throw error;
-        }
-        
-        if (data?.session) {
-          console.log('OAuth session established successfully');
-          storeSupabaseSession(data.session);
-          cleanOAuthFromURL();
-          route(); // Call route after hash is cleaned
+      const params = new URLSearchParams(hash.slice(1));
+      const access_token = params.get("access_token");
+      const refresh_token = params.get("refresh_token");
+      const expires_in = parseInt(params.get("expires_in"), 10);
+      
+      console.log('Extracted tokens:', {
+        hasAccessToken: !!access_token,
+        hasRefreshToken: !!refresh_token,
+        expiresIn: expires_in
+      });
+      
+      if (access_token && refresh_token && expires_in) {
+        try {
+          // Set the session using extracted tokens
+          const { data, error } = await supabase.auth.setSession({
+            access_token,
+            refresh_token,
+          });
+          
+          if (error) {
+            console.error("OAuth session setup failed:", error.message);
+            app.innerHTML = `
+              <div style="padding: 2rem; text-align: center; color: #f44336;">
+                <h2>⚠️ OAuth Login Failed</h2>
+                <p>${error.message}</p>
+                <button onclick="window.location.hash='#/login'; location.reload();" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+                  Back to Login
+                </button>
+              </div>
+            `;
+            return;
+          }
+          
+          if (data?.session) {
+            console.log("OAuth login successful. Redirecting to dashboard.");
+            
+            // Store session in multiple ways for redundancy
+            localStorage.setItem("sb-session", JSON.stringify(data.session));
+            setSession(data.session.access_token);
+            currentUser = data.session.user;
+            
+            console.log('Session stored, cleaning URL and redirecting...');
+            
+            // Clean URL and redirect
+            history.replaceState(null, null, "/admin/");
+            window.location.hash = "#/dashboard";
+            
+            // Force route call after hash change
+            setTimeout(() => route(), 100);
+            return;
+          }
+        } catch (oauthError) {
+          console.error('OAuth processing error:', oauthError);
+          app.innerHTML = `
+            <div style="padding: 2rem; text-align: center; color: #f44336;">
+              <h2>⚠️ Authentication Error</h2>
+              <p>Failed to process GitHub login: ${oauthError.message}</p>
+              <button onclick="window.location.hash='#/login'; location.reload();" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+                Back to Login
+              </button>
+            </div>
+          `;
           return;
-        } else {
-          console.error('No session returned from setSession');
-          throw new Error('Failed to establish session from OAuth tokens');
         }
-      } catch (oauthError) {
-        console.error('OAuth processing failed:', oauthError);
-        cleanOAuthFromURL();
-        window.location.hash = '#/login';
-        app.innerHTML = `
-          <div style="padding: 2rem; text-align: center; color: #f44336;">
-            <h2>⚠️ Authentication Error</h2>
-            <p>Failed to process GitHub login. Please try again.</p>
-            <button onclick="window.location.hash='#/login'; route();" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-              Back to Login
-            </button>
-          </div>
-        `;
-        return;
       }
     }
     
-    // Step 2: Check for existing Supabase session
+    // STEP 2: Check for existing Supabase session
     console.log('Checking for existing Supabase session...');
     try {
       const { data, error } = await supabase.auth.getSession();
+      
       if (error) {
         console.error('Error getting session:', error);
         throw error;
       }
       
       if (data?.session) {
-        console.log('Existing session found, user already authenticated');
-        storeSupabaseSession(data.session);
-        // If already authenticated, go to dashboard unless already on a specific route
+        console.log('Existing session found - user already authenticated');
+        
+        // Store session data
+        localStorage.setItem("sb-session", JSON.stringify(data.session));
+        setSession(data.session.access_token);
+        currentUser = data.session.user;
+        
+        // Redirect to dashboard if on login or root
         if (!window.location.hash || window.location.hash === '#/' || window.location.hash === '#/login') {
+          console.log('Redirecting authenticated user to dashboard');
           window.location.hash = '#/dashboard';
         }
+        
         route();
         return;
       } else {
-        console.log('No existing session found');
+        console.log('No existing Supabase session found');
       }
     } catch (sessionError) {
       console.error('Session check failed:', sessionError);
       clearSession();
+      localStorage.removeItem("sb-session");
     }
     
-    // Step 3: Check localStorage backup
-    const existingToken = getSession();
-    if (existingToken) {
-      console.log('Found token in localStorage, validating...');
+    // STEP 3: Check localStorage backup session
+    const storedSession = localStorage.getItem("sb-session");
+    if (storedSession) {
+      console.log('Found stored session, attempting to restore...');
       try {
-        const isValid = await validateSession();
-        if (isValid && currentUser) {
-          console.log('localStorage token is valid, user authenticated');
-          if (!window.location.hash || window.location.hash === '#/' || window.location.hash === '#/login') {
-            window.location.hash = '#/dashboard';
+        const sessionData = JSON.parse(storedSession);
+        if (sessionData?.access_token) {
+          const { data, error } = await supabase.auth.setSession({
+            access_token: sessionData.access_token,
+            refresh_token: sessionData.refresh_token
+          });
+          
+          if (!error && data?.session) {
+            console.log('Successfully restored session from localStorage');
+            setSession(data.session.access_token);
+            currentUser = data.session.user;
+            
+            if (!window.location.hash || window.location.hash === '#/' || window.location.hash === '#/login') {
+              window.location.hash = '#/dashboard';
+            }
+            route();
+            return;
+          } else {
+            console.log('Stored session invalid, clearing...');
+            localStorage.removeItem("sb-session");
+            clearSession();
           }
-          route();
-          return;
-        } else {
-          console.log('localStorage token invalid, clearing...');
-          clearSession();
         }
-      } catch (validationError) {
-        console.error('Token validation error:', validationError);
+      } catch (parseError) {
+        console.error('Error parsing stored session:', parseError);
+        localStorage.removeItem("sb-session");
         clearSession();
       }
     }
     
-    // Step 4: No authentication found, show login
-    console.log('No authentication found, redirecting to login');
+    // STEP 4: No authentication found - show login
+    console.log('No authentication found, showing login page');
     if (!window.location.hash || window.location.hash === '#/') {
       window.location.hash = '#/login';
     }
@@ -1245,21 +1264,15 @@ window.addEventListener('DOMContentLoaded', async () => {
     
   } catch (err) {
     console.error('Critical initialization error:', err);
-    const app = document.getElementById('app');
-    if (app) {
-      app.innerHTML = `
-        <div style="padding: 2rem; text-align: center; color: #f44336;">
-          <h2>❌ Initialization Failed</h2>
-          <p>The admin dashboard failed to initialize properly.</p>
-          <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; text-align: left; margin: 1rem 0;">
-            ${err.message}
-          </pre>
-          <button onclick="window.location.reload()" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-            Reload Page
-          </button>
-        </div>
-      `;
-    }
+    app.innerHTML = `
+      <div style="padding: 2rem; text-align: center; color: #f44336;">
+        <h2>❌ Initialization Failed</h2>
+        <p>The admin dashboard failed to initialize: ${err.message}</p>
+        <button onclick="window.location.reload()" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+          Reload Page
+        </button>
+      </div>
+    `;
   }
 });
 
