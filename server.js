@@ -9,20 +9,18 @@ require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 
 // Supabase configuration (production-safe)
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
 
 // Eventbrite API configuration
 const EVENTBRITE_API_BASE = 'https://www.eventbriteapi.com/v3';
-const EVENTBRITE_API_KEY = process.env.EVENTBRITE_API_KEY;
-const EVENTBRITE_PRIVATE_TOKEN = process.env.EVENTBRITE_PRIVATE_TOKEN;
-const EVENTBRITE_PUBLIC_TOKEN = process.env.EVENTBRITE_PUBLIC_TOKEN;
-const EVENTBRITE_CLIENT_SECRET = process.env.EVENTBRITE_CLIENT_SECRET;
+const EVENTBRITE_PRIVATE_TOKEN = config.EVENTBRITE_PRIVATE_TOKEN;
+const EVENTBRITE_PUBLIC_TOKEN = config.EVENTBRITE_PUBLIC_TOKEN;
+const EVENTBRITE_CLIENT_SECRET = config.EVENTBRITE_CLIENT_SECRET;
 
 // Validate Eventbrite configuration
 function validateEventbriteConfig() {
     const missingTokens = [];
     
-    if (!EVENTBRITE_API_KEY) missingTokens.push('EVENTBRITE_API_KEY');
     if (!EVENTBRITE_PRIVATE_TOKEN) missingTokens.push('EVENTBRITE_PRIVATE_TOKEN');
     if (!EVENTBRITE_PUBLIC_TOKEN) missingTokens.push('EVENTBRITE_PUBLIC_TOKEN');
     if (!EVENTBRITE_CLIENT_SECRET) missingTokens.push('EVENTBRITE_CLIENT_SECRET');
@@ -30,7 +28,6 @@ function validateEventbriteConfig() {
     if (missingTokens.length > 0) {
         console.warn('⚠️  Missing Eventbrite tokens:', missingTokens.join(', '));
         console.log('📝 Please add the following to your .env file:');
-        console.log('   EVENTBRITE_API_KEY=your_api_key');
         console.log('   EVENTBRITE_PRIVATE_TOKEN=your_private_token');
         console.log('   EVENTBRITE_PUBLIC_TOKEN=your_public_token');
         console.log('   EVENTBRITE_CLIENT_SECRET=your_client_secret');
@@ -38,7 +35,6 @@ function validateEventbriteConfig() {
     }
     
     console.log('✅ All Eventbrite tokens loaded successfully');
-    console.log(`🔑 API Key: ${EVENTBRITE_API_KEY.substring(0, 5)}...`);
     console.log(`🔑 Private Token: ${EVENTBRITE_PRIVATE_TOKEN.substring(0, 5)}...`);
     console.log(`🔑 Public Token: ${EVENTBRITE_PUBLIC_TOKEN.substring(0, 5)}...`);
     console.log(`🔑 Client Secret: ${EVENTBRITE_CLIENT_SECRET.substring(0, 5)}...`);
