@@ -126,6 +126,40 @@ async function handleLogout() {
   }
 }
 
+// ==================== ERROR HANDLING UTILITIES ====================
+
+function showError(message, includeEmailFallback = true) {
+  const app = document.getElementById('app');
+  if (!app) return;
+  
+  const fallbackButtons = includeEmailFallback ? `
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+      <button onclick="window.location.hash='#/login'; location.reload();" 
+              style="background: #e91e63; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+        Try GitHub Again
+      </button>
+      <button onclick="window.location.hash='#/login'; location.reload();" 
+              style="background: transparent; color: #e91e63; border: 2px solid #e91e63; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+        Log in with Email Instead
+      </button>
+    </div>
+  ` : `
+    <button onclick="window.location.hash='#/login'; location.reload();" 
+            style="background: #e91e63; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 1.5rem;">
+      Back to Login
+    </button>
+  `;
+  
+  app.innerHTML = `
+    <div style="padding: 2rem; text-align: center; color: #e74c3c;">
+      <h2>🔐 Authentication Error</h2>
+      <p>${message}</p>
+      ${fallbackButtons}
+      ${includeEmailFallback ? '<p style="margin-top: 1rem; font-size: 0.875rem; color: #666;">You can try GitHub or email login.</p>' : ''}
+    </div>
+  `;
+}
+
 // ==================== API UTILITIES ====================
 
 async function apiRequest(endpoint, options = {}) {
@@ -1224,6 +1258,7 @@ window.addEventListener("DOMContentLoaded", async () => {
             error: error?.message || 'None'
           });
           
+          // Handle session setup failure clearly
           if (error) {
             console.error('❌ Failed to create Supabase session:', error);
             
@@ -1232,72 +1267,50 @@ window.addEventListener("DOMContentLoaded", async () => {
             clearSession();
             localStorage.removeItem("supabase-session");
             
-            app.innerHTML = `
-              <div style="padding: 2rem; text-align: center; color: #e74c3c;">
-                <h2>🔐 GitHub Login Failed</h2>
-                <p>Unable to establish your session: ${error.message}</p>
-                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
-                  <button onclick="window.location.hash='#/login'; location.reload();" 
-                          style="background: #e91e63; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
-                    Try GitHub Again
-                  </button>
-                  <button onclick="window.location.hash='#/login'; location.reload();" 
-                          style="background: transparent; color: #e91e63; border: 2px solid #e91e63; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
-                    Log in with Email Instead
-                  </button>
-                </div>
-                <p style="margin-top: 1rem; font-size: 0.875rem; color: #666;">
-                  You can also try logging in with your email and password.
-                </p>
-              </div>
-            `;
+            showError(`GitHub login failed: ${error.message}`);
             return;
           }
           
-          if (data?.session?.user) {
-            const user = data.session.user;
-            console.log('🎉 GitHub OAuth SUCCESS!');
-            console.log('👤 User authenticated:', {
-              id: user.id,
-              email: user.email,
-              name: user.user_metadata?.full_name || user.user_metadata?.name,
-              provider: user.app_metadata?.provider,
-              avatar: user.user_metadata?.avatar_url
-            });
-            
-            // Store session in localStorage as backup
-            localStorage.setItem("supabase-session", JSON.stringify(data.session));
-            setSession(data.session.access_token);
-            currentUser = user;
-            
-            console.log('💾 Session stored successfully');
-            
-            // Verify session is working
-            const verifySession = await supabase.auth.getSession();
-            console.log('✅ Session verification:', {
-              verified: !!verifySession.data?.session,
-              sameUser: verifySession.data?.session?.user?.id === user.id
-            });
-            
-            // Clean URL hash and redirect to dashboard
-            console.log('🧹 Cleaning URL and redirecting to dashboard...');
-            window.history.replaceState(null, null, '/admin/');
-            window.location.hash = '#/dashboard';
-            
-            // Show success message briefly
-            showLoadingState(`Welcome, ${user.email}! Loading dashboard...`);
-            
-            // Route to dashboard after brief delay
-            setTimeout(() => {
-              console.log('🎯 Routing to dashboard...');
-              route();
-            }, 500);
-            
+          // Ensure session was established
+          if (!data?.session) {
+            console.error("❌ Supabase session not established.");
+            showError("Login failed. Please try again or use email login.");
             return;
-          } else {
-            console.error('❌ No user in session data');
-            throw new Error('Session created but no user data received');
           }
+          
+          const user = data.session.user;
+          console.log('🎉 GitHub OAuth SUCCESS!');
+          console.log('👤 User authenticated:', {
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.full_name || user.user_metadata?.name,
+            provider: user.app_metadata?.provider,
+            avatar: user.user_metadata?.avatar_url
+          });
+          
+          // Store session in localStorage as backup
+          localStorage.setItem("supabase-session", JSON.stringify(data.session));
+          setSession(data.session.access_token);
+          currentUser = user;
+          
+          console.log('💾 Session stored successfully');
+          
+          // Clean up URL and redirect to dashboard immediately after successful session creation
+          if (data.session && window.location.hash.includes('access_token')) {
+            console.log("✅ Session established, cleaning up URL...");
+            history.replaceState(null, '', '/admin/#/dashboard');
+          }
+          
+          // Show success message briefly and immediately render dashboard
+          showLoadingState(`Welcome, ${user.email}! Loading dashboard...`);
+          
+          // Immediately call the function to render dashboard content
+          console.log('🎯 Immediately routing to dashboard...');
+          setTimeout(() => {
+            route();
+          }, 100);
+          
+          return;
           
         } catch (sessionError) {
           console.error('❌ OAuth session processing failed:', sessionError);
