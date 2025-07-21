@@ -6,6 +6,12 @@ const multer = require('multer');
 const config = require('./config');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 require('dotenv').config();
+const { createClient } = require('@supabase/supabase-js');
+
+// Supabase configuration
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://rmhnrpwbgxyslfwttwzr.supabase.co';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 // Eventbrite API configuration
 const EVENTBRITE_API_BASE = 'https://www.eventbriteapi.com/v3';
@@ -51,6 +57,28 @@ app.use(express.json());
 app.use('/css', express.static(path.join(__dirname, 'css')));
 app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use('/Images', express.static(path.join(__dirname, 'Images')));
+
+// Supabase Auth middleware for admin API protection
+async function requireSupabaseAuth(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ success: false, message: 'Unauthorized: No token provided' });
+    }
+    const token = authHeader.replace('Bearer ', '');
+    try {
+        const { data, error } = await supabase.auth.getUser(token);
+        if (error || !data || !data.user) {
+            return res.status(401).json({ success: false, message: 'Unauthorized: Invalid token' });
+        }
+        req.supabaseUser = data.user;
+        next();
+    } catch (err) {
+        return res.status(401).json({ success: false, message: 'Unauthorized: Token validation failed' });
+    }
+}
+
+// Apply to all admin API routes
+app.use(['/api/roles', '/api/applications', '/api/submit-role', '/api/update-role', '/api/delete-role', '/api/apply', '/api/cv', '/api/applications', '/api/applications/:id', '/api/applications/:id/status'], requireSupabaseAuth);
 
 // Configure Git remote with token
 function configureGitRemote() {
@@ -99,114 +127,22 @@ function runCommand(command) {
     });
 }
 
-// API endpoint to handle role submissions and Git operations
+// Supabase: Submit new role
 app.post('/api/submit-role', async (req, res) => {
     try {
         const roleData = req.body.roleData;
-        
         if (!roleData) {
-            return res.status(400).json({ 
-                success: false, 
-                message: '❌ No role data provided' 
-            });
+            return res.status(400).json({ success: false, message: 'No role data provided' });
         }
-
-        // Load current config.js
-        const configPath = path.join(__dirname, 'js', 'config.js');
-        let configContent = fs.readFileSync(configPath, 'utf8');
-        
-        // Parse the roles array from config.js
-        const rolesMatch = configContent.match(/export const roles = (\[[\s\S]*?\]);/);
-        if (!rolesMatch) {
-            throw new Error('Could not find roles array in config.js');
-        }
-        
-        // Parse the roles array - use JSON.parse instead of eval for safety
-        const rolesString = rolesMatch[1];
-        let roles;
-        try {
-            roles = JSON.parse(rolesString);
-        } catch (parseError) {
-            console.error('Error parsing roles:', parseError);
-            throw new Error('Invalid JSON in roles array');
-        }
-        
-        // Check if role with same ID already exists
-        if (roles.find(role => role.id === roleData.id)) {
-            return res.status(400).json({
-                success: false,
-                message: `❌ Role with ID "${roleData.id}" already exists`
-            });
-        }
-        
-        // Add the new role to the array
-        roles.push(roleData);
-        
-        // Create new config content with updated roles
-        const updatedRolesString = JSON.stringify(roles, null, 4);
-        const updatedConfigContent = configContent.replace(
-            /export const roles = (\[[\s\S]*?\]);/,
-            `export const roles = ${updatedRolesString};`
-        );
-        
-        // Write the updated config back to file
-        fs.writeFileSync(configPath, updatedConfigContent, 'utf8');
-
-        // Configure Git remote if not already done
-        configureGitRemote();
-
-        // Add the updated config.js file
-        await runCommand('git add js/config.js');
-
-        // Commit changes
-        const commitMessage = `Add new role: ${roleData.title}`;
-        await runCommand(`git commit -m "${commitMessage}"`);
-
-        // Push to GitHub
-        await runCommand('git push origin main');
-
-        // Success response
-        res.json({
-            success: true,
-            message: '✅ Role submitted and pushed to GitHub successfully!',
-            details: {
-                roleTitle: roleData.title,
-                roleId: roleData.id,
-                timestamp: new Date().toISOString()
-            }
-        });
-
+        // Insert new role into Supabase
+        const { data, error } = await supabase
+            .from('roles')
+            .insert([roleData])
+            .select();
+        if (error) throw error;
+        res.json({ success: true, message: 'Role submitted successfully!', role: data[0] });
     } catch (error) {
-        console.error('❌ Submit operation failed:', error);
-        
-        // Provide more specific error messages
-        let errorMessage = '❌ Failed to submit role';
-        let errorDetails = error && error.message ? error.message : 'Unknown error occurred';
-        
-        if (error && error.message && error.message.includes('repository') && error.message.includes('not found')) {
-            errorMessage = '❌ GitHub repository not found';
-            errorDetails = 'The repository URL is incorrect or the repository doesn\'t exist. Please check your repository settings.';
-        } else if (error && error.message && error.message.includes('authentication')) {
-            errorMessage = '❌ Authentication failed';
-            errorDetails = 'Your GitHub token may be invalid or expired. Please check your token permissions.';
-        } else if (error && error.message && error.message.includes('network')) {
-            errorMessage = '❌ Network error';
-            errorDetails = 'Unable to connect to GitHub. Please check your internet connection.';
-        }
-        
-        res.status(500).json({
-            success: false,
-            message: errorMessage,
-            error: errorDetails,
-            troubleshooting: {
-                checkRepository: 'Verify the repository URL in config.js',
-                checkToken: 'Ensure your GitHub token has repo permissions',
-                checkNetwork: 'Test your internet connection',
-                checkChanges: 'Ensure the role submission creates actual file changes',
-                checkGitStatus: 'Run "git status" to see current repository state'
-            },
-            timestamp: new Date().toISOString()
-        });
+        res.status(500).json({ success: false, message: 'Failed to submit role', error: error.message });
     }
 });
 
@@ -278,260 +214,42 @@ app.post('/api/check-changes', async (req, res) => {
     }
 });
 
-// API endpoint to update an existing role
+// Supabase: Update existing role
 app.put('/api/update-role', async (req, res) => {
     try {
         const { oldId, updatedRole } = req.body;
-        
         if (!oldId || !updatedRole) {
-            return res.status(400).json({ 
-                success: false, 
-                message: '❌ Missing role data' 
-            });
+            return res.status(400).json({ success: false, message: 'Missing role data' });
         }
-
-        console.log('🔄 Updating role:', oldId);
-
-        // Load current config.js
-        const configPath = path.join(__dirname, 'js', 'config.js');
-        let configContent = fs.readFileSync(configPath, 'utf8');
-        
-        // Parse the roles array from config.js
-        const rolesMatch = configContent.match(/export const roles = (\[[\s\S]*?\]);/);
-        if (!rolesMatch) {
-            throw new Error('Could not find roles array in config.js');
-        }
-        
-        // Parse the roles array - use JSON.parse instead of eval for safety
-        const rolesString = rolesMatch[1];
-        let roles;
-        try {
-            roles = JSON.parse(rolesString);
-        } catch (parseError) {
-            console.error('Error parsing roles:', parseError);
-            throw new Error('Invalid JSON in roles array');
-        }
-        
-        // Find the role to update
-        const roleIndex = roles.findIndex(role => role.id === oldId);
-        if (roleIndex === -1) {
-            return res.status(404).json({
-                success: false,
-                message: `❌ Role with ID "${oldId}" not found`
-            });
-        }
-        
-        // Update the role
-        roles[roleIndex] = { ...roles[roleIndex], ...updatedRole };
-        
-        // Create new config content with updated roles
-        const updatedRolesString = JSON.stringify(roles, null, 4);
-        const updatedConfigContent = configContent.replace(
-            /export const roles = (\[[\s\S]*?\]);/,
-            `export const roles = ${updatedRolesString};`
-        );
-        
-        // Write the updated config back to file
-        fs.writeFileSync(configPath, updatedConfigContent, 'utf8');
-        console.log('✅ Role updated in config.js');
-
-        // Configure Git remote if not already done
-        configureGitRemote();
-
-        // Add the updated config.js file
-        await runCommand('git add js/config.js');
-        console.log('✅ Updated config.js staged for commit');
-
-        // Commit changes
-        const commitMessage = `Edit role: ${updatedRole.title}`;
-        await runCommand(`git commit -m "${commitMessage}"`);
-        console.log('✅ Changes committed');
-
-        // Push to GitHub
-        await runCommand('git push origin main');
-        console.log('✅ Changes pushed to GitHub');
-
-        // Success response
-        res.json({
-            success: true,
-            message: '✅ Role updated and pushed to GitHub successfully!',
-            details: {
-                roleTitle: updatedRole.title,
-                roleId: updatedRole.id,
-                oldId: oldId,
-                timestamp: new Date().toISOString()
-            }
-        });
-
+        // Update role in Supabase
+        const { data, error } = await supabase
+            .from('roles')
+            .update(updatedRole)
+            .eq('id', oldId)
+            .select();
+        if (error) throw error;
+        res.json({ success: true, message: 'Role updated successfully!', role: data[0] });
     } catch (error) {
-        console.error('❌ Update operation failed:', error);
-        
-        let errorMessage = '❌ Failed to update role';
-        let errorDetails = error && error.message ? error.message : 'Unknown error occurred';
-        
-        res.status(500).json({
-            success: false,
-            message: errorMessage,
-            error: errorDetails,
-            timestamp: new Date().toISOString()
-        });
+        res.status(500).json({ success: false, message: 'Failed to update role', error: error.message });
     }
 });
 
-// API endpoint to delete a role
+// Supabase: Delete a role
 app.delete('/api/delete-role/:id', async (req, res) => {
     try {
         const roleId = req.params.id;
-        
         if (!roleId) {
-            return res.status(400).json({ 
-                success: false, 
-                message: '❌ No role ID provided' 
-            });
+            return res.status(400).json({ success: false, message: 'No role ID provided' });
         }
-
-        // Load current config.js
-        const configPath = path.join(__dirname, 'js', 'config.js');
-        
-        let configContent;
-        try {
-            configContent = fs.readFileSync(configPath, 'utf8');
-        } catch (fileError) {
-            console.error('❌ Failed to read config.js:', fileError);
-            return res.status(500).json({
-                success: false,
-                message: '❌ Failed to read configuration file',
-                error: fileError.message
-            });
-        }
-        
-        // Parse the roles array from config.js using proper regex
-        const rolesMatch = configContent.match(/export const roles = (\[[\s\S]*?\]);/);
-        if (!rolesMatch) {
-            console.error('❌ Could not find roles array in config.js');
-            return res.status(500).json({
-                success: false,
-                message: '❌ Could not find roles array in configuration file'
-            });
-        }
-        
-        // Parse the roles array - use JSON.parse for safety
-        const rolesString = rolesMatch[1];
-        let roles;
-        try {
-            roles = JSON.parse(rolesString);
-        } catch (parseError) {
-            console.error('❌ Error parsing roles JSON:', parseError);
-            return res.status(500).json({
-                success: false,
-                message: '❌ Invalid JSON in roles array',
-                error: parseError.message
-            });
-        }
-        
-        // Find the role to delete
-        const roleToDelete = roles.find(role => role.id === roleId);
-        if (!roleToDelete) {
-            return res.status(404).json({
-                success: false,
-                message: `❌ Role with ID "${roleId}" not found`
-            });
-        }
-        
-        // Remove the role from the array
-        const updatedRoles = roles.filter(role => role.id !== roleId);
-        
-        // Create new config content with updated roles
-        const updatedRolesString = JSON.stringify(updatedRoles, null, 4);
-        const updatedConfigContent = configContent.replace(
-            /export const roles = (\[[\s\S]*?\]);/,
-            `export const roles = ${updatedRolesString};`
-        );
-        
-        // Write the updated config back to file
-        try {
-            fs.writeFileSync(configPath, updatedConfigContent, 'utf8');
-        } catch (writeError) {
-            console.error('❌ Failed to write config.js:', writeError);
-            return res.status(500).json({
-                success: false,
-                message: '❌ Failed to update configuration file',
-                error: writeError.message
-            });
-        }
-
-        // Configure Git remote if not already done
-        try {
-            configureGitRemote();
-        } catch (gitConfigError) {
-            console.error('❌ Git configuration failed:', gitConfigError);
-            return res.status(500).json({
-                success: false,
-                message: '❌ Git configuration failed',
-                error: gitConfigError.message
-            });
-        }
-
-        // Add the updated config.js file
-        try {
-            await runCommand('git add js/config.js');
-        } catch (addError) {
-            console.error('❌ Git add failed:', addError);
-            return res.status(500).json({
-                success: false,
-                message: '❌ Failed to stage changes',
-                error: addError.message
-            });
-        }
-
-        // Commit changes
-        const commitMessage = `Remove role: ${roleToDelete.title}`;
-        try {
-            await runCommand(`git commit -m "${commitMessage}"`);
-        } catch (commitError) {
-            console.error('❌ Git commit failed:', commitError);
-            return res.status(500).json({
-                success: false,
-                message: '❌ Failed to commit changes',
-                error: commitError.message
-            });
-        }
-
-        // Push to GitHub
-        try {
-            await runCommand('git push origin main');
-        } catch (pushError) {
-            console.error('❌ Git push failed:', pushError);
-            return res.status(500).json({
-                success: false,
-                message: '❌ Failed to push changes to GitHub',
-                error: pushError.message
-            });
-        }
-
-        // Success response
-        res.json({
-            success: true,
-            message: '✅ Role deleted and changes pushed to GitHub successfully!',
-            details: {
-                roleId: roleId,
-                roleTitle: roleToDelete.title,
-                timestamp: new Date().toISOString()
-            }
-        });
-
+        // Delete role from Supabase
+        const { error } = await supabase
+            .from('roles')
+            .delete()
+            .eq('id', roleId);
+        if (error) throw error;
+        res.json({ success: true, message: 'Role deleted successfully!', roleId });
     } catch (error) {
-        console.error('❌ Delete operation failed:', error);
-        
-        let errorMessage = '❌ Failed to delete role';
-        let errorDetails = error && error.message ? error.message : 'Unknown error occurred';
-        
-        res.status(500).json({
-            success: false,
-            message: errorMessage,
-            error: errorDetails,
-            timestamp: new Date().toISOString()
-        });
+        res.status(500).json({ success: false, message: 'Failed to delete role', error: error.message });
     }
 });
 
@@ -619,43 +337,17 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// API endpoint to get current roles
-app.get('/api/roles', (req, res) => {
+// Supabase: Get all roles
+app.get('/api/roles', async (req, res) => {
     try {
-        // Load current config.js
-        const configPath = path.join(__dirname, 'js', 'config.js');
-        let configContent = fs.readFileSync(configPath, 'utf8');
-        
-        // Parse the roles array from config.js
-        const rolesMatch = configContent.match(/export const roles = (\[[\s\S]*?\]);/);
-        if (!rolesMatch) {
-            throw new Error('Could not find roles array in config.js');
-        }
-        
-        // Parse the roles array - use JSON.parse instead of eval for safety
-        const rolesString = rolesMatch[1];
-        let roles;
-        try {
-            roles = JSON.parse(rolesString);
-        } catch (parseError) {
-            console.error('❌ Error parsing roles JSON:', parseError);
-            throw new Error('Invalid JSON in roles array');
-        }
-        
-        res.json({
-            success: true,
-            roles: roles,
-            timestamp: new Date().toISOString()
-        });
-        
+        const { data, error } = await supabase
+            .from('roles')
+            .select('*')
+            .order('posted_date', { ascending: false });
+        if (error) throw error;
+        res.json({ success: true, roles: data });
     } catch (error) {
-        console.error('❌ Failed to load roles:', error);
-        res.status(500).json({
-            success: false,
-            message: '❌ Failed to load roles',
-            error: error.message,
-            timestamp: new Date().toISOString()
-        });
+        res.status(500).json({ success: false, message: 'Failed to load roles', error: error.message });
     }
 });
 
@@ -706,68 +398,8 @@ function saveEventsConfig(config) {
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        // Use a temporary location for now, we'll move files to the correct location in the endpoint
-        const tempPath = path.join(__dirname, 'applications', 'temp');
-        
-        // Create directory if it doesn't exist
-        if (!fs.existsSync(tempPath)) {
-            fs.mkdirSync(tempPath, { recursive: true });
-        }
-        
-        cb(null, tempPath);
-    },
-    filename: function (req, file, cb) {
-        // Sanitize filename and add timestamp
-        const originalName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
-        const timestamp = Date.now();
-        const extension = path.extname(originalName);
-        const nameWithoutExt = path.basename(originalName, extension);
-        cb(null, `${nameWithoutExt}_${timestamp}${extension}`);
-    }
-});
-
-const upload = multer({
-    storage: storage,
-    limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB limit
-        files: 2 // Maximum 2 files (CV and cover letter)
-    },
-    fileFilter: function (req, file, cb) {
-        // Check file type
-        const allowedTypes = ['.pdf', '.docx', '.txt'];
-        const fileExtension = path.extname(file.originalname).toLowerCase();
-        
-        if (allowedTypes.includes(fileExtension)) {
-            cb(null, true);
-        } else {
-            cb(new Error(`Invalid file type. Allowed types: ${allowedTypes.join(', ')}`));
-        }
-    }
-});
-
-// Helper function to load applications config
-function loadApplicationsConfig() {
-    const configPath = path.join(__dirname, 'applications.json');
-    try {
-        if (fs.existsSync(configPath)) {
-            const content = fs.readFileSync(configPath, 'utf8');
-            return JSON.parse(content);
-        }
-    } catch (error) {
-        console.error('Error loading applications config:', error);
-    }
-    return { applications: [], lastUpdated: null, version: '1.0.0' };
-}
-
-// Helper function to save applications config
-function saveApplicationsConfig(config) {
-    const configPath = path.join(__dirname, 'applications.json');
-    config.lastUpdated = new Date().toISOString();
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
-}
+// Remove multer and all file system logic
+// (All file upload, applications.json, and cover letter logic has been migrated to Supabase)
 
 // GET /api/eventbrite-events - Get all events from local config
 app.get('/api/eventbrite-events', (req, res) => {
@@ -970,337 +602,75 @@ app.delete('/api/delete-event/:id', async (req, res) => {
     }
 });
 
-// Application Management Endpoints
-
-// POST /api/apply - Submit a new volunteer application
-app.post('/api/apply', upload.any(), async (req, res) => {
+// Supabase: Generate signed download URL for CVs (admin only)
+app.get('/api/cv/:filename', async (req, res) => {
     try {
-        const { roleId, roleTitle, applicantName, applicantEmail, cvType, coverLetterType } = req.body;
-        
-        // Validate required fields
-        if (!roleId || !roleTitle || !applicantName || !applicantEmail || !cvType || !coverLetterType) {
-            return res.status(400).json({
-                success: false,
-                message: '❌ Missing required fields'
-            });
+        const { filename } = req.params;
+        if (!filename) {
+            return res.status(400).json({ success: false, message: 'No filename provided' });
         }
-
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(applicantEmail)) {
-            return res.status(400).json({
-                success: false,
-                message: '❌ Invalid email format'
-            });
-        }
-
-        console.log(`📝 New application received for role: ${roleTitle}`);
-
-        // Process uploaded files
-        const uploadedFiles = req.files || [];
-        const cvFile = uploadedFiles.find(file => file.fieldname === 'cvFile');
-        const coverLetterFile = uploadedFiles.find(file => file.fieldname === 'coverLetterFile');
-
-        // Validate submission method matches files
-        if (cvType === 'file' && !cvFile) {
-            return res.status(400).json({
-                success: false,
-                message: '❌ CV file is required when file upload is selected'
-            });
-        }
-
-        if (coverLetterType === 'file' && !coverLetterFile) {
-            return res.status(400).json({
-                success: false,
-                message: '❌ Cover letter file is required when file upload is selected'
-            });
-        }
-
-        // Move uploaded files to the correct location if they exist
-        if (cvFile) {
-            const tempPath = cvFile.path;
-            const newPath = path.join(applicationFolder, cvFile.filename);
-            fs.renameSync(tempPath, newPath);
-            cvFile.path = newPath;
-        }
-
-        if (coverLetterFile) {
-            const tempPath = coverLetterFile.path;
-            const newPath = path.join(applicationFolder, coverLetterFile.filename);
-            fs.renameSync(tempPath, newPath);
-            coverLetterFile.path = newPath;
-        }
-
-        // Create timestamp and role name for file organization
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const roleName = roleTitle.replace(/[^a-zA-Z0-9-_]/g, '_');
-        const applicationFolder = path.join(__dirname, 'applications', roleName, timestamp);
-        
-        // Create application folder if it doesn't exist
-        if (!fs.existsSync(applicationFolder)) {
-            fs.mkdirSync(applicationFolder, { recursive: true });
-        }
-
-        // Save typed CV as text file if provided
-        let cvFileName = null;
-        if (cvType === 'text' && req.body.cvText) {
-            cvFileName = 'cv.txt';
-            const cvFilePath = path.join(applicationFolder, cvFileName);
-            fs.writeFileSync(cvFilePath, req.body.cvText, 'utf8');
-            console.log(`📄 CV text saved to: ${cvFilePath}`);
-        }
-
-        // Save typed cover letter as text file if provided
-        let coverLetterFileName = null;
-        if (coverLetterType === 'text' && req.body.coverLetterText) {
-            coverLetterFileName = 'coverletter.txt';
-            const coverLetterFilePath = path.join(applicationFolder, coverLetterFileName);
-            fs.writeFileSync(coverLetterFilePath, req.body.coverLetterText, 'utf8');
-            console.log(`📄 Cover letter text saved to: ${coverLetterFilePath}`);
-        }
-
-        // Create application object
-        const application = {
-            id: `app_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            roleId: roleId,
-            roleTitle: roleTitle,
-            applicantName: applicantName.trim(),
-            applicantEmail: applicantEmail.trim().toLowerCase(),
-            cvType: cvType,
-            coverLetterType: coverLetterType,
-            cvFile: cvFile ? cvFile.filename : cvFileName,
-            cvText: cvType === 'text' ? req.body.cvText : null,
-            coverLetterFile: coverLetterFile ? coverLetterFile.filename : coverLetterFileName,
-            coverLetterText: coverLetterType === 'text' ? req.body.coverLetterText : null,
-            status: 'pending',
-            submittedAt: new Date().toISOString(),
-            reviewedAt: null,
-            reviewedBy: null
-        };
-
-        // Load current applications config
-        const config = loadApplicationsConfig();
-        
-        // Add the new application
-        config.applications.push(application);
-        
-        // Save updated config
-        saveApplicationsConfig(config);
-
-        // Configure Git remote if not already done
-        try {
-            configureGitRemote();
-
-            // Add the applications config file
-            await runCommand('git add applications.json');
-            
-            // Add application folder to git (includes both uploaded files and typed text files)
-            const uploadPath = `applications/${roleName}/${timestamp}`;
-            await runCommand(`git add ${uploadPath}`);
-
-            // Commit changes
-            const commitMessage = `New application: ${applicantName} for ${roleTitle}`;
-            await runCommand(`git commit -m "${commitMessage}"`);
-
-            // Push to GitHub
-            await runCommand('git push origin main');
-        } catch (gitError) {
-            console.warn('⚠️ Git operations failed, but application was saved:', gitError);
-        }
-
-        console.log(`✅ Application submitted successfully for ${applicantName}`);
-
-        res.json({
-            success: true,
-            message: '✅ Application submitted successfully!',
-            details: {
-                applicationId: application.id,
-                applicantName: applicantName,
-                roleTitle: roleTitle,
-                timestamp: application.submittedAt
-            }
-        });
-
+        // Generate signed download URL (5 min expiry)
+        const { data, error } = await supabase
+            .storage
+            .from('volunteer-applications')
+            .createSignedUrl(filename, 300);
+        if (error) throw error;
+        res.json({ success: true, url: data.signedUrl });
     } catch (error) {
-        console.error('❌ Application submission failed:', error);
-        console.error('❌ Error stack:', error.stack);
-        
-        let errorMessage = '❌ Failed to submit application';
-        let errorDetails = error && error.message ? error.message : 'Unknown error occurred';
-        
-        if (error && error.message && error.message.includes('file size')) {
-            errorMessage = '❌ File too large';
-            errorDetails = 'File size exceeds 5MB limit. Please compress your file or use text input instead.';
-        } else if (error && error.message && error.message.includes('file type')) {
-            errorMessage = '❌ Invalid file type';
-            errorDetails = 'Only PDF, DOCX, and TXT files are allowed.';
-        }
-        
-        res.status(500).json({
-            success: false,
-            message: errorMessage,
-            error: errorDetails,
-            timestamp: new Date().toISOString()
-        });
+        res.status(500).json({ success: false, message: 'Failed to generate download URL', error: error.message });
     }
 });
 
-// GET /api/applications - Get all applications (admin only)
-app.get('/api/applications', (req, res) => {
-    try {
-        const config = loadApplicationsConfig();
-        res.json({
-            success: true,
-            applications: config.applications,
-            lastUpdated: config.lastUpdated,
-            timestamp: new Date().toISOString()
-        });
-    } catch (error) {
-        console.error('❌ Failed to load applications:', error);
-        res.status(500).json({
-            success: false,
-            message: '❌ Failed to load applications',
-            error: error.message,
-            timestamp: new Date().toISOString()
-        });
-    }
-});
-
-// DELETE /api/applications/:id - Delete an application (admin only)
+// Supabase: Delete an application (admin only)
 app.delete('/api/applications/:id', async (req, res) => {
     try {
         const applicationId = req.params.id;
-        
-        console.log(`🗑️ Deleting application: ${applicationId}`);
-
-        // Load current applications config
-        const config = loadApplicationsConfig();
-        
-        // Find the application to delete
-        const applicationIndex = config.applications.findIndex(app => app.id === applicationId);
-        if (applicationIndex === -1) {
-            return res.status(404).json({
-                success: false,
-                message: `❌ Application with ID "${applicationId}" not found`
-            });
+        if (!applicationId) {
+            return res.status(400).json({ success: false, message: 'No application ID provided' });
         }
-        
-        const applicationToDelete = config.applications[applicationIndex];
-        
-        // Remove the application
-        config.applications.splice(applicationIndex, 1);
-        
-        // Save updated config
-        saveApplicationsConfig(config);
-
-        // Configure Git remote if not already done
-        configureGitRemote();
-
-        // Add the applications config file
-        await runCommand('git add applications.json');
-
-        // Commit changes
-        const commitMessage = `Delete application: ${applicationToDelete.applicantName} for ${applicationToDelete.roleTitle}`;
-        await runCommand(`git commit -m "${commitMessage}"`);
-
-        // Push to GitHub
-        await runCommand('git push origin main');
-
-        res.json({
-            success: true,
-            message: '✅ Application deleted successfully!',
-            details: {
-                applicationId: applicationId,
-                applicantName: applicationToDelete.applicantName,
-                roleTitle: applicationToDelete.roleTitle,
-                timestamp: new Date().toISOString()
-            }
-        });
-
+        const { error } = await supabase
+            .from('applications')
+            .delete()
+            .eq('id', applicationId);
+        if (error) throw error;
+        res.json({ success: true, message: 'Application deleted successfully!', applicationId });
     } catch (error) {
-        console.error('❌ Failed to delete application:', error);
-        res.status(500).json({
-            success: false,
-            message: '❌ Failed to delete application',
-            error: error.message,
-            timestamp: new Date().toISOString()
-        });
+        res.status(500).json({ success: false, message: 'Failed to delete application', error: error.message });
     }
 });
 
-// PATCH /api/applications/:id/status - Update application status (admin only)
+// Supabase: Update application status (admin only)
 app.patch('/api/applications/:id/status', async (req, res) => {
     try {
         const applicationId = req.params.id;
         const { status, reviewedBy } = req.body;
-        
         if (!status) {
-            return res.status(400).json({
-                success: false,
-                message: '❌ Status is required'
-            });
+            return res.status(400).json({ success: false, message: 'Status is required' });
         }
-
-        console.log(`🔄 Updating status for application: ${applicationId} to ${status}`);
-
-        // Load current applications config
-        const config = loadApplicationsConfig();
-        
-        // Find the application to update
-        const applicationIndex = config.applications.findIndex(app => app.id === applicationId);
-        if (applicationIndex === -1) {
-            return res.status(404).json({
-                success: false,
-                message: `❌ Application with ID "${applicationId}" not found`
-            });
-        }
-        
-        // Update the application
-        config.applications[applicationIndex].status = status;
-        config.applications[applicationIndex].reviewedAt = new Date().toISOString();
-        config.applications[applicationIndex].reviewedBy = reviewedBy || 'admin';
-        
-        // Save updated config
-        saveApplicationsConfig(config);
-
-        // Configure Git remote if not already done
-        configureGitRemote();
-
-        // Add the applications config file
-        await runCommand('git add applications.json');
-
-        // Commit changes
-        const commitMessage = `Update application status: ${config.applications[applicationIndex].applicantName} - ${status}`;
-        await runCommand(`git commit -m "${commitMessage}"`);
-
-        // Push to GitHub
-        await runCommand('git push origin main');
-
-        res.json({
-            success: true,
-            message: '✅ Application status updated successfully!',
-            details: {
-                applicationId: applicationId,
-                status: status,
-                reviewedBy: reviewedBy || 'admin',
-                timestamp: new Date().toISOString()
-            }
-        });
-
+        const { data, error } = await supabase
+            .from('applications')
+            .update({
+                status,
+                reviewed_at: new Date().toISOString(),
+                reviewed_by: reviewedBy || 'admin'
+            })
+            .eq('id', applicationId)
+            .select();
+        if (error) throw error;
+        res.json({ success: true, message: 'Application status updated successfully!', application: data[0] });
     } catch (error) {
-        console.error('❌ Failed to update application status:', error);
-        res.status(500).json({
-            success: false,
-            message: '❌ Failed to update application status',
-            error: error.message,
-            timestamp: new Date().toISOString()
-        });
+        res.status(500).json({ success: false, message: 'Failed to update application status', error: error.message });
     }
 });
 
 // Serve the main application
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'admin-add-role.html'));
+});
+
+// Catch-all 404 handler for unmatched routes
+app.use((req, res) => {
+    res.status(404).send('404 Not Found: This admin panel does not serve public site pages.');
 });
 
 // Start server

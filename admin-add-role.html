@@ -9,37 +9,6 @@
     <link rel="icon" type="image/svg+xml" href="Images/Logo-with-Transparent-background.svg">
 </head>
 <body>
-    <!-- Password Protection Screen -->
-    <div id="passwordScreen" class="password-screen">
-        <div class="password-container">
-            <div class="password-box">
-                <div class="password-header">
-                    <img src="Images/Logo-with-Transparent-background.svg" alt="CT5 Pride Logo" class="site-logo">
-                    <h2>🔐 Admin Access Required</h2>
-                    <p>Please enter the admin password to access the volunteer role management system.</p>
-                </div>
-                
-                <form id="passwordForm" class="password-form">
-                    <div class="form-group">
-                        <label for="adminPassword">Admin Password</label>
-                        <input type="password" id="adminPassword" name="adminPassword" required 
-                               placeholder="Enter admin password">
-                    </div>
-                    
-                    <button type="submit" class="button primary">🔓 Access Admin Panel</button>
-                </form>
-                
-                <div id="passwordError" class="password-error" style="display: none;">
-                    ❌ Incorrect password. Please try again.
-                </div>
-                
-                <div class="password-footer">
-                    <p>Contact the system administrator if you need access.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Main Admin Content (Hidden until password is correct) -->
     <div id="adminContent" class="admin-content" style="display: none;">
         <header>

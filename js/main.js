@@ -330,9 +330,12 @@ function initializeRoleDetailModal() {
 
 async function openRoleDetailModal(roleId) {
     try {
-        const { roles, roleIcons } = await import('./config.js');
-        const role = roles.find(r => r.id === roleId);
-        if (!role) return;
+        // All role loading now uses /api/roles (Supabase-powered endpoint). No config.js import remains.
+        const response = await fetch(`/api/roles/${roleId}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const role = await response.json();
 
     const modal = document.getElementById('roleDetailModal');
     
@@ -358,7 +361,7 @@ async function openRoleDetailModal(roleId) {
 
     // Add role icon
     const iconContainer = modal.querySelector('.role-icon');
-    iconContainer.innerHTML = roleIcons[role.icon] || roleIcons['volunteers'];
+    iconContainer.innerHTML = role.icon; // Assuming icon is a string like 'lgbtq' or 'volunteers'
 
     // Update apply button state - now just shows/hides the link
     const applyButton = modal.querySelector('.role-actions a');
@@ -382,8 +385,12 @@ async function openRoleDetailModal(roleId) {
 // Enhanced Volunteer Role Board - Simplified Layout
 async function loadRoles() {
     try {
-        // Import roles from config.js
-        const { roles } = await import('./config.js');
+        // All role loading now uses /api/roles (Supabase-powered endpoint). No config.js import remains.
+        const response = await fetch('/api/roles');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const roles = await response.json();
         
         // Check if we should show draft roles
         const showDraft = new URLSearchParams(window.location.search).get('preview') === 'true';
@@ -443,23 +450,29 @@ async function loadRoles() {
 
 async function createSimpleRoleCard(role) {
     try {
-        const { roleIcons } = await import('./config.js');
-        const isOpen = role.status === 'open';
+        // All role loading now uses /api/roles (Supabase-powered endpoint). No config.js import remains.
+        const response = await fetch(`/api/roles/${role.id}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const roleData = await response.json();
+
+        const isOpen = roleData.status === 'open';
         
         return `
             <div class="simple-role-card ${!isOpen ? 'draft' : ''}" data-role-id="${role.id}" style="cursor: pointer;" tabindex="0" role="button" aria-label="View details for ${role.title}">
                 <div class="role-header">
-                    <div class="role-icon-simple">${roleIcons[role.icon] || roleIcons['volunteers']}</div>
+                    <div class="role-icon-simple">${roleData.icon}</div>
                     <div class="role-info">
-                        <h3>${role.title}</h3>
-                        <span class="role-department-simple">${role.department}</span>
+                        <h3>${roleData.title}</h3>
+                        <span class="role-department-simple">${roleData.department}</span>
                         ${!isOpen ? '<span class="draft-badge">Preview</span>' : ''}
                     </div>
                     <div class="role-actions-simple">
-                        ${isOpen ? `<a href="apply.html" class="button" onclick="event.stopPropagation()" aria-label="Apply for ${role.title}">Apply Now</a>` : ''}
+                        ${isOpen ? `<a href="apply.html" class="button" onclick="event.stopPropagation()" aria-label="Apply for ${roleData.title}">Apply Now</a>` : ''}
                     </div>
                 </div>
-                <p class="role-summary">${role.summary}</p>
+                <p class="role-summary">${roleData.summary}</p>
             </div>
         `;
     } catch (error) {

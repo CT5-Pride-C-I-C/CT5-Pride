@@ -329,7 +329,7 @@ class AdminRoleManager {
             this.showLoading();
             console.log('🔄 Loading roles...');
             
-            // Try to load roles from server API first (for local development)
+            // All fetches and CRUD now use Supabase-powered endpoints. No config.js or .json fallback remains.
             try {
                 const response = await fetch('/api/roles');
                 const result = await response.json();
@@ -340,15 +340,9 @@ class AdminRoleManager {
                     throw new Error('Invalid data format from server API');
                 }
             } catch (serverError) {
-                // Fallback: Load roles directly from config.js
-                try {
-                    const configModule = await import('./config.js');
-                    this.roles = configModule.roles || [];
-                } catch (configError) {
-                    console.error('❌ Failed to load roles from config.js:', configError);
-                    this.showToast('Failed to load roles from config file', 'error');
-                    this.roles = [];
-                }
+                console.error('❌ Failed to load roles from server API:', serverError);
+                this.showToast('Failed to load roles from server API', 'error');
+                this.roles = [];
             }
             
             this.filteredRoles = [...this.roles];
@@ -657,29 +651,24 @@ class AdminRoleManager {
     // Role Operations
     async createRole(roleData) {
         try {
-            // Try server API first (for local development)
-            try {
-                const response = await fetch('/api/submit-role', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ roleData })
-                });
+            // All fetches and CRUD now use Supabase-powered endpoints. No config.js or .json fallback remains.
+            const response = await fetch('/api/submit-role', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ roleData })
+            });
 
-                const result = await response.json();
-                
-                if (result.success) {
-                    this.showToast(`Role "${roleData.title}" created successfully`, 'success');
-                    this.hideForm();
-                    this.loadRoles();
-                    return true;
-                } else {
-                    throw new Error(result.message || 'Server create failed');
-                }
-            } catch (serverError) {
-                this.showToast('Create functionality requires server connection. Please use local development server for full CRUD operations.', 'warning');
-                return false;
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showToast(`Role "${roleData.title}" created successfully`, 'success');
+                this.hideForm();
+                this.loadRoles();
+                return true;
+            } else {
+                throw new Error(result.message || 'Server create failed');
             }
         } catch (error) {
             console.error('❌ Create error:', error);
@@ -690,30 +679,24 @@ class AdminRoleManager {
 
     async updateRole(oldId, updatedRole) {
         try {
-            // Try server API first (for local development)
-            try {
-                const response = await fetch('/api/update-role', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        oldId, 
-                        updatedRole 
-                    })
-                });
+            // All fetches and CRUD now use Supabase-powered endpoints. No config.js or .json fallback remains.
+            const response = await fetch('/api/update-role', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    oldId, 
+                    updatedRole 
+                })
+            });
 
-                const result = await response.json();
-                
-                if (result.success) {
-                    return true;
-                } else {
-                    throw new Error(result.message || 'Server update failed');
-                }
-            } catch (serverError) {
-                console.log('🔄 Server API not available, showing offline message');
-                this.showToast('Update functionality requires server connection. Please use local development server for full CRUD operations.', 'warning');
-                return false;
+            const result = await response.json();
+            
+            if (result.success) {
+                return true;
+            } else {
+                throw new Error(result.message || 'Server update failed');
             }
         } catch (error) {
             throw error;
@@ -724,29 +707,23 @@ class AdminRoleManager {
         try {
             console.log('🗑️ Attempting to delete role:', roleId);
             
-            // Try server API first (for local development)
-            try {
-                const response = await fetch(`/api/delete-role/${roleId}`, {
-                    method: 'DELETE'
-                });
+            // All fetches and CRUD now use Supabase-powered endpoints. No config.js or .json fallback remains.
+            const response = await fetch(`/api/delete-role/${roleId}`, {
+                method: 'DELETE'
+            });
 
-                console.log('📡 Delete response status:', response.status);
-                const result = await response.json();
-                console.log('📡 Delete response:', result);
-                
-                if (result.success) {
-                    console.log('✅ Role deleted successfully:', roleId);
-                    this.showToast('Role deleted successfully', 'success');
-                    this.loadRoles();
-                    return true;
-                } else {
-                    console.error('❌ Server returned error:', result.message);
-                    this.showToast(result.message || 'Delete failed. Please try again.', 'error');
-                    return false;
-                }
-            } catch (serverError) {
-                console.log('🔄 Server API not available, showing offline message');
-                this.showToast('Delete functionality requires server connection. Please use local development server for full CRUD operations.', 'warning');
+            console.log('📡 Delete response status:', response.status);
+            const result = await response.json();
+            console.log('📡 Delete response:', result);
+            
+            if (result.success) {
+                console.log('✅ Role deleted successfully:', roleId);
+                this.showToast('Role deleted successfully', 'success');
+                this.loadRoles();
+                return true;
+            } else {
+                console.error('❌ Server returned error:', result.message);
+                this.showToast(result.message || 'Delete failed. Please try again.', 'error');
                 return false;
             }
         } catch (error) {
@@ -1543,7 +1520,7 @@ class AdminRoleManager {
 
         let cvContent = '';
         if (application.cvType === 'file' && application.cvFile) {
-            cvContent = `<p><strong>CV File:</strong> ${application.cvFile}</p>`;
+            cvContent = `<p><strong>CV File:</strong> <a href="/api/cv/${application.cvFile}" target="_blank">Download CV</a></p>`;
         } else if (application.cvType === 'text' && application.cvText) {
             cvContent = `
                 <p><strong>CV Content:</strong></p>
@@ -1553,7 +1530,7 @@ class AdminRoleManager {
 
         let coverLetterContent = '';
         if (application.coverLetterType === 'file' && application.coverLetterFile) {
-            coverLetterContent = `<p><strong>Cover Letter File:</strong> ${application.coverLetterFile}</p>`;
+            coverLetterContent = `<p><strong>Cover Letter File:</strong> <a href="/api/cv/${application.coverLetterFile}" target="_blank">Download Cover Letter</a></p>`;
         } else if (application.coverLetterType === 'text' && application.coverLetterText) {
             coverLetterContent = `
                 <p><strong>Cover Letter Content:</strong></p>
@@ -1767,6 +1744,26 @@ class AdminRoleManager {
         };
         return statusTexts[status] || 'Pending Review';
     }
+}
+
+// Supabase Auth session check
+const SUPABASE_URL = 'https://rmhnrpwbgxyslfwttwzr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtaG5ycHdiZ3h5c2xmd3R0d3pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTQyMDcsImV4cCI6MjA2ODY5MDIwN30.yNlkzFMfvUCoN6IwEY4LgL6_ihdR_ux22oqvDnkWTxg';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+supabase.auth.getSession().then(({ data: { session } }) => {
+    if (!session) {
+        window.location.href = 'admin-login.html';
+    }
+});
+
+// Logout functionality
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        window.location.href = 'admin-login.html';
+    });
 }
 
 // Initialize the admin system when the page loads
