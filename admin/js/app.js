@@ -202,23 +202,24 @@ function route() {
   
   switch (hash) {
     case '#/dashboard':
-      console.log('Rendering dashboard');
+      console.log('✓ Rendering dashboard for authenticated user');
+      console.log('✓ Current user:', currentUser?.email || 'Unknown');
       renderDashboard();
       break;
     case '#/roles':
-      console.log('Rendering roles page');
+      console.log('✓ Rendering roles page for authenticated user');
       renderRoles();
       break;
     case '#/events':
-      console.log('Rendering events page');
+      console.log('✓ Rendering events page for authenticated user');
       renderEvents();
       break;
     case '#/analytics':
-      console.log('Rendering analytics page');
+      console.log('✓ Rendering analytics page for authenticated user');
       renderAnalytics();
       break;
     default:
-      console.log('Unknown route, rendering 404');
+      console.log('❌ Unknown route, rendering 404');
       renderNotFound();
   }
 }
@@ -1111,38 +1112,109 @@ window.addEventListener("DOMContentLoaded", async () => {
   app.innerHTML = '<div style="padding: 2rem; text-align: center; color: #666;">🔄 Loading admin dashboard...</div>';
   
   try {
-    // STEP 1: Check for OAuth tokens in URL hash
+    // STEP 1: DEBUG AND PROCESS OAUTH TOKENS
     const hash = window.location.hash;
-    console.log('Checking URL hash:', hash);
+    const fullURL = window.location.href;
+    console.log('=== OAUTH DEBUG START ===');
+    console.log('Full URL:', fullURL);
+    console.log('Hash string:', hash);
+    console.log('Hash length:', hash.length);
     
-    if (hash.includes("access_token")) {
-      console.log('OAuth redirect detected - processing tokens...');
+    if (hash && hash.includes("access_token")) {
+      console.log('✓ OAuth redirect detected! Processing tokens...');
       
-      const params = new URLSearchParams(hash.slice(1));
+      // Parse the hash parameters - GitHub returns them as URL fragments
+      const params = new URLSearchParams(hash.slice(1)); // Remove the #
       const access_token = params.get("access_token");
       const refresh_token = params.get("refresh_token");
-      const expires_in = parseInt(params.get("expires_in"), 10);
+      const expires_in = params.get("expires_in");
+      const token_type = params.get("token_type");
       
-      console.log('Extracted tokens:', {
-        hasAccessToken: !!access_token,
-        hasRefreshToken: !!refresh_token,
-        expiresIn: expires_in
+      console.log('✓ Token extraction results:', {
+        access_token: access_token ? `${access_token.substring(0, 10)}...` : null,
+        refresh_token: refresh_token ? `${refresh_token.substring(0, 10)}...` : null,
+        expires_in: expires_in,
+        token_type: token_type,
+        hasAllRequiredTokens: !!(access_token && refresh_token)
       });
       
-      if (access_token && refresh_token && expires_in) {
+      if (access_token && refresh_token) {
+        console.log('✓ All required tokens found, setting Supabase session...');
+        
         try {
           // Set the session using extracted tokens
-          const { data, error } = await supabase.auth.setSession({
+          const sessionResult = await supabase.auth.setSession({
             access_token,
             refresh_token,
           });
           
-          if (error) {
-            console.error("OAuth session setup failed:", error.message);
+          console.log('✓ setSession() result:', {
+            hasData: !!sessionResult.data,
+            hasSession: !!sessionResult.data?.session,
+            hasUser: !!sessionResult.data?.session?.user,
+            error: sessionResult.error?.message || null
+          });
+          
+          if (sessionResult.error) {
+            console.error("❌ OAuth session setup failed:", sessionResult.error);
             app.innerHTML = `
               <div style="padding: 2rem; text-align: center; color: #f44336;">
-                <h2>⚠️ OAuth Login Failed</h2>
-                <p>${error.message}</p>
+                <h2>⚠️ OAuth Session Failed</h2>
+                <p>Error: ${sessionResult.error.message}</p>
+                <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; font-size: 0.8rem; text-align: left;">
+                  ${JSON.stringify(sessionResult.error, null, 2)}
+                </pre>
+                <button onclick="console.log('Retrying...'); window.location.hash='#/login'; location.reload();" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+                  Retry Login
+                </button>
+              </div>
+            `;
+            return;
+          }
+          
+          if (sessionResult.data?.session) {
+            const session = sessionResult.data.session;
+            console.log('✓ Session created successfully!');
+            console.log('✓ User info:', {
+              id: session.user?.id,
+              email: session.user?.email,
+              provider: session.user?.app_metadata?.provider
+            });
+            
+            // Store session data
+            localStorage.setItem("sb-session", JSON.stringify(session));
+            setSession(session.access_token);
+            currentUser = session.user;
+            
+            console.log('✓ Session stored in localStorage and global state');
+            
+            // Verify the session was set correctly
+            const verifyResult = await supabase.auth.getSession();
+            console.log('✓ Session verification:', {
+              hasSession: !!verifyResult.data?.session,
+              sameUser: verifyResult.data?.session?.user?.id === session.user?.id
+            });
+            
+            // Clean URL and redirect
+            console.log('✓ Cleaning URL and redirecting to dashboard...');
+            history.replaceState(null, null, "/admin/");
+            window.location.hash = "#/dashboard";
+            
+            // Force route immediately and also set backup
+            route();
+            setTimeout(() => {
+              console.log('✓ Backup route call executing...');
+              route();
+            }, 200);
+            
+            console.log('=== OAUTH DEBUG END - SUCCESS ===');
+            return;
+          } else {
+            console.error('❌ No session returned from setSession');
+            app.innerHTML = `
+              <div style="padding: 2rem; text-align: center; color: #f44336;">
+                <h2>⚠️ Session Creation Failed</h2>
+                <p>No session was returned after token processing.</p>
                 <button onclick="window.location.hash='#/login'; location.reload();" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
                   Back to Login
                 </button>
@@ -1150,31 +1222,15 @@ window.addEventListener("DOMContentLoaded", async () => {
             `;
             return;
           }
-          
-          if (data?.session) {
-            console.log("OAuth login successful. Redirecting to dashboard.");
-            
-            // Store session in multiple ways for redundancy
-            localStorage.setItem("sb-session", JSON.stringify(data.session));
-            setSession(data.session.access_token);
-            currentUser = data.session.user;
-            
-            console.log('Session stored, cleaning URL and redirecting...');
-            
-            // Clean URL and redirect
-            history.replaceState(null, null, "/admin/");
-            window.location.hash = "#/dashboard";
-            
-            // Force route call after hash change
-            setTimeout(() => route(), 100);
-            return;
-          }
         } catch (oauthError) {
-          console.error('OAuth processing error:', oauthError);
+          console.error('❌ OAuth processing exception:', oauthError);
           app.innerHTML = `
             <div style="padding: 2rem; text-align: center; color: #f44336;">
-              <h2>⚠️ Authentication Error</h2>
-              <p>Failed to process GitHub login: ${oauthError.message}</p>
+              <h2>⚠️ OAuth Processing Error</h2>
+              <p>Exception: ${oauthError.message}</p>
+              <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; font-size: 0.8rem; text-align: left;">
+                ${oauthError.stack || 'No stack trace available'}
+              </pre>
               <button onclick="window.location.hash='#/login'; location.reload();" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
                 Back to Login
               </button>
@@ -1182,7 +1238,24 @@ window.addEventListener("DOMContentLoaded", async () => {
           `;
           return;
         }
+      } else {
+        console.error('❌ Missing required tokens:', {
+          hasAccessToken: !!access_token,
+          hasRefreshToken: !!refresh_token
+        });
+        app.innerHTML = `
+          <div style="padding: 2rem; text-align: center; color: #f44336;">
+            <h2>⚠️ Invalid OAuth Response</h2>
+            <p>Required tokens missing from GitHub response.</p>
+            <button onclick="window.location.hash='#/login'; location.reload();" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+              Try Again
+            </button>
+          </div>
+        `;
+        return;
       }
+    } else {
+      console.log('✓ No OAuth tokens in URL, proceeding with normal flow...');
     }
     
     // STEP 2: Check for existing Supabase session
