@@ -356,6 +356,10 @@ function renderLogin() {
         </button>
         <div class="login-footer">
           <p>Secure login powered by Supabase Auth</p>
+          <p class="login-options-info">
+            💡 You can log in with either your email/password or GitHub account. 
+            If one method fails, try the other!
+          </p>
         </div>
       </div>
     </div>
@@ -1222,14 +1226,29 @@ window.addEventListener("DOMContentLoaded", async () => {
           
           if (error) {
             console.error('❌ Failed to create Supabase session:', error);
+            
+            // Clear any existing session to prevent conflicts
+            await supabase.auth.signOut();
+            clearSession();
+            localStorage.removeItem("supabase-session");
+            
             app.innerHTML = `
               <div style="padding: 2rem; text-align: center; color: #e74c3c;">
                 <h2>🔐 GitHub Login Failed</h2>
                 <p>Unable to establish your session: ${error.message}</p>
-                <button onclick="window.location.hash='#/login'; location.reload();" 
-                        style="background: #e91e63; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 1rem;">
-                  Try Again
-                </button>
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                  <button onclick="window.location.hash='#/login'; location.reload();" 
+                          style="background: #e91e63; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                    Try GitHub Again
+                  </button>
+                  <button onclick="window.location.hash='#/login'; location.reload();" 
+                          style="background: transparent; color: #e91e63; border: 2px solid #e91e63; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                    Log in with Email Instead
+                  </button>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.875rem; color: #666;">
+                  You can also try logging in with your email and password.
+                </p>
               </div>
             `;
             return;
@@ -1282,28 +1301,66 @@ window.addEventListener("DOMContentLoaded", async () => {
           
         } catch (sessionError) {
           console.error('❌ OAuth session processing failed:', sessionError);
+          
+          // Clear any existing session to prevent conflicts
+          try {
+            await supabase.auth.signOut();
+            clearSession();
+            localStorage.removeItem("supabase-session");
+          } catch (logoutError) {
+            console.warn('⚠️ Error during session cleanup:', logoutError.message);
+          }
+          
           app.innerHTML = `
             <div style="padding: 2rem; text-align: center; color: #e74c3c;">
               <h2>🔐 Session Setup Failed</h2>
               <p>Error processing your GitHub login: ${sessionError.message}</p>
-              <button onclick="window.location.hash='#/login'; location.reload();" 
-                      style="background: #e91e63; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 1rem;">
-                Back to Login
-              </button>
+              <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                <button onclick="window.location.hash='#/login'; location.reload();" 
+                        style="background: #e91e63; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                  Try GitHub Again
+                </button>
+                <button onclick="window.location.hash='#/login'; location.reload();" 
+                        style="background: transparent; color: #e91e63; border: 2px solid #e91e63; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                  Log in with Email Instead
+                </button>
+              </div>
+              <p style="margin-top: 1rem; font-size: 0.875rem; color: #666;">
+                Session processing failed. You can retry or use email login.
+              </p>
             </div>
           `;
           return;
         }
       } else {
         console.error('❌ Incomplete OAuth tokens received');
+        
+        // Clear any existing session to prevent conflicts
+        try {
+          await supabase.auth.signOut();
+          clearSession();
+          localStorage.removeItem("supabase-session");
+        } catch (logoutError) {
+          console.warn('⚠️ Error during session cleanup:', logoutError.message);
+        }
+        
         app.innerHTML = `
           <div style="padding: 2rem; text-align: center; color: #e74c3c;">
             <h2>🔗 Incomplete GitHub Response</h2>
             <p>The GitHub login didn't provide all required authentication data.</p>
-            <button onclick="window.location.hash='#/login'; location.reload();" 
-                    style="background: #e91e63; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; margin-top: 1rem;">
-              Try Again
-            </button>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+              <button onclick="window.location.hash='#/login'; location.reload();" 
+                      style="background: #e91e63; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                Try GitHub Again
+              </button>
+              <button onclick="window.location.hash='#/login'; location.reload();" 
+                      style="background: transparent; color: #e91e63; border: 2px solid #e91e63; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                Log in with Email Instead
+              </button>
+            </div>
+            <p style="margin-top: 1rem; font-size: 0.875rem; color: #666;">
+              GitHub didn't send complete authentication data. Email login might work better.
+            </p>
           </div>
         `;
         return;
