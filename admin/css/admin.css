@@ -111,6 +111,53 @@
   color: var(--gray-500);
 }
 
+.oauth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0 1rem 0;
+  color: var(--gray-400);
+  font-size: var(--font-size-sm);
+}
+.oauth-divider span {
+  flex: 1;
+  border-bottom: 1px solid var(--gray-200);
+  margin: 0 0.75rem;
+  line-height: 0.1em;
+  color: var(--gray-400);
+  font-weight: 500;
+}
+
+.btn-github {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  background: #24292f;
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: var(--space-4);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-sm);
+}
+.btn-github:hover, .btn-github:focus {
+  background: #444d56;
+  color: #fff;
+  outline: 2px solid var(--primary-pink);
+}
+.github-icon {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 /* ==================== ADMIN LAYOUT ==================== */
 
 .admin-layout {

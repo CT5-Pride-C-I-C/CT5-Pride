@@ -221,10 +221,12 @@ function renderLogin() {
             <span class="btn-text">Sign In</span>
             <span class="btn-spinner" style="display: none;">Signing in...</span>
           </button>
-          
-          <div id="login-error" class="error-message" role="alert"></div>
         </form>
-        
+        <div class="oauth-divider"><span>or</span></div>
+        <button id="github-login-btn" class="btn btn-github" type="button" aria-label="Login with GitHub">
+          <svg class="github-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 21.13V24"/></svg>
+          <span>Login with GitHub</span>
+        </button>
         <div class="login-footer">
           <p>Secure login powered by Supabase Auth</p>
         </div>
@@ -234,7 +236,8 @@ function renderLogin() {
   
   // Add form submission handler
   document.getElementById('loginForm').addEventListener('submit', handleLogin);
-  
+  // Add GitHub OAuth handler
+  document.getElementById('github-login-btn').addEventListener('click', handleGitHubLogin);
   // Focus on email field
   setTimeout(() => {
     document.getElementById('email').focus();
@@ -286,6 +289,10 @@ async function handleLogin(e) {
     btnSpinner.style.display = 'none';
     submitBtn.disabled = false;
   }
+}
+
+function handleGitHubLogin() {
+  supabase.auth.signInWithOAuth({ provider: 'github' });
 }
 
 // ==================== NAVIGATION COMPONENT ====================
@@ -1108,8 +1115,19 @@ function renderNotFound() {
 
 // Initialize the app
 window.addEventListener('hashchange', route);
+// On page load, check for OAuth redirect and session
 window.addEventListener('DOMContentLoaded', async () => {
   // Check for existing session
+  let session = null;
+  // Try to get session from Supabase (OAuth redirect)
+  const { data, error } = await supabase.auth.getSession();
+  if (data?.session) {
+    setSession(data.session.access_token);
+    currentUser = data.session.user;
+    window.location.hash = '#/dashboard';
+    return;
+  }
+  // Fallback to localStorage session
   if (getSession()) {
     const isValid = await validateSession();
     if (!isValid) {
@@ -1117,7 +1135,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       return;
     }
   }
-  
   route();
 });
 
