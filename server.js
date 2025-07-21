@@ -50,11 +50,8 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
-// app.use(express.static('.'));
-// Serve only admin dashboard assets
-app.use('/css', express.static(path.join(__dirname, 'css')));
-app.use('/js', express.static(path.join(__dirname, 'js')));
-app.use('/Images', express.static(path.join(__dirname, 'Images')));
+// Serve all static files (HTML, JS, CSS, Images) from the base directory and subfolders
+app.use(express.static(__dirname));
 
 // Supabase Auth middleware for admin API protection
 async function requireSupabaseAuth(req, res, next) {
@@ -661,9 +658,9 @@ app.patch('/api/applications/:id/status', async (req, res) => {
     }
 });
 
-// Serve the main application
+// Redirect root to admin-login.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin-add-role.html'));
+    res.redirect('/admin-login.html');
 });
 
 // Catch-all 404 handler for unmatched routes
