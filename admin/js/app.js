@@ -59,9 +59,22 @@ function getAuthHeaders() {
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
 
-// ==================== API UTILITY FUNCTIONS ====================
+async function handleLogout() {
+  try {
+    await supabase.auth.signOut();
+    clearSession();
+    showSuccess('Logged out successfully.');
+    window.location.hash = '#/login';
+  } catch (err) {
+    console.error('Logout error:', err);
+    clearSession();
+    window.location.hash = '#/login';
+  }
+}
 
-async function apiRequest(url, options = {}) {
+// ==================== API UTILITIES ====================
+
+async function apiRequest(endpoint, options = {}) {
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
@@ -70,19 +83,26 @@ async function apiRequest(url, options = {}) {
     }
   };
   
-  const response = await fetch(url, { ...defaultOptions, ...options });
-  const data = await response.json();
-  
-  if (!response.ok) {
+  try {
+    const response = await fetch(endpoint, { ...defaultOptions, ...options });
+    
     if (response.status === 401) {
       clearSession();
       window.location.hash = '#/login';
-      throw new Error('Session expired. Please log in again.');
+      throw new Error('Authentication required');
     }
-    throw new Error(data.message || 'Request failed');
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || `HTTP ${response.status}`);
+    }
+    
+    return data;
+  } catch (err) {
+    console.error('API request failed:', err);
+    throw err;
   }
-  
-  return data;
 }
 
 // ==================== ROUTER ====================
@@ -137,43 +157,37 @@ function showLoading(container, message = 'Loading...') {
 
 function showError(container, message) {
   container.innerHTML = `
-    <div class="error-container" role="alert">
+    <div class="error-container">
       <div class="error-icon">⚠️</div>
       <h3>Error</h3>
       <p>${message}</p>
-      <button onclick="location.reload()" class="btn btn-secondary">Retry</button>
     </div>
   `;
 }
 
 function showSuccess(message) {
+  // Simple toast notification
   const toast = document.createElement('div');
-  toast.className = 'toast toast-success';
+  toast.className = 'toast toast-success toast-show';
   toast.innerHTML = `
     <div class="toast-content">
-      <span class="toast-icon">✅</span>
-      <span class="toast-message">${message}</span>
+      <div class="toast-icon">✅</div>
+      <div class="toast-message">${message}</div>
     </div>
   `;
   document.body.appendChild(toast);
   
   setTimeout(() => {
-    toast.classList.add('toast-show');
-  }, 100);
-  
-  setTimeout(() => {
-    toast.classList.remove('toast-show');
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+    toast.remove();
+  }, 4000);
 }
 
 function formatDate(dateString) {
+  if (!dateString) return 'Unknown';
   return new Date(dateString).toLocaleDateString('en-GB', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    day: 'numeric'
   });
 }
 
@@ -256,7 +270,7 @@ async function handleLogin(e) {
   const errorDiv = document.getElementById('login-error');
   
   // Clear previous errors
-  errorDiv.textContent = '';
+  if (errorDiv) errorDiv.textContent = '';
   
   // Show loading state
   btnText.style.display = 'none';
@@ -278,11 +292,11 @@ async function handleLogin(e) {
       showSuccess('Login successful! Welcome to the admin dashboard.');
       window.location.hash = '#/dashboard';
     } else {
-      errorDiv.textContent = data.message || 'Login failed';
+      if (errorDiv) errorDiv.textContent = data.message || 'Login failed';
     }
   } catch (err) {
     console.error('Login error:', err);
-    errorDiv.textContent = 'Login failed. Please check your connection and try again.';
+    if (errorDiv) errorDiv.textContent = 'Login failed. Please check your connection and try again.';
   } finally {
     // Reset button state
     btnText.style.display = 'inline';
@@ -291,8 +305,23 @@ async function handleLogin(e) {
   }
 }
 
-function handleGitHubLogin() {
-  supabase.auth.signInWithOAuth({ provider: 'github' });
+async function handleGitHubLogin() {
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: window.location.origin + '/admin/'
+      }
+    });
+    
+    if (error) {
+      console.error('GitHub login error:', error);
+      showError(document.getElementById('app'), 'GitHub login failed: ' + error.message);
+    }
+  } catch (err) {
+    console.error('GitHub login error:', err);
+    showError(document.getElementById('app'), 'GitHub login failed. Please try again.');
+  }
 }
 
 // ==================== NAVIGATION COMPONENT ====================
@@ -328,20 +357,8 @@ function renderNavigation(currentView) {
   `;
 }
 
-async function handleLogout() {
-  try {
-    await fetch('/api/auth/logout', {
-      method: 'POST',
-      headers: getAuthHeaders()
-    });
-  } catch (err) {
-    console.error('Logout API error:', err);
-  } finally {
-    clearSession();
-    showSuccess('Logged out successfully');
-    window.location.hash = '#/login';
-  }
-}
+// Global function for logout button
+window.handleLogout = handleLogout;
 
 // ==================== DASHBOARD VIEW ====================
 
@@ -472,7 +489,7 @@ async function renderDashboard() {
   }
 }
 
-// ==================== ROLES MANAGEMENT VIEW ====================
+// ==================== ROLES VIEW ====================
 
 async function renderRoles() {
   const app = document.getElementById('app');
@@ -483,9 +500,8 @@ async function renderRoles() {
       <main class="admin-content">
         <div class="page-header">
           <h1>Role Management</h1>
-          <button class="btn btn-primary" onclick="openRoleModal()">
-            <span>➕</span> Add New Role
-          </button>
+          <p>Manage volunteer positions and recruitment</p>
+          <button class="btn btn-primary" onclick="openRoleModal()">Add New Role</button>
         </div>
         <div id="roles-content" class="roles-container">
           <!-- Content will be loaded here -->
@@ -505,183 +521,140 @@ async function loadRoles() {
     const response = await apiRequest('/api/roles');
     roles = response.roles;
     
+    if (roles.length === 0) {
+      content.innerHTML = `
+        <div class="no-data">
+          <h3>No roles found</h3>
+          <p>Start by creating your first volunteer role.</p>
+        </div>
+      `;
+      return;
+    }
+    
     content.innerHTML = `
       <div class="roles-grid">
         ${roles.map(role => `
-          <div class="role-card" data-role-id="${role.id}">
+          <div class="role-card">
             <div class="role-header">
               <h3>${role.title}</h3>
-              <div class="role-status status-${role.status || 'draft'}">${role.status || 'draft'}</div>
+              <span class="role-status status-${role.status || 'draft'}">${role.status || 'draft'}</span>
             </div>
             <div class="role-details">
               <p><strong>Department:</strong> ${role.department || 'Not specified'}</p>
-              <p><strong>Location:</strong> ${role.location || 'Not specified'}</p>
-              <p><strong>Time Commitment:</strong> ${role.time_commitment || 'Not specified'}</p>
+              <p><strong>Posted:</strong> ${formatDate(role.posted_date)}</p>
+              <p><strong>Location:</strong> ${role.location || 'Remote/Flexible'}</p>
             </div>
             <div class="role-summary">
-              <p>${role.summary || 'No summary available'}</p>
+              ${role.summary || role.description || 'No description available'}
             </div>
             <div class="role-actions">
-              <button class="btn btn-secondary btn-sm" onclick="editRole('${role.id}')">
-                <span>✏️</span> Edit
-              </button>
-              <button class="btn btn-danger btn-sm" onclick="deleteRole('${role.id}')">
-                <span>🗑️</span> Delete
-              </button>
+              <button class="btn btn-sm btn-secondary" onclick="editRole(${role.id})">Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteRole(${role.id})">Delete</button>
             </div>
           </div>
-        `).join('') || '<p class="no-data">No roles found. Create your first role to get started.</p>'}
+        `).join('')}
       </div>
     `;
   } catch (err) {
-    console.error('Load roles error:', err);
+    console.error('Roles load error:', err);
     showError(content, err.message);
   }
 }
 
 function openRoleModal(roleId = null) {
-  const isEdit = !!roleId;
+  const isEdit = roleId !== null;
   const role = isEdit ? roles.find(r => r.id === roleId) : {};
   
+  // Modal implementation here - simplified for space
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
   modal.innerHTML = `
-    <div class="modal-dialog" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+    <div class="modal-dialog">
       <div class="modal-header">
-        <h2 id="modal-title">${isEdit ? 'Edit Role' : 'Add New Role'}</h2>
-        <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+        <h2>${isEdit ? 'Edit Role' : 'Add New Role'}</h2>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
       </div>
-      <form id="roleForm" class="modal-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="title">Role Title *</label>
-            <input type="text" id="title" name="title" value="${role.title || ''}" required>
-          </div>
-          <div class="form-group">
-            <label for="department">Department</label>
-            <input type="text" id="department" name="department" value="${role.department || ''}">
-          </div>
-        </div>
-        
+      <form class="modal-form" onsubmit="handleRoleSubmit(event, ${roleId})">
         <div class="form-group">
-          <label for="summary">Summary *</label>
-          <textarea id="summary" name="summary" rows="3" required>${role.summary || ''}</textarea>
+          <label>Title</label>
+          <input type="text" name="title" value="${role.title || ''}" required>
         </div>
-        
         <div class="form-group">
-          <label for="description">Full Description</label>
-          <textarea id="description" name="description" rows="6">${role.description || ''}</textarea>
+          <label>Department</label>
+          <input type="text" name="department" value="${role.department || ''}">
         </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label for="location">Location</label>
-            <input type="text" id="location" name="location" value="${role.location || ''}">
-          </div>
-          <div class="form-group">
-            <label for="time_commitment">Time Commitment</label>
-            <input type="text" id="time_commitment" name="time_commitment" value="${role.time_commitment || ''}">
-          </div>
-        </div>
-        
         <div class="form-group">
-          <label for="status">Status</label>
-          <select id="status" name="status">
+          <label>Summary</label>
+          <textarea name="summary" rows="3">${role.summary || ''}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select name="status">
             <option value="draft" ${role.status === 'draft' ? 'selected' : ''}>Draft</option>
-            <option value="open" ${role.status === 'open' ? 'selected' : ''}>Open for Applications</option>
+            <option value="open" ${role.status === 'open' ? 'selected' : ''}>Open</option>
             <option value="closed" ${role.status === 'closed' ? 'selected' : ''}>Closed</option>
           </select>
         </div>
-        
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-          <button type="submit" class="btn btn-primary">
-            ${isEdit ? 'Update Role' : 'Create Role'}
-          </button>
+          <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+          <button type="submit" class="btn btn-primary">${isEdit ? 'Update' : 'Create'} Role</button>
         </div>
       </form>
     </div>
   `;
   
   document.body.appendChild(modal);
-  
-  // Add form submission handler
-  document.getElementById('roleForm').addEventListener('submit', (e) => {
-    handleRoleSubmit(e, roleId);
-  });
-  
-  // Focus on first input
-  setTimeout(() => {
-    document.getElementById('title').focus();
-  }, 100);
-  
-  // Add escape key handler
-  modal.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeModal();
-  });
-  
-  // Make closeModal available globally
-  window.closeModal = () => {
-    modal.remove();
-    delete window.closeModal;
-  };
 }
 
-async function handleRoleSubmit(e, roleId = null) {
-  e.preventDefault();
+async function handleRoleSubmit(event, roleId) {
+  event.preventDefault();
   
-  const form = e.target;
+  const form = event.target;
   const formData = new FormData(form);
-  const data = Object.fromEntries(formData.entries());
-  
-  const submitBtn = form.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.textContent = roleId ? 'Updating...' : 'Creating...';
+  const roleData = Object.fromEntries(formData.entries());
   
   try {
-    const url = roleId ? `/api/roles/${roleId}` : '/api/roles';
+    const endpoint = roleId ? `/api/roles/${roleId}` : '/api/roles';
     const method = roleId ? 'PUT' : 'POST';
     
-    await apiRequest(url, {
+    await apiRequest(endpoint, {
       method,
-      body: JSON.stringify(data)
+      body: JSON.stringify(roleData)
     });
     
-    showSuccess(`Role ${roleId ? 'updated' : 'created'} successfully!`);
-    closeModal();
+    showSuccess(roleId ? 'Role updated successfully!' : 'Role created successfully!');
+    document.querySelector('.modal-overlay').remove();
     await loadRoles();
   } catch (err) {
     console.error('Role save error:', err);
-    alert(`Failed to ${roleId ? 'update' : 'create'} role: ${err.message}`);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = roleId ? 'Update Role' : 'Create Role';
+    showError(form, err.message);
   }
 }
 
-function editRole(roleId) {
+async function editRole(roleId) {
   openRoleModal(roleId);
 }
 
 async function deleteRole(roleId) {
-  const role = roles.find(r => r.id === roleId);
-  if (!role) return;
-  
-  if (!confirm(`Are you sure you want to delete the role "${role.title}"? This action cannot be undone.`)) {
-    return;
-  }
+  if (!confirm('Are you sure you want to delete this role?')) return;
   
   try {
     await apiRequest(`/api/roles/${roleId}`, { method: 'DELETE' });
     showSuccess('Role deleted successfully!');
     await loadRoles();
   } catch (err) {
-    console.error('Delete role error:', err);
-    alert(`Failed to delete role: ${err.message}`);
+    console.error('Role delete error:', err);
+    showError(document.getElementById('roles-content'), err.message);
   }
 }
 
-// ==================== EVENTS MANAGEMENT VIEW ====================
+// Global functions for role management
+window.openRoleModal = openRoleModal;
+window.handleRoleSubmit = handleRoleSubmit;
+window.editRole = editRole;
+window.deleteRole = deleteRole;
+
+// ==================== EVENTS VIEW ====================
 
 async function renderEvents() {
   const app = document.getElementById('app');
@@ -692,9 +665,8 @@ async function renderEvents() {
       <main class="admin-content">
         <div class="page-header">
           <h1>Event Management</h1>
-          <button class="btn btn-primary" onclick="openSyncEventModal()">
-            <span>🔄</span> Sync Event from Eventbrite
-          </button>
+          <p>Sync and manage events from Eventbrite</p>
+          <button class="btn btn-primary" onclick="openSyncEventModal()">Sync New Event</button>
         </div>
         <div id="events-content" class="events-container">
           <!-- Content will be loaded here -->
@@ -712,67 +684,43 @@ async function loadEvents() {
   
   try {
     const response = await apiRequest('/api/events');
-    const { eventbriteEvents, localEvents } = response;
+    events = response.events;
+    
+    if (events.length === 0) {
+      content.innerHTML = `
+        <div class="no-data">
+          <h3>No events found</h3>
+          <p>Sync events from Eventbrite to get started.</p>
+        </div>
+      `;
+      return;
+    }
     
     content.innerHTML = `
-      <div class="events-sections">
-        <div class="events-section">
-          <h2>Synced Events (Local Database)</h2>
-          <div class="events-grid">
-            ${localEvents.map(event => `
-              <div class="event-card">
-                <div class="event-header">
-                  <h3>${event.title}</h3>
-                  <div class="event-status status-${event.status}">${event.status}</div>
-                </div>
-                <div class="event-details">
-                  <p><strong>Start:</strong> ${formatDate(event.start_time)}</p>
-                  <p><strong>End:</strong> ${formatDate(event.end_time)}</p>
-                  <p><strong>Eventbrite ID:</strong> ${event.eventbrite_id}</p>
-                </div>
-                <div class="event-actions">
-                  <a href="${event.url}" target="_blank" class="btn btn-secondary btn-sm">
-                    <span>🔗</span> View on Eventbrite
-                  </a>
-                  <button class="btn btn-danger btn-sm" onclick="deleteEvent('${event.id}')">
-                    <span>🗑️</span> Remove
-                  </button>
-                </div>
-              </div>
-            `).join('') || '<p class="no-data">No synced events. Use the sync button to import events from Eventbrite.</p>'}
+      <div class="events-grid">
+        ${events.map(event => `
+          <div class="event-card">
+            <div class="event-header">
+              <h3>${event.name}</h3>
+            </div>
+            <div class="event-details">
+              <p><strong>Date:</strong> ${formatDate(event.start_date)}</p>
+              <p><strong>Location:</strong> ${event.location || 'Online'}</p>
+              <p><strong>Status:</strong> ${event.status || 'Live'}</p>
+            </div>
+            <div class="event-summary">
+              ${event.description || 'No description available'}
+            </div>
+            <div class="event-actions">
+              <a href="${event.url}" target="_blank" class="btn btn-sm btn-secondary">View on Eventbrite</a>
+              <button class="btn btn-sm btn-danger" onclick="deleteEvent(${event.id})">Remove</button>
+            </div>
           </div>
-        </div>
-        
-        <div class="events-section">
-          <h2>Recent Eventbrite Events</h2>
-          <div class="events-grid">
-            ${eventbriteEvents.slice(0, 6).map(event => `
-              <div class="event-card eventbrite-event">
-                <div class="event-header">
-                  <h3>${event.name?.text || 'Untitled Event'}</h3>
-                  <div class="event-status status-${event.status}">${event.status}</div>
-                </div>
-                <div class="event-details">
-                  <p><strong>Start:</strong> ${formatDate(event.start?.utc)}</p>
-                  <p><strong>End:</strong> ${formatDate(event.end?.utc)}</p>
-                  <p><strong>ID:</strong> ${event.id}</p>
-                </div>
-                <div class="event-actions">
-                  <a href="${event.url}" target="_blank" class="btn btn-secondary btn-sm">
-                    <span>🔗</span> View
-                  </a>
-                  <button class="btn btn-primary btn-sm" onclick="syncSpecificEvent('${event.id}')">
-                    <span>⬇️</span> Sync
-                  </button>
-                </div>
-              </div>
-            `).join('') || '<p class="no-data">No events found on Eventbrite.</p>'}
-          </div>
-        </div>
+        `).join('')}
       </div>
     `;
   } catch (err) {
-    console.error('Load events error:', err);
+    console.error('Events load error:', err);
     showError(content, err.message);
   }
 }
@@ -781,37 +729,19 @@ function openSyncEventModal() {
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
   modal.innerHTML = `
-    <div class="modal-dialog" role="dialog" aria-labelledby="modal-title" aria-modal="true">
+    <div class="modal-dialog">
       <div class="modal-header">
-        <h2 id="modal-title">Sync Event from Eventbrite</h2>
-        <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+        <h2>Sync Event from Eventbrite</h2>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
       </div>
-      <form id="syncEventForm" class="modal-form">
+      <form class="modal-form" onsubmit="handleSyncEvent(event)">
         <div class="form-group">
-          <label for="eventbriteUrl">Eventbrite Event URL</label>
-          <input 
-            type="url" 
-            id="eventbriteUrl" 
-            name="eventbriteUrl" 
-            placeholder="https://www.eventbrite.com/e/event-name-123456789"
-            required
-          >
-          <small>Paste the full Eventbrite event URL to sync it to the local database</small>
+          <label>Eventbrite Event URL or ID</label>
+          <input type="text" name="eventInput" placeholder="https://www.eventbrite.com/e/event-name-123456789" required>
+          <small>Enter the full Eventbrite URL or just the event ID</small>
         </div>
-        
-        <div class="form-group">
-          <label for="eventbriteId">Or Eventbrite Event ID</label>
-          <input 
-            type="text" 
-            id="eventbriteId" 
-            name="eventbriteId" 
-            placeholder="123456789"
-          >
-          <small>Alternatively, enter just the event ID number</small>
-        </div>
-        
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
           <button type="submit" class="btn btn-primary">Sync Event</button>
         </div>
       </form>
@@ -819,86 +749,47 @@ function openSyncEventModal() {
   `;
   
   document.body.appendChild(modal);
-  
-  // Add form submission handler
-  document.getElementById('syncEventForm').addEventListener('submit', handleSyncEvent);
-  
-  // Focus on first input
-  setTimeout(() => {
-    document.getElementById('eventbriteUrl').focus();
-  }, 100);
-  
-  // Make closeModal available globally
-  window.closeModal = () => {
-    modal.remove();
-    delete window.closeModal;
-  };
 }
 
-async function handleSyncEvent(e) {
-  e.preventDefault();
+async function handleSyncEvent(event) {
+  event.preventDefault();
   
-  const form = e.target;
+  const form = event.target;
   const formData = new FormData(form);
-  const eventbriteUrl = formData.get('eventbriteUrl');
-  const eventbriteId = formData.get('eventbriteId');
-  
-  if (!eventbriteUrl && !eventbriteId) {
-    alert('Please provide either an Eventbrite URL or Event ID');
-    return;
-  }
-  
-  const submitBtn = form.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Syncing...';
+  const eventInput = formData.get('eventInput');
   
   try {
     await apiRequest('/api/events/sync', {
       method: 'POST',
-      body: JSON.stringify({ eventbriteUrl, eventbriteId })
+      body: JSON.stringify({ eventInput })
     });
     
     showSuccess('Event synced successfully!');
-    closeModal();
+    document.querySelector('.modal-overlay').remove();
     await loadEvents();
   } catch (err) {
-    console.error('Sync event error:', err);
-    alert(`Failed to sync event: ${err.message}`);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Sync Event';
-  }
-}
-
-async function syncSpecificEvent(eventbriteId) {
-  try {
-    await apiRequest('/api/events/sync', {
-      method: 'POST',
-      body: JSON.stringify({ eventbriteId })
-    });
-    
-    showSuccess('Event synced successfully!');
-    await loadEvents();
-  } catch (err) {
-    console.error('Sync specific event error:', err);
-    alert(`Failed to sync event: ${err.message}`);
+    console.error('Event sync error:', err);
+    showError(form, err.message);
   }
 }
 
 async function deleteEvent(eventId) {
-  if (!confirm('Are you sure you want to remove this event from the local database? This will not affect the original Eventbrite event.')) {
-    return;
-  }
+  if (!confirm('Are you sure you want to remove this event from the local list?')) return;
   
   try {
     await apiRequest(`/api/events/${eventId}`, { method: 'DELETE' });
     showSuccess('Event removed successfully!');
     await loadEvents();
   } catch (err) {
-    console.error('Delete event error:', err);
-    alert(`Failed to delete event: ${err.message}`);
+    console.error('Event delete error:', err);
+    showError(document.getElementById('events-content'), err.message);
   }
 }
+
+// Global functions for event management
+window.openSyncEventModal = openSyncEventModal;
+window.handleSyncEvent = handleSyncEvent;
+window.deleteEvent = deleteEvent;
 
 // ==================== ANALYTICS VIEW ====================
 
@@ -934,62 +825,31 @@ async function loadAnalytics() {
     content.innerHTML = `
       <div class="analytics-grid">
         <div class="analytics-section">
-          <h2>Overview Statistics</h2>
-          <div class="stats-grid">
-            <div class="stat-card highlight">
-              <div class="stat-icon">👥</div>
-              <div class="stat-content">
-                <h3>Total Roles</h3>
-                <div class="stat-number">${analytics.totalRoles}</div>
-              </div>
-            </div>
-            <div class="stat-card highlight">
-              <div class="stat-icon">📝</div>
-              <div class="stat-content">
-                <h3>Total Applications</h3>
-                <div class="stat-number">${analytics.totalApplications}</div>
-              </div>
-            </div>
-            <div class="stat-card highlight">
-              <div class="stat-icon">📅</div>
-              <div class="stat-content">
-                <h3>Recent Applications</h3>
-                <div class="stat-number">${analytics.recentApplications}</div>
-                <p class="stat-description">Last 30 days</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="analytics-section">
-          <h2>Applications by Status</h2>
+          <h2>Application Status Distribution</h2>
           <div class="chart-container">
-            <canvas id="statusChart" width="400" height="200"></canvas>
+            <canvas id="statusChart"></canvas>
           </div>
         </div>
         
         <div class="analytics-section">
           <h2>Applications by Role</h2>
           <div class="chart-container">
-            <canvas id="roleChart" width="400" height="200"></canvas>
+            <canvas id="roleChart"></canvas>
           </div>
         </div>
         
-        <div class="analytics-section">
-          <h2>Performance Summary</h2>
-          <div class="performance-grid">
-            <div class="performance-card">
-              <h3>Most Popular Role</h3>
-              <p>${getMostPopularRole()}</p>
-            </div>
-            <div class="performance-card">
-              <h3>Application Rate</h3>
-              <p>${calculateApplicationRate()}</p>
-            </div>
-            <div class="performance-card">
-              <h3>Response Rate</h3>
-              <p>${calculateResponseRate()}</p>
-            </div>
+        <div class="performance-grid">
+          <div class="performance-card">
+            <h3>Most Popular Role</h3>
+            <p>${getMostPopularRole()}</p>
+          </div>
+          <div class="performance-card">
+            <h3>Application Rate</h3>
+            <p>${calculateApplicationRate()}</p>
+          </div>
+          <div class="performance-card">
+            <h3>Response Rate</h3>
+            <p>${calculateResponseRate()}</p>
           </div>
         </div>
       </div>
@@ -999,44 +859,40 @@ async function loadAnalytics() {
     renderStatusChart();
     renderRoleChart();
   } catch (err) {
-    console.error('Load analytics error:', err);
+    console.error('Analytics load error:', err);
     showError(content, err.message);
   }
 }
 
 function renderStatusChart() {
-  const ctx = document.getElementById('statusChart').getContext('2d');
-  const statusData = analytics.applicationsByStatus || {};
+  const ctx = document.getElementById('statusChart');
+  if (!ctx || !analytics.applicationsByStatus) return;
   
   new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: Object.keys(statusData),
+      labels: ['Pending', 'Accepted', 'Rejected'],
       datasets: [{
-        data: Object.values(statusData),
-        backgroundColor: [
-          '#ff6f91',
-          '#ff9671',
-          '#ffc75f',
-          '#f9ca24',
-          '#6c5ce7'
-        ]
+        data: [
+          analytics.applicationsByStatus.pending || 0,
+          analytics.applicationsByStatus.accepted || 0,
+          analytics.applicationsByStatus.rejected || 0
+        ],
+        backgroundColor: ['#ffc75f', '#2ecc71', '#e74c3c']
       }]
     },
     options: {
       responsive: true,
-      plugins: {
-        legend: {
-          position: 'bottom'
-        }
-      }
+      maintainAspectRatio: false
     }
   });
 }
 
 function renderRoleChart() {
-  const ctx = document.getElementById('roleChart').getContext('2d');
-  const roleData = analytics.applicationsByRole || {};
+  const ctx = document.getElementById('roleChart');
+  if (!ctx || !analytics.applicationsByRole) return;
+  
+  const roleData = analytics.applicationsByRole;
   
   new Chart(ctx, {
     type: 'bar',
@@ -1045,24 +901,15 @@ function renderRoleChart() {
       datasets: [{
         label: 'Applications',
         data: Object.values(roleData),
-        backgroundColor: '#ff6f91',
-        borderColor: '#ff6f91',
-        borderWidth: 1
+        backgroundColor: '#ff6f91'
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       scales: {
         y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 1
-          }
-        }
-      },
-      plugins: {
-        legend: {
-          display: false
+          beginAtZero: true
         }
       }
     }
@@ -1070,22 +917,30 @@ function renderRoleChart() {
 }
 
 function getMostPopularRole() {
-  const roleData = analytics.applicationsByRole || {};
-  const sortedRoles = Object.entries(roleData).sort(([,a], [,b]) => b - a);
-  return sortedRoles.length > 0 ? `${sortedRoles[0][0]} (${sortedRoles[0][1]} applications)` : 'No data available';
+  if (!analytics.applicationsByRole) return 'No data';
+  
+  const roles = analytics.applicationsByRole;
+  const maxRole = Object.keys(roles).reduce((a, b) => roles[a] > roles[b] ? a : b, '');
+  return maxRole || 'No applications yet';
 }
 
 function calculateApplicationRate() {
-  const totalRoles = analytics.totalRoles || 0;
-  const totalApplications = analytics.totalApplications || 0;
-  return totalRoles > 0 ? `${(totalApplications / totalRoles).toFixed(1)} applications per role` : 'No data available';
+  if (!analytics.totalApplications || !analytics.totalRoles) return '0 apps/role';
+  
+  const rate = (analytics.totalApplications / analytics.totalRoles).toFixed(1);
+  return `${rate} apps/role`;
 }
 
 function calculateResponseRate() {
-  const statusData = analytics.applicationsByStatus || {};
-  const total = Object.values(statusData).reduce((sum, count) => sum + count, 0);
-  const responded = (statusData.accepted || 0) + (statusData.rejected || 0);
-  return total > 0 ? `${((responded / total) * 100).toFixed(1)}% of applications processed` : 'No data available';
+  if (!analytics.applicationsByStatus) return '0%';
+  
+  const total = Object.values(analytics.applicationsByStatus).reduce((a, b) => a + b, 0);
+  const responded = (analytics.applicationsByStatus.accepted || 0) + (analytics.applicationsByStatus.rejected || 0);
+  
+  if (total === 0) return '0%';
+  
+  const rate = ((responded / total) * 100).toFixed(1);
+  return `${rate}%`;
 }
 
 // ==================== 404 NOT FOUND VIEW ====================
@@ -1111,23 +966,27 @@ function renderNotFound() {
   `;
 }
 
-// ==================== INITIALIZATION ====================
+// ==================== APP INITIALIZATION ====================
 
 // Initialize the app
 window.addEventListener('hashchange', route);
+
 // On page load, check for OAuth redirect and session
 window.addEventListener('DOMContentLoaded', async () => {
-  // Check for existing session
-  let session = null;
-  // Try to get session from Supabase (OAuth redirect)
-  const { data, error } = await supabase.auth.getSession();
-  if (data?.session) {
-    setSession(data.session.access_token);
-    currentUser = data.session.user;
-    window.location.hash = '#/dashboard';
-    return;
+  // Check for OAuth redirect first
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (data?.session) {
+      setSession(data.session.access_token);
+      currentUser = data.session.user;
+      window.location.hash = '#/dashboard';
+      return;
+    }
+  } catch (err) {
+    console.error('OAuth session check error:', err);
   }
-  // Fallback to localStorage session
+  
+  // Fallback to localStorage session validation
   if (getSession()) {
     const isValid = await validateSession();
     if (!isValid) {
@@ -1135,14 +994,6 @@ window.addEventListener('DOMContentLoaded', async () => {
       return;
     }
   }
+  
   route();
-});
-
-// Make functions globally accessible
-window.openRoleModal = openRoleModal;
-window.editRole = editRole;
-window.deleteRole = deleteRole;
-window.openSyncEventModal = openSyncEventModal;
-window.syncSpecificEvent = syncSpecificEvent;
-window.deleteEvent = deleteEvent;
-window.handleLogout = handleLogout; 
+}); 

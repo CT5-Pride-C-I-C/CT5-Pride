@@ -100,4 +100,263 @@
   --soft-rose: #ffe4e1;
 }
 
-/* ... (truncated for brevity, but the full file will be copied) ... */ 
+/* Base Styles with Vibrant Background */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--soft-rainbow-bg);
+  background-attachment: fixed;
+  transition: var(--transition);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Enhanced Button Styles with Proper Tap Targets */
+.button {
+  display: inline-block;
+  padding: var(--spacing-md) var(--spacing-xl);
+  min-height: 44px;
+  min-width: 44px;
+  background: var(--accent);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  font-size: 1rem;
+  box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  border: 2px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.6s ease;
+  z-index: 1;
+}
+
+.button:hover::before {
+  left: 100%;
+}
+
+.button:hover {
+  box-shadow: 0 8px 25px rgba(233, 30, 99, 0.4);
+  color: white;
+  background: var(--primary-dark);
+}
+
+.button:focus {
+  outline: 3px solid var(--secondary);
+  outline-offset: 3px;
+}
+
+.button.secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
+}
+
+.button.secondary:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: 0 8px 25px rgba(233, 30, 99, 0.4);
+}
+
+.button.disabled {
+  background: var(--gray);
+  color: var(--text-light);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.button.disabled:hover {
+  background: var(--gray);
+  color: var(--text-light);
+}
+
+.button.disabled::before {
+  display: none;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  font-weight: 600;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group textarea {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.form-group input[type="file"] {
+  width: 100%;
+  padding: var(--spacing-sm) 0;
+}
+
+.form-group small {
+  display: block;
+  color: #666;
+  margin-top: var(--spacing-sm);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.checkbox-label {
+  display: flex !important;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  font-weight: normal !important;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-top: 0.25em;
+}
+
+/* Skip to Main Content */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--primary);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+  font-weight: bold;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+}
+
+.modal-content {
+  background-color: var(--background);
+  padding: var(--spacing-xl);
+  border-radius: 8px;
+  max-width: 600px;
+  margin: var(--spacing-xl) auto;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-close {
+  position: absolute;
+  right: var(--spacing-md);
+  top: var(--spacing-md);
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  line-height: 1;
+  color: var(--text);
+}
+
+.modal-close:hover {
+  color: var(--primary);
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-lg {
+  margin-top: var(--spacing-lg);
+}
+
+.mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Accessibility Improvements */
+.button:focus,
+.role-card:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.modal:focus-within {
+  outline: none;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .role-card,
+  .button {
+    transition: none;
+  }
+  
+  .role-card:hover {
+    transform: none;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(0deg); }
+  }
+} 
