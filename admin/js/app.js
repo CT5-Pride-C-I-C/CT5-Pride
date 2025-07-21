@@ -175,30 +175,56 @@ function route() {
   const hash = window.location.hash || '#/login';
   const app = document.getElementById('app');
   
-  console.log('Route called with hash:', hash);
-  
-  // Set initial loading state
-  app.innerHTML = '<div style="padding: 2rem; text-align: center;"><h2>Loading...</h2></div>';
-  
-  // Set focus for accessibility
-  app.focus();
-  
-  if (hash === '#/login') {
-    console.log('Rendering login page');
-    renderLogin();
-    return;
-  }
-  
-  // Check authentication for protected routes
-  console.log('Authentication state:', {
+  console.log('=== ROUTE HANDLER CALLED ===');
+  console.log('🔍 Route hash:', hash);
+  console.log('🔍 Authentication state:', {
     hasUser: !!currentUser,
     hasToken: !!getSession(),
+    userEmail: currentUser?.email || 'None',
     isAuthenticated: isAuthenticated()
   });
   
+  // Set focus for accessibility
+  try {
+    app.focus();
+  } catch (e) {
+    console.warn('Focus failed:', e.message);
+  }
+  
+  // Handle login route
+  if (hash === '#/login') {
+    console.log('✅ Rendering login page');
+    try {
+      renderLogin();
+    } catch (error) {
+      console.error('❌ Login render failed:', error);
+      app.innerHTML = `
+        <div class="loading-container">
+          <h2 style="color: #f44336;">❌ Login Page Error</h2>
+          <p>Failed to load login page: ${error.message}</p>
+          <button onclick="location.reload()" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+            Reload Page
+          </button>
+        </div>
+      `;
+    }
+    return;
+  }
+  
+  // All other routes require authentication
   if (!requireAuth()) {
+    console.log('🔒 Authentication required, redirecting...');
     return; // requireAuth handles the redirect
   }
+  
+  // Set enhanced loading state for authenticated routes
+  app.innerHTML = `
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <h2>🏳️‍🌈 Loading ${hash.replace('#/', '').toUpperCase()}</h2>
+      <p>Preparing your dashboard content...</p>
+    </div>
+  `;
   
   switch (hash) {
     case '#/dashboard':
@@ -1109,27 +1135,40 @@ function requireAuth() {
   return true;
 }
 
-// Production-ready OAuth redirect handler - runs immediately on load
+// Enhanced OAuth redirect handler with comprehensive error handling
 window.addEventListener("DOMContentLoaded", async () => {
+  console.log('=== CT5 PRIDE ADMIN INITIALIZATION ===');
   console.log('DOMContentLoaded - App initializing...');
+  console.log('Timestamp:', new Date().toISOString());
   
   const app = document.getElementById('app');
   if (!app) {
-    console.error('App container not found!');
+    console.error('❌ CRITICAL: App container not found!');
     return;
   }
   
-  // Show loading indicator
-  app.innerHTML = '<div style="padding: 2rem; text-align: center; color: #666;">🔄 Loading admin dashboard...</div>';
+  // Enhanced loading indicator with CT5 Pride branding
+  function showLoadingState(message = 'Loading admin dashboard...') {
+    app.innerHTML = `
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <h2>🏳️‍🌈 ${message}</h2>
+        <p>Please wait while we initialize your admin dashboard.</p>
+      </div>
+    `;
+  }
+  
+  showLoadingState('Initializing...');
   
   try {
-    // STEP 1: DEBUG AND PROCESS OAUTH TOKENS
+    // STEP 1: ENHANCED OAUTH TOKEN PROCESSING
     const hash = window.location.hash;
     const fullURL = window.location.href;
     console.log('=== OAUTH DEBUG START ===');
-    console.log('Full URL:', fullURL);
-    console.log('Hash string:', hash);
-    console.log('Hash length:', hash.length);
+    console.log('🔍 Full URL:', fullURL);
+    console.log('🔍 Hash string:', hash);
+    console.log('🔍 Hash length:', hash.length);
+    console.log('🔍 User agent:', navigator.userAgent.substring(0, 100));
     
     if (hash && hash.includes("access_token")) {
       console.log('✓ OAuth redirect detected! Processing tokens...');
@@ -1206,17 +1245,36 @@ window.addEventListener("DOMContentLoaded", async () => {
               sameUser: verifyResult.data?.session?.user?.id === session.user?.id
             });
             
-            // Clean URL and redirect
+            // Clean URL and redirect with enhanced verification
             console.log('✓ Cleaning URL and redirecting to dashboard...');
+            
+            // Clean the URL first
             history.replaceState(null, null, "/admin/");
+            
+            // Show authentication success state
+            showLoadingState('Authentication successful! Loading dashboard...');
+            
+            // Set dashboard route and force rendering
             window.location.hash = "#/dashboard";
             
-            // Force route immediately and also set backup
-            route();
+            // Triple-redundant route calling with delays
+            setTimeout(() => {
+              console.log('✓ Initial route call...');
+              route();
+            }, 100);
+            
             setTimeout(() => {
               console.log('✓ Backup route call executing...');
               route();
-            }, 200);
+            }, 500);
+            
+            setTimeout(() => {
+              console.log('✓ Final verification route call...');
+              if (window.location.hash === '#/dashboard' && app.innerHTML.includes('loading-container')) {
+                console.log('✓ Dashboard not rendered, forcing manual render...');
+                route();
+              }
+            }, 1000);
             
             console.log('=== OAUTH DEBUG END - SUCCESS ===');
             return;
