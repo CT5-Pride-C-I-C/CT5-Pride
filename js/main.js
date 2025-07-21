@@ -137,46 +137,51 @@ async function loadEvents() {
             </div>
         `;
         
-        // Try to fetch events from the admin API (check both endpoints)
+        // Try to fetch events from the admin API
         let response, data;
+        let hasNetworkError = false;
         
         try {
             // First try admin API endpoint
             response = await fetch('/api/events');
+            
             if (response.ok) {
                 data = await response.json();
                 console.log('📅 Events data received from admin API:', data);
+            } else if (response.status === 404) {
+                // 404 means no events configured, not an error
+                console.log('ℹ️ Admin API returned 404 - no events configured');
+                data = { success: true, events: [] };
             } else {
+                // Other HTTP errors are actual problems
+                console.log(`⚠️ Admin API returned ${response.status}, trying fallback...`);
+                hasNetworkError = true;
                 throw new Error(`Admin API returned ${response.status}`);
             }
         } catch (adminError) {
-            console.log('ℹ️ Admin API not available, trying Eventbrite directly...');
-            
-            // Fallback: Try to fetch from Eventbrite directly (if public endpoint available)
-            try {
-                response = await fetch('https://www.eventbriteapi.com/v3/users/me/events/?token=EVENTBRITE_PUBLIC_TOKEN');
-                if (response.ok) {
-                    const eventbriteData = await response.json();
-                    data = {
-                        success: true,
-                        events: eventbriteData.events || []
-                    };
-                } else {
-                    throw new Error(`Eventbrite API returned ${response.status}`);
-                }
-            } catch (eventbriteError) {
-                console.log('⚠️ Both admin API and Eventbrite direct access failed');
-                throw new Error(`Unable to load events: ${adminError.message}`);
+            if (!hasNetworkError && (adminError.name === 'TypeError' || adminError.message.includes('fetch'))) {
+                // Network/CORS errors are real problems
+                hasNetworkError = true;
             }
+            
+            console.log('ℹ️ Admin API not available, trying direct approach...');
+            
+            // For now, if admin API fails, just show empty state
+            // In the future, could add Eventbrite public API as fallback
+            console.log('📝 No fallback API configured, showing empty state');
+            data = { success: true, events: [] };
         }
         
         // Check if we have valid events data
-        if (data.success && data.events && Array.isArray(data.events) && data.events.length > 0) {
+        if (data && data.events && Array.isArray(data.events) && data.events.length > 0) {
             // Display events
             renderEvents(data.events);
-        } else {
-            // No events found - show professional empty state
+        } else if (!hasNetworkError) {
+            // No events found but API worked - show branded empty state
             showNoEvents();
+        } else {
+            // Actual network/API error - show error state
+            throw new Error('Unable to connect to events service');
         }
         
     } catch (error) {
@@ -239,40 +244,35 @@ function showNoEvents() {
     const eventsContainer = document.getElementById('eventsContainer');
     
     eventsContainer.innerHTML = `
-        <div class="no-events">
-            <div class="no-events-icon">📅</div>
-            <h3>No upcoming events at this time</h3>
-            <p>We're always planning exciting new events for the CT5 Pride community! Check back soon or follow us on social media for the latest updates.</p>
-            <div class="no-events-actions">
-                <a href="get-involved.html" class="btn">Get Involved</a>
-                <a href="contact.html" class="btn secondary">Contact Us</a>
-            </div>
+        <div class="no-events-card">
+            <h2>🌈 No Events Scheduled… Yet!</h2>
+            <p>We're currently planning our next celebration. Please check back soon or follow us for updates!</p>
+            <a href="/get-involved.html" class="btn-primary">Get Involved</a>
         </div>
     `;
     
-    console.log('ℹ️ Displayed no events message');
+    console.log('ℹ️ Displayed branded no events message');
 }
 
 function showEventsError(errorMessage) {
     const eventsContainer = document.getElementById('eventsContainer');
     
     eventsContainer.innerHTML = `
-        <div class="event-error">
-            <div class="error-icon">⚠️</div>
-            <h3>We couldn't load events right now</h3>
-            <p>Please try again later or contact us if the problem persists.</p>
+        <div class="events-error-card">
+            <h2>🌐 Connection Issue</h2>
+            <p>We're having trouble connecting to our events service. This usually resolves quickly.</p>
+            <div class="error-actions">
+                <button onclick="loadEvents()" class="btn-primary">Try Again</button>
+                <a href="/contact.html" class="btn-secondary">Contact Support</a>
+            </div>
             <details class="error-details">
                 <summary>Technical details</summary>
                 <p><code>${escapeHtml(errorMessage)}</code></p>
             </details>
-            <div class="error-actions">
-                <button onclick="loadEvents()" class="btn">Try Again</button>
-                <a href="contact.html" class="btn secondary">Contact Us</a>
-            </div>
         </div>
     `;
     
-    console.log('❌ Displayed events error message');
+    console.log('❌ Displayed connection error message');
 }
 
 // ==================== UTILITIES ====================
