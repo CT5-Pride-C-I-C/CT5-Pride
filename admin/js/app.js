@@ -457,6 +457,12 @@ async function handleGitHubLogin() {
   try {
     console.log('Initiating GitHub OAuth login...');
     
+    // Debug the redirect URL being used
+    const redirectUrl = `${window.location.origin}/admin/`;
+    console.log('🔍 GITHUB OAUTH DEBUG - Redirect URL being requested:', redirectUrl);
+    console.log('🔍 GITHUB OAUTH DEBUG - window.location.origin:', window.location.origin);
+    console.log('🔍 GITHUB OAUTH DEBUG - Current page URL:', window.location.href);
+    
     // Show loading state
     const githubBtn = document.querySelector('.btn-github');
     if (githubBtn) {
@@ -467,7 +473,7 @@ async function handleGitHubLogin() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: `${window.location.origin}/admin/`
+        redirectTo: redirectUrl
       }
     });
     
