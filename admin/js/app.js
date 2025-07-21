@@ -1,9 +1,48 @@
 // CT5 Pride Admin SPA - app.js
 // Handles hash-based routing, authentication, and view switching
 
+console.log('Session loaded - app.js starting initialization');
+
+// Add error handler for unhandled errors
+window.addEventListener('error', (e) => {
+  console.error('Unhandled error:', e.error);
+  const app = document.getElementById('app');
+  if (app && !app.innerHTML.trim()) {
+    app.innerHTML = `
+      <div style="padding: 2rem; text-align: center; color: #e91e63;">
+        <h2>⚠️ Application Error</h2>
+        <p>There was an error loading the admin dashboard.</p>
+        <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; text-align: left; margin: 1rem 0;">
+          ${e.error?.message || 'Unknown error'}
+        </pre>
+        <button onclick="window.location.reload()" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+          Reload Page
+        </button>
+      </div>
+    `;
+  }
+});
+
 const SUPABASE_URL = 'https://rmhnrpwbgxyslfwttwzr.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtaG5ycHdiZ3h5c2xmd3R0d3pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTQyMDcsImV4cCI6MjA2ODY5MDIwN30.yNlkzFMfvUCoN6IwEY4LgL6_ihdR_ux22oqvDnkWTxg';
+
+// Ensure Supabase is available
+if (!window.supabase) {
+  console.error('Supabase not loaded! Check CDN connection.');
+  document.getElementById('app').innerHTML = `
+    <div style="padding: 2rem; text-align: center; color: #f44336;">
+      <h2>⚠️ Supabase Not Loaded</h2>
+      <p>The Supabase library failed to load. Please check your connection and try again.</p>
+      <button onclick="window.location.reload()" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+        Reload Page
+      </button>
+    </div>
+  `;
+  throw new Error('Supabase library not available');
+}
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+console.log('Supabase client initialized successfully');
 
 // Global state
 let currentUser = null;
@@ -218,12 +257,19 @@ function formatDate(dateString) {
 // ==================== LOGIN VIEW ====================
 
 function renderLogin() {
+  console.log('Rendering login page...');
   const app = document.getElementById('app');
+  
+  if (!app) {
+    console.error('App container not found in renderLogin!');
+    return;
+  }
+  
   app.innerHTML = `
     <div class="login-container">
       <div class="login-card">
         <div class="login-header">
-          <img src="../Images/Logo-with-Transparent-background.svg" alt="CT5 Pride Logo">
+          <img src="/Images/Logo-with-Transparent-background.svg" alt="CT5 Pride Logo">
           <h1>Admin Login</h1>
           <p>Access the CT5 Pride admin dashboard</p>
         </div>
@@ -1002,54 +1048,104 @@ window.addEventListener('hashchange', route);
 window.addEventListener('DOMContentLoaded', async () => {
   console.log('DOMContentLoaded - App initializing...');
   
-  // Set default hash if none present
-  if (!window.location.hash) {
-    console.log('No hash present, setting default to #/login');
-    window.location.hash = '#/login';
-  }
-  
-  // Check for OAuth redirect first
   try {
-    console.log('Checking for Supabase session...');
-    const { data, error } = await supabase.auth.getSession();
-    if (data?.session) {
-      console.log('Session found, storing token and redirecting to dashboard');
-      setSession(data.session.access_token);
-      currentUser = data.session.user;
-      window.location.hash = '#/dashboard';
+    // Add fallback loading indicator
+    const app = document.getElementById('app');
+    if (!app) {
+      console.error('App container not found!');
       return;
-    } else {
-      console.log('No active session found');
     }
-  } catch (err) {
-    console.error('OAuth session check error:', err);
-  }
-  
-  // Fallback to localStorage session validation
-  const existingToken = getSession();
-  if (existingToken) {
-    console.log('Found existing token, validating...');
-    const isValid = await validateSession();
-    if (!isValid) {
-      console.log('Token invalid, redirecting to login');
+    
+    app.innerHTML = '<div style="padding: 2rem; text-align: center; color: #666;">🔄 Loading admin dashboard...</div>';
+    
+    // Set default hash if none present
+    if (!window.location.hash) {
+      console.log('No hash present, setting default to #/login');
       window.location.hash = '#/login';
-      return;
-    } else {
-      console.log('Token valid, user authenticated');
     }
-  } else {
-    console.log('No existing token found');
+    
+    // Check for OAuth redirect first
+    try {
+      console.log('Checking for Supabase session...');
+      const { data, error } = await supabase.auth.getSession();
+      if (data?.session) {
+        console.log('Session found, storing token and redirecting to dashboard');
+        setSession(data.session.access_token);
+        currentUser = data.session.user;
+        window.location.hash = '#/dashboard';
+        route(); // Ensure route is called after hash change
+        return;
+      } else {
+        console.log('No active session found');
+      }
+    } catch (err) {
+      console.error('OAuth session check error:', err);
+    }
+    
+    // Fallback to localStorage session validation
+    const existingToken = getSession();
+    if (existingToken) {
+      console.log('Found existing token, validating...');
+      try {
+        const isValid = await validateSession();
+        if (!isValid) {
+          console.log('Token invalid, redirecting to login');
+          window.location.hash = '#/login';
+        } else {
+          console.log('Token valid, user authenticated');
+          // If authenticated but no specific route, go to dashboard
+          if (window.location.hash === '#/' || window.location.hash === '#/login') {
+            window.location.hash = '#/dashboard';
+          }
+        }
+      } catch (err) {
+        console.error('Token validation error:', err);
+        clearSession();
+        window.location.hash = '#/login';
+      }
+    } else {
+      console.log('No existing token found, going to login');
+      if (window.location.hash !== '#/login') {
+        window.location.hash = '#/login';
+      }
+    }
+    
+    console.log('Calling route() with hash:', window.location.hash);
+    route();
+    
+  } catch (err) {
+    console.error('Critical initialization error:', err);
+    const app = document.getElementById('app');
+    if (app) {
+      app.innerHTML = `
+        <div style="padding: 2rem; text-align: center; color: #f44336;">
+          <h2>❌ Initialization Failed</h2>
+          <p>The admin dashboard failed to initialize properly.</p>
+          <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; text-align: left; margin: 1rem 0;">
+            ${err.message}
+          </pre>
+          <button onclick="window.location.reload()" style="background: #e91e63; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+            Reload Page
+          </button>
+        </div>
+      `;
+    }
   }
-  
-  console.log('Calling route() with hash:', window.location.hash);
-  route();
 });
 
 // Additional load event handler for redundancy
 window.addEventListener('load', () => {
   console.log('Window load event triggered');
-  if (!window.location.hash) {
-    console.log('Load event: Setting default hash to #/login');
-    window.location.hash = '#/login';
-  }
+  
+  // Safety check - if app is still empty after 3 seconds, show error
+  setTimeout(() => {
+    const app = document.getElementById('app');
+    if (app && (!app.innerHTML.trim() || app.innerHTML.includes('Loading'))) {
+      console.warn('App appears to be stuck loading, forcing route...');
+      if (!window.location.hash || window.location.hash === '#/') {
+        window.location.hash = '#/login';
+      }
+      route();
+    }
+  }, 3000);
 }); 
