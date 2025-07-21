@@ -1,7 +1,9 @@
 // CT5 Pride Admin SPA - app.js
 // Handles hash-based routing, authentication, and view switching
 
-console.log('Session loaded - app.js starting initialization');
+console.log('🚀 CT5 PRIDE ADMIN - app.js starting initialization');
+console.log('🚀 SCRIPT LOAD DEBUG - app.js has loaded successfully');
+console.log('🚀 SCRIPT LOAD DEBUG - Current URL:', window.location.href);
 
 // Add error handler for unhandled errors
 window.addEventListener('error', (e) => {
@@ -331,7 +333,8 @@ function formatDate(dateString) {
 // ==================== LOGIN VIEW ====================
 
 function renderLogin() {
-  console.log('Rendering login page...');
+  console.log('🔐 LOGIN DEBUG - Rendering login page...');
+  console.log('🔐 LOGIN DEBUG - renderLogin function called');
   const app = document.getElementById('app');
   
   if (!app) {
@@ -397,9 +400,19 @@ function renderLogin() {
   `;
   
   // Add form submission handler
+  console.log('🔐 LOGIN DEBUG - Adding form submission handler');
   document.getElementById('loginForm').addEventListener('submit', handleLogin);
+  
   // Add GitHub OAuth handler
-  document.getElementById('github-login-btn').addEventListener('click', handleGitHubLogin);
+  console.log('🔐 LOGIN DEBUG - Adding GitHub OAuth button handler');
+  const githubBtn = document.getElementById('github-login-btn');
+  if (githubBtn) {
+    console.log('🔐 LOGIN DEBUG - GitHub button found, attaching click handler');
+    githubBtn.addEventListener('click', handleGitHubLogin);
+  } else {
+    console.error('❌ LOGIN ERROR - GitHub button not found!');
+  }
+  
   // Focus on email field
   setTimeout(() => {
     document.getElementById('email').focus();
@@ -454,8 +467,11 @@ async function handleLogin(e) {
 }
 
 async function handleGitHubLogin() {
+  console.log('🎯 CLICK DEBUG - GitHub button clicked!');
+  console.log('🎯 CLICK DEBUG - handleGitHubLogin function called');
+  
   try {
-    console.log('Initiating GitHub OAuth login...');
+    console.log('🎯 GITHUB OAUTH DEBUG - Initiating GitHub OAuth login...');
     
     // Debug the redirect URL being used
     const redirectUrl = `${window.location.origin}/admin/`;
