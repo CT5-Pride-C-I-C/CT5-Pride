@@ -475,7 +475,18 @@ window.handleLogout = handleLogout;
 // ==================== DASHBOARD VIEW ====================
 
 async function renderDashboard() {
+  console.log('=== RENDERING DASHBOARD ===');
+  console.log('✓ User authenticated:', !!currentUser);
+  console.log('✓ User email:', currentUser?.email || 'No email');
+  
   const app = document.getElementById('app');
+  
+  if (!app) {
+    console.error('❌ App container not found in renderDashboard!');
+    return;
+  }
+  
+  console.log('✓ App container found, rendering dashboard...');
   
   app.innerHTML = `
     <div class="admin-layout">
