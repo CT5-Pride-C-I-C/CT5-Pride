@@ -7,8 +7,25 @@ const { createClient } = require('@supabase/supabase-js');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Environment variable verification (temporary for debugging)
+console.log('🔍 Environment variables check:');
+console.log('SUPABASE_URL:', config.SUPABASE_URL);
+console.log('SUPABASE_KEY defined:', !!config.SUPABASE_KEY);
+console.log('SUPABASE_ANON_KEY defined:', !!config.SUPABASE_ANON_KEY);
+
+// Validate required environment variables
+if (!config.SUPABASE_URL) {
+  console.error('❌ SUPABASE_URL environment variable is required');
+  process.exit(1);
+}
+
+if (!config.SUPABASE_KEY) {
+  console.error('❌ SUPABASE_KEY environment variable is required');
+  process.exit(1);
+}
+
 // Initialize Supabase client with service role key for server-side operations
-const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
+const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
 
 const adminDir = path.join(__dirname, 'admin');
 

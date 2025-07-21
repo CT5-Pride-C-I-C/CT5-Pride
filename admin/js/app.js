@@ -42,10 +42,7 @@ if (!window.supabase) {
 }
 
 // Initialize Supabase client - CRITICAL: Must be available before OAuth handling
-const supabase = window.supabase.createClient(
-  "https://rmhnrpwbgxyslfwttwzr.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtaG5ycHdiZ3h5c2xmd3R0d3pyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxMTQyMDcsImV4cCI6MjA2ODY5MDIwN30.yNlkzFMfvUCoN6IwEY4LgL6_ihdR_ux22oqvDnkWTxg"
-);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 console.log('Supabase client initialized successfully');
 
 // Global state
