@@ -440,6 +440,9 @@ app.get('/api/analytics', requireSupabaseAuth, async (req, res) => {
 
 // ==================== STATIC FILE SERVING ====================
 
+// Serve Images directory at root level for logo and assets  
+app.use('/Images', express.static(path.join(__dirname, 'Images')));
+
 // Serve static files from /admin
 app.use(express.static(adminDir));
 

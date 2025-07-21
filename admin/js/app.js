@@ -83,10 +83,18 @@ async function apiRequest(endpoint, options = {}) {
     }
   };
   
+  console.log(`API Request: ${options.method || 'GET'} ${endpoint}`, {
+    hasToken: !!getSession(),
+    headers: defaultOptions.headers
+  });
+  
   try {
     const response = await fetch(endpoint, { ...defaultOptions, ...options });
     
+    console.log(`API Response: ${response.status} ${response.statusText} for ${endpoint}`);
+    
     if (response.status === 401) {
+      console.log('401 Unauthorized - clearing session and redirecting to login');
       clearSession();
       window.location.hash = '#/login';
       throw new Error('Authentication required');
@@ -95,9 +103,11 @@ async function apiRequest(endpoint, options = {}) {
     const data = await response.json();
     
     if (!response.ok) {
+      console.error(`API Error ${response.status}:`, data);
       throw new Error(data.message || `HTTP ${response.status}`);
     }
     
+    console.log(`API Success for ${endpoint}:`, data);
     return data;
   } catch (err) {
     console.error('API request failed:', err);
@@ -111,35 +121,49 @@ function route() {
   const hash = window.location.hash || '#/login';
   const app = document.getElementById('app');
   
+  console.log('Route called with hash:', hash);
+  
+  // Set initial loading state
+  app.innerHTML = '<div style="padding: 2rem; text-align: center;"><h2>Loading...</h2></div>';
+  
   // Set focus for accessibility
   app.focus();
   
   if (hash === '#/login') {
+    console.log('Rendering login page');
     renderLogin();
     return;
   }
   
   // Check authentication for protected routes
   const token = getSession();
+  console.log('Token check for protected route:', token ? 'Token exists' : 'No token');
+  
   if (!token) {
+    console.log('No authentication token, redirecting to login');
     window.location.hash = '#/login';
     return;
   }
   
   switch (hash) {
     case '#/dashboard':
+      console.log('Rendering dashboard');
       renderDashboard();
       break;
     case '#/roles':
+      console.log('Rendering roles page');
       renderRoles();
       break;
     case '#/events':
+      console.log('Rendering events page');
       renderEvents();
       break;
     case '#/analytics':
+      console.log('Rendering analytics page');
       renderAnalytics();
       break;
     default:
+      console.log('Unknown route, rendering 404');
       renderNotFound();
   }
 }
@@ -307,16 +331,19 @@ async function handleLogin(e) {
 
 async function handleGitHubLogin() {
   try {
+    console.log('Initiating GitHub OAuth login...');
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
-        redirectTo: window.location.origin + '/admin/'
+        redirectTo: `${window.location.origin}/admin/`
       }
     });
     
     if (error) {
       console.error('GitHub login error:', error);
       showError(document.getElementById('app'), 'GitHub login failed: ' + error.message);
+    } else {
+      console.log('GitHub OAuth initiated successfully');
     }
   } catch (err) {
     console.error('GitHub login error:', err);
@@ -973,27 +1000,56 @@ window.addEventListener('hashchange', route);
 
 // On page load, check for OAuth redirect and session
 window.addEventListener('DOMContentLoaded', async () => {
+  console.log('DOMContentLoaded - App initializing...');
+  
+  // Set default hash if none present
+  if (!window.location.hash) {
+    console.log('No hash present, setting default to #/login');
+    window.location.hash = '#/login';
+  }
+  
   // Check for OAuth redirect first
   try {
+    console.log('Checking for Supabase session...');
     const { data, error } = await supabase.auth.getSession();
     if (data?.session) {
+      console.log('Session found, storing token and redirecting to dashboard');
       setSession(data.session.access_token);
       currentUser = data.session.user;
       window.location.hash = '#/dashboard';
       return;
+    } else {
+      console.log('No active session found');
     }
   } catch (err) {
     console.error('OAuth session check error:', err);
   }
   
   // Fallback to localStorage session validation
-  if (getSession()) {
+  const existingToken = getSession();
+  if (existingToken) {
+    console.log('Found existing token, validating...');
     const isValid = await validateSession();
     if (!isValid) {
+      console.log('Token invalid, redirecting to login');
       window.location.hash = '#/login';
       return;
+    } else {
+      console.log('Token valid, user authenticated');
     }
+  } else {
+    console.log('No existing token found');
   }
   
+  console.log('Calling route() with hash:', window.location.hash);
   route();
+});
+
+// Additional load event handler for redundancy
+window.addEventListener('load', () => {
+  console.log('Window load event triggered');
+  if (!window.location.hash) {
+    console.log('Load event: Setting default hash to #/login');
+    window.location.hash = '#/login';
+  }
 }); 
