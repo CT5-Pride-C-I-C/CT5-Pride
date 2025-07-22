@@ -2300,9 +2300,9 @@ body.theme-nonbinary {
     --primary: #9c59d1;
     --secondary: #2c2c2c;
     --accent: #9c59d1;
-    --vibrant-pink: #fcf434;
-    --text: #2c2c2c;
-    --text-light: #4a4a4a;
+    --vibrant-pink: #d4b800; /* Darker yellow for better visibility */
+    --text: #1a1a1a; /* Darker text for better contrast */
+    --text-light: #3a3a3a;
     --background: #ffffff;
 }
 
@@ -2339,10 +2339,10 @@ body.theme-bisexual {
 body.theme-pansexual {
     --primary: #ff218c;
     --secondary: #21b1ff;
-    --accent: #ffd800;
+    --accent: #cc9900; /* Darker yellow for better contrast */
     --vibrant-pink: #ff218c;
-    --text: #2c2c2c;
-    --text-light: #4a4a4a;
+    --text: #1a1a1a; /* Darker text for better contrast */
+    --text-light: #3a3a3a;
     --background: #ffffff;
 }
 
@@ -2358,64 +2358,82 @@ body.theme-asexual {
 
 /* ==================== ENHANCED THEME VISUAL EFFECTS ==================== */
 
-/* Footer theme gradients */
+/* Footer theme gradients with dark overlay for better text contrast */
 body.theme-rainbow footer {
-    background: linear-gradient(135deg, 
-        var(--pride-red) 0%, 
-        var(--pride-orange) 16.66%, 
-        var(--pride-yellow) 33.33%, 
-        var(--pride-green) 50%, 
-        var(--pride-blue) 66.66%, 
-        var(--pride-purple) 100%) !important;
+    background: 
+        linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+        linear-gradient(135deg, 
+            var(--pride-red) 0%, 
+            var(--pride-orange) 16.66%, 
+            var(--pride-yellow) 33.33%, 
+            var(--pride-green) 50%, 
+            var(--pride-blue) 66.66%, 
+            var(--pride-purple) 100%) !important;
 }
 
 body.theme-progress footer {
-    background: linear-gradient(135deg,
-        #ffffff 0%, #f5a9b8 20%, #5bcffa 40%, 
-        #784f17 60%, #000000 80%, var(--pride-red) 100%) !important;
+    background: 
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        linear-gradient(135deg,
+            #ffffff 0%, #f5a9b8 20%, #5bcffa 40%, 
+            #784f17 60%, #000000 80%, var(--pride-red) 100%) !important;
 }
 
 body.theme-trans footer {
-    background: linear-gradient(135deg,
-        #5bcffa 0%, #f5a9b8 25%, 
-        #ffffff 50%, #f5a9b8 75%, #5bcffa 100%) !important;
+    background: 
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        linear-gradient(135deg,
+            #5bcffa 0%, #f5a9b8 25%, 
+            #ffffff 50%, #f5a9b8 75%, #5bcffa 100%) !important;
 }
 
 body.theme-nonbinary footer {
-    background: linear-gradient(135deg,
-        #fcf434 0%, #ffffff 25%, 
-        #9c59d1 50%, #2c2c2c 100%) !important;
+    background: 
+        linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+        linear-gradient(135deg,
+            #fcf434 0%, #ffffff 25%, 
+            #9c59d1 50%, #2c2c2c 100%) !important;
 }
 
 body.theme-lesbian footer {
-    background: linear-gradient(135deg,
-        #d62d20 0%, #ff9955 25%, 
-        #ffffff 50%, #d161a2 75%, #a20160 100%) !important;
+    background: 
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        linear-gradient(135deg,
+            #d62d20 0%, #ff9955 25%, 
+            #ffffff 50%, #d161a2 75%, #a20160 100%) !important;
 }
 
 body.theme-gay footer {
-    background: linear-gradient(135deg,
-        #078d70 0%, #26ceaa 20%, #98e8c1 40%,
-        #ffffff 60%, #7bade2 80%, #5049cc 100%) !important;
+    background: 
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        linear-gradient(135deg,
+            #078d70 0%, #26ceaa 20%, #98e8c1 40%,
+            #ffffff 60%, #7bade2 80%, #5049cc 100%) !important;
 }
 
 body.theme-bisexual footer {
-    background: linear-gradient(135deg,
-        #d60270 0%, #d60270 40%, 
-        #9b59b6 50%, #9b59b6 60%, #0038a8 100%) !important;
+    background: 
+        linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+        linear-gradient(135deg,
+            #d60270 0%, #d60270 40%, 
+            #9b59b6 50%, #9b59b6 60%, #0038a8 100%) !important;
 }
 
 body.theme-pansexual footer {
-    background: linear-gradient(135deg,
-        #ff218c 0%, #ff218c 33.33%, 
-        #ffd800 33.33%, #ffd800 66.66%, 
-        #21b1ff 66.66%, #21b1ff 100%) !important;
+    background: 
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        linear-gradient(135deg,
+            #ff218c 0%, #ff218c 33.33%, 
+            #ffd800 33.33%, #ffd800 66.66%, 
+            #21b1ff 66.66%, #21b1ff 100%) !important;
 }
 
 body.theme-asexual footer {
-    background: linear-gradient(135deg,
-        #000000 0%, #a3a3a3 25%, 
-        #ffffff 50%, #800080 100%) !important;
+    background: 
+        linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+        linear-gradient(135deg,
+            #000000 0%, #a3a3a3 25%, 
+            #ffffff 50%, #800080 100%) !important;
 }
 
 /* Header theme effects */
@@ -2461,19 +2479,28 @@ body[class*="theme-"] a:hover {
     text-decoration: underline;
 }
 
-/* Mission section theme effects */
+/* Mission section theme effects with improved readability */
 body[class*="theme-"] .decorative-shapes {
-    background: linear-gradient(135deg, 
-        var(--primary) 0%, 
-        var(--secondary) 50%, 
-        var(--accent) 100%) !important;
+    background: 
+        linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)),
+        linear-gradient(135deg, 
+            var(--primary) 0%, 
+            var(--secondary) 50%, 
+            var(--accent) 100%) !important;
 }
 
-/* Navigation theme effects */
+/* Navigation theme effects with enhanced contrast */
+body[class*="theme-"] nav a {
+    color: var(--text) !important;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    font-weight: 500;
+}
+
 body[class*="theme-"] nav a:hover {
-    background: var(--primary);
+    background: var(--primary) !important;
     color: white !important;
     border-radius: 4px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
 }
 
 /* Section divider theming */
@@ -2485,7 +2512,7 @@ body[class*="theme-"] .section-divider {
     height: 3px;
 }
 
-/* Text readability enhancements */
+/* Enhanced text readability for all themes */
 body[class*="theme-"] h1,
 body[class*="theme-"] h2,
 body[class*="theme-"] h3,
@@ -2493,25 +2520,55 @@ body[class*="theme-"] h4,
 body[class*="theme-"] h5,
 body[class*="theme-"] h6 {
     color: var(--text) !important;
-    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    text-shadow: 1px 1px 3px rgba(255,255,255,0.9);
+    font-weight: 600;
 }
 
 body[class*="theme-"] p {
     color: var(--text) !important;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
 }
 
-/* Special contrast handling for light text on dark backgrounds */
-body.theme-rainbow footer *,
-body.theme-progress footer *,
-body.theme-trans footer *,
-body.theme-nonbinary footer *,
-body.theme-lesbian footer *,
-body.theme-gay footer *,
-body.theme-bisexual footer *,
-body.theme-pansexual footer *,
-body.theme-asexual footer * {
+/* Ensure readability in mission section */
+body[class*="theme-"] .decorative-shapes h1,
+body[class*="theme-"] .decorative-shapes h2,
+body[class*="theme-"] .decorative-shapes h3,
+body[class*="theme-"] .decorative-shapes p {
+    color: var(--text) !important;
+    text-shadow: 1px 1px 3px rgba(255,255,255,0.9);
+}
+
+/* Enhanced button contrast */
+body[class*="theme-"] .decorative-shapes .button {
+    background: var(--primary) !important;
     color: white !important;
+    border: 2px solid var(--text) !important;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    font-weight: 600;
+}
+
+body[class*="theme-"] .decorative-shapes .button:hover {
+    background: var(--text) !important;
+    color: white !important;
+    border-color: var(--primary) !important;
+}
+
+/* Enhanced contrast handling for all themed footers */
+body[class*="theme-"] footer * {
+    color: white !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    font-weight: 500;
+}
+
+body[class*="theme-"] footer a {
+    color: rgba(255,255,255,0.9) !important;
+    text-decoration: underline;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+body[class*="theme-"] footer a:hover {
+    color: white !important;
+    text-shadow: 2px 2px 6px rgba(0,0,0,1);
 }
 
 /* Enhanced social links in footer */
