@@ -7,6 +7,12 @@ console.log('🚀 SCRIPT LOAD DEBUG - Current URL:', window.location.href);
 
 // Add error handler for unhandled errors
 window.addEventListener('error', (e) => {
+  // Ignore focus-related errors as they're not critical
+  if (e.error?.message?.includes('focus') || e.error?.message?.includes('Cannot read properties of null')) {
+    console.warn('Non-critical error (focus):', e.error?.message);
+    return;
+  }
+  
   console.error('Unhandled error:', e.error);
   const app = document.getElementById('app');
   if (app && !app.innerHTML.trim()) {
@@ -415,7 +421,10 @@ function renderLogin() {
   
   // Focus on email field
   setTimeout(() => {
-    document.getElementById('email').focus();
+    const emailField = document.getElementById('email');
+    if (emailField) {
+      emailField.focus();
+    }
   }, 100);
 }
 
