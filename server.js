@@ -145,7 +145,31 @@ app.post('/api/auth/logout', requireSupabaseAuth, async (req, res) => {
 
 // ==================== ROLES API ====================
 
-// Get all roles
+// Get published roles (public endpoint - no auth required)
+app.get('/api/roles/public', async (req, res) => {
+  try {
+    console.log('🌐 Public roles API called');
+    
+    const { data, error } = await supabase
+      .from('roles')
+      .select('*')
+      .eq('status', 'open')  // Only show published/open roles
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Public roles fetch error:', error);
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    console.log(`✅ Found ${data.length} published roles`);
+    res.json({ success: true, roles: data });
+  } catch (err) {
+    console.error('Public roles API error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Get all roles (admin only)
 app.get('/api/roles', requireSupabaseAuth, async (req, res) => {
   try {
     const { data, error } = await supabase

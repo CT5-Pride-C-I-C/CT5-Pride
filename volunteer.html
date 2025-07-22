@@ -588,16 +588,20 @@
         // Function to load roles from Supabase API
         async function loadRoles() {
             try {
-                // Try to fetch from API
-                const response = await fetch('/api/roles');
+                console.log('🌐 Loading roles from public API...');
+                
+                // Fetch from public API (no auth required)
+                const response = await fetch('/api/roles/public');
                 if (response.ok) {
                     const data = await response.json();
+                    console.log(`✅ Loaded ${data.roles?.length || 0} published roles`);
                     return data.roles || [];
                 } else {
-                    throw new Error('API not available');
+                    console.error('API response not ok:', response.status, response.statusText);
+                    throw new Error(`API error: ${response.status}`);
                 }
             } catch (error) {
-                console.warn('Failed to load roles from API:', error);
+                console.error('Failed to load roles from API:', error);
                 // Return empty array if API fails
                 return [];
             }
