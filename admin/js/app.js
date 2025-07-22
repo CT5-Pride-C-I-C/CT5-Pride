@@ -1,7 +1,7 @@
 // CT5 Pride Admin SPA - app.js
 // Handles hash-based routing, authentication, and view switching
 
-console.log('🚀 CT5 PRIDE ADMIN - app.js starting initialization');
+console.log('🚀 CT5 PRIDE ADMIN - app.js starting initialization v1.1');
 console.log('🚀 SCRIPT LOAD DEBUG - app.js has loaded successfully');
 console.log('🚀 SCRIPT LOAD DEBUG - Current URL:', window.location.href);
 
