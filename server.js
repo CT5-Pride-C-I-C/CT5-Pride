@@ -474,7 +474,12 @@ app.get('/api/analytics', requireSupabaseAuth, async (req, res) => {
 // Serve Images directory at root level for logo and assets  
 app.use('/Images', express.static(path.join(__dirname, 'Images')));
 
-// Serve static files from /admin
+// CRITICAL: Serve static files from /admin directory with explicit paths
+// This ensures CSS and JS files are served correctly before wildcard route
+app.use('/css', express.static(path.join(adminDir, 'css')));
+app.use('/js', express.static(path.join(adminDir, 'js')));
+
+// Serve all other static files from /admin (for any other assets)
 app.use(express.static(adminDir));
 
 // Route / to serve admin/index.html
@@ -482,31 +487,20 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(adminDir, 'index.html'));
 });
 
-// Wildcard route for SPA client-side routing
+// Wildcard route for SPA client-side routing (MUST be last)
 app.get('*', (req, res, next) => {
   // Skip API routes
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ success: false, message: 'API endpoint not found' });
   }
 
-  // If the request is for a file that exists, serve it
-  const requestedPath = path.join(adminDir, req.path);
-  if (fs.existsSync(requestedPath) && fs.lstatSync(requestedPath).isFile()) {
-    return res.sendFile(requestedPath);
-  }
-  
-  // Serve index.html for all other routes (SPA fallback)
+  // For SPA client-side routing, serve index.html for all non-file routes
   const indexPath = path.join(adminDir, 'index.html');
   if (fs.existsSync(indexPath)) {
     return res.sendFile(indexPath);
   }
   
-  // Serve 404.html if it exists, otherwise plain 404
-  const notFoundPath = path.join(adminDir, '404.html');
-  if (fs.existsSync(notFoundPath)) {
-    return res.status(404).sendFile(notFoundPath);
-  }
-  
+  // Fallback 404
   res.status(404).send('404 Not Found');
 });
 
