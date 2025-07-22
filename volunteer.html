@@ -591,13 +591,20 @@
                 console.log('🌐 Loading roles from public API...');
                 
                 // Fetch from public API (no auth required)
-                const response = await fetch('/api/roles/public');
+                const apiUrl = 'https://admin.ct5pride.co.uk/api/roles/public';
+                console.log('🔗 Fetching roles from:', apiUrl);
+                const response = await fetch(apiUrl, { credentials: 'omit' });
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(`✅ Loaded ${data.roles?.length || 0} published roles`);
-                    return data.roles || [];
+                    console.log('✅ API response:', data);
+                    if (!data.roles || !Array.isArray(data.roles)) {
+                        console.warn('⚠️ API did not return roles array:', data);
+                        return [];
+                    }
+                    console.log(`✅ Loaded ${data.roles.length} published roles`);
+                    return data.roles;
                 } else {
-                    console.error('API response not ok:', response.status, response.statusText);
+                    console.error('❌ API response not ok:', response.status, response.statusText);
                     throw new Error(`API error: ${response.status}`);
                 }
             } catch (error) {
