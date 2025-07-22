@@ -2922,17 +2922,22 @@ body.theme-trans::before {
   position: relative;
   width: 55px;
   height: 28px;
-  background: var(--gray);
+  background: #ddd;
   border-radius: 28px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.3s ease;
   border: 2px solid transparent;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.accessibility-toggle-switch:hover {
+  background: #ccc;
 }
 
 .accessibility-toggle-switch.active {
-  background: var(--warm-gradient);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   border-color: var(--primary);
-  box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+  box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4), inset 0 1px 2px rgba(255,255,255,0.3);
 }
 
 .accessibility-toggle-switch::before {
@@ -2944,13 +2949,19 @@ body.theme-trans::before {
   height: 22px;
   background: white;
   border-radius: 50%;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.accessibility-toggle-switch:hover::before {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
 }
 
 .accessibility-toggle-switch.active::before {
   left: 29px;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  background: #ffffff;
 }
 
 .accessibility-toggle-switch:focus {

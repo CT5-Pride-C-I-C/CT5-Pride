@@ -69,13 +69,28 @@ function setupAccessibility() {
         toggles.forEach(toggle => {
             toggle.addEventListener('click', () => {
                 const isChecked = toggle.getAttribute('aria-checked') === 'true';
-                toggle.setAttribute('aria-checked', !isChecked);
+                const newState = !isChecked;
+                
+                // Update both aria-checked and visual state
+                toggle.setAttribute('aria-checked', newState);
+                toggle.classList.toggle('active', newState);
                 
                 const setting = toggle.dataset.setting;
-                document.body.classList.toggle(setting, !isChecked);
+                document.body.classList.toggle(setting, newState);
                 
                 // Save preference
-                localStorage.setItem(`ct5pride-${setting}`, !isChecked);
+                localStorage.setItem(`ct5pride-${setting}`, newState);
+                
+                // Announce change for screen readers
+                announceToggleChange(setting, newState);
+            });
+            
+            // Add keyboard support
+            toggle.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggle.click();
+                }
             });
             
             // Load saved preferences
@@ -83,6 +98,7 @@ function setupAccessibility() {
             const saved = localStorage.getItem(`ct5pride-${setting}`);
             if (saved === 'true') {
                 toggle.setAttribute('aria-checked', 'true');
+                toggle.classList.add('active');
                 document.body.classList.add(setting);
             }
         });
@@ -115,6 +131,37 @@ function setupAccessibility() {
             }
         }
     }
+}
+
+function announceToggleChange(setting, isEnabled) {
+    // Create accessible announcement for screen readers
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.style.position = 'absolute';
+    announcement.style.left = '-10000px';
+    announcement.style.width = '1px';
+    announcement.style.height = '1px';
+    announcement.style.overflow = 'hidden';
+    
+    const settingNames = {
+        'high-contrast': 'High Contrast Mode',
+        'dyslexia-friendly': 'Dyslexia Friendly Font',
+        'reduce-motion': 'Reduce Motion'
+    };
+    
+    const settingName = settingNames[setting] || setting;
+    const state = isEnabled ? 'enabled' : 'disabled';
+    
+    announcement.textContent = `${settingName} ${state}`;
+    document.body.appendChild(announcement);
+    
+    // Remove announcement after screen readers have processed it
+    setTimeout(() => {
+        if (announcement.parentNode) {
+            announcement.parentNode.removeChild(announcement);
+        }
+    }, 1000);
 }
 
 // ==================== EVENTS LOADING ====================
