@@ -1336,3 +1336,252 @@ select:focus {
     border-bottom: 2px solid black;
   }
 } 
+
+/* ==================== TABLE STYLES ==================== */
+
+/* Table container with responsive scrolling */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  background: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--gray-200);
+  margin-bottom: var(--space-6);
+}
+
+/* Main table styling */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  margin: 0;
+  min-width: 800px; /* Ensures horizontal scroll on small screens */
+}
+
+/* Table header */
+.admin-table thead {
+  background: linear-gradient(135deg, var(--primary-pink), var(--secondary-coral));
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.admin-table thead th {
+  padding: var(--space-4) var(--space-3);
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--gray-300);
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-table thead th:last-child {
+  border-right: none;
+}
+
+/* Table body */
+.admin-table tbody tr {
+  border-bottom: 1px solid var(--gray-200);
+  transition: var(--transition);
+}
+
+.admin-table tbody tr:hover {
+  background-color: var(--gray-50);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.admin-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* Table cells */
+.admin-table td {
+  padding: var(--space-4) var(--space-3);
+  border-right: 1px solid var(--gray-200);
+  vertical-align: top;
+  line-height: 1.5;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+}
+
+.admin-table td:last-child {
+  border-right: none;
+}
+
+/* Email and phone styling */
+.admin-table td:nth-child(3) a {
+  color: var(--primary-pink);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.admin-table td:nth-child(3) a:hover {
+  text-decoration: underline;
+}
+
+.admin-table td:nth-child(4) {
+  font-family: monospace;
+  font-size: var(--font-size-sm);
+}
+
+/* Address column - wider and wrapped */
+.admin-table td:nth-child(6) {
+  max-width: 250px;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+/* Membership number - monospace */
+.admin-table td:nth-child(8) {
+  font-family: monospace;
+  font-weight: 500;
+  color: var(--primary-pink);
+  background-color: rgba(255, 111, 145, 0.05);
+}
+
+/* Agreement column - centered with better spacing */
+.admin-table td:nth-child(9) {
+  text-align: center;
+  white-space: nowrap;
+  max-width: 120px;
+  background-color: var(--gray-50);
+  padding: var(--space-3);
+}
+
+/* Agreement icons styling */
+.admin-table td span[title] {
+  display: inline-block;
+  margin: 0 var(--space-1);
+  padding: var(--space-1);
+  border-radius: 4px;
+  font-size: var(--font-size-base);
+  transition: var(--transition);
+}
+
+.admin-table td span[title]:hover {
+  background-color: white;
+  box-shadow: var(--shadow-sm);
+  transform: scale(1.1);
+}
+
+/* Date column formatting */
+.admin-table td:nth-child(10) {
+  font-family: monospace;
+  font-size: var(--font-size-xs);
+  color: var(--gray-600);
+  white-space: nowrap;
+}
+
+/* Zebra striping for better readability */
+.admin-table tbody tr:nth-child(even) {
+  background-color: rgba(249, 250, 251, 0.5);
+}
+
+.admin-table tbody tr:nth-child(even):hover {
+  background-color: var(--gray-100);
+}
+
+/* Empty state styling */
+.memberships-container .no-data {
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--gray-500);
+  background: white;
+  border-radius: var(--border-radius-lg);
+  border: 2px dashed var(--gray-300);
+  margin: var(--space-6) 0;
+}
+
+.memberships-container .no-data h3 {
+  color: var(--gray-700);
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-xl);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .table-responsive {
+    border-radius: var(--border-radius);
+    margin: 0 -var(--space-4) var(--space-6) -var(--space-4);
+  }
+  
+  .admin-table {
+    font-size: var(--font-size-xs);
+    min-width: 1000px; /* Force horizontal scroll */
+  }
+  
+  .admin-table th,
+  .admin-table td {
+    padding: var(--space-2) var(--space-2);
+  }
+  
+  .admin-table td {
+    max-width: 120px;
+  }
+  
+  .admin-table td:nth-child(6) {
+    max-width: 150px;
+  }
+  
+  .admin-table td span[title] {
+    margin: 0 2px;
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* Loading state for tables */
+.table-loading {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--gray-500);
+}
+
+.table-loading .loading-spinner {
+  margin: 0 auto var(--space-4) auto;
+}
+
+/* Table action buttons */
+.table-actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  margin-bottom: var(--space-4);
+}
+
+.table-actions .btn {
+  font-size: var(--font-size-sm);
+  padding: var(--space-2) var(--space-4);
+}
+
+/* Success/Error states for agreement columns */
+.agreement-success {
+  color: var(--success-green);
+  background-color: rgba(46, 204, 113, 0.1);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 2px;
+}
+
+.agreement-error {
+  color: var(--danger-red);
+  background-color: rgba(231, 76, 60, 0.1);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 2px;
+} 

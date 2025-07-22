@@ -533,6 +533,60 @@ app.get('/api/memberships', requireSupabaseAuth, async (req, res) => {
   }
 });
 
+// 🔄 GET /api/membership/:id/stripe
+// Retrieves Stripe subscription info for a CT5 Pride member
+app.get('/api/membership/:id/stripe', requireSupabaseAuth, async (req, res) => {
+  try {
+    const Stripe = require('stripe');
+    
+    // Initialize Stripe with environment variable
+    if (!config.STRIPE_SECRET_KEY) {
+      return res.status(500).json({ success: false, error: 'Stripe configuration missing' });
+    }
+    
+    const stripe = new Stripe(config.STRIPE_SECRET_KEY);
+    const memberId = req.params.id;
+
+    // Step 1: Look up the member in Supabase
+    const { data: member, error: memberError } = await supabase
+      .from('memberships')
+      .select('stripe_customer_id')
+      .eq('id', memberId)
+      .single();
+
+    if (memberError || !member || !member.stripe_customer_id) {
+      return res.status(404).json({ success: false, error: 'Member not found or missing Stripe ID' });
+    }
+
+    // Step 2: Fetch subscription(s) for this Stripe customer
+    const subscriptions = await stripe.subscriptions.list({
+      customer: member.stripe_customer_id,
+      status: 'active',
+      limit: 1
+    });
+
+    const subscription = subscriptions.data[0];
+
+    if (!subscription) {
+      return res.status(404).json({ success: false, error: 'No active subscriptions found' });
+    }
+
+    return res.json({
+      success: true,
+      renewal_date: new Date(subscription.current_period_end * 1000).toISOString(),
+      start_date: new Date(subscription.current_period_start * 1000).toISOString(),
+      plan: subscription.plan?.nickname || subscription.plan?.id || 'Unknown Plan',
+      status: subscription.status,
+      amount: subscription.plan?.amount || 0,
+      currency: subscription.plan?.currency || 'gbp'
+    });
+
+  } catch (err) {
+    console.error('Stripe error:', err.message);
+    return res.status(500).json({ success: false, error: 'Stripe API error: ' + err.message });
+  }
+});
+
 // ==================== STATIC FILE SERVING ====================
 
 // Serve Images directory at root level for logo and assets  
@@ -574,4 +628,5 @@ app.listen(PORT, () => {
   console.log('🌐 Visit: https://admin.ct5pride.co.uk/');
   console.log('🔐 API endpoints protected with Supabase Auth');
   console.log('📊 Analytics, roles, applications, events, and memberships APIs ready');
+  console.log('💳 Stripe integration ready for membership renewals');
 }); 
