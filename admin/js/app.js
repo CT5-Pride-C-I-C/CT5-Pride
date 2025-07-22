@@ -1196,7 +1196,19 @@ window.addEventListener('hashchange', route);
 
 // Session management helper functions
 function isAuthenticated() {
-  return !!currentUser && !!getSession();
+  const hasUser = !!currentUser;
+  const hasToken = !!getSession();
+  const result = hasUser && hasToken;
+  
+  console.log('🔍 isAuthenticated() check:', {
+    hasUser,
+    hasToken,
+    userEmail: currentUser?.email || 'None',
+    tokenPreview: hasToken ? getSession().substring(0, 15) + '...' : 'None',
+    result
+  });
+  
+  return result;
 }
 
 // Enhanced route protection
@@ -1353,11 +1365,17 @@ window.addEventListener("DOMContentLoaded", async () => {
           currentUser = user;
           
           console.log('💾 Session stored successfully');
+          console.log('🔍 POST-OAUTH DEBUG - Authentication state after setting:', {
+            currentUserSet: !!currentUser,
+            tokenStored: !!getSession(),
+            userEmail: currentUser?.email,
+            isAuthenticatedNow: isAuthenticated()
+          });
           
           // Clean up URL and redirect to dashboard immediately after successful session creation
           if (data.session && window.location.hash.includes('access_token')) {
             console.log("✅ Session established, cleaning up URL...");
-            history.replaceState(null, '', '/admin/#/dashboard');
+            history.replaceState(null, '', '/#/dashboard');
           }
           
           // Show success message briefly and immediately render dashboard
