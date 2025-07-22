@@ -483,7 +483,7 @@ async function handleGitHubLogin() {
     console.log('🎯 GITHUB OAUTH DEBUG - Initiating GitHub OAuth login...');
     
     // Debug the redirect URL being used
-    const redirectUrl = `${window.location.origin}/admin/`;
+    const redirectUrl = `${window.location.origin}/`;
     console.log('🔍 GITHUB OAUTH DEBUG - Redirect URL being requested:', redirectUrl);
     console.log('🔍 GITHUB OAUTH DEBUG - window.location.origin:', window.location.origin);
     console.log('🔍 GITHUB OAUTH DEBUG - Current page URL:', window.location.href);
