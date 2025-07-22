@@ -1270,7 +1270,7 @@ nav a:focus {
     backdrop-filter: blur(10px);
   }
 
-  nav.active {
+  nav.nav-open {
     display: block;
     animation: mobileNavSlide 0.4s ease;
   }
@@ -1318,7 +1318,7 @@ nav a:focus {
     padding: 0;
   }
 
-  .dropdown.active .dropdown-content {
+  .dropdown.dropdown-open .dropdown-content {
     display: block;
   }
 
@@ -2263,7 +2263,7 @@ footer::after {
   backdrop-filter: blur(20px);
 }
 
-.accessibility-menu.active {
+.accessibility-menu.open {
   display: block;
   animation: accessibilitySlideIn 0.4s ease;
 }
