@@ -294,16 +294,13 @@ function escapeHtml(text) {
 function setupPrideFlagThemes() {
     console.log('🏳️‍🌈 Setting up pride flag theme switching...');
     
-    const prideFlags = document.querySelectorAll('.pride-flag-icon[data-theme]');
-    const currentTheme = localStorage.getItem('ct5pride-theme') || 'default';
+    // Clear any previously stored theme data to ensure fresh start
+    localStorage.removeItem('ct5pride-theme');
     
-    // Apply saved theme on load
-    if (currentTheme !== 'default') {
-        applyTheme(currentTheme);
-        updateActiveFlag(currentTheme);
-    } else {
-        updateActiveFlag('default');
-    }
+    const prideFlags = document.querySelectorAll('.pride-flag-icon[data-theme]');
+    
+    // Always start with default theme (no persistence)
+    updateActiveFlag('default');
     
     // Add click handlers to all flags
     prideFlags.forEach(flag => {
@@ -328,17 +325,14 @@ function handleFlagKeydown(event) {
 }
 
 function switchTheme(newTheme) {
-    console.log(`🎨 Switching to ${newTheme} theme`);
+    console.log(`🎨 Switching to ${newTheme} theme (temporary)`);
     
     // Remove all existing theme classes
     document.body.className = document.body.className.replace(/theme-\w+/g, '');
     
-    // Apply new theme
+    // Apply new theme (temporary only - no localStorage)
     if (newTheme !== 'default') {
         applyTheme(newTheme);
-        localStorage.setItem('ct5pride-theme', newTheme);
-    } else {
-        localStorage.removeItem('ct5pride-theme');
     }
     
     // Update active flag indicator
@@ -346,12 +340,23 @@ function switchTheme(newTheme) {
     
     // Dispatch custom event for accessibility tools
     window.dispatchEvent(new CustomEvent('themeChanged', { 
-        detail: { theme: newTheme } 
+        detail: { theme: newTheme, temporary: true } 
     }));
 }
 
 function applyTheme(theme) {
-    document.body.classList.add(`theme-${theme}`);
+    // Add fade transition class
+    document.body.classList.add('theme-transitioning');
+    
+    // Apply theme after short delay for smooth transition
+    setTimeout(() => {
+        document.body.classList.add(`theme-${theme}`);
+        
+        // Remove transition class after animation
+        setTimeout(() => {
+            document.body.classList.remove('theme-transitioning');
+        }, 500);
+    }, 50);
     
     // Update meta theme color for mobile browsers
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -364,9 +369,9 @@ function applyTheme(theme) {
     // Set theme color based on flag
     const themeColors = {
         rainbow: '#e40303',
-        progress: '#5bcffa',
+        progress: '#d62d20',
         trans: '#5bcffa',
-        nonbinary: '#fcf434',
+        nonbinary: '#9c59d1',
         lesbian: '#d62d20',
         gay: '#078d70',
         bisexual: '#d60270',
@@ -376,6 +381,72 @@ function applyTheme(theme) {
     };
     
     metaThemeColor.content = themeColors[theme] || themeColors.default;
+    
+    // Add visual celebration effect
+    addThemeCelebrationEffect(theme);
+}
+
+function addThemeCelebrationEffect(theme) {
+    // Create a subtle confetti-like effect
+    const celebration = document.createElement('div');
+    celebration.className = 'theme-celebration';
+    celebration.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+    
+    const themeColors = {
+        rainbow: ['#e40303', '#ff8c00', '#ffed00', '#008018', '#004cff', '#732982'],
+        progress: ['#5bcffa', '#f5a9b8', '#ffffff', '#784f17', '#000000'],
+        trans: ['#5bcffa', '#f5a9b8', '#ffffff'],
+        nonbinary: ['#fcf434', '#ffffff', '#9c59d1', '#2c2c2c'],
+        lesbian: ['#d62d20', '#ff9955', '#ffffff', '#d161a2', '#a20160'],
+        gay: ['#078d70', '#26ceaa', '#98e8c1', '#ffffff', '#7bade2', '#5049cc'],
+        bisexual: ['#d60270', '#9b59b6', '#0038a8'],
+        pansexual: ['#ff218c', '#ffd800', '#21b1ff'],
+        asexual: ['#000000', '#a3a3a3', '#ffffff', '#800080'],
+        default: ['#e91e63', '#2196f3', '#e91e63']
+    };
+    
+    const colors = themeColors[theme] || themeColors.default;
+    
+    // Create sparkle elements
+    for (let i = 0; i < 15; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.style.cssText = `
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            border-radius: 50%;
+            top: ${Math.random() * 100}%;
+            left: ${Math.random() * 100}%;
+            animation: sparkleFloat 1.5s ease-out forwards;
+            box-shadow: 0 0 6px currentColor;
+        `;
+        celebration.appendChild(sparkle);
+    }
+    
+    document.body.appendChild(celebration);
+    
+    // Trigger animation
+    requestAnimationFrame(() => {
+        celebration.style.opacity = '1';
+    });
+    
+    // Remove after animation
+    setTimeout(() => {
+        if (celebration.parentNode) {
+            celebration.parentNode.removeChild(celebration);
+        }
+    }, 1500);
 }
 
 function updateActiveFlag(activeTheme) {
@@ -417,15 +488,75 @@ function announceThemeChange(theme) {
         asexual: 'Asexual Pride'
     };
     
-    announcement.textContent = `${themeNames[theme]} theme applied. Website colors updated.`;
+    const themeDescriptions = {
+        default: 'Original CT5 Pride colors restored',
+        rainbow: 'Classic rainbow pride colors applied with vibrant red, orange, yellow, green, blue, and purple',
+        progress: 'Progress Pride colors with inclusion stripes featuring trans, brown, and black representation',
+        trans: 'Transgender pride colors in light blue, pink, and white',
+        nonbinary: 'Non-binary pride colors in yellow, white, purple, and black',
+        lesbian: 'Lesbian pride colors in orange, white, and pink tones',
+        gay: 'Gay pride colors in teal, green, and blue tones',
+        bisexual: 'Bisexual pride colors in pink, purple, and blue',
+        pansexual: 'Pansexual pride colors in pink, yellow, and blue',
+        asexual: 'Asexual pride colors in black, gray, white, and purple'
+    };
+    
+    announcement.textContent = `${themeNames[theme]} theme temporarily activated. ${themeDescriptions[theme]}. Footer, header, and website elements updated with new color scheme. Theme will reset on page refresh.`;
     document.body.appendChild(announcement);
+    
+    // Also show a brief visual notification
+    showThemeNotification(themeNames[theme]);
     
     // Remove announcement after screen readers have processed it
     setTimeout(() => {
         if (announcement.parentNode) {
             announcement.parentNode.removeChild(announcement);
         }
-    }, 1000);
+    }, 2000);
+}
+
+function showThemeNotification(themeName) {
+    // Create a brief visual notification
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--primary, #e91e63);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        z-index: 10000;
+        font-weight: 500;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        max-width: 320px;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    `;
+    
+    if (themeName === 'Default CT5 Pride') {
+        notification.innerHTML = `🏳️‍🌈 <strong>Default Theme Restored</strong>`;
+    } else {
+        notification.innerHTML = `🏳️‍🌈 <strong>${themeName} Theme Active</strong><br><small>Temporary - resets on refresh</small>`;
+    }
+    document.body.appendChild(notification);
+    
+    // Animate in
+    requestAnimationFrame(() => {
+        notification.style.transform = 'translateX(0)';
+    });
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
 }
 
 // ==================== INITIALIZATION ====================
