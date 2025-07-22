@@ -1448,7 +1448,7 @@ select:focus {
 }
 
 /* Agreement column - centered with better spacing */
-.admin-table td:nth-child(9) {
+.admin-table td:nth-child(11) {
   text-align: center;
   white-space: nowrap;
   max-width: 120px;
@@ -1472,21 +1472,9 @@ select:focus {
   transform: scale(1.1);
 }
 
-/* Date column formatting */
-.admin-table td:nth-child(10) {
-  font-family: monospace;
-  font-size: var(--font-size-xs);
-  color: var(--gray-600);
-  white-space: nowrap;
-}
-
 /* Zebra striping for better readability */
 .admin-table tbody tr:nth-child(even) {
   background-color: rgba(249, 250, 251, 0.5);
-}
-
-.admin-table tbody tr:nth-child(even):hover {
-  background-color: var(--gray-100);
 }
 
 /* Empty state styling */
@@ -1584,4 +1572,56 @@ select:focus {
   align-items: center;
   justify-content: center;
   margin: 0 2px;
+} 
+
+/* ==================== STRIPE COLUMNS STYLING ==================== */
+
+/* Plan Name column (9th column) */
+.admin-table td:nth-child(9) {
+  font-weight: 500;
+  color: var(--secondary-coral);
+  max-width: 150px;
+  word-wrap: break-word;
+}
+
+/* Renewal Date column (10th column) */
+.admin-table td:nth-child(10) {
+  font-family: monospace;
+  font-size: var(--font-size-sm);
+  color: var(--primary-pink);
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+/* Loading state for Stripe data */
+.admin-table td[data-loading="true"] {
+  color: var(--gray-400);
+  font-style: italic;
+  position: relative;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Fallback styling for missing Stripe data */
+.admin-table td .stripe-fallback {
+  color: var(--gray-400);
+  font-size: var(--font-size-xs);
+  font-style: italic;
+}
+
+/* Update Date Submitted column to be 12th now */
+.admin-table td:nth-child(12) {
+  font-family: monospace;
+  font-size: var(--font-size-xs);
+  color: var(--gray-600);
+  white-space: nowrap;
 } 

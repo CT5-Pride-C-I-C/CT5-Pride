@@ -1222,13 +1222,15 @@ async function loadMemberships() {
               <th>Address + Postcode</th>
               <th>Membership Type</th>
               <th>Membership Number</th>
+              <th>Plan Name</th>
+              <th>Renewal Date</th>
               <th>Agreement</th>
               <th>Date Submitted</th>
             </tr>
           </thead>
           <tbody>
             ${memberships.map(m => `
-              <tr>
+              <tr data-member-id="${m.id}">
                 <td>${m.full_name || ''}</td>
                 <td>${m.pronouns || ''}</td>
                 <td>${m.email || ''}</td>
@@ -1237,6 +1239,8 @@ async function loadMemberships() {
                 <td>${m.address || ''} ${m.postcode || ''}</td>
                 <td>${m.membership_type || ''}</td>
                 <td>${m.membership_number || ''}</td>
+                <td class="plan-name" data-loading="true">Loading...</td>
+                <td class="renewal-date" data-loading="true">Loading...</td>
                 <td>
                   <span title="Confirmed Info">${m.confirm_info ? '✅' : '❌'}</span>
                   <span title="Conduct Policy">${m.agree_conduct_policy ? '✅' : '❌'}</span>
@@ -1249,9 +1253,84 @@ async function loadMemberships() {
         </table>
       </div>
     `;
+    
+    // Load Stripe data for each membership
+    await loadStripeDataForMemberships(memberships);
+    
   } catch (err) {
     console.error('Memberships load error:', err);
     showError(content, err.message);
+  }
+}
+
+// ==================== STRIPE DATA LOADING ====================
+
+async function loadStripeDataForMemberships(memberships) {
+  // Process memberships in parallel for better performance
+  const stripePromises = memberships.map(async (member) => {
+    try {
+      // Only fetch Stripe data if member has a Stripe customer ID
+      if (!member.stripe_customer_id) {
+        updateMembershipStripeUI(member.id, null, 'No Stripe ID');
+        return;
+      }
+      
+      // Fetch Stripe subscription data
+      const response = await fetch(`/api/membership/${member.id}/stripe`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${getSession()?.access_token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const stripeData = await response.json();
+        if (stripeData.success) {
+          updateMembershipStripeUI(member.id, stripeData, null);
+        } else {
+          updateMembershipStripeUI(member.id, null, stripeData.error || 'Stripe error');
+        }
+      } else {
+        updateMembershipStripeUI(member.id, null, 'API error');
+      }
+      
+    } catch (err) {
+      console.error(`Stripe data fetch error for member ${member.id}:`, err);
+      updateMembershipStripeUI(member.id, null, 'Fetch failed');
+    }
+  });
+  
+  // Wait for all Stripe requests to complete
+  await Promise.allSettled(stripePromises);
+}
+
+function updateMembershipStripeUI(memberId, stripeData, errorMessage) {
+  const memberRow = document.querySelector(`tr[data-member-id="${memberId}"]`);
+  if (!memberRow) return;
+  
+  const planNameCell = memberRow.querySelector('.plan-name');
+  const renewalDateCell = memberRow.querySelector('.renewal-date');
+  
+  if (stripeData && stripeData.success) {
+    // Successfully got Stripe data
+    planNameCell.textContent = stripeData.plan || 'Unknown Plan';
+    planNameCell.removeAttribute('data-loading');
+    
+    if (stripeData.renewal_date) {
+      renewalDateCell.textContent = formatDate(stripeData.renewal_date);
+    } else {
+      renewalDateCell.textContent = '–';
+    }
+    renewalDateCell.removeAttribute('data-loading');
+    
+  } else {
+    // Error or no data available
+    planNameCell.textContent = '–';
+    planNameCell.removeAttribute('data-loading');
+    
+    renewalDateCell.textContent = '–';
+    renewalDateCell.removeAttribute('data-loading');
   }
 }
 
