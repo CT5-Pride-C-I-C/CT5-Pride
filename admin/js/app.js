@@ -65,7 +65,8 @@ const navigation = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
   { id: 'roles', label: 'Role Management', icon: '👥' },
   { id: 'events', label: 'Event Management', icon: '📅' },
-  { id: 'analytics', label: 'Analytics', icon: '📈' }
+  { id: 'analytics', label: 'Analytics', icon: '📈' },
+  { id: 'memberships-list', label: 'Memberships', icon: '🪪' }
 ];
 
 // ==================== AUTHENTICATION & SESSION MANAGEMENT ====================
@@ -282,6 +283,10 @@ function route() {
     case '#/analytics':
       console.log('✓ Rendering analytics page for authenticated user');
       renderAnalytics();
+      break;
+    case '#/memberships-list':
+      console.log('✓ Rendering memberships page for authenticated user');
+      renderMemberships();
       break;
     default:
       console.log('❌ Unknown route, rendering 404');
@@ -1173,6 +1178,81 @@ function calculateResponseRate() {
   
   const rate = ((responded / total) * 100).toFixed(1);
   return `${rate}%`;
+}
+
+// ==================== MEMBERSHIPS VIEW ====================
+
+async function renderMemberships() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="admin-layout">
+      ${renderNavigation('memberships-list')}
+      <main class="admin-content">
+        <div class="page-header">
+          <h1>Memberships</h1>
+          <p>View and manage all membership applications</p>
+        </div>
+        <div id="memberships-content" class="memberships-container"></div>
+      </main>
+    </div>
+  `;
+  await loadMemberships();
+}
+
+async function loadMemberships() {
+  const content = document.getElementById('memberships-content');
+  showLoading(content, 'Loading memberships...');
+  try {
+    const response = await apiRequest('/api/memberships');
+    const memberships = response.memberships;
+    if (!memberships || memberships.length === 0) {
+      content.innerHTML = `<div class="no-data"><h3>No memberships found</h3></div>`;
+      return;
+    }
+    content.innerHTML = `
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Full Name</th>
+              <th>Pronouns</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Date of Birth</th>
+              <th>Address + Postcode</th>
+              <th>Membership Type</th>
+              <th>Membership Number</th>
+              <th>Agreement</th>
+              <th>Date Submitted</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${memberships.map(m => `
+              <tr>
+                <td>${m.full_name || ''}</td>
+                <td>${m.pronouns || ''}</td>
+                <td>${m.email || ''}</td>
+                <td>${m.phone || ''}</td>
+                <td>${m.date_of_birth ? formatDate(m.date_of_birth) : ''}</td>
+                <td>${m.address || ''} ${m.postcode || ''}</td>
+                <td>${m.membership_type || ''}</td>
+                <td>${m.membership_number || ''}</td>
+                <td>
+                  <span title="Confirmed Info">${m.confirm_info ? '✅' : '❌'}</span>
+                  <span title="Conduct Policy">${m.agree_conduct_policy ? '✅' : '❌'}</span>
+                  <span title="Privacy">${m.agree_privacy ? '✅' : '❌'}</span>
+                </td>
+                <td>${m.created_at ? formatDate(m.created_at) : ''}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (err) {
+    console.error('Memberships load error:', err);
+    showError(content, err.message);
+  }
 }
 
 // ==================== 404 NOT FOUND VIEW ====================

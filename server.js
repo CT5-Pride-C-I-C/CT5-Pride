@@ -469,6 +469,70 @@ app.get('/api/analytics', requireSupabaseAuth, async (req, res) => {
   }
 });
 
+// ==================== MEMBERSHIPS API ====================
+
+// Jotform webhook: Insert new membership
+app.post('/api/jotform-membership', async (req, res) => {
+  try {
+    console.log('📥 Jotform webhook received:', req.body);
+    const body = req.body;
+    // Generate unique membership number
+    const timestamp = Date.now();
+    const membership_number = `CT5-${timestamp}`;
+    // Prepare insert object
+    const insertObj = {
+      ...body,
+      membership_number,
+      created_at: new Date().toISOString(),
+    };
+    console.log('💾 Inserting membership:', insertObj);
+    // Insert into memberships table
+    const { data, error } = await supabase
+      .from('memberships')
+      .insert([insertObj])
+      .select();
+    if (error) {
+      console.error('❌ Membership insert error:', error);
+      return res.status(400).json({ success: false, error: error.message });
+    }
+    console.log('✅ Membership created successfully:', data[0]);
+    res.json({ success: true, membership_number });
+  } catch (err) {
+    console.error('Membership webhook error:', err);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
+// Debug endpoint to test the membership webhook (GET request)
+app.get('/api/jotform-membership', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Membership webhook endpoint is working. Use POST to submit membership data.',
+    expectedFields: [
+      'full_name', 'pronouns', 'date_of_birth', 'email', 'phone', 
+      'address', 'postcode', 'membership_type', 'confirm_info', 
+      'agree_conduct_policy', 'agree_privacy'
+    ]
+  });
+});
+
+// Admin: Get all memberships (protected)
+app.get('/api/memberships', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('memberships')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      return res.status(400).json({ success: false, error: error.message });
+    }
+    res.json({ success: true, memberships: data });
+  } catch (err) {
+    console.error('Get memberships error:', err);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
 // ==================== STATIC FILE SERVING ====================
 
 // Serve Images directory at root level for logo and assets  
@@ -509,5 +573,5 @@ app.listen(PORT, () => {
   console.log(`📁 Serving admin dashboard from: ${adminDir}`);
   console.log('🌐 Visit: https://admin.ct5pride.co.uk/');
   console.log('🔐 API endpoints protected with Supabase Auth');
-  console.log('📊 Analytics, roles, applications, and events APIs ready');
+  console.log('📊 Analytics, roles, applications, events, and memberships APIs ready');
 }); 
