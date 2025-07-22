@@ -2099,65 +2099,277 @@ footer::after {
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
-/* Enhanced Pride Flag Icons */
+/* Enhanced Pride Flag Icons with Theme Switching */
 .pride-flags {
     display: flex;
-  gap: var(--spacing-lg);
+    flex-direction: column;
     align-items: center;
-  justify-content: center;
-  margin: var(--spacing-xl) 0;
+    justify-content: center;
+    margin: var(--spacing-xl) 0;
+    gap: var(--spacing-md);
+}
+
+.flag-section-title {
+    width: 100%;
+    text-align: center;
+}
+
+.flags-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    justify-content: center;
+    width: 100%;
 }
 
 .pride-flag-icon {
-  width: 40px;
-  height: 25px;
-  border-radius: 6px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  transition: var(--transition);
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    width: 40px;
+    height: 25px;
+    border-radius: 6px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
 }
 
 .pride-flag-icon:hover {
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  border-color: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
 }
 
 .pride-flag-icon:focus {
-  outline: 3px solid var(--vibrant-blue);
-  outline-offset: 3px;
+    outline: 3px solid var(--vibrant-blue);
+    outline-offset: 3px;
 }
 
+.pride-flag-icon:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Theme Active State */
+.pride-flag-icon.active-theme {
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+/* Default/Reset Theme Flag */
+.default-theme {
+    background: linear-gradient(45deg, 
+        var(--primary) 0%, 
+        var(--secondary) 50%, 
+        var(--vibrant-purple) 100%
+    );
+}
+
+/* Rainbow Pride Flag */
 .rainbow-flag {
-  background: var(--rainbow-gradient);
+    background: var(--rainbow-gradient);
 }
 
+/* Progress Pride Flag */
+.progress-flag {
+    background: linear-gradient(to right,
+        #ffffff 0%, #ffffff 10%,
+        #f5a9b8 10%, #f5a9b8 20%,
+        #5bcffa 20%, #5bcffa 30%,
+        #784f17 30%, #784f17 35%,
+        #000000 35%, #000000 40%,
+        var(--pride-red) 40%,
+        var(--pride-orange) 50%,
+        var(--pride-yellow) 60%,
+        var(--pride-green) 70%,
+        var(--pride-blue) 80%,
+        var(--pride-purple) 90%
+    );
+}
+
+/* Transgender Flag */
 .trans-flag {
-  background: linear-gradient(to bottom,
-    var(--pride-trans-blue) 0%,
-    var(--pride-trans-blue) 20%,
-    var(--pride-trans-pink) 20%,
-    var(--pride-trans-pink) 40%,
-    var(--pride-trans-white) 40%,
-    var(--pride-trans-white) 60%,
-    var(--pride-trans-pink) 60%,
-    var(--pride-trans-pink) 80%,
-    var(--pride-trans-blue) 80%,
-    var(--pride-trans-blue) 100%
-  );
+    background: linear-gradient(to bottom,
+        var(--pride-trans-blue) 0%,
+        var(--pride-trans-blue) 20%,
+        var(--pride-trans-pink) 20%,
+        var(--pride-trans-pink) 40%,
+        var(--pride-trans-white) 40%,
+        var(--pride-trans-white) 60%,
+        var(--pride-trans-pink) 60%,
+        var(--pride-trans-pink) 80%,
+        var(--pride-trans-blue) 80%,
+        var(--pride-trans-blue) 100%
+    );
 }
 
+/* Non-Binary Flag */
 .nonbinary-flag {
-  background: linear-gradient(to bottom,
-    #fcf434 0%,
-    #fcf434 25%,
-    #ffffff 25%,
-    #ffffff 50%,
-    #9c59d1 50%,
-    #9c59d1 75%,
-    #2c2c2c 75%,
-    #2c2c2c 100%
-  );
+    background: linear-gradient(to bottom,
+        #fcf434 0%, #fcf434 25%,
+        #ffffff 25%, #ffffff 50%,
+        #9c59d1 50%, #9c59d1 75%,
+        #2c2c2c 75%, #2c2c2c 100%
+    );
+}
+
+/* Lesbian Flag */
+.lesbian-flag {
+    background: linear-gradient(to bottom,
+        #d62d20 0%, #d62d20 16.66%,
+        #ff9955 16.66%, #ff9955 33.33%,
+        #ffffff 33.33%, #ffffff 50%,
+        #d161a2 50%, #d161a2 66.66%,
+        #a20160 66.66%, #a20160 100%
+    );
+}
+
+/* Gay Flag */
+.gay-flag {
+    background: linear-gradient(to bottom,
+        #078d70 0%, #078d70 16.66%,
+        #26ceaa 16.66%, #26ceaa 33.33%,
+        #98e8c1 33.33%, #98e8c1 50%,
+        #ffffff 50%, #ffffff 66.66%,
+        #7bade2 66.66%, #7bade2 83.33%,
+        #5049cc 83.33%, #5049cc 100%
+    );
+}
+
+/* Bisexual Flag */
+.bisexual-flag {
+    background: linear-gradient(to bottom,
+        #d60270 0%, #d60270 40%,
+        #9b59b6 40%, #9b59b6 60%,
+        #0038a8 60%, #0038a8 100%
+    );
+}
+
+/* Pansexual Flag */
+.pansexual-flag {
+    background: linear-gradient(to bottom,
+        #ff218c 0%, #ff218c 33.33%,
+        #ffd800 33.33%, #ffd800 66.66%,
+        #21b1ff 66.66%, #21b1ff 100%
+    );
+}
+
+/* Asexual Flag */
+.asexual-flag {
+    background: linear-gradient(to bottom,
+        #000000 0%, #000000 25%,
+        #a3a3a3 25%, #a3a3a3 50%,
+        #ffffff 50%, #ffffff 75%,
+        #800080 75%, #800080 100%
+    );
+}
+
+/* ==================== THEME SWITCHING FUNCTIONALITY ==================== */
+
+/* Theme override styles - applied to body when theme is active */
+body.theme-rainbow {
+    --primary: var(--pride-red);
+    --secondary: var(--pride-blue);
+    --accent: var(--pride-purple);
+    --vibrant-pink: var(--pride-red);
+}
+
+body.theme-progress {
+    --primary: var(--pride-trans-pink);
+    --secondary: var(--pride-trans-blue);
+    --accent: var(--pride-brown);
+    --vibrant-pink: var(--pride-trans-pink);
+}
+
+body.theme-trans {
+    --primary: var(--pride-trans-pink);
+    --secondary: var(--pride-trans-blue);
+    --accent: var(--pride-trans-pink);
+    --vibrant-pink: var(--pride-trans-pink);
+}
+
+body.theme-nonbinary {
+    --primary: #fcf434;
+    --secondary: #9c59d1;
+    --accent: #9c59d1;
+    --vibrant-pink: #fcf434;
+    --text: #2c2c2c;
+}
+
+body.theme-lesbian {
+    --primary: #d62d20;
+    --secondary: #d161a2;
+    --accent: #a20160;
+    --vibrant-pink: #d161a2;
+}
+
+body.theme-gay {
+    --primary: #078d70;
+    --secondary: #5049cc;
+    --accent: #26ceaa;
+    --vibrant-pink: #7bade2;
+}
+
+body.theme-bisexual {
+    --primary: #d60270;
+    --secondary: #0038a8;
+    --accent: #9b59b6;
+    --vibrant-pink: #d60270;
+}
+
+body.theme-pansexual {
+    --primary: #ff218c;
+    --secondary: #21b1ff;
+    --accent: #ffd800;
+    --vibrant-pink: #ff218c;
+}
+
+body.theme-asexual {
+    --primary: #800080;
+    --secondary: #a3a3a3;
+    --accent: #800080;
+    --vibrant-pink: #800080;
+    --text: #2c2c2c;
+}
+
+/* Ensure text remains readable in all themes */
+body[class*="theme-"] .button,
+body[class*="theme-"] .btn {
+    color: white !important;
+    border-color: var(--primary) !important;
+}
+
+body[class*="theme-"] a {
+    color: var(--primary);
+}
+
+body[class*="theme-"] a:hover {
+    color: var(--accent);
+}
+
+/* Special handling for light backgrounds */
+body.theme-nonbinary h1,
+body.theme-nonbinary h2,
+body.theme-nonbinary h3,
+body.theme-asexual h1,
+body.theme-asexual h2,
+body.theme-asexual h3 {
+    color: var(--text) !important;
+}
+
+/* Responsive flag layout */
+@media (max-width: 768px) {
+    .pride-flags {
+        gap: var(--spacing-sm);
+    }
+    
+    .pride-flag-icon {
+        width: 35px;
+        height: 22px;
+    }
+    
+    .flag-section-title p {
+        font-size: 0.8rem !important;
+    }
 }
 
 .social-links {

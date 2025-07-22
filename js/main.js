@@ -1,5 +1,5 @@
 // CT5 Pride Main JavaScript
-// Handles navigation, accessibility, and events loading
+// Handles navigation, accessibility, events loading, and theme switching
 
 console.log('🏳️‍🌈 CT5 Pride Main JS Loading...');
 
@@ -289,6 +289,145 @@ function escapeHtml(text) {
     return text.replace(/[&<>"']/g, m => map[m]);
 }
 
+// ==================== PRIDE FLAG THEME SWITCHING ====================
+
+function setupPrideFlagThemes() {
+    console.log('🏳️‍🌈 Setting up pride flag theme switching...');
+    
+    const prideFlags = document.querySelectorAll('.pride-flag-icon[data-theme]');
+    const currentTheme = localStorage.getItem('ct5pride-theme') || 'default';
+    
+    // Apply saved theme on load
+    if (currentTheme !== 'default') {
+        applyTheme(currentTheme);
+        updateActiveFlag(currentTheme);
+    } else {
+        updateActiveFlag('default');
+    }
+    
+    // Add click handlers to all flags
+    prideFlags.forEach(flag => {
+        flag.addEventListener('click', handleFlagClick);
+        flag.addEventListener('keydown', handleFlagKeydown);
+    });
+}
+
+function handleFlagClick(event) {
+    const theme = event.target.dataset.theme;
+    if (theme) {
+        switchTheme(theme);
+        announceThemeChange(theme);
+    }
+}
+
+function handleFlagKeydown(event) {
+    if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        handleFlagClick(event);
+    }
+}
+
+function switchTheme(newTheme) {
+    console.log(`🎨 Switching to ${newTheme} theme`);
+    
+    // Remove all existing theme classes
+    document.body.className = document.body.className.replace(/theme-\w+/g, '');
+    
+    // Apply new theme
+    if (newTheme !== 'default') {
+        applyTheme(newTheme);
+        localStorage.setItem('ct5pride-theme', newTheme);
+    } else {
+        localStorage.removeItem('ct5pride-theme');
+    }
+    
+    // Update active flag indicator
+    updateActiveFlag(newTheme);
+    
+    // Dispatch custom event for accessibility tools
+    window.dispatchEvent(new CustomEvent('themeChanged', { 
+        detail: { theme: newTheme } 
+    }));
+}
+
+function applyTheme(theme) {
+    document.body.classList.add(`theme-${theme}`);
+    
+    // Update meta theme color for mobile browsers
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+        metaThemeColor = document.createElement('meta');
+        metaThemeColor.name = 'theme-color';
+        document.head.appendChild(metaThemeColor);
+    }
+    
+    // Set theme color based on flag
+    const themeColors = {
+        rainbow: '#e40303',
+        progress: '#5bcffa',
+        trans: '#5bcffa',
+        nonbinary: '#fcf434',
+        lesbian: '#d62d20',
+        gay: '#078d70',
+        bisexual: '#d60270',
+        pansexual: '#ff218c',
+        asexual: '#800080',
+        default: '#e91e63'
+    };
+    
+    metaThemeColor.content = themeColors[theme] || themeColors.default;
+}
+
+function updateActiveFlag(activeTheme) {
+    // Remove active class from all flags
+    document.querySelectorAll('.pride-flag-icon').forEach(flag => {
+        flag.classList.remove('active-theme');
+        flag.setAttribute('aria-pressed', 'false');
+    });
+    
+    // Add active class to current theme flag
+    const activeFlag = document.querySelector(`[data-theme="${activeTheme}"]`);
+    if (activeFlag) {
+        activeFlag.classList.add('active-theme');
+        activeFlag.setAttribute('aria-pressed', 'true');
+    }
+}
+
+function announceThemeChange(theme) {
+    // Create accessible announcement for screen readers
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.style.position = 'absolute';
+    announcement.style.left = '-10000px';
+    announcement.style.width = '1px';
+    announcement.style.height = '1px';
+    announcement.style.overflow = 'hidden';
+    
+    const themeNames = {
+        default: 'Default CT5 Pride',
+        rainbow: 'Rainbow Pride',
+        progress: 'Progress Pride',
+        trans: 'Transgender Pride',
+        nonbinary: 'Non-Binary Pride',
+        lesbian: 'Lesbian Pride',
+        gay: 'Gay Pride',
+        bisexual: 'Bisexual Pride',
+        pansexual: 'Pansexual Pride',
+        asexual: 'Asexual Pride'
+    };
+    
+    announcement.textContent = `${themeNames[theme]} theme applied. Website colors updated.`;
+    document.body.appendChild(announcement);
+    
+    // Remove announcement after screen readers have processed it
+    setTimeout(() => {
+        if (announcement.parentNode) {
+            announcement.parentNode.removeChild(announcement);
+        }
+    }, 1000);
+}
+
 // ==================== INITIALIZATION ====================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -296,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     setupNavigation();
     setupAccessibility();
+    setupPrideFlagThemes();
     
     // Load events if on events page
     if (document.getElementById('eventsContainer')) {
@@ -305,5 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('🏳️‍🌈 CT5 Pride initialization complete');
 });
 
-// Make loadEvents available globally for retry buttons
-window.loadEvents = loadEvents; 
+// Make functions available globally
+window.loadEvents = loadEvents;
+window.switchTheme = switchTheme; 
