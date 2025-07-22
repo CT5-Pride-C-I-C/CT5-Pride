@@ -2571,17 +2571,65 @@ body[class*="theme-"] footer a:hover {
     text-shadow: 2px 2px 6px rgba(0,0,0,1);
 }
 
-/* Enhanced social links in footer */
+/* Enhanced social links in footer with better visibility */
 body[class*="theme-"] .social-links a {
-    background: rgba(255,255,255,0.9) !important;
-    color: var(--primary) !important;
-    border: 2px solid var(--accent) !important;
+    background: rgba(255,255,255,0.95) !important;
+    color: #2c2c2c !important;
+    border: 3px solid rgba(255,255,255,0.9) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+    backdrop-filter: blur(10px) !important;
 }
 
 body[class*="theme-"] .social-links a:hover {
-    background: var(--primary) !important;
+    background: rgba(255,255,255,1) !important;
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5) !important;
+}
+
+/* Specific theme overrides for social icons to maintain brand colors on hover */
+body[class*="theme-"] .social-links a[aria-label*="Instagram"]:hover {
+    background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) !important;
     color: white !important;
-    border-color: white !important;
+    border-color: #e6683c !important;
+}
+
+body[class*="theme-"] .social-links a[aria-label*="Facebook"]:hover {
+    background: #1877f2 !important;
+    color: white !important;
+    border-color: #1877f2 !important;
+}
+
+body[class*="theme-"] .social-links a[aria-label*="LinkedIn"]:hover {
+    background: #0077b5 !important;
+    color: white !important;
+    border-color: #0077b5 !important;
+}
+
+/* Ensure SVG icons are visible and have good contrast */
+body[class*="theme-"] .social-links a svg {
+    fill: currentColor !important;
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+    width: 24px !important;
+    height: 24px !important;
+}
+
+/* Add enhanced focus states for accessibility */
+body[class*="theme-"] .social-links a:focus {
+    outline: 3px solid rgba(255,255,255,0.8) !important;
+    outline-offset: 3px !important;
+    background: rgba(255,255,255,1) !important;
+}
+
+/* Additional contrast enhancement for social links container */
+body[class*="theme-"] .social-links {
+    padding: 2rem 1rem;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+    margin: 2rem auto 0;
+    max-width: 400px;
 }
 
 /* ==================== THEME TRANSITION EFFECTS ==================== */
