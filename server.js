@@ -3,6 +3,24 @@ const path = require('path');
 const fs = require('fs');
 const config = require('./config');
 const { createClient } = require('@supabase/supabase-js');
+const multer = require('multer');
+
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Allow PDF, DOCX, and TXT files
+    const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only PDF, DOCX, and TXT files are allowed.'));
+    }
+  }
+});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -210,6 +228,185 @@ app.delete('/api/roles/:id', requireSupabaseAuth, async (req, res) => {
   }
 });
 
+// ==================== APPLICATION SUBMISSION API ====================
+
+// Submit application from public form
+app.post('/api/apply', upload.fields([
+  { name: 'cvFile', maxCount: 1 },
+  { name: 'coverLetterFile', maxCount: 1 }
+]), async (req, res) => {
+  try {
+    console.log('📥 Application submission received');
+    console.log('📋 Request body:', req.body);
+    console.log('📁 Files:', req.files);
+    
+    // Handle form data - req.body contains parsed FormData
+    const formData = req.body;
+    
+    // Extract fields from form data
+    const roleId = formData.roleId;
+    const roleTitle = formData.roleTitle;
+    const applicantName = formData.applicantName;
+    const applicantEmail = formData.applicantEmail;
+    const applicantPhone = formData.applicantPhone;
+    const cvType = formData.cvType;
+    const cvText = formData.cvText;
+    const coverLetterType = formData.coverLetterType;
+    const coverLetterText = formData.coverLetterText;
+    const privacyConsent = formData.privacyConsent;
+
+    console.log('📝 Parsed form data:', {
+      roleId,
+      roleTitle,
+      applicantName,
+      applicantEmail,
+      applicantPhone,
+      cvType,
+      coverLetterType,
+      privacyConsent
+    });
+
+    // Validate required fields
+    if (!applicantName || !applicantEmail || !roleId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Name, email, and role selection are required' 
+      });
+    }
+
+    if (!privacyConsent) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Privacy policy consent is required' 
+      });
+    }
+
+    // Generate unique filename prefix
+    const timestamp = Date.now();
+    const cleanName = applicantName.replace(/[^a-zA-Z0-9]/g, '_');
+    const filePrefix = `${timestamp}_${cleanName}`;
+
+    // Handle CV upload/storage
+    let cvUrl = null;
+    if (cvType === 'file' && req.files && req.files.cvFile) {
+      const cvFile = req.files.cvFile[0];
+      const cvFileName = `${filePrefix}_cv.${cvFile.originalname.split('.').pop()}`;
+      
+      try {
+        const { data: cvUpload, error: cvError } = await supabase.storage
+          .from('volunteer-applications')
+          .upload(cvFileName, cvFile.buffer, {
+            contentType: cvFile.mimetype,
+            upsert: false
+          });
+
+        if (cvError) {
+          console.error('CV upload error:', cvError);
+          return res.status(400).json({ 
+            success: false, 
+            message: 'Failed to upload CV: ' + cvError.message 
+          });
+        }
+
+        // Store the file path instead of public URL for private access
+        cvUrl = `https://rmhnrpwbgxyslfwttwzr.supabase.co/storage/v1/object/public/volunteer-applications/${cvFileName}`;
+        console.log('✅ CV uploaded successfully to private storage:', cvFileName);
+
+      } catch (uploadError) {
+        console.error('CV upload exception:', uploadError);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Failed to upload CV file' 
+        });
+      }
+    }
+
+    // Handle Cover Letter upload/storage
+    let coverLetterUrl = null;
+    let coverLetterContent = null;
+    
+    if (coverLetterType === 'file' && req.files && req.files.coverLetterFile) {
+      const coverLetterFile = req.files.coverLetterFile[0];
+      const coverLetterFileName = `${filePrefix}_cover_letter.${coverLetterFile.originalname.split('.').pop()}`;
+      
+      try {
+        const { data: coverLetterUpload, error: coverLetterError } = await supabase.storage
+          .from('volunteer-applications')
+          .upload(coverLetterFileName, coverLetterFile.buffer, {
+            contentType: coverLetterFile.mimetype,
+            upsert: false
+          });
+
+        if (coverLetterError) {
+          console.error('Cover letter upload error:', coverLetterError);
+          return res.status(400).json({ 
+            success: false, 
+            message: 'Failed to upload cover letter: ' + coverLetterError.message 
+          });
+        }
+
+        // Store the file path instead of public URL for private access
+        coverLetterUrl = `https://rmhnrpwbgxyslfwttwzr.supabase.co/storage/v1/object/public/volunteer-applications/${coverLetterFileName}`;
+        console.log('✅ Cover letter uploaded successfully to private storage:', coverLetterFileName);
+
+      } catch (uploadError) {
+        console.error('Cover letter upload exception:', uploadError);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Failed to upload cover letter file' 
+        });
+      }
+    } else if (coverLetterType === 'text') {
+      coverLetterContent = coverLetterText;
+    }
+
+    // Prepare application data for Supabase
+    const applicationData = {
+      role_id: roleId,
+      full_name: applicantName,
+      email: applicantEmail,
+      phone: applicantPhone || null,
+      cv_url: cvUrl,
+      cover_letter: coverLetterContent,
+      cover_letter_url: coverLetterUrl,
+      status: 'pending',
+      submitted_at: new Date().toISOString(),
+      privacy_consent: !!privacyConsent
+    };
+
+    console.log('💾 Inserting application data:', applicationData);
+
+    // Insert into applications table
+    const { data, error } = await supabase
+      .from('applications')
+      .insert([applicationData])
+      .select();
+
+    if (error) {
+      console.error('❌ Application insert error:', error);
+      return res.status(400).json({ 
+        success: false, 
+        message: error.message 
+      });
+    }
+
+    console.log('✅ Application submitted successfully:', data[0]);
+
+    res.json({ 
+      success: true, 
+      message: 'Application submitted successfully!',
+      application_id: data[0].id
+    });
+
+  } catch (err) {
+    console.error('Application submission error:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
+  }
+});
+
 // ==================== APPLICATIONS API ====================
 
 // Get all applications
@@ -260,6 +457,177 @@ app.put('/api/applications/:id/status', requireSupabaseAuth, async (req, res) =>
     res.json({ success: true, application: data[0] });
   } catch (err) {
     console.error('Update application status error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Get individual application by ID
+app.get('/api/applications/:id', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const { data, error } = await supabase
+      .from('applications')
+      .select(`
+        *,
+        roles (
+          id,
+          title,
+          department
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    if (!data) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    res.json({ success: true, application: data });
+  } catch (err) {
+    console.error('Get application error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Accept application
+app.post('/api/applications/:id/accept', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const { data, error } = await supabase
+      .from('applications')
+      .update({ status: 'accepted' })
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    if (data.length === 0) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    res.json({ success: true, application: data[0] });
+  } catch (err) {
+    console.error('Accept application error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Reject application
+app.post('/api/applications/:id/reject', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const { data, error } = await supabase
+      .from('applications')
+      .update({ status: 'rejected' })
+      .eq('id', id)
+      .select();
+
+    if (error) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    if (data.length === 0) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    res.json({ success: true, application: data[0] });
+  } catch (err) {
+    console.error('Reject application error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Get secure signed URLs for application files (CV and Cover Letter)
+app.get('/api/application/:id/files', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log(`🔒 Generating signed URLs for application ${id}`);
+    
+    // Get application with file URLs
+    const { data: application, error: appError } = await supabase
+      .from('applications')
+      .select('cv_url, cover_letter_url')
+      .eq('id', id)
+      .single();
+
+    if (appError) {
+      console.error('Application fetch error:', appError);
+      return res.status(400).json({ success: false, message: appError.message });
+    }
+
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    console.log('📄 Application file URLs:', {
+      cv_url: application.cv_url,
+      cover_letter_url: application.cover_letter_url
+    });
+
+    const result = { success: true };
+
+    // Generate signed URL for CV if it exists
+    if (application.cv_url) {
+      try {
+        // Extract filename from URL - assuming format: .../volunteer-applications/filename
+        const cvFilename = application.cv_url.split('/volunteer-applications/')[1];
+        
+        if (cvFilename) {
+          const { data: cvSignedUrl, error: cvSignError } = await supabase.storage
+            .from('volunteer-applications')
+            .createSignedUrl(cvFilename, 600); // 10 minutes = 600 seconds
+
+          if (cvSignError) {
+            console.error('CV signed URL error:', cvSignError);
+          } else {
+            result.signed_cv_url = cvSignedUrl.signedUrl;
+            console.log('✅ CV signed URL generated');
+          }
+        }
+      } catch (cvError) {
+        console.error('CV URL processing error:', cvError);
+      }
+    }
+
+    // Generate signed URL for Cover Letter if it exists
+    if (application.cover_letter_url) {
+      try {
+        // Extract filename from URL - assuming format: .../volunteer-applications/filename
+        const coverLetterFilename = application.cover_letter_url.split('/volunteer-applications/')[1];
+        
+        if (coverLetterFilename) {
+          const { data: coverLetterSignedUrl, error: coverLetterSignError } = await supabase.storage
+            .from('volunteer-applications')
+            .createSignedUrl(coverLetterFilename, 600); // 10 minutes = 600 seconds
+
+          if (coverLetterSignError) {
+            console.error('Cover letter signed URL error:', coverLetterSignError);
+          } else {
+            result.signed_cover_letter_url = coverLetterSignedUrl.signedUrl;
+            console.log('✅ Cover letter signed URL generated');
+          }
+        }
+      } catch (coverLetterError) {
+        console.error('Cover letter URL processing error:', coverLetterError);
+      }
+    }
+
+    // Return result even if no files exist (empty signed URLs)
+    console.log('🎯 Signed URLs response:', result);
+    res.json(result);
+
+  } catch (err) {
+    console.error('Generate signed URLs error:', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });

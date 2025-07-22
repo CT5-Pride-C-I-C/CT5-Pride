@@ -1624,4 +1624,228 @@ select:focus {
   font-size: var(--font-size-xs);
   color: var(--gray-600);
   white-space: nowrap;
+}
+
+/* ==================== ROLE CRITERIA STYLING ==================== */
+
+/* Role criteria preview in admin cards */
+.role-criteria-preview {
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
+  background: var(--gray-50);
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--primary-pink);
+}
+
+.criteria-section {
+  margin-bottom: var(--space-2);
+}
+
+.criteria-section:last-child {
+  margin-bottom: 0;
+}
+
+.criteria-section strong {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--gray-700);
+  margin-bottom: var(--space-1);
+}
+
+.criteria-preview {
+  font-size: var(--font-size-sm);
+  color: var(--gray-600);
+  line-height: 1.4;
+  margin-left: var(--space-4);
+}
+
+/* Form styling improvements */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.form-help {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
+  margin-top: var(--space-1);
+  font-style: italic;
+}
+
+/* ==================== APPLICATIONS STYLING ==================== */
+
+/* Applications grid */
+.applications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--space-6);
+}
+
+/* Application cards */
+.application-card {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+  border-left: 4px solid var(--secondary-coral);
+}
+
+.application-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.application-header {
+  margin-bottom: var(--space-4);
+}
+
+.application-header h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0 0 var(--space-1) 0;
+}
+
+.application-role {
+  font-size: var(--font-size-sm);
+  color: var(--primary-pink);
+  font-weight: 500;
+}
+
+.application-details {
+  margin-bottom: var(--space-6);
+}
+
+.application-details p {
+  font-size: var(--font-size-sm);
+  color: var(--gray-600);
+  margin: var(--space-2) 0;
+}
+
+.application-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-6);
+}
+
+/* Application details page */
+.application-details-header {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow);
+  margin-bottom: var(--space-6);
+  border-left: 4px solid var(--primary-pink);
+}
+
+.application-details-header h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.application-details-body {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow);
+}
+
+.application-details-body h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: var(--space-6) 0 var(--space-3) 0;
+  border-bottom: 2px solid var(--gray-200);
+  padding-bottom: var(--space-2);
+}
+
+.application-details-body h3:first-child {
+  margin-top: 0;
+}
+
+/* Cover letter styling */
+.cover-letter-section {
+  background: var(--gray-50);
+  border-radius: var(--border-radius);
+  padding: var(--space-4);
+  border-left: 4px solid var(--secondary-coral);
+  margin: var(--space-3) 0;
+}
+
+.cover-letter-content {
+  line-height: 1.6;
+  color: var(--gray-700);
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+}
+
+.no-cover-letter {
+  color: var(--gray-500);
+  font-style: italic;
+  background: var(--gray-50);
+  padding: var(--space-3);
+  border-radius: var(--border-radius);
+  border: 1px dashed var(--gray-300);
+}
+
+/* CV section styling */
+.cv-section {
+  background: var(--gray-50);
+  border-radius: var(--border-radius);
+  padding: var(--space-4);
+  border-left: 4px solid var(--info-blue);
+  margin: var(--space-3) 0;
+}
+
+.cv-content {
+  line-height: 1.6;
+  color: var(--gray-700);
+  font-size: var(--font-size-sm);
+  white-space: pre-wrap;
+}
+
+.no-cv {
+  color: var(--gray-500);
+  font-style: italic;
+  background: var(--gray-50);
+  padding: var(--space-3);
+  border-radius: var(--border-radius);
+  border: 1px dashed var(--gray-300);
+}
+
+/* Status badges */
+.status-pending {
+  background: rgba(249, 115, 22, 0.1);
+  color: #f59e0b;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-accepted {
+  background: rgba(34, 197, 94, 0.1);
+  color: #10b981;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-rejected {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  text-transform: uppercase;
 } 

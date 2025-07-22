@@ -64,6 +64,7 @@ let analytics = {};
 const navigation = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
   { id: 'roles', label: 'Role Management', icon: '👥' },
+  { id: 'applications', label: 'Applications', icon: '📝' },
   { id: 'events', label: 'Event Management', icon: '📅' },
   { id: 'analytics', label: 'Analytics', icon: '📈' },
   { id: 'memberships-list', label: 'Memberships', icon: '🪪' }
@@ -275,6 +276,10 @@ function route() {
     case '#/roles':
       console.log('✓ Rendering roles page for authenticated user');
       renderRoles();
+      break;
+    case '#/applications':
+      console.log('✓ Rendering applications page for authenticated user');
+      renderApplications();
       break;
     case '#/events':
       console.log('✓ Rendering events page for authenticated user');
@@ -780,10 +785,27 @@ async function loadRoles() {
               <p><strong>Department:</strong> ${role.department || 'Not specified'}</p>
               <p><strong>Posted:</strong> ${formatDate(role.posted_date)}</p>
               <p><strong>Location:</strong> ${role.location || 'Remote/Flexible'}</p>
+              ${role.time_commitment ? `<p><strong>Time Commitment:</strong> ${role.time_commitment}</p>` : ''}
             </div>
             <div class="role-summary">
               ${role.summary || role.description || 'No description available'}
             </div>
+            ${role.essential_criteria || role.desirable_criteria ? `
+            <div class="role-criteria-preview">
+              ${role.essential_criteria ? `
+                <div class="criteria-section">
+                  <strong>🟢 Essential Criteria:</strong>
+                  <div class="criteria-preview">${role.essential_criteria.substring(0, 100)}${role.essential_criteria.length > 100 ? '...' : ''}</div>
+                </div>
+              ` : ''}
+              ${role.desirable_criteria ? `
+                <div class="criteria-section">
+                  <strong>🔵 Desirable Criteria:</strong>
+                  <div class="criteria-preview">${role.desirable_criteria.substring(0, 100)}${role.desirable_criteria.length > 100 ? '...' : ''}</div>
+                </div>
+              ` : ''}
+            </div>
+            ` : ''}
             <div class="role-actions">
               <button class="btn btn-sm btn-secondary" onclick="editRole(${role.id})">Edit</button>
               <button class="btn btn-sm btn-danger" onclick="deleteRole(${role.id})">Delete</button>
@@ -802,27 +824,55 @@ function openRoleModal(roleId = null) {
   const isEdit = roleId !== null;
   const role = isEdit ? roles.find(r => r.id === roleId) : {};
   
-  // Modal implementation here - simplified for space
+  // Modal implementation with extended fields
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
   modal.innerHTML = `
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="max-width: 600px;">
       <div class="modal-header">
         <h2>${isEdit ? 'Edit Role' : 'Add New Role'}</h2>
         <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
       </div>
       <form class="modal-form" onsubmit="handleRoleSubmit(event, ${roleId})">
         <div class="form-group">
-          <label>Title</label>
+          <label>Title *</label>
           <input type="text" name="title" value="${role.title || ''}" required>
         </div>
         <div class="form-group">
           <label>Department</label>
-          <input type="text" name="department" value="${role.department || ''}">
+          <input type="text" name="department" value="${role.department || ''}" placeholder="e.g. Events, Marketing, Community">
         </div>
         <div class="form-group">
           <label>Summary</label>
-          <textarea name="summary" rows="3">${role.summary || ''}</textarea>
+          <textarea name="summary" rows="3" placeholder="Brief description that appears on role cards">${role.summary || ''}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" rows="4" placeholder="Detailed role description">${role.description || ''}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Essential Criteria</label>
+          <textarea name="essential_criteria" rows="4" placeholder="e.g. Experience managing teams&#10;Strong communication skills&#10;Available for weekend events">${role.essential_criteria || ''}</textarea>
+          <small class="form-help">Enter each criterion on a new line</small>
+        </div>
+        <div class="form-group">
+          <label>Desirable Criteria</label>
+          <textarea name="desirable_criteria" rows="4" placeholder="e.g. Knowledge of LGBTQIA+ issues&#10;Previous volunteer experience&#10;Marketing or social media skills">${role.desirable_criteria || ''}</textarea>
+          <small class="form-help">Enter each criterion on a new line</small>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Location</label>
+            <input type="text" name="location" value="${role.location || ''}" placeholder="e.g. Canterbury, Remote, Hybrid">
+          </div>
+          <div class="form-group">
+            <label>Time Commitment</label>
+            <input type="text" name="time_commitment" value="${role.time_commitment || ''}" placeholder="e.g. 2-3 hours/week, Flexible">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Reporting Line</label>
+          <input type="text" name="reporting_line" value="${role.reporting_line || ''}" placeholder="e.g. Events Coordinator, Board of Directors">
         </div>
         <div class="form-group">
           <label>Status</label>
@@ -890,6 +940,209 @@ window.openRoleModal = openRoleModal;
 window.handleRoleSubmit = handleRoleSubmit;
 window.editRole = editRole;
 window.deleteRole = deleteRole;
+
+// ==================== APPLICATIONS VIEW ====================
+
+async function renderApplications() {
+  const app = document.getElementById('app');
+  
+  app.innerHTML = `
+    <div class="admin-layout">
+      ${renderNavigation('applications')}
+      <main class="admin-content">
+        <div class="page-header">
+          <h1>Application Management</h1>
+          <p>Review and manage all volunteer applications</p>
+        </div>
+        <div id="applications-content" class="applications-container">
+          <!-- Content will be loaded here -->
+        </div>
+      </main>
+    </div>
+  `;
+  
+  await loadApplications();
+}
+
+async function loadApplications() {
+  const content = document.getElementById('applications-content');
+  showLoading(content, 'Loading applications...');
+  
+  try {
+    const response = await apiRequest('/api/applications');
+    applications = response.applications;
+    
+    if (applications.length === 0) {
+      content.innerHTML = `
+        <div class="no-data">
+          <h3>No applications found</h3>
+          <p>There are no applications yet. Applications will appear here once submitted.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    content.innerHTML = `
+      <div class="applications-grid">
+        ${applications.map(app => `
+          <div class="application-card">
+            <div class="application-header">
+              <h3>${app.full_name}</h3>
+              <span class="application-role">${app.roles?.title || 'Unknown Role'}</span>
+            </div>
+            <div class="application-details">
+              <p><strong>Email:</strong> ${app.email}</p>
+              <p><strong>Phone:</strong> ${app.phone || 'N/A'}</p>
+              <p><strong>Date Submitted:</strong> ${formatDate(app.submitted_at)}</p>
+              <p><strong>Status:</strong> <span class="status-${app.status || 'pending'}">${app.status || 'Pending'}</span></p>
+            </div>
+            <div class="application-actions">
+              <button class="btn btn-sm btn-primary" onclick="viewApplicationDetails(${app.id})">View Details</button>
+              <button class="btn btn-sm btn-danger" onclick="rejectApplication(${app.id})">Reject</button>
+              <button class="btn btn-sm btn-success" onclick="acceptApplication(${app.id})">Accept</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch (err) {
+    console.error('Applications load error:', err);
+    showError(content, err.message);
+  }
+}
+
+async function viewApplicationDetails(applicationId) {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="admin-layout">
+      ${renderNavigation('applications')}
+      <main class="admin-content">
+        <div class="page-header">
+          <h1>Application Details</h1>
+          <p>View and manage details for a specific application.</p>
+          <button class="btn btn-secondary" onclick="window.history.back()">Back to Applications</button>
+        </div>
+        <div id="application-details-content" class="application-details-container">
+          <!-- Content will be loaded here -->
+        </div>
+      </main>
+    </div>
+  `;
+  
+  await loadApplicationDetails(applicationId);
+}
+
+async function loadApplicationDetails(applicationId) {
+  const content = document.getElementById('application-details-content');
+  showLoading(content, 'Loading application details...');
+  
+  try {
+    const response = await apiRequest(`/api/applications/${applicationId}`);
+    const application = response.application;
+    
+    if (!application) {
+      content.innerHTML = `
+        <div class="no-data">
+          <h3>Application Not Found</h3>
+          <p>The application with ID ${applicationId} was not found.</p>
+          <button class="btn btn-primary" onclick="window.history.back()">Back to Applications</button>
+        </div>
+      `;
+      return;
+    }
+    
+    content.innerHTML = `
+      <div class="application-details-header">
+        <h2>${application.full_name}</h2>
+        <p>Application for: <strong>${application.roles?.title || 'Unknown Role'}</strong></p>
+        <p>Submitted on: <strong>${formatDate(application.submitted_at)}</strong></p>
+        <p>Status: <span class="status-${application.status || 'pending'}">${application.status || 'Pending'}</span></p>
+      </div>
+      <div class="application-details-body">
+        <h3>Personal Information</h3>
+        <p><strong>Full Name:</strong> ${application.full_name}</p>
+        <p><strong>Email:</strong> ${application.email}</p>
+        <p><strong>Phone:</strong> ${application.phone || 'N/A'}</p>
+        
+        <h3>Role Applied For</h3>
+        <p><strong>Role:</strong> ${application.roles?.title || 'Unknown Role'}</p>
+        <p><strong>Department:</strong> ${application.roles?.department || 'N/A'}</p>
+        
+        ${application.cover_letter ? `
+        <h3>Cover Letter (Text)</h3>
+        <div class="cover-letter-section">
+          <div class="cover-letter-content">
+            ${application.cover_letter.replace(/\n/g, '<br>')}
+          </div>
+        </div>
+        ` : ''}
+        
+        ${application.cover_letter_url ? `
+        <h3>Cover Letter (File)</h3>
+        <p><strong>File:</strong> <button class="btn btn-sm btn-secondary" onclick="openSecureFile(${application.id}, 'cover_letter')">📄 View Cover Letter</button></p>
+        ` : ''}
+        
+        ${!application.cover_letter && !application.cover_letter_url ? `
+        <h3>Cover Letter</h3>
+        <p class="no-cover-letter">No cover letter submitted</p>
+        ` : ''}
+        
+        ${application.cv_url ? `
+        <h3>CV</h3>
+        <p><strong>CV File:</strong> <button class="btn btn-sm btn-secondary" onclick="openSecureFile(${application.id}, 'cv')">📄 Download CV</button></p>
+        ` : `
+        <h3>CV</h3>
+        <p class="no-cv">No CV submitted</p>
+        `}
+        
+        <h3>Privacy Consent</h3>
+        <p><strong>Privacy Policy Agreed:</strong> ${application.privacy_consent ? '✅ Agreed' : '❌ Not Agreed'}</p>
+        
+        <div class="application-actions">
+          <button class="btn btn-primary" onclick="acceptApplication(${application.id})">Accept Application</button>
+          <button class="btn btn-danger" onclick="rejectApplication(${application.id})">Reject Application</button>
+          <button class="btn btn-secondary" onclick="window.history.back()">Back to Applications</button>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    console.error('Application details load error:', err);
+    showError(content, err.message);
+  }
+}
+
+async function acceptApplication(applicationId) {
+  if (!confirm('Are you sure you want to accept this application?')) return;
+  
+  try {
+    await apiRequest(`/api/applications/${applicationId}/accept`, { method: 'POST' });
+    showSuccess('Application accepted successfully!');
+    await loadApplications();
+    await loadApplicationDetails(applicationId); // Refresh details in the same view
+  } catch (err) {
+    console.error('Accept application error:', err);
+    showError(document.getElementById('application-details-content'), err.message);
+  }
+}
+
+async function rejectApplication(applicationId) {
+  if (!confirm('Are you sure you want to reject this application?')) return;
+  
+  try {
+    await apiRequest(`/api/applications/${applicationId}/reject`, { method: 'POST' });
+    showSuccess('Application rejected successfully!');
+    await loadApplications();
+    await loadApplicationDetails(applicationId); // Refresh details in the same view
+  } catch (err) {
+    console.error('Reject application error:', err);
+    showError(document.getElementById('application-details-content'), err.message);
+  }
+}
+
+// Global functions for application management
+window.viewApplicationDetails = viewApplicationDetails;
+window.acceptApplication = acceptApplication;
+window.rejectApplication = rejectApplication;
 
 // ==================== EVENTS VIEW ====================
 
@@ -1764,3 +2017,64 @@ window.addEventListener('load', () => {
     }
   }, 3000);
 }); 
+
+// ==================== SECURE FILE ACCESS ====================
+
+// Function to open secure file with signed URL
+async function openSecureFile(applicationId, fileType) {
+  try {
+    console.log(`🔒 Fetching secure access for ${fileType} from application ${applicationId}`);
+    
+    // Show loading state on button
+    const button = event.target;
+    const originalText = button.textContent;
+    button.textContent = 'Loading...';
+    button.disabled = true;
+    
+    try {
+      // Fetch signed URLs from backend
+      const response = await apiRequest(`/api/application/${applicationId}/files`);
+      
+      if (response.success) {
+        let signedUrl = null;
+        
+        if (fileType === 'cv' && response.signed_cv_url) {
+          signedUrl = response.signed_cv_url;
+        } else if (fileType === 'cover_letter' && response.signed_cover_letter_url) {
+          signedUrl = response.signed_cover_letter_url;
+        }
+        
+        if (signedUrl) {
+          console.log(`✅ Opening ${fileType} file with signed URL (expires in 10 minutes)`);
+          // Open file in new tab
+          window.open(signedUrl, '_blank', 'noopener,noreferrer');
+        } else {
+          console.warn(`❌ No ${fileType} file available`);
+          showError(button.parentElement, `No ${fileType === 'cv' ? 'CV' : 'cover letter'} file found`);
+        }
+      } else {
+        console.error('Failed to get signed URLs:', response.message);
+        showError(button.parentElement, 'Failed to access file: ' + response.message);
+      }
+      
+    } catch (fetchError) {
+      console.error('Secure file access error:', fetchError);
+      showError(button.parentElement, 'Failed to access file. Please try again.');
+    } finally {
+      // Reset button state
+      button.textContent = originalText;
+      button.disabled = false;
+    }
+    
+  } catch (err) {
+    console.error('Secure file access error:', err);
+    // Reset button if there was an error
+    if (event && event.target) {
+      event.target.disabled = false;
+      event.target.textContent = event.target.textContent.replace('Loading...', '📄 Download');
+    }
+  }
+}
+
+// Make openSecureFile globally available
+window.openSecureFile = openSecureFile;

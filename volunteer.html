@@ -343,6 +343,12 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="applicantPhone">Phone Number</label>
+                    <input type="tel" id="applicantPhone" name="applicantPhone" 
+                           placeholder="Enter your phone number (optional)">
+                </div>
+                
+                <div class="form-group">
                     <label for="cvType">CV Submission Method *</label>
                     <div class="radio-group">
                         <label class="radio-label">
@@ -565,7 +571,37 @@
     
     <!-- Dynamic Role Loading Script -->
     <script type="module">
-        import { roles, roleIcons } from './js/config.js';
+        // Role icons mapping
+        const roleIcons = {
+            'volunteers': '🌈',
+            'events': '🎉',
+            'marketing': '📢',
+            'fundraising': '💰',
+            'community': '🤝',
+            'admin': '📋',
+            'support': '💬',
+            'creative': '🎨',
+            'tech': '💻',
+            'outreach': '📍'
+        };
+
+        // Function to load roles from Supabase API
+        async function loadRoles() {
+            try {
+                // Try to fetch from API
+                const response = await fetch('/api/roles');
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.roles || [];
+                } else {
+                    throw new Error('API not available');
+                }
+            } catch (error) {
+                console.warn('Failed to load roles from API:', error);
+                // Return empty array if API fails
+                return [];
+            }
+        }
 
         // Function to create role cards
         function createRoleCard(role) {
@@ -577,19 +613,31 @@
                         <div class="role-icon">${roleIcons[role.icon] || roleIcons['volunteers']}</div>
                         <div class="role-info">
                             <h3>${role.title}</h3>
-                            <span class="role-department">${role.department}</span>
+                            <span class="role-department">${role.department || 'General'}</span>
                             ${!isOpen ? '<span class="draft-badge">Preview</span>' : ''}
                         </div>
                     </div>
-                    <p class="role-summary">${role.summary}</p>
+                    <p class="role-summary">${role.summary || role.description?.substring(0, 150) + '...' || 'Join our volunteer team!'}</p>
                     <div class="role-actions">
-                        ${role.description ? 
+                        ${role.description || role.essential_criteria || role.desirable_criteria ? 
                             `<button class="view-btn" data-id="${role.id}">View details / Apply</button>` : 
-                            `<a class="apply-direct" href="mailto:hello@ct5pride.org.uk?subject=Volunteer%20Role:%20${encodeURIComponent(role.title)}">Apply now</a>`
+                            `<button class="apply-direct" onclick="openApplicationModal('${role.id}', '${role.title}')">Apply now</button>`
                         }
                     </div>
                 </div>
             `;
+        }
+
+        // Function to format criteria text into list items
+        function formatCriteria(criteriaText) {
+            if (!criteriaText) return '<li>No criteria specified</li>';
+            
+            // Split by line breaks and bullet points
+            const items = criteriaText.split(/\n|•|\*|-/).filter(item => item.trim());
+            
+            if (items.length === 0) return '<li>No criteria specified</li>';
+            
+            return items.map(item => `<li>${item.trim()}</li>`).join('');
         }
 
         // Function to create modal for role details
@@ -600,28 +648,31 @@
                 <div class="modal-content">
                     <span class="close">&times;</span>
                     <h2>${role.title}</h2>
-                    <p class="role-department">${role.department}</p>
+                    <p class="role-department">${role.department || 'General'}</p>
                     <div class="role-description">${role.description || '<p>No detailed description available for this role.</p>'}</div>
+                    
+                    ${role.essential_criteria ? `
                     <div class="role-criteria">
-                        <h3>Essential Criteria</h3>
+                        <h3>🟢 Essential Criteria</h3>
                         <ul>
-                            ${role.essentialCriteria && role.essentialCriteria.length > 0 
-                                ? role.essentialCriteria.map(criteria => `<li>${criteria}</li>`).join('')
-                                : '<li>No essential criteria specified</li>'
-                            }
-                        </ul>
-                        <h3>Desirable Criteria</h3>
-                        <ul>
-                            ${role.desirableCriteria && role.desirableCriteria.length > 0
-                                ? role.desirableCriteria.map(criteria => `<li>${criteria}</li>`).join('')
-                                : '<li>No desirable criteria specified</li>'
-                            }
+                            ${formatCriteria(role.essential_criteria)}
                         </ul>
                     </div>
+                    ` : ''}
+                    
+                    ${role.desirable_criteria ? `
+                    <div class="role-criteria">
+                        <h3>🔵 Desirable Criteria</h3>
+                        <ul>
+                            ${formatCriteria(role.desirable_criteria)}
+                        </ul>
+                    </div>
+                    ` : ''}
+                    
                     <div class="role-details">
-                        <p><strong>Location:</strong> ${role.location || 'Not specified'}</p>
-                        <p><strong>Time Commitment:</strong> ${role.timeCommitment || 'Not specified'}</p>
-                        <p><strong>Reporting Line:</strong> ${role.reportingLine || 'Not specified'}</p>
+                        <p><strong>📍 Location:</strong> ${role.location || 'Remote/Flexible'}</p>
+                        <p><strong>⏰ Time Commitment:</strong> ${role.time_commitment || 'Flexible'}</p>
+                        <p><strong>👥 Reporting Line:</strong> ${role.reporting_line || 'To be discussed'}</p>
                     </div>
                     <button class="apply-button" onclick="openApplicationModal('${role.id}', '${role.title}')">Apply for This Role</button>
                 </div>
@@ -630,77 +681,99 @@
         }
 
         // Initialize role loading
-        function initializeRoles() {
+        async function initializeRoles() {
             const container = document.getElementById('role-board');
             if (!container) return;
 
-            // Check if we should show draft roles
-            const showDraft = new URLSearchParams(window.location.search).get('preview') === 'true';
-            
-            // Filter roles - only show open roles and draft roles if in preview mode
-            const visibleRoles = roles.filter(role => {
-                if (role.status === 'open') return true;
-                if (role.status === 'draft' && showDraft) return true;
-                return false; // Hide closed roles completely
-            });
+            // Show loading state
+            container.innerHTML = `
+                <div class="loading-message">
+                    <h3>🌈 Loading Volunteer Opportunities...</h3>
+                    <div class="loading-spinner"></div>
+                </div>
+            `;
 
-            if (!visibleRoles.length) {
+            try {
+                // Load roles from API
+                const roles = await loadRoles();
+                
+                // Check if we should show draft roles
+                const showDraft = new URLSearchParams(window.location.search).get('preview') === 'true';
+                
+                // Filter roles - only show open roles and draft roles if in preview mode
+                const visibleRoles = roles.filter(role => {
+                    if (role.status === 'open') return true;
+                    if (role.status === 'draft' && showDraft) return true;
+                    return false; // Hide closed roles completely
+                });
+
+                if (!visibleRoles.length) {
+                    container.innerHTML = `
+                        <div class="no-roles-message">
+                            <h3>🌈 No Open Positions Currently</h3>
+                            <p>We're not actively recruiting for new volunteer positions right now, but we'd still love to hear from you! 
+                            <a href="contact.html">Get in touch</a> to learn about future opportunities.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Create role grid
+                container.innerHTML = visibleRoles.map(role => createRoleCard(role)).join('');
+
+                // IMPORTANT: Add event listeners AFTER roles are injected into DOM
+                // Use setTimeout to ensure DOM is fully updated
+                setTimeout(() => {
+                    // Add click handlers for view buttons (these are the "View details / Apply" buttons)
+                    document.querySelectorAll('.view-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const roleId = btn.getAttribute('data-id');
+                            const role = visibleRoles.find(r => r.id == roleId);
+                            if (role) {
+                                openRoleModal(role);
+                            }
+                        });
+                    });
+
+                    // Add click handlers for role cards (for accessibility and general interaction)
+                    document.querySelectorAll('[data-role-id]').forEach(card => {
+                        card.addEventListener('click', (e) => {
+                            // Only trigger if clicking on the card itself, not on buttons/links
+                            if (e.target === card || e.target.closest('.role-header') || e.target.closest('.role-summary')) {
+                                e.preventDefault();
+                                const roleId = card.getAttribute('data-role-id');
+                                const role = visibleRoles.find(r => r.id == roleId);
+                                if (role) {
+                                    openRoleModal(role);
+                                }
+                            }
+                        });
+                        
+                        // Keyboard accessibility
+                        card.addEventListener('keydown', (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                const roleId = card.getAttribute('data-role-id');
+                                const role = visibleRoles.find(r => r.id == roleId);
+                                if (role) {
+                                    openRoleModal(role);
+                                }
+                            }
+                        });
+                    });
+                }, 100); // Small delay to ensure DOM is ready
+
+            } catch (error) {
+                console.error('Failed to initialize roles:', error);
                 container.innerHTML = `
-                    <div class="no-roles-message">
-                        <h3>🌈 No Open Positions Currently</h3>
-                        <p>We're not actively recruiting for new volunteer positions right now, but we'd still love to hear from you! 
-                        <a href="contact.html">Get in touch</a> to learn about future opportunities.</p>
+                    <div class="error-message">
+                        <h3>⚠️ Unable to Load Roles</h3>
+                        <p>We're having trouble loading our volunteer opportunities right now. Please try refreshing the page or <a href="contact.html">contact us</a> directly.</p>
                     </div>
                 `;
-                return;
             }
-
-            // Create role grid
-            container.innerHTML = visibleRoles.map(role => createRoleCard(role)).join('');
-
-            // IMPORTANT: Add event listeners AFTER roles are injected into DOM
-            // Use setTimeout to ensure DOM is fully updated
-            setTimeout(() => {
-                // Add click handlers for view buttons (these are the "View details / Apply" buttons)
-                document.querySelectorAll('.view-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const roleId = btn.getAttribute('data-id');
-                        const role = roles.find(r => r.id === roleId);
-                        if (role) {
-                            openRoleModal(role);
-                        }
-                    });
-                });
-
-                // Add click handlers for role cards (for accessibility and general interaction)
-                document.querySelectorAll('[data-role-id]').forEach(card => {
-                    card.addEventListener('click', (e) => {
-                        // Only trigger if clicking on the card itself, not on buttons/links
-                        if (e.target === card || e.target.closest('.role-header') || e.target.closest('.role-summary')) {
-                            e.preventDefault();
-                            const roleId = card.getAttribute('data-role-id');
-                            const role = roles.find(r => r.id === roleId);
-                            if (role) {
-                                openRoleModal(role);
-                            }
-                        }
-                    });
-                    
-                    // Keyboard accessibility
-                    card.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            const roleId = card.getAttribute('data-role-id');
-                            const role = roles.find(r => r.id === roleId);
-                            if (role) {
-                                openRoleModal(role);
-                            }
-                        }
-                    });
-                });
-            }, 100); // Small delay to ensure DOM is ready
         }
 
         // Function to open role modal
@@ -741,8 +814,16 @@
             }, 100);
         }
 
-        // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', initializeRoles);
+        // Make openRoleModal globally available
+        window.openRoleModal = openRoleModal;
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeRoles);
+        } else {
+            initializeRoles();
+        }
+
     </script>
 </body>
 </html> 
