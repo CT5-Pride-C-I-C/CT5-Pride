@@ -156,15 +156,96 @@
     </main>
     <footer>
         <div class="container">
-            <div class="footer-content">
-                <p>CT5 Pride Community Interest Company</p>
-                <p>Email: <a href="mailto:hello@ct5pride.org.uk">hello@ct5pride.org.uk</a></p>
-                <p><a href="/privacy.html" style="color:#667eea; text-decoration:underline;">Privacy Policy</a></p>
-                <div class="pride-flags">
-                    <div class="pride-flag-icon rainbow-flag" role="img" aria-label="Rainbow Pride Flag" tabindex="0" title="Rainbow Pride Flag - Celebrating LGBTQIA+ diversity"></div>
-                    <div class="pride-flag-icon trans-flag" role="img" aria-label="Transgender Pride Flag" tabindex="0" title="Transgender Pride Flag - Supporting trans rights"></div>
-                    <div class="pride-flag-icon nonbinary-flag" role="img" aria-label="Non-Binary Pride Flag" tabindex="0" title="Non-Binary Pride Flag - Celebrating non-binary identities"></div>
+            <div class="footer-layout">
+                <!-- Left Section: Company Info -->
+                <div class="footer-info">
+                    <h3>CT5 Pride Community Interest Company</h3>
+                    <div class="contact-links">
+                        <a href="mailto:hello@ct5pride.org.uk" aria-label="Email CT5 Pride">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                            </svg>
+                            hello@ct5pride.org.uk
+                        </a>
+                        <a href="/privacy.html">Privacy Policy</a>
+                    </div>
                 </div>
+                
+                <!-- Center Section: Pride Flags -->
+                <div class="footer-flags">
+                    <div class="flag-section-title">
+                        <p>Click flags for temporary themes</p>
+                    </div>
+                    <div class="flags-grid">
+                        <!-- Row 1 -->
+                        <div class="pride-flag-icon default-theme" 
+                             role="button" 
+                             aria-label="Default CT5 Pride Theme"
+                             tabindex="0"
+                             data-theme="default"
+                             title="CT5 Pride Default Theme"></div>
+                        <div class="pride-flag-icon rainbow-flag" 
+                             role="button" 
+                             aria-label="Rainbow Pride Flag"
+                             tabindex="0"
+                             data-theme="rainbow"
+                             title="Rainbow Pride Flag"></div>
+                        <div class="pride-flag-icon progress-flag" 
+                             role="button" 
+                             aria-label="Progress Pride Flag"
+                             tabindex="0"
+                             data-theme="progress"
+                             title="Progress Pride Flag"></div>
+                        <div class="pride-flag-icon trans-flag" 
+                             role="button" 
+                             aria-label="Transgender Pride Flag"
+                             tabindex="0"
+                             data-theme="trans"
+                             title="Transgender Pride Flag"></div>
+                        <div class="pride-flag-icon nonbinary-flag" 
+                             role="button" 
+                             aria-label="Non-Binary Pride Flag"
+                             tabindex="0"
+                             data-theme="nonbinary"
+                             title="Non-Binary Pride Flag"></div>
+                        
+                        <!-- Row 2 -->
+                        <div class="pride-flag-icon lesbian-flag" 
+                             role="button" 
+                             aria-label="Lesbian Pride Flag"
+                             tabindex="0"
+                             data-theme="lesbian"
+                             title="Lesbian Pride Flag"></div>
+                        <div class="pride-flag-icon gay-flag" 
+                             role="button" 
+                             aria-label="Gay Pride Flag"
+                             tabindex="0"
+                             data-theme="gay"
+                             title="Gay Pride Flag"></div>
+                        <div class="pride-flag-icon bisexual-flag" 
+                             role="button" 
+                             aria-label="Bisexual Pride Flag"
+                             tabindex="0"
+                             data-theme="bisexual"
+                             title="Bisexual Pride Flag"></div>
+                        <div class="pride-flag-icon pansexual-flag" 
+                             role="button" 
+                             aria-label="Pansexual Pride Flag"
+                             tabindex="0"
+                             data-theme="pansexual"
+                             title="Pansexual Pride Flag"></div>
+                        <div class="pride-flag-icon asexual-flag" 
+                             role="button" 
+                             aria-label="Asexual Pride Flag"
+                             tabindex="0"
+                             data-theme="asexual"
+                             title="Asexual Pride Flag"></div>
+                    </div>
+                </div>
+                
+                <!-- Right Section: Social Links -->
+                <div class="footer-social">
+                    <div class="social-links">
                 <div class="social-links">
                     <a href="https://www.facebook.com/CT5Pride" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Facebook">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>

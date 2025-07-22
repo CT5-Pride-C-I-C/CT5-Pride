@@ -2684,39 +2684,133 @@ body[class*="theme-"] footer a:hover {
     text-shadow: 2px 2px 6px rgba(0,0,0,1);
 }
 
-/* Enhanced social links in footer with pride flag theme colors */
+/* ==================== ENHANCED SOCIAL MEDIA THEMING ==================== */
+
+/* Dynamic Social Media Button Theming Based on Pride Flags */
+body[class*="theme-"] .social-links a {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+}
+
+/* Default theme social buttons use primary colors with proper contrast */
 body[class*="theme-"] .social-links a {
     background: var(--primary) !important;
-    color: #000000 !important;
-    border: 3px solid var(--accent) !important;
-    box-shadow: 0 6px 25px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3) !important;
-    backdrop-filter: blur(15px) !important;
+    border: 2px solid var(--accent) !important;
 }
 
+/* Auto-detect and adjust text color for contrast */
+body.theme-rainbow .social-links a,
+body.theme-progress .social-links a,
+body.theme-gay .social-links a,
+body.theme-lesbian .social-links a,
+body.theme-bisexual .social-links a {
+    color: white !important;
+}
+
+body.theme-trans .social-links a,
+body.theme-nonbinary .social-links a,
+body.theme-pansexual .social-links a,
+body.theme-asexual .social-links a {
+    color: #2c2c2c !important;
+}
+
+/* Rainbow Theme */
+body.theme-rainbow .social-links a {
+    background: linear-gradient(135deg, var(--pride-red), var(--pride-orange)) !important;
+    border-color: var(--pride-yellow) !important;
+}
+
+/* Progress Theme */
+body.theme-progress .social-links a {
+    background: linear-gradient(135deg, #5bcffa, #f5a9b8) !important;
+    border-color: #784f17 !important;
+}
+
+/* Transgender Theme */
+body.theme-trans .social-links a {
+    background: linear-gradient(135deg, #5bcffa, #f5a9b8) !important;
+    border-color: white !important;
+}
+
+/* Non-Binary Theme */
+body.theme-nonbinary .social-links a {
+    background: linear-gradient(135deg, #fcf434, #9c59d1) !important;
+    border-color: white !important;
+}
+
+/* Lesbian Theme */
+body.theme-lesbian .social-links a {
+    background: linear-gradient(135deg, #d62d20, #ff9955) !important;
+    border-color: #d161a2 !important;
+}
+
+/* Gay Theme */
+body.theme-gay .social-links a {
+    background: linear-gradient(135deg, #078d70, #26ceaa) !important;
+    border-color: #7bade2 !important;
+}
+
+/* Bisexual Theme */
+body.theme-bisexual .social-links a {
+    background: linear-gradient(135deg, #d60270, #9b59b6) !important;
+    border-color: #0038a8 !important;
+}
+
+/* Pansexual Theme */
+body.theme-pansexual .social-links a {
+    background: linear-gradient(135deg, #ff218c, #ffd800) !important;
+    border-color: #21b1ff !important;
+}
+
+/* Asexual Theme */
+body.theme-asexual .social-links a {
+    background: linear-gradient(135deg, #000000, #a3a3a3) !important;
+    border-color: #800080 !important;
+    color: white !important;
+}
+
+/* Enhanced hover states with theme colors */
 body[class*="theme-"] .social-links a:hover {
     background: var(--accent) !important;
-    color: #000000 !important;
     border-color: var(--secondary) !important;
     transform: translateY(-3px) scale(1.05) !important;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5) !important;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4) !important;
 }
 
-/* Brand-specific hover states - override theme colors for brand recognition */
-body[class*="theme-"] .social-links a[aria-label*="Instagram"]:hover {
-    background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%) !important;
-    color: white !important;
-    border-color: #e6683c !important;
-}
-
-body[class*="theme-"] .social-links a[aria-label*="Instagram"]:hover svg {
-    fill: white !important;
-    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8));
-}
-
+/* Platform-Specific Brand Colors on Hover - Override theme colors */
 body[class*="theme-"] .social-links a[aria-label*="Facebook"]:hover {
     background: #1877f2 !important;
     color: white !important;
     border-color: #1877f2 !important;
+}
+
+body[class*="theme-"] .social-links a[aria-label*="Instagram"]:hover {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+    color: white !important;
+    border-color: #e6683c !important;
+}
+
+body[class*="theme-"] .social-links a[aria-label*="LinkedIn"]:hover {
+    background: #0077b5 !important;
+    color: white !important;
+    border-color: #0077b5 !important;
+}
+
+body[class*="theme-"] .social-links a[aria-label*="Email"]:hover {
+    background: var(--primary) !important;
+    color: white !important;
+    border-color: var(--primary) !important;
+}
+
+/* Icon Contrast Enhancement */
+body[class*="theme-"] .social-links a svg {
+    filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.3));
+    transition: filter 0.3s ease;
+}
+
+body[class*="theme-"] .social-links a:hover svg {
+    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
 }
 
 body[class*="theme-"] .social-links a[aria-label*="Facebook"]:hover svg {
