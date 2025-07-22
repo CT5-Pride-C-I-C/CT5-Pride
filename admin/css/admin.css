@@ -1144,6 +1144,7 @@ body {
 
 /* ==================== RESPONSIVE DESIGN ==================== */
 
+/* Mobile-first improvements */
 @media (max-width: 1024px) {
   .admin-layout {
     flex-direction: column;
@@ -1153,12 +1154,29 @@ body {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid var(--gray-200);
+    padding: var(--space-4);
   }
   
   .nav-links {
     display: flex;
     overflow-x: auto;
     gap: var(--space-2);
+    padding-bottom: var(--space-2);
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .nav-links::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .nav-links::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 2px;
+  }
+  
+  .nav-links::-webkit-scrollbar-thumb {
+    background: var(--primary-pink);
+    border-radius: 2px;
   }
   
   .nav-links li {
@@ -1166,165 +1184,426 @@ body {
     flex-shrink: 0;
   }
   
+  .nav-link {
+    white-space: nowrap;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-sm);
+  }
+  
+  .nav-icon {
+    font-size: var(--font-size-base);
+  }
+  
   .dashboard-sections {
     grid-template-columns: 1fr;
+  }
+  
+  .admin-content {
+    padding: var(--space-4);
   }
 }
 
 @media (max-width: 768px) {
-  .admin-content {
-    padding: var(--space-4);
+  /* Enhanced mobile navigation */
+  .nav-header {
+    margin-bottom: var(--space-4);
   }
   
-  .hero-content {
-    padding: 0 var(--space-4);
-  }
-  
-  .hero-title {
-    font-size: var(--font-size-2xl);
-  }
-  
-  .hero-logo {
-    height: 56px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .roles-grid, .events-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .performance-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .modal-overlay {
-    padding: var(--space-2);
-  }
-  
-  .not-found-actions {
-    flex-direction: column;
-    align-items: center;
+  .nav-header h2 {
+    font-size: var(--font-size-lg);
   }
   
   .user-info {
     flex-direction: column;
     align-items: stretch;
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+  
+  .user-email {
+    text-align: center;
+    font-size: var(--font-size-xs);
   }
   
   .logout-btn {
     justify-content: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-title {
-    font-size: var(--font-size-xl);
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--font-size-sm);
   }
   
-  .hero-logo {
-    height: 48px;
+  .logout-text {
+    display: none;
   }
   
-  .login-container {
-    padding: var(--space-4);
+  /* Improved content layout */
+  .admin-content {
+    padding: var(--space-3);
   }
   
-  .login-card {
-    padding: var(--space-6);
+  .page-header {
+    margin-bottom: var(--space-4);
   }
   
   .page-header h1 {
     font-size: var(--font-size-2xl);
+    line-height: 1.2;
   }
   
-  .stat-card {
+  .page-header p {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-4);
+  }
+  
+  /* Enhanced hero section */
+  .hero-content {
+    padding: 0 var(--space-2);
+  }
+  
+  .hero-title {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--space-4);
+  }
+  
+  .hero-logo {
+    height: 48px;
+    margin-bottom: var(--space-4);
+  }
+  
+  /* Improved grid layouts */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+  
+  .roles-grid, .events-grid, .applications-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  
+  .performance-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+  
+  /* Enhanced modal responsiveness */
+  .modal-overlay {
+    padding: var(--space-2);
+    align-items: flex-start;
+    padding-top: var(--space-6);
+  }
+  
+  .modal-dialog {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    max-height: calc(100vh - var(--space-12));
+    overflow-y: auto;
+  }
+  
+  .modal-header {
+    padding: var(--space-4);
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  
+  .modal-header h2 {
+    font-size: var(--font-size-lg);
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .modal-form {
+    padding: var(--space-4);
+  }
+  
+  .modal-actions {
     flex-direction: column;
-    text-align: center;
+    gap: var(--space-2);
   }
   
-  .application-item {
+  .modal-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Enhanced form layouts */
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .form-row .form-group {
+    width: 100%;
+    margin-bottom: var(--space-4);
+  }
+  
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .form-help {
+    font-size: var(--font-size-xs);
+  }
+  
+  /* Improved card layouts */
+  .role-card, .event-card, .application-card {
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
+  }
+  
+  .role-header, .event-header, .application-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+  
+  .role-status {
+    align-self: flex-start;
+  }
+  
+  .role-actions, .event-actions, .application-actions {
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+  }
+  
+  .btn-sm {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-sm);
+    width: 100%;
+    justify-content: center;
+  }
+  
+  /* Enhanced table responsiveness */
+  .table-responsive {
+    border-radius: var(--border-radius);
+    margin: 0 -var(--space-3) var(--space-4) -var(--space-3);
+    box-shadow: none;
+    border: 1px solid var(--gray-200);
+  }
+  
+  .admin-table {
+    font-size: var(--font-size-xs);
+    min-width: 600px; /* Reduced from 1000px */
+  }
+  
+  .admin-table th,
+  .admin-table td {
+    padding: var(--space-2);
+    max-width: 100px;
+    font-size: var(--font-size-xs);
+  }
+  
+  .admin-table th {
+    font-size: 10px;
+    padding: var(--space-2) var(--space-1);
+  }
+  
+  .admin-table td {
+    word-break: break-word;
+    hyphens: auto;
+    line-height: 1.3;
+  }
+  
+  /* Specific column adjustments for mobile */
+  .admin-table td:nth-child(1) { max-width: 80px; } /* Name */
+  .admin-table td:nth-child(2) { max-width: 60px; } /* Pronouns */
+  .admin-table td:nth-child(3) { max-width: 120px; } /* Email */
+  .admin-table td:nth-child(4) { max-width: 80px; } /* Phone */
+  .admin-table td:nth-child(5) { max-width: 60px; } /* DOB */
+  .admin-table td:nth-child(6) { max-width: 100px; } /* Address */
+  .admin-table td:nth-child(7) { max-width: 80px; } /* Type */
+  .admin-table td:nth-child(8) { max-width: 90px; } /* Number */
+  .admin-table td:nth-child(9) { max-width: 80px; } /* Plan */
+  .admin-table td:nth-child(10) { max-width: 80px; } /* Renewal */
+  .admin-table td:nth-child(11) { max-width: 70px; } /* Agreement */
+  .admin-table td:nth-child(12) { max-width: 80px; } /* Date */
+  
+  .admin-table td span[title] {
+    margin: 0 1px;
+    font-size: var(--font-size-xs);
+    transform: none !important;
+  }
+  
+  /* Toast notifications for mobile */
+  .toast {
+    top: var(--space-2);
+    right: var(--space-2);
+    left: var(--space-2);
+    max-width: none;
+    transform: translateY(-100%);
+  }
+  
+  .toast.toast-show {
+    transform: translateY(0);
+  }
+  
+  /* 404 page mobile improvements */
+  .not-found-container {
+    padding: var(--space-4);
+    min-height: 40vh;
+  }
+  
+  .not-found-content h1 {
+    font-size: var(--font-size-2xl);
+  }
+  
+  .not-found-actions {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-3);
   }
   
+  .not-found-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small screens */
+  .admin-nav {
+    padding: var(--space-3);
+  }
+  
+  .nav-header h2 {
+    font-size: var(--font-size-base);
+  }
+  
+  .admin-content {
+    padding: var(--space-2);
+  }
+  
+  .page-header h1 {
+    font-size: var(--font-size-xl);
+  }
+  
+  .hero-title {
+    font-size: var(--font-size-xl);
+  }
+  
+  .hero-logo {
+    height: 40px;
+  }
+  
+  /* Ultra-compact login */
+  .login-container {
+    padding: var(--space-2);
+  }
+  
+  .login-card {
+    padding: var(--space-4);
+  }
+  
+  .login-header h1 {
+    font-size: var(--font-size-xl);
+  }
+  
+  /* Single column stats */
+  .performance-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-card {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--space-3);
+  }
+  
+  .stat-icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-2);
+  }
+  
+  .stat-number {
+    font-size: var(--font-size-2xl);
+  }
+  
+  /* Compact application items */
+  .application-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+  
+  .application-info {
+    text-align: left;
+  }
+  
   .application-meta {
     align-items: flex-start;
-  }
-  
-  .role-actions, .event-actions {
     flex-direction: column;
+    gap: var(--space-1);
   }
   
-  .modal-actions {
-    flex-direction: column;
-  }
-}
-
-/* ==================== ACCESSIBILITY ==================== */
-
-/* Focus indicators */
-*:focus {
-  outline: 2px solid var(--primary-pink);
-  outline-offset: 2px;
-}
-
-.btn:focus,
-.nav-link:focus,
-input:focus,
-textarea:focus,
-select:focus {
-  outline: 2px solid var(--primary-pink);
-  outline-offset: 2px;
-}
-
-/* Screen reader only content */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  :root {
-    --gray-200: #000;
-    --gray-300: #000;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  }
-}
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  /* Ultra-compact table */
+  .admin-table {
+    min-width: 500px; /* Further reduced */
   }
   
-  .loading-spinner {
-    animation: none;
+  .admin-table th,
+  .admin-table td {
+    padding: var(--space-1);
+    font-size: 10px;
+    max-width: 60px;
+  }
+  
+  .admin-table td:nth-child(6) { /* Address column slightly wider */
+    max-width: 80px;
+  }
+  
+  /* Form improvements */
+  .form-group label {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-1);
+  }
+  
+  .modal-header {
+    padding: var(--space-3);
+  }
+  
+  .modal-form {
+    padding: var(--space-3);
+  }
+  
+  .modal-header h2 {
+    font-size: var(--font-size-base);
+  }
+}
+
+/* Landscape phone orientation fixes */
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal-overlay {
+    padding: var(--space-1);
+    align-items: flex-start;
+    padding-top: var(--space-2);
+  }
+  
+  .modal-dialog {
+    max-height: calc(100vh - var(--space-4));
+  }
+  
+  .login-container {
+    min-height: 100vh;
+    padding: var(--space-2);
+  }
+  
+  .hero-content {
+    padding: var(--space-2) 0;
   }
 }
 
 /* Print styles */
 @media print {
   .admin-nav,
-  .logout-btn,
-  .btn,
-  .modal-overlay {
+  .modal-overlay,
+  .toast,
+  .logout-btn {
     display: none !important;
   }
   
@@ -1332,10 +1611,15 @@ select:focus {
     padding: 0;
   }
   
-  .page-header {
-    border-bottom: 2px solid black;
+  .admin-table {
+    font-size: 10px;
   }
-} 
+  
+  .admin-table th,
+  .admin-table td {
+    padding: 2px;
+  }
+}
 
 /* ==================== TABLE STYLES ==================== */
 
@@ -1848,4 +2132,420 @@ select:focus {
   font-size: var(--font-size-xs);
   font-weight: 500;
   text-transform: uppercase;
+} 
+
+/* ==================== ACCESSIBILITY ==================== */
+
+/* Focus indicators */
+*:focus {
+  outline: 2px solid var(--primary-pink);
+  outline-offset: 2px;
+}
+
+.btn:focus,
+.nav-link:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--primary-pink);
+  outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Mobile accessibility improvements */
+@media (max-width: 768px) {
+  /* Larger touch targets */
+  .btn, .nav-link, button, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .btn-sm {
+    min-height: 36px;
+  }
+  
+  /* Better focus indicators on mobile */
+  *:focus {
+    outline: 3px solid var(--primary-pink);
+    outline-offset: 2px;
+  }
+}
+
+/* Text overflow and word wrapping utilities */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-wrap {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.text-break {
+  word-break: break-all;
+}
+
+/* Mobile-specific text handling */
+@media (max-width: 768px) {
+  /* Force text wrapping on all content */
+  .role-card, .event-card, .application-card,
+  .modal-content, .page-header, .stats-grid {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  
+  /* Specific handling for long URLs or emails */
+  .admin-table td:nth-child(3) a, /* Email column */
+  .admin-table td[data-type="url"], 
+  .admin-table td[data-type="email"] {
+    word-break: break-all;
+    font-size: var(--font-size-xs);
+    line-height: 1.2;
+  }
+  
+  /* Handle long membership numbers */
+  .admin-table td:nth-child(8) { /* Membership number */
+    font-family: monospace;
+    font-size: 9px;
+    word-break: break-all;
+    line-height: 1.1;
+  }
+  
+  /* Better handling of role descriptions */
+  .role-summary, .role-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --gray-200: #000;
+    --gray-300: #000;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .loading-spinner {
+    animation: none;
+  }
+} 
+
+/* Mobile navigation improvements */
+@media (max-width: 768px) {
+  /* Horizontal scroll indicator for navigation */
+  .nav-links::before {
+    content: "← Scroll for more →";
+    display: block;
+    text-align: center;
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    padding: var(--space-1) 0;
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: var(--space-2);
+  }
+  
+  /* Hide scroll hint when all nav items are visible */
+  .nav-links:not([data-scrollable])::before {
+    display: none;
+  }
+  
+  /* Improved mobile button spacing */
+  .btn + .btn {
+    margin-top: var(--space-2);
+  }
+  
+  /* Better mobile table headers */
+  .admin-table th {
+    position: sticky;
+    top: 0;
+    background: var(--primary-pink);
+    z-index: 20;
+  }
+  
+  /* Mobile-friendly pagination if it exists */
+  .pagination {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+  }
+  
+  .pagination .btn {
+    min-width: 40px;
+    padding: var(--space-1) var(--space-2);
+  }
+}
+
+/* Mobile utility classes */
+.mobile-hidden {
+  display: block;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-hidden {
+    display: none !important;
+  }
+  
+  .mobile-only {
+    display: block !important;
+  }
+  
+  .mobile-center {
+    text-align: center !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+  }
+  
+  .mobile-no-margin {
+    margin: 0 !important;
+  }
+  
+  .mobile-small-text {
+    font-size: var(--font-size-xs) !important;
+  }
+}
+
+/* Responsive container padding */
+.container-responsive {
+  padding-left: var(--space-6);
+  padding-right: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .container-responsive {
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+  }
+}
+
+@media (max-width: 480px) {
+  .container-responsive {
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
+  }
+} 
+
+/* Enhanced mobile form handling */
+@media (max-width: 768px) {
+  /* Prevent zoom on iOS when focusing inputs */
+  input[type="text"],
+  input[type="email"], 
+  input[type="password"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: var(--border-radius);
+  }
+  
+  /* Better form group spacing */
+  .form-group {
+    margin-bottom: var(--space-4);
+  }
+  
+  /* Improved label readability */
+  .form-group label {
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: var(--space-2);
+    display: block;
+  }
+  
+  /* Form validation styling */
+  .form-group input:invalid,
+  .form-group textarea:invalid {
+    border-color: var(--danger-red);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  }
+  
+  .form-group input:valid,
+  .form-group textarea:valid {
+    border-color: var(--success-green);
+  }
+  
+  /* Better button layouts in forms */
+  .form-actions,
+  .modal-actions {
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--gray-200);
+  }
+  
+  /* Improved checkbox and radio styling */
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    margin-right: var(--space-2);
+  }
+  
+  /* Better select dropdown styling */
+  select {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='m0 0 2 3 2-3z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 40px;
+  }
+  
+  /* Loading states for mobile */
+  .form-loading {
+    position: relative;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  .form-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--primary-pink);
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+/* Mobile table improvements */
+@media (max-width: 768px) {
+  /* Card-style table on very small screens */
+  .table-responsive.mobile-cards .admin-table,
+  .table-responsive.mobile-cards .admin-table thead,
+  .table-responsive.mobile-cards .admin-table tbody,
+  .table-responsive.mobile-cards .admin-table th,
+  .table-responsive.mobile-cards .admin-table td,
+  .table-responsive.mobile-cards .admin-table tr {
+    display: block;
+  }
+  
+  .table-responsive.mobile-cards .admin-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  .table-responsive.mobile-cards .admin-table tr {
+    border: 1px solid var(--gray-200);
+    margin-bottom: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--border-radius);
+    background: white;
+  }
+  
+  .table-responsive.mobile-cards .admin-table td {
+    border: none;
+    position: relative;
+    padding: var(--space-2) 0 var(--space-2) 40%;
+    max-width: none;
+    word-wrap: break-word;
+  }
+  
+  .table-responsive.mobile-cards .admin-table td:before {
+    content: attr(data-label) ":";
+    position: absolute;
+    left: 0;
+    width: 35%;
+    font-weight: 600;
+    color: var(--gray-700);
+    padding-right: var(--space-2);
+  }
+  
+  /* Better mobile scroll indicators */
+  .table-responsive::before {
+    content: "← Scroll table horizontally →";
+    display: block;
+    text-align: center;
+    font-size: var(--font-size-xs);
+    color: var(--gray-500);
+    padding: var(--space-1);
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  
+  .table-responsive:not([data-scrollable])::before {
+    display: none;
+  }
+}
+
+/* Critical mobile layout fixes */
+@media (max-width: 480px) {
+  /* Ensure content never exceeds viewport */
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Fix any remaining overflow issues */
+  .admin-layout,
+  .admin-content,
+  .modal-content {
+    overflow-x: hidden;
+  }
+  
+  /* Ultra-compact stat cards */
+  .stat-card {
+    min-height: auto;
+    padding: var(--space-2);
+  }
+  
+  .stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-1);
+  }
+  
+  .stat-number {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--space-1);
+  }
+  
+  .stat-description {
+    font-size: var(--font-size-xs);
+    line-height: 1.2;
+  }
 } 
