@@ -1382,9 +1382,11 @@ window.addEventListener("DOMContentLoaded", async () => {
           });
           
           // Clean up URL and redirect to dashboard immediately after successful session creation
-          if (data.session && window.location.hash.includes('access_token')) {
+          if (data.session) {
             console.log("✅ Session established, cleaning up URL...");
+            console.log("🔍 URL DEBUG - Before cleanup:", window.location.href);
             history.replaceState(null, '', '/#/dashboard');
+            console.log("🔍 URL DEBUG - After cleanup:", window.location.href);
           }
           
           // Show success message briefly and immediately render dashboard
@@ -1392,6 +1394,13 @@ window.addEventListener("DOMContentLoaded", async () => {
           
           // Immediately call the function to render dashboard content
           console.log('🎯 Immediately routing to dashboard...');
+          
+          // Ensure URL is set correctly
+          if (window.location.hash !== '#/dashboard') {
+            console.log('🔧 URL DEBUG - Setting hash to #/dashboard');
+            window.location.hash = '#/dashboard';
+          }
+          
           setTimeout(() => {
             route();
           }, 100);
