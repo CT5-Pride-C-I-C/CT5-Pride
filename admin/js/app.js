@@ -1152,11 +1152,11 @@ async function loadApplicationDetails(applicationId) {
         <p class="no-cover-letter">No cover letter submitted</p>
         ` : ''}
         
-        ${application.cv ? `
+        ${application.cv_text ? `
         <h3>CV (Text)</h3>
         <div class="cv-section">
           <div class="cv-content">
-            ${application.cv.replace(/\n/g, '<br>')}
+            ${application.cv_text.replace(/\n/g, '<br>')}
           </div>
         </div>
         ` : ''}
@@ -1166,7 +1166,7 @@ async function loadApplicationDetails(applicationId) {
         <p><strong>CV File:</strong> <button class="btn btn-sm btn-secondary" data-action="open-file" data-app-id="${application.id}" data-file-type="cv">📄 Download CV</button></p>
         ` : ''}
         
-        ${!application.cv && !application.cv_url ? `
+        ${!application.cv_text && !application.cv_url ? `
         <h3>CV</h3>
         <p class="no-cv">No CV submitted</p>
         ` : ''}

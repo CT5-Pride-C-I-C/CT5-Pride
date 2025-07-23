@@ -312,7 +312,7 @@ app.post('/api/apply', upload.fields([
 
     // Handle CV upload/storage
     let cvUrl = null;
-    let cvContent = null;
+    let cvTextContent = null;
     
     if (cvType === 'file' && req.files && req.files.cvFile) {
       const cvFile = req.files.cvFile[0];
@@ -346,8 +346,9 @@ app.post('/api/apply', upload.fields([
         });
       }
     } else if (cvType === 'text') {
-      cvContent = cvText;
-      console.log('✅ CV text content captured:', cvContent ? 'Text provided' : 'No text');
+      // Store typed CV content in the dedicated cv_text column
+      cvTextContent = cvText;
+      console.log('✅ CV text content captured for cv_text column:', cvText ? `${cvText.length} characters` : 'No text');
     }
 
     // Handle Cover Letter upload/storage
@@ -395,7 +396,7 @@ app.post('/api/apply', upload.fields([
       full_name: applicantName,
       email: applicantEmail,
       phone: applicantPhone || null,
-      cv: cvContent,
+      cv_text: cvTextContent,
       cv_url: cvUrl,
       cover_letter: coverLetterContent,
       cover_letter_url: coverLetterUrl,
@@ -405,7 +406,7 @@ app.post('/api/apply', upload.fields([
     };
 
     console.log('💾 Inserting application data:', applicationData);
-    console.log('🔍 CV Debug - cvType:', cvType, 'cvText length:', cvText ? cvText.length : 'null', 'cvContent:', cvContent ? 'HAS CONTENT' : 'NULL');
+    console.log('🔍 CV Debug - cvType:', cvType, 'cv_text:', cvTextContent ? `${cvTextContent.length} chars` : 'NULL', 'cv_url:', cvUrl ? 'FILE_URL' : 'NULL');
 
     // Insert into applications table
     const { data, error } = await supabase
@@ -439,6 +440,37 @@ app.post('/api/apply', upload.fields([
 });
 
 // ==================== APPLICATIONS API ====================
+
+// Debug endpoint to check table schema
+app.get('/api/debug/schema', requireSupabaseAuth, async (req, res) => {
+  try {
+    // Get a sample application to see what fields exist
+    const { data, error } = await supabase
+      .from('applications')
+      .select('*')
+      .limit(1);
+
+    if (error) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    const fields = data.length > 0 ? Object.keys(data[0]) : [];
+    console.log('🔍 Applications table fields:', fields);
+    
+    res.json({ 
+      success: true, 
+      fields: fields,
+      hasCVText: fields.includes('cv_text'),
+      hasCVUrl: fields.includes('cv_url'),
+      hasCoverLetter: fields.includes('cover_letter'),
+      hasCoverLetterUrl: fields.includes('cover_letter_url'),
+      sampleData: data[0] || null
+    });
+  } catch (err) {
+    console.error('Schema debug error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
 
 // Get all applications
 app.get('/api/applications', requireSupabaseAuth, async (req, res) => {
@@ -511,7 +543,7 @@ app.get('/api/applications/:id', requireSupabaseAuth, async (req, res) => {
       .single();
 
     if (data) {
-      console.log('🔍 Application fetch debug for ID', id, '- CV field:', data.cv ? 'HAS CONTENT' : 'NULL/MISSING', 'CV URL:', data.cv_url ? 'HAS URL' : 'NULL');
+      console.log('🔍 Application fetch debug for ID', id, '- cv_text:', data.cv_text ? `${data.cv_text.length} chars` : 'NULL', 'cv_url:', data.cv_url ? 'FILE_URL' : 'NULL');
     }
 
     if (error) {
