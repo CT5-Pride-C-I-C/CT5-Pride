@@ -405,6 +405,7 @@ app.post('/api/apply', upload.fields([
     };
 
     console.log('💾 Inserting application data:', applicationData);
+    console.log('🔍 CV Debug - cvType:', cvType, 'cvText length:', cvText ? cvText.length : 'null', 'cvContent:', cvContent ? 'HAS CONTENT' : 'NULL');
 
     // Insert into applications table
     const { data, error } = await supabase
@@ -508,6 +509,10 @@ app.get('/api/applications/:id', requireSupabaseAuth, async (req, res) => {
       `)
       .eq('id', id)
       .single();
+
+    if (data) {
+      console.log('🔍 Application fetch debug for ID', id, '- CV field:', data.cv ? 'HAS CONTENT' : 'NULL/MISSING', 'CV URL:', data.cv_url ? 'HAS URL' : 'NULL');
+    }
 
     if (error) {
       return res.status(400).json({ success: false, message: error.message });

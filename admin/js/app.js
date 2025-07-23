@@ -982,27 +982,92 @@ async function loadApplications() {
       return;
     }
     
+    // Group applications by status
+    const pendingApps = applications.filter(app => !app.status || app.status === 'pending');
+    const acceptedApps = applications.filter(app => app.status === 'accepted');
+    const rejectedApps = applications.filter(app => app.status === 'rejected');
+    
+    // Function to render application card with appropriate actions
+    const renderApplicationCard = (app, showAllActions = true) => `
+      <div class="application-card status-${app.status || 'pending'}">
+        <div class="application-header">
+          <h3>${app.full_name}</h3>
+          <span class="application-role">${app.roles?.title || 'Unknown Role'}</span>
+        </div>
+        <div class="application-details">
+          <p><strong>Email:</strong> ${app.email}</p>
+          <p><strong>Phone:</strong> ${app.phone || 'N/A'}</p>
+          <p><strong>Date Submitted:</strong> ${formatDate(app.submitted_at)}</p>
+          <p><strong>Status:</strong> <span class="status-badge status-${app.status || 'pending'}">${app.status || 'Pending'}</span></p>
+        </div>
+        <div class="application-actions">
+          <button class="btn btn-sm btn-primary" data-action="view-details" data-app-id="${app.id}">View Details</button>
+          ${showAllActions && (!app.status || app.status === 'pending') ? `
+            <button class="btn btn-sm btn-danger" data-action="reject" data-app-id="${app.id}">Reject</button>
+            <button class="btn btn-sm btn-success" data-action="accept" data-app-id="${app.id}">Accept</button>
+          ` : ''}
+          ${app.status === 'accepted' ? `
+            <button class="btn btn-sm btn-danger" data-action="reject" data-app-id="${app.id}">Move to Rejected</button>
+          ` : ''}
+          ${app.status === 'rejected' ? `
+            <button class="btn btn-sm btn-success" data-action="accept" data-app-id="${app.id}">Move to Accepted</button>
+          ` : ''}
+        </div>
+      </div>
+    `;
+    
     content.innerHTML = `
-      <div class="applications-grid">
-        ${applications.map(app => `
-          <div class="application-card">
-            <div class="application-header">
-              <h3>${app.full_name}</h3>
-              <span class="application-role">${app.roles?.title || 'Unknown Role'}</span>
-            </div>
-            <div class="application-details">
-              <p><strong>Email:</strong> ${app.email}</p>
-              <p><strong>Phone:</strong> ${app.phone || 'N/A'}</p>
-              <p><strong>Date Submitted:</strong> ${formatDate(app.submitted_at)}</p>
-              <p><strong>Status:</strong> <span class="status-${app.status || 'pending'}">${app.status || 'Pending'}</span></p>
-            </div>
-            <div class="application-actions">
-              <button class="btn btn-sm btn-primary" data-action="view-details" data-app-id="${app.id}">View Details</button>
-              <button class="btn btn-sm btn-danger" data-action="reject" data-app-id="${app.id}">Reject</button>
-              <button class="btn btn-sm btn-success" data-action="accept" data-app-id="${app.id}">Accept</button>
-            </div>
+      <div class="applications-sections">
+        <!-- Pending Applications Section -->
+        <div class="application-section pending-section">
+          <div class="section-header">
+            <h2>📋 Pending Applications</h2>
+            <span class="section-count">${pendingApps.length} applications</span>
           </div>
-        `).join('')}
+          ${pendingApps.length > 0 ? `
+            <div class="applications-grid">
+              ${pendingApps.map(app => renderApplicationCard(app, true)).join('')}
+            </div>
+          ` : `
+            <div class="no-data-section">
+              <p>No pending applications</p>
+            </div>
+          `}
+        </div>
+        
+        <!-- Accepted Applications Section -->
+        <div class="application-section accepted-section">
+          <div class="section-header">
+            <h2>✅ Accepted Applications</h2>
+            <span class="section-count">${acceptedApps.length} applications</span>
+          </div>
+          ${acceptedApps.length > 0 ? `
+            <div class="applications-grid">
+              ${acceptedApps.map(app => renderApplicationCard(app, false)).join('')}
+            </div>
+          ` : `
+            <div class="no-data-section">
+              <p>No accepted applications yet</p>
+            </div>
+          `}
+        </div>
+        
+        <!-- Rejected Applications Section -->
+        <div class="application-section rejected-section">
+          <div class="section-header">
+            <h2>❌ Rejected Applications</h2>
+            <span class="section-count">${rejectedApps.length} applications</span>
+          </div>
+          ${rejectedApps.length > 0 ? `
+            <div class="applications-grid">
+              ${rejectedApps.map(app => renderApplicationCard(app, false)).join('')}
+            </div>
+          ` : `
+            <div class="no-data-section">
+              <p>No rejected applications yet</p>
+            </div>
+          `}
+        </div>
       </div>
     `;
   } catch (err) {
