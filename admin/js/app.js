@@ -1161,7 +1161,7 @@ document.addEventListener('click', function(e) {
     const applicationId = target.getAttribute('data-app-id');
     console.log('🔍 View Details clicked for application:', applicationId);
     try {
-      viewApplicationDetails(parseInt(applicationId));
+      viewApplicationDetails(applicationId);
     } catch (error) {
       console.error('viewApplicationDetails error:', error);
       alert('Error viewing application details: ' + error.message);
@@ -1174,7 +1174,7 @@ document.addEventListener('click', function(e) {
     const applicationId = target.getAttribute('data-app-id');
     console.log('✅ Accept clicked for application:', applicationId);
     try {
-      acceptApplication(parseInt(applicationId));
+      acceptApplication(applicationId);
     } catch (error) {
       console.error('acceptApplication error:', error);
       alert('Error accepting application: ' + error.message);
@@ -1187,7 +1187,7 @@ document.addEventListener('click', function(e) {
     const applicationId = target.getAttribute('data-app-id');
     console.log('❌ Reject clicked for application:', applicationId);
     try {
-      rejectApplication(parseInt(applicationId));
+      rejectApplication(applicationId);
     } catch (error) {
       console.error('rejectApplication error:', error);
       alert('Error rejecting application: ' + error.message);
@@ -1201,7 +1201,7 @@ document.addEventListener('click', function(e) {
     const fileType = target.getAttribute('data-file-type');
     console.log('📄 Open file clicked for application:', applicationId, 'type:', fileType);
     try {
-      openSecureFile(parseInt(applicationId), fileType);
+      openSecureFile(applicationId, fileType);
     } catch (error) {
       console.error('openSecureFile error:', error);
       alert('Error opening file: ' + error.message);
