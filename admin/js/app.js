@@ -1087,13 +1087,24 @@ async function loadApplicationDetails(applicationId) {
         <p class="no-cover-letter">No cover letter submitted</p>
         ` : ''}
         
+        ${application.cv ? `
+        <h3>CV (Text)</h3>
+        <div class="cv-section">
+          <div class="cv-content">
+            ${application.cv.replace(/\n/g, '<br>')}
+          </div>
+        </div>
+        ` : ''}
+        
         ${application.cv_url ? `
-        <h3>CV</h3>
+        <h3>CV (File)</h3>
         <p><strong>CV File:</strong> <button class="btn btn-sm btn-secondary" data-action="open-file" data-app-id="${application.id}" data-file-type="cv">📄 Download CV</button></p>
-        ` : `
+        ` : ''}
+        
+        ${!application.cv && !application.cv_url ? `
         <h3>CV</h3>
         <p class="no-cv">No CV submitted</p>
-        `}
+        ` : ''}
         
         <h3>Privacy Consent</h3>
         <p><strong>Privacy Policy Agreed:</strong> ${application.privacy_consent ? '✅ Agreed' : '❌ Not Agreed'}</p>
@@ -1117,11 +1128,33 @@ async function acceptApplication(applicationId) {
   try {
     await apiRequest(`/api/applications/${applicationId}/accept`, { method: 'POST' });
     showSuccess('Application accepted successfully!');
-    await loadApplications();
-    await loadApplicationDetails(applicationId); // Refresh details in the same view
+    
+    // Check which view we're currently on and refresh appropriately
+    const detailsContent = document.getElementById('application-details-content');
+    const applicationsContent = document.getElementById('applications-content');
+    
+    if (detailsContent) {
+      // We're on the details page, refresh the details view
+      await loadApplicationDetails(applicationId);
+    } else if (applicationsContent) {
+      // We're on the applications list page, refresh the list
+      await loadApplications();
+    }
   } catch (err) {
     console.error('Accept application error:', err);
-    showError(document.getElementById('application-details-content'), err.message);
+    
+    // Show error in the appropriate place
+    const detailsContent = document.getElementById('application-details-content');
+    const applicationsContent = document.getElementById('applications-content');
+    
+    if (detailsContent) {
+      showError(detailsContent, err.message);
+    } else if (applicationsContent) {
+      showError(applicationsContent, err.message);
+    } else {
+      // Fallback to alert if no appropriate container found
+      alert('Error: ' + err.message);
+    }
   }
 }
 
@@ -1131,11 +1164,33 @@ async function rejectApplication(applicationId) {
   try {
     await apiRequest(`/api/applications/${applicationId}/reject`, { method: 'POST' });
     showSuccess('Application rejected successfully!');
-    await loadApplications();
-    await loadApplicationDetails(applicationId); // Refresh details in the same view
+    
+    // Check which view we're currently on and refresh appropriately
+    const detailsContent = document.getElementById('application-details-content');
+    const applicationsContent = document.getElementById('applications-content');
+    
+    if (detailsContent) {
+      // We're on the details page, refresh the details view
+      await loadApplicationDetails(applicationId);
+    } else if (applicationsContent) {
+      // We're on the applications list page, refresh the list
+      await loadApplications();
+    }
   } catch (err) {
     console.error('Reject application error:', err);
-    showError(document.getElementById('application-details-content'), err.message);
+    
+    // Show error in the appropriate place
+    const detailsContent = document.getElementById('application-details-content');
+    const applicationsContent = document.getElementById('applications-content');
+    
+    if (detailsContent) {
+      showError(detailsContent, err.message);
+    } else if (applicationsContent) {
+      showError(applicationsContent, err.message);
+    } else {
+      // Fallback to alert if no appropriate container found
+      alert('Error: ' + err.message);
+    }
   }
 }
 

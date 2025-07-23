@@ -312,6 +312,8 @@ app.post('/api/apply', upload.fields([
 
     // Handle CV upload/storage
     let cvUrl = null;
+    let cvContent = null;
+    
     if (cvType === 'file' && req.files && req.files.cvFile) {
       const cvFile = req.files.cvFile[0];
       const cvFileName = `${filePrefix}_cv.${cvFile.originalname.split('.').pop()}`;
@@ -343,6 +345,9 @@ app.post('/api/apply', upload.fields([
           message: 'Failed to upload CV file' 
         });
       }
+    } else if (cvType === 'text') {
+      cvContent = cvText;
+      console.log('✅ CV text content captured:', cvContent ? 'Text provided' : 'No text');
     }
 
     // Handle Cover Letter upload/storage
@@ -390,6 +395,7 @@ app.post('/api/apply', upload.fields([
       full_name: applicantName,
       email: applicantEmail,
       phone: applicantPhone || null,
+      cv: cvContent,
       cv_url: cvUrl,
       cover_letter: coverLetterContent,
       cover_letter_url: coverLetterUrl,
