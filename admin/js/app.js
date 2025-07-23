@@ -997,9 +997,9 @@ async function loadApplications() {
               <p><strong>Status:</strong> <span class="status-${app.status || 'pending'}">${app.status || 'Pending'}</span></p>
             </div>
             <div class="application-actions">
-              <button class="btn btn-sm btn-primary" onclick="viewApplicationDetails(${app.id})">View Details</button>
-              <button class="btn btn-sm btn-danger" onclick="rejectApplication(${app.id})">Reject</button>
-              <button class="btn btn-sm btn-success" onclick="acceptApplication(${app.id})">Accept</button>
+              <button class="btn btn-sm btn-primary" data-action="view-details" data-app-id="${app.id}">View Details</button>
+              <button class="btn btn-sm btn-danger" data-action="reject" data-app-id="${app.id}">Reject</button>
+              <button class="btn btn-sm btn-success" data-action="accept" data-app-id="${app.id}">Accept</button>
             </div>
           </div>
         `).join('')}
@@ -1079,7 +1079,7 @@ async function loadApplicationDetails(applicationId) {
         
         ${application.cover_letter_url ? `
         <h3>Cover Letter (File)</h3>
-        <p><strong>File:</strong> <button class="btn btn-sm btn-secondary" onclick="openSecureFile(${application.id}, 'cover_letter')">📄 View Cover Letter</button></p>
+        <p><strong>File:</strong> <button class="btn btn-sm btn-secondary" data-action="open-file" data-app-id="${application.id}" data-file-type="cover_letter">📄 View Cover Letter</button></p>
         ` : ''}
         
         ${!application.cover_letter && !application.cover_letter_url ? `
@@ -1089,7 +1089,7 @@ async function loadApplicationDetails(applicationId) {
         
         ${application.cv_url ? `
         <h3>CV</h3>
-        <p><strong>CV File:</strong> <button class="btn btn-sm btn-secondary" onclick="openSecureFile(${application.id}, 'cv')">📄 Download CV</button></p>
+        <p><strong>CV File:</strong> <button class="btn btn-sm btn-secondary" data-action="open-file" data-app-id="${application.id}" data-file-type="cv">📄 Download CV</button></p>
         ` : `
         <h3>CV</h3>
         <p class="no-cv">No CV submitted</p>
@@ -1099,8 +1099,8 @@ async function loadApplicationDetails(applicationId) {
         <p><strong>Privacy Policy Agreed:</strong> ${application.privacy_consent ? '✅ Agreed' : '❌ Not Agreed'}</p>
         
         <div class="application-actions">
-          <button class="btn btn-primary" onclick="acceptApplication(${application.id})">Accept Application</button>
-          <button class="btn btn-danger" onclick="rejectApplication(${application.id})">Reject Application</button>
+          <button class="btn btn-primary" data-action="accept" data-app-id="${application.id}">Accept Application</button>
+          <button class="btn btn-danger" data-action="reject" data-app-id="${application.id}">Reject Application</button>
           <button class="btn btn-secondary" onclick="window.history.back()">Back to Applications</button>
         </div>
       </div>
@@ -1139,10 +1139,75 @@ async function rejectApplication(applicationId) {
   }
 }
 
-// Global functions for application management
+// Global functions for application management - ensure they're available immediately
 window.viewApplicationDetails = viewApplicationDetails;
 window.acceptApplication = acceptApplication;
 window.rejectApplication = rejectApplication;
+
+// Debug: Log that functions are available
+console.log('✅ Application management functions registered:', {
+  viewApplicationDetails: typeof window.viewApplicationDetails,
+  acceptApplication: typeof window.acceptApplication,
+  rejectApplication: typeof window.rejectApplication
+});
+
+// Add event delegation for application management buttons
+document.addEventListener('click', function(e) {
+  const target = e.target;
+  
+  // Handle View Details buttons
+  if (target.matches('[data-action="view-details"]')) {
+    e.preventDefault();
+    const applicationId = target.getAttribute('data-app-id');
+    console.log('🔍 View Details clicked for application:', applicationId);
+    try {
+      viewApplicationDetails(parseInt(applicationId));
+    } catch (error) {
+      console.error('viewApplicationDetails error:', error);
+      alert('Error viewing application details: ' + error.message);
+    }
+  }
+  
+  // Handle Accept buttons
+  if (target.matches('[data-action="accept"]')) {
+    e.preventDefault();
+    const applicationId = target.getAttribute('data-app-id');
+    console.log('✅ Accept clicked for application:', applicationId);
+    try {
+      acceptApplication(parseInt(applicationId));
+    } catch (error) {
+      console.error('acceptApplication error:', error);
+      alert('Error accepting application: ' + error.message);
+    }
+  }
+  
+  // Handle Reject buttons
+  if (target.matches('[data-action="reject"]')) {
+    e.preventDefault();
+    const applicationId = target.getAttribute('data-app-id');
+    console.log('❌ Reject clicked for application:', applicationId);
+    try {
+      rejectApplication(parseInt(applicationId));
+    } catch (error) {
+      console.error('rejectApplication error:', error);
+      alert('Error rejecting application: ' + error.message);
+    }
+  }
+  
+  // Handle Open Secure File buttons
+  if (target.matches('[data-action="open-file"]')) {
+    e.preventDefault();
+    const applicationId = target.getAttribute('data-app-id');
+    const fileType = target.getAttribute('data-file-type');
+    console.log('📄 Open file clicked for application:', applicationId, 'type:', fileType);
+    try {
+      openSecureFile(parseInt(applicationId), fileType);
+    } catch (error) {
+      console.error('openSecureFile error:', error);
+      alert('Error opening file: ' + error.message);
+    }
+  }
+});
 
 // ==================== EVENTS VIEW ====================
 
