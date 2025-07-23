@@ -833,7 +833,7 @@ function openRoleModal(roleId = null) {
         <h2>${isEdit ? 'Edit Role' : 'Add New Role'}</h2>
         <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
       </div>
-      <form class="modal-form" onsubmit="handleRoleSubmit(event, '${roleId}')">
+      <form class="modal-form" onsubmit="handleRoleSubmit(event, ${roleId ? `'${roleId}'` : 'null'})">
         <div class="form-group">
           <label>Title *</label>
           <input type="text" name="title" value="${role.title || ''}" required>
