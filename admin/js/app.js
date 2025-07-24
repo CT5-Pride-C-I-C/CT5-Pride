@@ -1436,7 +1436,7 @@ async function handleSyncEvent(event) {
   try {
     await apiRequest('/api/events/sync', {
       method: 'POST',
-      body: JSON.stringify({ eventInput })
+      body: JSON.stringify({ eventbriteUrl: eventInput })
     });
     
     showSuccess('Event synced successfully!');
