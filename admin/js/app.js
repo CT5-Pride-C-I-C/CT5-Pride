@@ -1340,8 +1340,17 @@ async function renderEvents() {
       <main class="admin-content">
         <div class="page-header">
           <h1>Event Management</h1>
-          <p>Sync and manage events from Eventbrite</p>
-          <button class="btn btn-primary" onclick="openSyncEventModal()">Sync New Event</button>
+          <p>Automatically sync and manage events from your Eventbrite organization</p>
+          <div class="page-header-actions">
+            <button class="btn btn-primary" onclick="autoSyncEvents()">
+              <span class="btn-icon">🔄</span>
+              Auto-Sync All Events
+            </button>
+            <button class="btn btn-secondary" onclick="openSyncEventModal()">
+              <span class="btn-icon">➕</span>
+              Manual Sync Event
+            </button>
+          </div>
         </div>
         <div id="events-content" class="events-container">
           <!-- Content will be loaded here -->
@@ -1364,27 +1373,47 @@ async function loadEvents() {
     if (events.length === 0) {
       content.innerHTML = `
         <div class="no-data">
-          <h3>No events found</h3>
-          <p>Sync events from Eventbrite to get started.</p>
+          <div class="no-data-icon">📅</div>
+          <h3>No events synced yet</h3>
+          <p>Click "Auto-Sync All Events" to automatically import all events from your Eventbrite organization.</p>
+          <button class="btn btn-primary" onclick="autoSyncEvents()">
+            <span class="btn-icon">🔄</span>
+            Auto-Sync All Events
+          </button>
         </div>
       `;
       return;
     }
     
     content.innerHTML = `
+      <div class="events-stats">
+        <div class="stat-item">
+          <span class="stat-number">${events.length}</span>
+          <span class="stat-label">Total Events</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">${events.filter(e => e.status === 'live').length}</span>
+          <span class="stat-label">Live Events</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">${events.filter(e => new Date(e.start_time) > new Date()).length}</span>
+          <span class="stat-label">Upcoming</span>
+        </div>
+      </div>
       <div class="events-grid">
         ${events.map(event => `
           <div class="event-card">
             <div class="event-header">
-              <h3>${event.name}</h3>
+              <h3>${event.title}</h3>
+              <span class="event-status status-${event.status}">${event.status}</span>
             </div>
             <div class="event-details">
-              <p><strong>Date:</strong> ${formatDate(event.start_date)}</p>
-              <p><strong>Location:</strong> ${event.location || 'Online'}</p>
-              <p><strong>Status:</strong> ${event.status || 'Live'}</p>
+              <p><strong>Date:</strong> ${formatDate(event.start_time)}</p>
+              <p><strong>Location:</strong> ${event.venue_name || event.venue_address || 'Online'}</p>
+              <p><strong>Eventbrite ID:</strong> ${event.eventbrite_id}</p>
             </div>
             <div class="event-summary">
-              ${event.description || 'No description available'}
+              ${event.description ? event.description.substring(0, 150) + '...' : 'No description available'}
             </div>
             <div class="event-actions">
               <a href="${event.url}" target="_blank" class="btn btn-sm btn-secondary">View on Eventbrite</a>
@@ -1400,6 +1429,44 @@ async function loadEvents() {
   }
 }
 
+async function autoSyncEvents() {
+  const syncBtn = document.querySelector('button[onclick="autoSyncEvents()"]');
+  const originalContent = syncBtn.innerHTML;
+  
+  try {
+    // Show loading state
+    syncBtn.innerHTML = '<span class="btn-spinner"></span> Syncing...';
+    syncBtn.disabled = true;
+    
+    console.log('🔄 Starting auto-sync...');
+    
+    const response = await apiRequest('/api/events/auto-sync', {
+      method: 'POST'
+    });
+    
+    console.log('✅ Auto-sync response:', response);
+    
+    // Show success message with details
+    let message = response.message;
+    if (response.errors && response.errors.length > 0) {
+      message += `\\n\\nSome errors occurred:\\n${response.errors.join('\\n')}`;
+    }
+    
+    showSuccess(message);
+    
+    // Reload events to show the newly synced data
+    await loadEvents();
+    
+  } catch (err) {
+    console.error('Auto-sync error:', err);
+    showError(document.getElementById('events-content'), 'Auto-sync failed: ' + err.message);
+  } finally {
+    // Reset button state
+    syncBtn.innerHTML = originalContent;
+    syncBtn.disabled = false;
+  }
+}
+
 function openSyncEventModal() {
   const modal = document.createElement('div');
   modal.className = 'modal-overlay';
@@ -1412,7 +1479,7 @@ function openSyncEventModal() {
       <form class="modal-form" onsubmit="handleSyncEvent(event)">
         <div class="form-group">
           <label>Eventbrite Event URL or ID</label>
-          <input type="text" name="eventInput" placeholder="https://www.eventbrite.com/e/event-name-123456789" required>
+          <input type="text" name="eventInput" placeholder="https://www.eventbrite.co.uk/e/event-name-1527430157719" required>
           <small>Enter the full Eventbrite URL or just the event ID</small>
         </div>
         <div class="modal-actions">
@@ -1462,6 +1529,7 @@ async function deleteEvent(eventId) {
 }
 
 // Global functions for event management
+window.autoSyncEvents = autoSyncEvents;
 window.openSyncEventModal = openSyncEventModal;
 window.handleSyncEvent = handleSyncEvent;
 window.deleteEvent = deleteEvent;

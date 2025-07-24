@@ -2376,6 +2376,19 @@ footer::after {
     );
 }
 
+/* Bear Flag */
+.bear-flag {
+    background: linear-gradient(to bottom,
+        #654321 0%, #654321 14.28%,
+        #d2691e 14.28%, #d2691e 28.57%,
+        #ffdd44 28.57%, #ffdd44 42.86%,
+        #ffeaa7 42.86%, #ffeaa7 57.14%,
+        #ffffff 57.14%, #ffffff 71.43%,
+        #666666 71.43%, #666666 85.71%,
+        #000000 85.71%, #000000 100%
+    );
+}
+
 /* ==================== THEME SWITCHING FUNCTIONALITY ==================== */
 
 /* Theme override styles - applied to body when theme is active */
@@ -2469,6 +2482,16 @@ body.theme-asexual {
     --background: #ffffff;
 }
 
+body.theme-bear {
+    --primary: #654321;
+    --secondary: #d2691e;
+    --accent: #ffdd44;
+    --vibrant-pink: #d2691e;
+    --text: #1a1a1a;
+    --text-light: #3a3a3a;
+    --background: #ffeaa7;
+}
+
 /* ==================== ENHANCED THEME VISUAL EFFECTS ==================== */
 
 /* Footer theme gradients with dark overlay for better text contrast */
@@ -2547,6 +2570,15 @@ body.theme-asexual footer {
         linear-gradient(135deg,
             #000000 0%, #a3a3a3 25%, 
             #ffffff 50%, #800080 100%) !important;
+}
+
+body.theme-bear footer {
+    background: 
+        linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+        linear-gradient(135deg,
+            #654321 0%, #d2691e 16.66%, 
+            #ffdd44 33.33%, #ffeaa7 50%, 
+            #ffffff 66.66%, #666666 83.33%, #000000 100%) !important;
 }
 
 /* Header theme effects */

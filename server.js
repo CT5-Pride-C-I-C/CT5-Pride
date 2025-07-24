@@ -723,23 +723,10 @@ app.get('/api/cv/:filename', requireSupabaseAuth, async (req, res) => {
 
 // ==================== EVENTS API (EVENTBRITE INTEGRATION) ====================
 
-// Get events from Eventbrite
+// Get events from Eventbrite and local database
 app.get('/api/events', requireSupabaseAuth, async (req, res) => {
   try {
-    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/me/events/`, {
-      headers: {
-        'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Eventbrite API error: ${response.status}`);
-    }
-
-    const eventbriteData = await response.json();
-    
-    // Also get synced events from Supabase
+    // Get synced events from local database
     const { data: localEvents, error } = await supabase
       .from('events')
       .select('*')
@@ -747,16 +734,162 @@ app.get('/api/events', requireSupabaseAuth, async (req, res) => {
 
     if (error) {
       console.error('Local events fetch error:', error);
+      return res.status(500).json({ success: false, message: 'Failed to fetch local events' });
     }
 
     res.json({ 
       success: true, 
-      eventbriteEvents: eventbriteData.events || [],
-      localEvents: localEvents || [] 
+      events: localEvents || [] 
     });
   } catch (err) {
     console.error('Get events error:', err);
     res.status(500).json({ success: false, message: 'Failed to fetch events' });
+  }
+});
+
+// Public events endpoint (no auth required)
+app.get('/api/events/public', async (req, res) => {
+  try {
+    // Get synced events from local database for public display
+    const { data: events, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('status', 'live') // Only show live events to public
+      .gte('end_time', new Date().toISOString()) // Only show future/current events
+      .order('start_time', { ascending: true });
+
+    if (error) {
+      console.error('Public events fetch error:', error);
+      return res.status(500).json({ success: false, message: 'Failed to fetch events' });
+    }
+
+    res.json({ 
+      success: true, 
+      events: events || [] 
+    });
+  } catch (err) {
+    console.error('Public events error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch events' });
+  }
+});
+
+// Auto-sync all events from Eventbrite
+app.post('/api/events/auto-sync', requireSupabaseAuth, async (req, res) => {
+  try {
+    console.log('🔄 Starting automatic Eventbrite sync...');
+    
+    if (!config.EVENTBRITE_PRIVATE_TOKEN) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Eventbrite API token not configured' 
+      });
+    }
+
+    // Fetch all events from Eventbrite organization
+    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/me/events/?status=all&order_by=start_asc`, {
+      headers: {
+        'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Eventbrite API error:', response.status, errorText);
+      return res.status(400).json({ 
+        success: false, 
+        message: `Eventbrite API error: ${response.status}. Check your API token.` 
+      });
+    }
+
+    const eventbriteData = await response.json();
+    const eventbriteEvents = eventbriteData.events || [];
+    
+    console.log(`📅 Found ${eventbriteEvents.length} events on Eventbrite`);
+
+    if (eventbriteEvents.length === 0) {
+      return res.json({ 
+        success: true, 
+        message: 'No events found on Eventbrite',
+        synced: 0,
+        skipped: 0
+      });
+    }
+
+    // Get existing events from local database to avoid duplicates
+    const { data: existingEvents } = await supabase
+      .from('events')
+      .select('eventbrite_id');
+
+    const existingEventbriteIds = new Set(
+      existingEvents?.map(event => event.eventbrite_id) || []
+    );
+
+    let syncedCount = 0;
+    let skippedCount = 0;
+    const syncErrors = [];
+
+    // Process each Eventbrite event
+    for (const event of eventbriteEvents) {
+      try {
+        const eventbriteId = event.id;
+        
+        // Skip if already synced
+        if (existingEventbriteIds.has(eventbriteId)) {
+          console.log(`⏭️  Skipping ${event.name?.text} (already synced)`);
+          skippedCount++;
+          continue;
+        }
+
+        // Prepare event data for local storage
+        const eventData = {
+          eventbrite_id: eventbriteId,
+          title: event.name?.text || 'Untitled Event',
+          description: event.description?.text || null,
+          start_time: event.start?.utc || null,
+          end_time: event.end?.utc || null,
+          url: event.url || null,
+          status: event.status || 'live',
+          venue_name: event.venue?.name || null,
+          venue_address: event.venue?.address?.localized_address_display || null,
+          synced_at: new Date().toISOString()
+        };
+
+        // Insert into local database
+        const { error: insertError } = await supabase
+          .from('events')
+          .insert([eventData]);
+
+        if (insertError) {
+          console.error(`❌ Failed to sync ${event.name?.text}:`, insertError);
+          syncErrors.push(`${event.name?.text}: ${insertError.message}`);
+        } else {
+          console.log(`✅ Synced: ${event.name?.text}`);
+          syncedCount++;
+        }
+
+      } catch (eventError) {
+        console.error(`❌ Error processing event ${event.id}:`, eventError);
+        syncErrors.push(`Event ${event.id}: ${eventError.message}`);
+      }
+    }
+
+    console.log(`🎉 Auto-sync complete: ${syncedCount} synced, ${skippedCount} skipped`);
+
+    res.json({ 
+      success: true, 
+      message: `Sync complete: ${syncedCount} events synced, ${skippedCount} already existed`,
+      synced: syncedCount,
+      skipped: skippedCount,
+      errors: syncErrors.length > 0 ? syncErrors : undefined
+    });
+
+  } catch (err) {
+    console.error('Auto-sync error:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Auto-sync failed: ' + err.message 
+    });
   }
 });
 
@@ -772,11 +905,15 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
     // Extract ID from URL if provided
     let eventId = eventbriteId;
     if (eventbriteUrl && !eventId) {
-      const urlMatch = eventbriteUrl.match(/events\/(\d+)/);
+      // Handle multiple Eventbrite URL formats:
+      // https://www.eventbrite.com/e/event-name-123456789
+      // https://www.eventbrite.co.uk/e/event-name-tickets-123456789  
+      // https://www.eventbrite.com/events/123456789
+      const urlMatch = eventbriteUrl.match(/\/e\/.*-(\d+)$|\/events\/(\d+)/);
       if (urlMatch) {
-        eventId = urlMatch[1];
+        eventId = urlMatch[1] || urlMatch[2];
       } else {
-        return res.status(400).json({ success: false, message: 'Invalid Eventbrite URL format' });
+        return res.status(400).json({ success: false, message: 'Invalid Eventbrite URL format. Please use a URL like: https://www.eventbrite.co.uk/e/event-name-123456789' });
       }
     }
 

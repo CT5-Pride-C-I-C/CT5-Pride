@@ -184,26 +184,26 @@ async function loadEvents() {
             </div>
         `;
         
-        // Try to fetch events from the admin API
+        // Try to fetch events from the admin API (no auth required for public view)
         let response, data;
         let hasNetworkError = false;
         
         try {
-            // First try admin API endpoint
-            response = await fetch('/api/events');
+            // Try to fetch public events endpoint (we need to create this)
+            response = await fetch('/api/events/public');
             
             if (response.ok) {
                 data = await response.json();
-                console.log('📅 Events data received from admin API:', data);
+                console.log('📅 Events data received from public API:', data);
             } else if (response.status === 404) {
                 // 404 means no events configured, not an error
-                console.log('ℹ️ Admin API returned 404 - no events configured');
+                console.log('ℹ️ Public API returned 404 - no events configured');
                 data = { success: true, events: [] };
             } else {
                 // Other HTTP errors are actual problems
-                console.log(`⚠️ Admin API returned ${response.status}, trying fallback...`);
+                console.log(`⚠️ Public API returned ${response.status}, trying fallback...`);
                 hasNetworkError = true;
-                throw new Error(`Admin API returned ${response.status}`);
+                throw new Error(`Public API returned ${response.status}`);
             }
         } catch (adminError) {
             if (!hasNetworkError && (adminError.name === 'TypeError' || adminError.message.includes('fetch'))) {
@@ -241,20 +241,38 @@ function renderEvents(events) {
     const eventsContainer = document.getElementById('eventsContainer');
     
     const eventsHTML = events.map(event => {
-        const startDate = new Date(event.start?.utc || event.start_date);
-        const endDate = new Date(event.end?.utc || event.end_date);
+        // Handle different date formats from auto-sync vs manual sync
+        const startDate = new Date(event.start_time || event.start?.utc || event.start_date);
+        const endDate = new Date(event.end_time || event.end?.utc || event.end_date);
+        
+        // Handle different location formats
+        let location = '';
+        if (event.venue_name) {
+            location = event.venue_name;
+            if (event.venue_address) {
+                location += `, ${event.venue_address}`;
+            }
+        } else if (event.venue?.name) {
+            location = event.venue.name;
+        } else if (event.location) {
+            location = event.location;
+        }
+        
+        // Handle different title and description formats
+        const title = event.title || event.name?.text || event.name || 'Untitled Event';
+        const description = event.description || event.description?.text || '';
         
         return `
             <div class="event-card">
                 <div class="event-header">
-                    <h3 class="event-title">${escapeHtml(event.name?.text || event.name)}</h3>
+                    <h3 class="event-title">${escapeHtml(title)}</h3>
                     <div class="event-date">
                         <span class="date-main">${startDate.toLocaleDateString('en-GB', { 
                             weekday: 'short', 
                             day: 'numeric', 
                             month: 'short' 
                         })}</span>
-                        ${endDate.toDateString() !== startDate.toDateString() ? 
+                        ${endDate && endDate.toDateString() !== startDate.toDateString() ? 
                             `<span class="date-range">- ${endDate.toLocaleDateString('en-GB', { 
                                 day: 'numeric', 
                                 month: 'short' 
@@ -264,10 +282,8 @@ function renderEvents(events) {
                 </div>
                 
                 <div class="event-details">
-                    ${event.venue?.name ? `<p class="event-location">📍 ${escapeHtml(event.venue.name)}</p>` : 
-                      event.location ? `<p class="event-location">📍 ${escapeHtml(event.location)}</p>` : ''}
-                    ${event.description?.text ? `<p class="event-description">${escapeHtml(event.description.text.substring(0, 150))}${event.description.text.length > 150 ? '...' : ''}</p>` : 
-                      event.description ? `<p class="event-description">${escapeHtml(event.description.substring(0, 150))}${event.description.length > 150 ? '...' : ''}</p>` : ''}
+                    ${location ? `<p class="event-location">📍 ${escapeHtml(location)}</p>` : ''}
+                    ${description ? `<p class="event-description">${escapeHtml(description.substring(0, 150))}${description.length > 150 ? '...' : ''}</p>` : ''}
                 </div>
                 
                 <div class="event-actions">
@@ -424,6 +440,7 @@ function applyTheme(theme) {
         bisexual: '#d60270',
         pansexual: '#ff218c',
         asexual: '#800080',
+        bear: '#654321',
         default: '#e91e63'
     };
     
@@ -459,6 +476,7 @@ function addThemeCelebrationEffect(theme) {
         bisexual: ['#d60270', '#9b59b6', '#0038a8'],
         pansexual: ['#ff218c', '#ffd800', '#21b1ff'],
         asexual: ['#000000', '#a3a3a3', '#ffffff', '#800080'],
+        bear: ['#654321', '#d2691e', '#ffdd44', '#ffeaa7', '#ffffff', '#666666', '#000000'],
         default: ['#e91e63', '#2196f3', '#e91e63']
     };
     
@@ -532,7 +550,8 @@ function announceThemeChange(theme) {
         gay: 'Gay Pride',
         bisexual: 'Bisexual Pride',
         pansexual: 'Pansexual Pride',
-        asexual: 'Asexual Pride'
+        asexual: 'Asexual Pride',
+        bear: 'Bear Pride'
     };
     
     const themeDescriptions = {
@@ -545,7 +564,8 @@ function announceThemeChange(theme) {
         gay: 'Gay pride colors in teal, green, and blue tones',
         bisexual: 'Bisexual pride colors in pink, purple, and blue',
         pansexual: 'Pansexual pride colors in pink, yellow, and blue',
-        asexual: 'Asexual pride colors in black, gray, white, and purple'
+        asexual: 'Asexual pride colors in black, gray, white, and purple',
+        bear: 'Bear pride colors in brown, orange, yellow, beige, white, gray, and black representing the bear community'
     };
     
     announcement.textContent = `${themeNames[theme]} theme temporarily activated. ${themeDescriptions[theme]}. Footer, header, and website elements updated with new color scheme. Theme will reset on page refresh.`;
