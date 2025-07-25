@@ -215,6 +215,11 @@ async function loadEvents() {
                 const loadTime = Date.now() - startTime;
                 console.log(`📅 Events data received in ${loadTime}ms:`, data);
                 
+                // Debug: Show detailed structure of first event
+                if (data.events && data.events.length > 0) {
+                    console.log('🔍 First event detailed structure:', JSON.stringify(data.events[0], null, 2));
+                }
+                
                 // Show cache status in console for debugging
                 if (data.cached) {
                     console.log('⚡ Data served from cache');
@@ -293,12 +298,32 @@ function renderEvents(events) {
             eventLocation = event.location;
         }
         
+        // Get venue address from multiple possible fields
+        let venueAddress = '';
+        if (event.venue_address) {
+            venueAddress = event.venue_address;
+        } else if (event.venue?.address?.localized_address_display) {
+            venueAddress = event.venue.address.localized_address_display;
+        } else if (event.venue?.address) {
+            // Build address from components
+            const addressParts = [];
+            if (event.venue.address.address_1) addressParts.push(event.venue.address.address_1);
+            if (event.venue.address.address_2) addressParts.push(event.venue.address.address_2);
+            if (event.venue.address.city) addressParts.push(event.venue.address.city);
+            if (event.venue.address.region) addressParts.push(event.venue.address.region);
+            if (event.venue.address.postal_code) addressParts.push(event.venue.address.postal_code);
+            if (event.venue.address.country) addressParts.push(event.venue.address.country);
+            venueAddress = addressParts.join(', ');
+        }
+        
         // Debug logging for location
         console.log('🏢 Event location data:', {
             venue_name: event.venue_name,
             venue: event.venue,
+            venue_address: event.venue_address,
             location: event.location,
-            finalLocation: eventLocation
+            finalLocation: eventLocation,
+            finalAddress: venueAddress
         });
         
         // Description extraction - handle Eventbrite's description object
@@ -372,7 +397,7 @@ function renderEvents(events) {
             
             <div class="event-details">
                 ${eventLocation ? `<p class="event-location">📍 ${escapeHtml(eventLocation)}</p>` : ''}
-                ${event.venue_address ? `<p class="event-address">🏠 ${escapeHtml(event.venue_address)}</p>` : ''}
+                ${venueAddress ? `<p class="event-address">🏠 ${escapeHtml(venueAddress)}</p>` : ''}
                 
                 <div class="event-timing-details">
                     <h4>📅 Event Details</h4>
@@ -410,7 +435,7 @@ function renderEvents(events) {
                     <div class="event-description-content">${escapeHtml(eventDescription)}</div>
                 </div>` : ''}
                 
-                ${!eventLocation && !event.venue_address ? `
+                ${!eventLocation && !venueAddress ? `
                     <div class="venue-fallback">
                         <p class="event-location">📍 Venue details available on Eventbrite</p>
                     </div>
