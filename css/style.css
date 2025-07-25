@@ -440,8 +440,8 @@
 }
 
 .ticket-indicator.limited {
-  background: rgba(255, 152, 0, 0.2);
-  color: #ef6c00;
+  background: rgba(255, 0, 242, 0.238);
+  color: #f9f9f9;
   border: 1px solid rgba(255, 152, 0, 0.4);
   animation: pulse-orange 2s infinite;
 }
