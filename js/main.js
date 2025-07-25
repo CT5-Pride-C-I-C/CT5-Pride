@@ -384,96 +384,46 @@ function renderEvents(events) {
         const isMultiDay = endDate.toDateString() !== startDate.toDateString();
         const isSameTime = startDate.getTime() === endDate.getTime();
         
-        // Enhanced ticket availability status with debug logging
-        let ticketStatusHtml = '';
-        
-        console.log('🎫 Ticket data for event:', {
-            title: eventTitle,
-            sold_out: event.sold_out,
-            capacity: event.capacity,
-            tickets_sold: event.tickets_sold,
-            tickets_remaining: event.tickets_remaining,
-            status: event.status
-        });
+        // Simple ticket indicator for button
+        let ticketIndicator = '';
+        let buttonText = 'Get Tickets';
         
         // Check for sold out status
         if (event.sold_out === true || event.sold_out === 'true') {
-            ticketStatusHtml = `<div class="ticket-status sold-out">
-                <span class="sold-out-badge">❌ SOLD OUT</span>
-            </div>`;
+            ticketIndicator = '<span class="ticket-indicator sold-out">Sold Out</span>';
+            buttonText = 'View Event Details';
         } else if (event.tickets_remaining !== undefined && event.tickets_remaining !== null) {
             const remaining = parseInt(event.tickets_remaining);
             
             if (remaining <= 0) {
-                ticketStatusHtml = `<div class="ticket-status sold-out">
-                    <span class="sold-out-badge">❌ SOLD OUT</span>
-                </div>`;
-            } else if (remaining <= 10) {
-                ticketStatusHtml = `<div class="ticket-status limited">
-                    <span class="ticket-count">🔥 Only ${remaining} tickets left!</span>
-                </div>`;
-            } else if (remaining <= 50) {
-                ticketStatusHtml = `<div class="ticket-status moderate">
-                    <span class="ticket-count">🎫 ${remaining} tickets remaining</span>
-                </div>`;
-            } else {
-                ticketStatusHtml = `<div class="ticket-status available">
-                    <span class="ticket-count">✅ ${remaining} tickets available</span>
-                </div>`;
-            }
-        } else if (event.capacity > 0) {
-            // Show capacity if available but no ticket counts
-            ticketStatusHtml = `<div class="ticket-status capacity">
-                <span class="ticket-count">🏟️ Capacity: ${event.capacity} people</span>
-            </div>`;
-        }
-        
-        // Add ticket sales info if available
-        let ticketInfoHtml = '';
-        if (event.tickets_sold > 0 || event.capacity > 0) {
-            const sold = parseInt(event.tickets_sold || 0);
-            const capacity = parseInt(event.capacity || 0);
-            const remaining = parseInt(event.tickets_remaining || 0);
-            
-            if (capacity > 0) {
-                const percentage = capacity > 0 ? Math.round((sold / capacity) * 100) : 0;
-                ticketInfoHtml = `<div class="ticket-sales-info">
-                    <div class="sales-stats">
-                        <span class="stat">Sold: ${sold}</span>
-                        <span class="stat">Remaining: ${remaining}</span>
-                        <span class="stat">Capacity: ${capacity}</span>
-                    </div>
-                    <div class="sales-bar">
-                        <div class="sales-progress" style="width: ${percentage}%"></div>
-                    </div>
-                    <div class="sales-percentage">${percentage}% sold</div>
-                </div>`;
+                ticketIndicator = '<span class="ticket-indicator sold-out">Sold Out</span>';
+                buttonText = 'View Event Details';
+            } else if (remaining <= 20) {
+                ticketIndicator = `<span class="ticket-indicator limited">${remaining} left</span>`;
             }
         }
         
         eventCard.innerHTML = `
             <div class="event-header">
                 <h3 class="event-title">${escapeHtml(eventTitle)}</h3>
-                <div class="event-date-time">
-                    <div class="event-date">
-                        <span class="date-day">${startDate.toLocaleDateString('en-GB', { weekday: 'long' })}</span>
-                        <span class="date-main">${startDate.toLocaleDateString('en-GB', { 
+                <div class="event-date">
+                    <span class="date-main">${startDate.toLocaleDateString('en-GB', { 
+                        weekday: 'short', 
+                        day: 'numeric', 
+                        month: 'short',
+                        year: 'numeric'
+                    })}</span>
+                    <span class="event-time">
+                        ${timeStr}
+                        ${!isSameTime && !isMultiDay ? ` - ${endTimeStr}` : ''}
+                    </span>
+                    ${isMultiDay ? 
+                        `<span class="date-range">- ${endDate.toLocaleDateString('en-GB', { 
                             day: 'numeric', 
-                            month: 'long',
-                            year: 'numeric'
-                        })}</span>
-                    </div>
-                    <div class="event-times">
-                        <span class="start-time">🕐 Start: ${timeStr}</span>
-                        ${!isSameTime ? `<span class="end-time">🕓 End: ${endTimeStr}</span>` : ''}
-                        ${isMultiDay ? 
-                            `<span class="end-date">Ends: ${endDate.toLocaleDateString('en-GB', { 
-                                day: 'numeric', 
-                                month: 'long',
-                                year: endDate.getFullYear() !== startDate.getFullYear() ? 'numeric' : undefined
-                            })} ${endTimeStr}</span>` : ''
-                        }
-                    </div>
+                            month: 'short',
+                            year: endDate.getFullYear() !== startDate.getFullYear() ? 'numeric' : undefined
+                        })} ${endTimeStr}</span>` : ''
+                    }
                 </div>
             </div>
             
@@ -497,18 +447,13 @@ function renderEvents(events) {
                 <div class="event-details-content">${escapeHtml(eventFullDescription).replace(/\n/g, '<br>')}</div>
             </div>` : ''}
             
-            <div class="event-status-info">
-                ${event.status ? `<div class="event-status">
-                    <span class="status-label">Status:</span>
-                    <span class="status-value status-${event.status.toLowerCase()}">${escapeHtml(event.status.toUpperCase())}</span>
-                </div>` : ''}
-            </div>
-            
-            ${ticketStatusHtml}
-            ${ticketInfoHtml}
+
             
             <div class="event-actions">
-                ${event.url ? `<a href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">${event.sold_out ? 'View Event Details' : 'Get Tickets'}</a>` : ''}
+                ${event.url ? `
+                    <a href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">${buttonText}</a>
+                    ${ticketIndicator}
+                ` : ''}
             </div>`;
         
         eventsGrid.appendChild(eventCard);
