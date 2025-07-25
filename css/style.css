@@ -202,9 +202,25 @@
 }
 
 .event-description {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent);
+}
+
+.event-description h4 {
+  color: var(--primary);
+  margin: 0 0 0.8rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.event-description-content {
   color: var(--text);
   line-height: 1.6;
-  margin: 1rem 0;
+  white-space: pre-line;
+  font-size: 0.95rem;
 }
 
 .event-actions {

@@ -291,12 +291,25 @@ function renderEvents(events) {
             } else if (event.description.text) {
                 eventDescription = event.description.text;
             } else if (event.description.html) {
-                // Strip HTML tags from description
-                eventDescription = event.description.html.replace(/<[^>]*>/g, '');
+                // Strip HTML tags from description but preserve formatting
+                eventDescription = event.description.html
+                    .replace(/<br\s*\/?>/gi, '\n')
+                    .replace(/<\/p>/gi, '\n\n')
+                    .replace(/<[^>]*>/g, '')
+                    .trim();
             }
         }
         
-        // Ensure eventDescription is a string for substring operation
+        // If no venue found, try to extract from description
+        if (!eventLocation && eventDescription) {
+            const venueMatch = eventDescription.match(/(?:at|@)\s+([^.!?]+(?:Trading Company|Pub|Bar|Centre|Hall|Club)[^.!?]*)/i);
+            if (venueMatch) {
+                eventLocation = venueMatch[1].trim();
+                console.log('🏢 Extracted venue from description:', eventLocation);
+            }
+        }
+        
+        // Ensure eventDescription is a string for display
         if (eventDescription && typeof eventDescription !== 'string') {
             eventDescription = String(eventDescription);
         }
@@ -330,23 +343,10 @@ function renderEvents(events) {
                 ${eventLocation ? `<p class="event-location">📍 ${escapeHtml(eventLocation)}</p>` : ''}
                 ${event.venue_address ? `<p class="event-address">🏠 ${escapeHtml(event.venue_address)}</p>` : ''}
                 ${!eventLocation && !event.venue_address && event.venue ? `<p class="event-location">📍 Location details available on Eventbrite</p>` : ''}
-                ${eventDescription ? `<p class="event-description">${escapeHtml(eventDescription.substring(0, 150))}${eventDescription.length > 150 ? '...' : ''}</p>` : ''}
-                ${event.start_time || event.start?.utc ? `
-                    <div class="event-timing">
-                        <p class="event-full-time">🕐 ${startDate.toLocaleDateString('en-GB', { 
-                            weekday: 'long', 
-                            day: 'numeric', 
-                            month: 'long',
-                            year: 'numeric'
-                        })} at ${timeStr}</p>
-                        ${endDate && endDate.getTime() !== startDate.getTime() ? 
-                            `<p class="event-end-time">⏰ Ends: ${endDate.toLocaleDateString('en-GB')} at ${endDate.toLocaleTimeString('en-GB', { 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
-                            })}</p>` : ''
-                        }
-                    </div>
-                ` : ''}
+                ${eventDescription ? `<div class="event-description">
+                    <h4>About this event</h4>
+                    <div class="event-description-content">${escapeHtml(eventDescription)}</div>
+                </div>` : ''}
             </div>
             
             <div class="event-actions">
