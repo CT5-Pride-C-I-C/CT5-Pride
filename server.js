@@ -723,13 +723,81 @@ app.get('/api/cv/:filename', requireSupabaseAuth, async (req, res) => {
 
 // ==================== EVENTS API (EVENTBRITE INTEGRATION) ====================
 
+// Helper function to extract detailed event description from Eventbrite page
+async function extractEventDescription(eventData, enableScraping = true) {
+  let description = eventData.description?.text || '';
+  
+  // If we have a basic description but want to get the full detailed version
+  if (enableScraping && eventData.url) {
+    try {
+      console.log('📄 Attempting to scrape Eventbrite page for detailed description...');
+      const pageResponse = await fetch(eventData.url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+      });
+      
+      if (pageResponse.ok) {
+        const html = await pageResponse.text();
+        
+        // Extract description from event-description__content classes
+        const descriptionPatterns = [
+          /<div[^>]*class="[^"]*event-description__content--expanded[^"]*"[^>]*>(.*?)<\/div>/is,
+          /<div[^>]*class="[^"]*event-description__content[^"]*"[^>]*>(.*?)<\/div>/is,
+          /<div[^>]*class="[^"]*has-user-generated-content[^"]*"[^>]*>(.*?)<\/div>/is
+        ];
+        
+        for (const pattern of descriptionPatterns) {
+          const match = html.match(pattern);
+          if (match) {
+            const fullDescription = match[1]
+              .replace(/<br\s*\/?>/gi, '\n')
+              .replace(/<\/p>/gi, '\n\n')
+              .replace(/<[^>]*>/g, '')
+              .replace(/\s+/g, ' ')
+              .replace(/\n\s+/g, '\n')
+              .trim();
+            
+            if (fullDescription && fullDescription.length > description.length) {
+              description = fullDescription;
+              console.log('📄 Scraped enhanced description:', description.substring(0, 100) + '...');
+              break;
+            }
+          }
+        }
+        
+        // Also try to extract from first child of has-user-generated-content
+        if (!description || description.length < 50) {
+          const firstChildMatch = html.match(/<div[^>]*class="[^"]*has-user-generated-content[^"]*"[^>]*>\s*<[^>]+>(.*?)<\//is);
+          if (firstChildMatch) {
+            const firstChildDescription = firstChildMatch[1]
+              .replace(/<[^>]*>/g, '')
+              .replace(/\s+/g, ' ')
+              .trim();
+            
+            if (firstChildDescription && firstChildDescription.length > description.length) {
+              description = firstChildDescription;
+              console.log('📄 Scraped description from first child:', description.substring(0, 100) + '...');
+            }
+          }
+        }
+      }
+    } catch (scrapeError) {
+      console.warn('⚠️ Failed to scrape event description:', scrapeError.message);
+    }
+  }
+  
+  return description;
+}
+
 // Helper function to extract venue data from Eventbrite
-async function extractVenueData(eventData) {
+async function extractVenueData(eventData, enableScraping = true) {
   let venueName = null;
   let venueAddress = null;
   
   console.log('🏢 Processing venue data:', eventData.venue);
   
+  // First try API data
   if (eventData.venue) {
     // Check if venue is expanded (has full details)
     if (eventData.venue.name) {
@@ -753,47 +821,91 @@ async function extractVenueData(eventData) {
       }
       console.log('✅ Found venue address:', venueAddress);
     }
-    
-    // If venue has only an ID but no expanded data, fetch the full venue details
-    if (eventData.venue.id && (!venueName || !venueAddress)) {
-      try {
-        console.log('🏢 Fetching venue details for ID:', eventData.venue.id);
-        const venueResponse = await fetch(`https://www.eventbriteapi.com/v3/venues/${eventData.venue.id}/`, {
+  }
+  
+  // If we still don't have complete venue info, try scraping the Eventbrite page
+  if (enableScraping && (!venueName || !venueAddress)) {
+    try {
+      console.log('🌐 Attempting to scrape Eventbrite page for venue details...');
+      const eventUrl = eventData.url;
+      
+      if (eventUrl) {
+        const pageResponse = await fetch(eventUrl, {
           headers: {
-            'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
-            'Content-Type': 'application/json'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
           }
         });
         
-        if (venueResponse.ok) {
-          const venueData = await venueResponse.json();
-          console.log('🏢 Venue details received:', venueData);
+        if (pageResponse.ok) {
+          const html = await pageResponse.text();
           
-          if (!venueName && venueData.name) {
-            venueName = venueData.name;
-          }
-          
-          if (!venueAddress && venueData.address) {
-            if (venueData.address.localized_address_display) {
-              venueAddress = venueData.address.localized_address_display;
-            } else {
-              // Build address from components
-              const addressParts = [];
-              if (venueData.address.address_1) addressParts.push(venueData.address.address_1);
-              if (venueData.address.address_2) addressParts.push(venueData.address.address_2);
-              if (venueData.address.city) addressParts.push(venueData.address.city);
-              if (venueData.address.region) addressParts.push(venueData.address.region);
-              if (venueData.address.postal_code) addressParts.push(venueData.address.postal_code);
-              if (venueData.address.country) addressParts.push(venueData.address.country);
-              venueAddress = addressParts.join(', ');
+          // Extract venue name from location-info or venue-name classes
+          if (!venueName) {
+            const venueNameMatch = html.match(/<[^>]*class="[^"]*(?:venue-name|location-info__name)[^"]*"[^>]*>([^<]+)</i);
+            if (venueNameMatch) {
+              venueName = venueNameMatch[1].trim();
+              console.log('🏢 Scraped venue name:', venueName);
             }
           }
-        } else {
-          console.error('❌ Failed to fetch venue details:', venueResponse.status);
+          
+          // Extract address from location-info_address div
+          if (!venueAddress) {
+            const addressMatch = html.match(/<div[^>]*class="[^"]*location-info_address[^"]*"[^>]*>(.*?)<\/div>/is);
+            if (addressMatch) {
+              // Extract text from address div, removing HTML tags
+              venueAddress = addressMatch[1]
+                .replace(/<[^>]*>/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+              console.log('🏢 Scraped venue address:', venueAddress);
+            }
+          }
         }
-      } catch (venueError) {
-        console.error('⚠️ Failed to fetch venue details:', venueError);
       }
+    } catch (scrapeError) {
+      console.warn('⚠️ Failed to scrape Eventbrite page:', scrapeError.message);
+    }
+  }
+  
+  // If venue has only an ID but no expanded data, fetch the full venue details via API
+  if (eventData.venue?.id && (!venueName || !venueAddress)) {
+    try {
+      console.log('🏢 Fetching venue details for ID:', eventData.venue.id);
+      const venueResponse = await fetch(`https://www.eventbriteapi.com/v3/venues/${eventData.venue.id}/`, {
+        headers: {
+          'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (venueResponse.ok) {
+        const venueData = await venueResponse.json();
+        console.log('🏢 Venue details received:', venueData);
+        
+        if (!venueName && venueData.name) {
+          venueName = venueData.name;
+        }
+        
+        if (!venueAddress && venueData.address) {
+          if (venueData.address.localized_address_display) {
+            venueAddress = venueData.address.localized_address_display;
+          } else {
+            // Build address from components
+            const addressParts = [];
+            if (venueData.address.address_1) addressParts.push(venueData.address.address_1);
+            if (venueData.address.address_2) addressParts.push(venueData.address.address_2);
+            if (venueData.address.city) addressParts.push(venueData.address.city);
+            if (venueData.address.region) addressParts.push(venueData.address.region);
+            if (venueData.address.postal_code) addressParts.push(venueData.address.postal_code);
+            if (venueData.address.country) addressParts.push(venueData.address.country);
+            venueAddress = addressParts.join(', ');
+          }
+        }
+      } else {
+        console.error('❌ Failed to fetch venue details:', venueResponse.status);
+      }
+    } catch (venueError) {
+      console.error('⚠️ Failed to fetch venue details:', venueError);
     }
   }
   
@@ -934,6 +1046,9 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
 
     // Enhanced venue extraction using helper function
     const { venueName, venueAddress } = await extractVenueData(eventData);
+    
+    // Enhanced description extraction using helper function
+    const fullDescription = await extractEventDescription(eventData);
 
     // Store in local database
     const { data, error } = await supabase
@@ -941,7 +1056,7 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
       .insert([{
         eventbrite_id: eventId,
         title: eventData.name.text,
-        description: eventData.description?.text || '',
+        description: fullDescription,
         start_time: eventData.start.utc,
         end_time: eventData.end.utc,
         url: eventData.url,
@@ -961,6 +1076,81 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
   } catch (err) {
     console.error('Sync event error:', err);
     res.status(500).json({ success: false, message: 'Failed to sync event' });
+  }
+});
+
+// Detailed sync with web scraping for individual events
+app.post('/api/events/sync-detailed', requireSupabaseAuth, async (req, res) => {
+  try {
+    console.log('🔍 Detailed sync request body:', req.body);
+    const { eventbriteId, eventbriteUrl } = req.body;
+    
+    if (!eventbriteId && !eventbriteUrl) {
+      return res.status(400).json({ success: false, message: 'Eventbrite ID or URL is required' });
+    }
+
+    // Extract ID from URL if provided
+    let eventId = eventbriteId;
+    if (eventbriteUrl && !eventId) {
+      const urlMatch = eventbriteUrl.match(/\/e\/[^\/]*-(\d+)$/) || eventbriteUrl.match(/\/events\/(\d+)/);
+      if (urlMatch) {
+        eventId = urlMatch[1];
+      } else {
+        return res.status(400).json({ success: false, message: 'Invalid Eventbrite URL format. Please use a URL like: https://www.eventbrite.co.uk/e/event-name-123456789' });
+      }
+    }
+
+    // Fetch event details from Eventbrite with venue expansion
+    const response = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/?expand=venue,category,subcategory,format,organizer`, {
+      headers: {
+        'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(400).json({ success: false, message: 'Event not found on Eventbrite' });
+    }
+
+    const eventData = await response.json();
+
+    // Debug logging
+    console.log('🔍 Event data for detailed sync:', JSON.stringify(eventData, null, 2));
+
+    // Enhanced extraction with full web scraping enabled
+    const { venueName, venueAddress } = await extractVenueData(eventData, true);
+    const fullDescription = await extractEventDescription(eventData, true);
+
+    // Store in local database with detailed info
+    const { data, error } = await supabase
+      .from('events')
+      .insert([{
+        eventbrite_id: eventId,
+        title: eventData.name.text,
+        description: fullDescription,
+        start_time: eventData.start.utc,
+        end_time: eventData.end.utc,
+        url: eventData.url,
+        status: eventData.status,
+        venue_name: venueName,
+        venue_address: venueAddress,
+        synced_at: new Date().toISOString()
+      }])
+      .select();
+
+    if (error) {
+      console.error('💥 Supabase insert error:', error);
+      return res.status(400).json({ success: false, message: error.message });
+    }
+
+    res.json({ 
+      success: true, 
+      event: data[0],
+      message: 'Event synced with detailed venue and description information'
+    });
+  } catch (err) {
+    console.error('Detailed sync event error:', err);
+    res.status(500).json({ success: false, message: 'Failed to sync event with details' });
   }
 });
 
@@ -1001,15 +1191,18 @@ app.post('/api/events/auto-sync', requireSupabaseAuth, async (req, res) => {
     // Sync new events
     for (const event of events) {
       if (!existingIds.has(event.id)) {
-        // Extract venue data for each event
-        const { venueName, venueAddress } = await extractVenueData(event);
+        // Extract venue data for each event (API only for bulk operations)
+        const { venueName, venueAddress } = await extractVenueData(event, false);
+        
+        // Extract description (API only for bulk operations)  
+        const fullDescription = await extractEventDescription(event, false);
         
         const { error } = await supabase
           .from('events')
           .insert([{
             eventbrite_id: event.id,
             title: event.name.text,
-            description: event.description?.text || '',
+            description: fullDescription,
             start_time: event.start.utc,
             end_time: event.end.utc,
             url: event.url,
@@ -1071,15 +1264,18 @@ app.post('/api/events/backup-sync', requireSupabaseAuth, async (req, res) => {
 
     // Sync all events to backup database
     for (const event of events) {
-      // Extract venue data for each event
-      const { venueName, venueAddress } = await extractVenueData(event);
+      // Extract venue data for each event (API only for bulk operations)
+      const { venueName, venueAddress } = await extractVenueData(event, false);
+      
+      // Extract description (API only for bulk operations)
+      const fullDescription = await extractEventDescription(event, false);
       
       const { error } = await supabase
         .from('events')
         .insert([{
           eventbrite_id: event.id,
           title: event.name.text,
-          description: event.description?.text || '',
+          description: fullDescription,
           start_time: event.start.utc,
           end_time: event.end.utc,
           url: event.url,
