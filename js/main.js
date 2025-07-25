@@ -275,6 +275,14 @@ function renderEvents(events) {
             eventLocation = event.location;
         }
         
+        // Debug logging for location
+        console.log('🏢 Event location data:', {
+            venue_name: event.venue_name,
+            venue: event.venue,
+            location: event.location,
+            finalLocation: eventLocation
+        });
+        
         // Description extraction - handle Eventbrite's description object
         let eventDescription = '';
         if (event.description) {
@@ -320,7 +328,25 @@ function renderEvents(events) {
             
             <div class="event-details">
                 ${eventLocation ? `<p class="event-location">📍 ${escapeHtml(eventLocation)}</p>` : ''}
+                ${event.venue_address ? `<p class="event-address">🏠 ${escapeHtml(event.venue_address)}</p>` : ''}
+                ${!eventLocation && !event.venue_address && event.venue ? `<p class="event-location">📍 Location details available on Eventbrite</p>` : ''}
                 ${eventDescription ? `<p class="event-description">${escapeHtml(eventDescription.substring(0, 150))}${eventDescription.length > 150 ? '...' : ''}</p>` : ''}
+                ${event.start_time || event.start?.utc ? `
+                    <div class="event-timing">
+                        <p class="event-full-time">🕐 ${startDate.toLocaleDateString('en-GB', { 
+                            weekday: 'long', 
+                            day: 'numeric', 
+                            month: 'long',
+                            year: 'numeric'
+                        })} at ${timeStr}</p>
+                        ${endDate && endDate.getTime() !== startDate.getTime() ? 
+                            `<p class="event-end-time">⏰ Ends: ${endDate.toLocaleDateString('en-GB')} at ${endDate.toLocaleTimeString('en-GB', { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                            })}</p>` : ''
+                        }
+                    </div>
+                ` : ''}
             </div>
             
             <div class="event-actions">
