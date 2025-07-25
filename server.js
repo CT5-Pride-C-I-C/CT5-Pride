@@ -728,18 +728,34 @@ async function extractVenueData(eventData) {
   let venueName = null;
   let venueAddress = null;
   
+  console.log('🏢 Processing venue data:', eventData.venue);
+  
   if (eventData.venue) {
-    // Try different venue data structures
-    venueName = eventData.venue.name || eventData.venue.resource_uri;
-    
-    if (eventData.venue.address) {
-      venueAddress = eventData.venue.address.localized_address_display || 
-                    eventData.venue.address.address_1 || 
-                    eventData.venue.address.city;
+    // Check if venue is expanded (has full details)
+    if (eventData.venue.name) {
+      venueName = eventData.venue.name;
+      console.log('✅ Found venue name in expanded data:', venueName);
     }
     
-    // If venue has only an ID, fetch the full venue details
-    if (eventData.venue.id && !venueName) {
+    if (eventData.venue.address) {
+      if (eventData.venue.address.localized_address_display) {
+        venueAddress = eventData.venue.address.localized_address_display;
+      } else {
+        // Build address from components
+        const addressParts = [];
+        if (eventData.venue.address.address_1) addressParts.push(eventData.venue.address.address_1);
+        if (eventData.venue.address.address_2) addressParts.push(eventData.venue.address.address_2);
+        if (eventData.venue.address.city) addressParts.push(eventData.venue.address.city);
+        if (eventData.venue.address.region) addressParts.push(eventData.venue.address.region);
+        if (eventData.venue.address.postal_code) addressParts.push(eventData.venue.address.postal_code);
+        if (eventData.venue.address.country) addressParts.push(eventData.venue.address.country);
+        venueAddress = addressParts.join(', ');
+      }
+      console.log('✅ Found venue address:', venueAddress);
+    }
+    
+    // If venue has only an ID but no expanded data, fetch the full venue details
+    if (eventData.venue.id && (!venueName || !venueAddress)) {
       try {
         console.log('🏢 Fetching venue details for ID:', eventData.venue.id);
         const venueResponse = await fetch(`https://www.eventbriteapi.com/v3/venues/${eventData.venue.id}/`, {
@@ -752,11 +768,28 @@ async function extractVenueData(eventData) {
         if (venueResponse.ok) {
           const venueData = await venueResponse.json();
           console.log('🏢 Venue details received:', venueData);
-          venueName = venueData.name;
-          if (venueData.address) {
-            venueAddress = venueData.address.localized_address_display || 
-                          `${venueData.address.address_1}, ${venueData.address.city}`;
+          
+          if (!venueName && venueData.name) {
+            venueName = venueData.name;
           }
+          
+          if (!venueAddress && venueData.address) {
+            if (venueData.address.localized_address_display) {
+              venueAddress = venueData.address.localized_address_display;
+            } else {
+              // Build address from components
+              const addressParts = [];
+              if (venueData.address.address_1) addressParts.push(venueData.address.address_1);
+              if (venueData.address.address_2) addressParts.push(venueData.address.address_2);
+              if (venueData.address.city) addressParts.push(venueData.address.city);
+              if (venueData.address.region) addressParts.push(venueData.address.region);
+              if (venueData.address.postal_code) addressParts.push(venueData.address.postal_code);
+              if (venueData.address.country) addressParts.push(venueData.address.country);
+              venueAddress = addressParts.join(', ');
+            }
+          }
+        } else {
+          console.error('❌ Failed to fetch venue details:', venueResponse.status);
         }
       } catch (venueError) {
         console.error('⚠️ Failed to fetch venue details:', venueError);
@@ -799,7 +832,7 @@ app.get('/api/events', requireSupabaseAuth, async (req, res) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
 
-      const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc`, {
+      const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue`, {
         headers: {
           'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
           'Content-Type': 'application/json'
@@ -881,8 +914,8 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
       }
     }
 
-    // Fetch event details from Eventbrite
-    const response = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/`, {
+    // Fetch event details from Eventbrite with venue expansion
+    const response = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/?expand=venue,category,subcategory,format,organizer`, {
       headers: {
         'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
         'Content-Type': 'application/json'
@@ -938,8 +971,8 @@ app.post('/api/events/auto-sync', requireSupabaseAuth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Eventbrite API token not configured' });
     }
 
-    // Fetch all events from Eventbrite organization
-    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc`, {
+    // Fetch all events from Eventbrite organization with venue expansion
+    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue`, {
       headers: {
         'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
         'Content-Type': 'application/json'
@@ -1012,8 +1045,8 @@ app.post('/api/events/backup-sync', requireSupabaseAuth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Eventbrite API token not configured' });
     }
 
-    // Fetch all events from Eventbrite organization
-    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc`, {
+    // Fetch all events from Eventbrite organization with venue expansion
+    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue`, {
       headers: {
         'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
         'Content-Type': 'application/json'
@@ -1101,8 +1134,8 @@ app.get('/api/events/public', async (req, res) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout for public
 
-      // Fetch ALL events for debugging (not just live)
-      const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc`, {
+      // Fetch ALL events for debugging (not just live) with venue expansion
+      const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue`, {
         headers: {
           'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
           'Content-Type': 'application/json'

@@ -320,6 +320,16 @@ function renderEvents(events) {
             minute: '2-digit' 
         });
         
+        // Format end time if different from start
+        const endTimeStr = endDate.toLocaleTimeString('en-GB', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+        
+        // Check if this is a multi-day event
+        const isMultiDay = endDate.toDateString() !== startDate.toDateString();
+        const isSameTime = startDate.getTime() === endDate.getTime();
+        
         eventCard.innerHTML = `
             <div class="event-header">
                 <h3 class="event-title">${escapeHtml(eventTitle)}</h3>
@@ -329,12 +339,15 @@ function renderEvents(events) {
                         day: 'numeric', 
                         month: 'short' 
                     })}</span>
-                    <span class="event-time">${timeStr}</span>
-                    ${endDate.toDateString() !== startDate.toDateString() ? 
+                    <span class="event-time">
+                        ${timeStr}
+                        ${!isSameTime && !isMultiDay ? ` - ${endTimeStr}` : ''}
+                    </span>
+                    ${isMultiDay ? 
                         `<span class="date-range">- ${endDate.toLocaleDateString('en-GB', { 
                             day: 'numeric', 
                             month: 'short' 
-                        })}</span>` : ''
+                        })} ${endTimeStr}</span>` : ''
                     }
                 </div>
             </div>
@@ -351,7 +364,6 @@ function renderEvents(events) {
             
             <div class="event-actions">
                 ${event.url ? `<a href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Get Tickets</a>` : ''}
-                ${event.status ? `<span class="event-status status-${event.status.toLowerCase()}">${escapeHtml(event.status)}</span>` : ''}
             </div>`;
         
         eventsGrid.appendChild(eventCard);
