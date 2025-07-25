@@ -1519,24 +1519,62 @@ app.get('/api/events/public', async (req, res) => {
         const eventbriteData = await response.json();
         
         console.log(`🔍 Debug: Found ${eventbriteData.events?.length || 0} events from Eventbrite`);
-        console.log(`🔍 Debug: Event details:`, eventbriteData.events?.map(e => ({ name: e.name?.text, start: e.start?.utc, status: e.status })));
         
-        // TEMPORARILY RETURN ALL EVENTS FOR DEBUGGING
-        const allEvents = eventbriteData.events || [];
+        // Get ticket data from Supabase to merge with Eventbrite data
+        const { data: ticketData, error: ticketError } = await supabase
+          .from('events')
+          .select('eventbrite_id, capacity, tickets_sold, tickets_remaining, sold_out');
+        
+        if (ticketError) {
+          console.warn('⚠️ Could not fetch ticket data from Supabase:', ticketError);
+        }
+        
+        // Create a map of eventbrite_id to ticket data
+        const ticketMap = new Map();
+        if (ticketData) {
+          ticketData.forEach(ticket => {
+            ticketMap.set(ticket.eventbrite_id, ticket);
+          });
+          console.log(`🎫 Loaded ticket data for ${ticketData.length} events`);
+        }
+        
+        // Merge Eventbrite data with ticket information
+        const enrichedEvents = (eventbriteData.events || []).map(event => {
+          const ticketInfo = ticketMap.get(event.id);
+          const enrichedEvent = { ...event };
+          
+          if (ticketInfo) {
+            enrichedEvent.capacity = ticketInfo.capacity;
+            enrichedEvent.tickets_sold = ticketInfo.tickets_sold;
+            enrichedEvent.tickets_remaining = ticketInfo.tickets_remaining;
+            enrichedEvent.sold_out = ticketInfo.sold_out;
+            console.log(`🎫 Enriched event ${event.id} with ticket data:`, {
+              capacity: ticketInfo.capacity,
+              sold: ticketInfo.tickets_sold,
+              remaining: ticketInfo.tickets_remaining,
+              soldOut: ticketInfo.sold_out
+            });
+          }
+          
+          return enrichedEvent;
+        });
+        
+        console.log(`🔍 Debug: Returning ${enrichedEvents.length} enriched events`);
         
         // Update cache
         publicEventsCache = {
-          data: allEvents,
+          data: enrichedEvents,
           timestamp: Date.now()
         };
 
         return res.json({ 
           success: true, 
-          events: allEvents, 
+          events: enrichedEvents, 
           cached: false, 
           debug: { 
             total: eventbriteData.events?.length, 
-            returned: allEvents.length,
+            enriched: enrichedEvents.length,
+            withTicketData: enrichedEvents.filter(e => e.tickets_remaining !== undefined).length,
             currentTime: new Date().toISOString()
           } 
         });

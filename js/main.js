@@ -278,6 +278,23 @@ async function loadEvents() {
                 // Debug: Show detailed structure of first event
                 if (data.events && data.events.length > 0) {
                     console.log('🔍 First event detailed structure:', JSON.stringify(data.events[0], null, 2));
+                    
+                    // Specifically check ticket data
+                    const firstEvent = data.events[0];
+                    console.log('🎫 Ticket data check for first event:', {
+                        id: firstEvent.id,
+                        title: firstEvent.name?.text || firstEvent.title,
+                        capacity: firstEvent.capacity,
+                        tickets_sold: firstEvent.tickets_sold,
+                        tickets_remaining: firstEvent.tickets_remaining,
+                        sold_out: firstEvent.sold_out
+                    });
+                    
+                    // Check all events for ticket data
+                    const eventsWithTickets = data.events.filter(e => 
+                        e.tickets_remaining !== undefined || e.capacity !== undefined || e.sold_out !== undefined
+                    );
+                    console.log(`🎫 Found ${eventsWithTickets.length} events with ticket data out of ${data.events.length} total`);
                 }
                 
                 // Show cache status in console for debugging
@@ -335,7 +352,7 @@ function renderEvents(events) {
     eventsGrid.className = 'events-grid';
     
     // Render events efficiently
-    events.forEach(event => {
+    events.forEach((event, eventIndex) => {
         const eventCard = document.createElement('div');
         eventCard.className = 'event-card';
         
@@ -455,6 +472,28 @@ function renderEvents(events) {
             capacity: event.capacity,
             tickets_sold: event.tickets_sold
         });
+        
+        // TEMP: Add test ticket data if none exists (for testing indicators)
+        if (event.tickets_remaining === undefined && event.capacity === undefined && event.sold_out === undefined) {
+            // Create test data based on event index for demonstration
+            if (eventIndex === 0) {
+                event.tickets_remaining = 5; // Limited tickets
+                event.capacity = 50;
+                event.tickets_sold = 45;
+                console.log('🧪 Added test ticket data - Limited (5 left)');
+            } else if (eventIndex === 1) {
+                event.sold_out = true;
+                event.tickets_remaining = 0;
+                event.capacity = 30;
+                event.tickets_sold = 30;
+                console.log('🧪 Added test ticket data - Sold out');
+            } else if (eventIndex === 2) {
+                event.tickets_remaining = 25;
+                event.capacity = 100;
+                event.tickets_sold = 75;
+                console.log('🧪 Added test ticket data - Available (25 left)');
+            }
+        }
         
         // Check for sold out status
         if (event.sold_out === true || event.sold_out === 'true') {
