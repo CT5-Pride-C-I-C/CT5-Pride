@@ -189,8 +189,8 @@ async function loadEvents() {
         let hasNetworkError = false;
         
         try {
-            // Use public API endpoint for better performance
-            response = await fetch('/api/events/public');
+            // Use admin API endpoint since public site doesn't have API server
+            response = await fetch('https://admin.ct5pride.co.uk/api/events/public');
             
             if (response.ok) {
                 data = await response.json();
@@ -202,12 +202,12 @@ async function loadEvents() {
                     console.log('⚡ Data served from cache');
                 }
             } else if (response.status === 404) {
-                console.log('ℹ️ Public API returned 404 - no events configured');
+                console.log('ℹ️ Admin API returned 404 - no events configured');
                 data = { success: true, events: [] };
             } else {
-                console.log(`⚠️ Public API returned ${response.status}, trying fallback...`);
+                console.log(`⚠️ Admin API returned ${response.status}, trying fallback...`);
                 hasNetworkError = true;
-                throw new Error(`Public API returned ${response.status}`);
+                throw new Error(`Admin API returned ${response.status}`);
             }
         } catch (adminError) {
             if (!hasNetworkError && (adminError.name === 'TypeError' || adminError.message.includes('fetch'))) {
