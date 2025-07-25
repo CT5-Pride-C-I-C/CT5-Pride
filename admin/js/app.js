@@ -1340,10 +1340,10 @@ async function renderEvents() {
       <main class="admin-content">
         <div class="page-header">
           <h1>Event Management</h1>
-          <p>Sync and manage events from Eventbrite</p>
+          <p>Live events from your Eventbrite organization with backup redundancy</p>
           <div class="page-header-actions">
-            <button class="btn btn-secondary" onclick="autoSyncEvents()">Auto-Sync All Events</button>
-            <button class="btn btn-primary" onclick="openSyncEventModal()">Manual Sync Event</button>
+            <button class="btn btn-secondary" onclick="backupSyncEvents()">Backup to Database</button>
+            <button class="btn btn-primary" onclick="loadEvents()">Refresh Events</button>
           </div>
         </div>
         <div id="events-content" class="events-container">
@@ -1362,51 +1362,55 @@ async function loadEvents() {
   
   try {
     const response = await apiRequest('/api/events');
-    const allEvents = [
-      ...(response.eventbriteEvents || []),
-      ...(response.localEvents || [])
-    ];
-    events = allEvents;
+    events = response.events || [];
+    
+    // Show data source indicator
+    const sourceIndicator = response.source === 'backup' ? 
+      '<div class="alert alert-warning">⚠️ Using backup data - Eventbrite API unavailable</div>' :
+      '<div class="alert alert-success">📡 Live data from Eventbrite</div>';
     
     if (events.length === 0) {
       content.innerHTML = `
+        ${sourceIndicator}
         <div class="no-data">
           <h3>No events found</h3>
-          <p>Use the Auto-Sync button above to sync all events from Eventbrite automatically.</p>
-          <button class="btn btn-primary" onclick="autoSyncEvents()">Auto-Sync All Events</button>
+          <p>No events are currently published on your Eventbrite organization.</p>
+          <a href="https://www.eventbrite.co.uk/create" target="_blank" class="btn btn-primary">Create Event on Eventbrite</a>
         </div>
       `;
       return;
     }
     
     content.innerHTML = `
+      ${sourceIndicator}
       <div class="events-grid">
         ${events.map(event => {
-          const isLocal = event.eventbrite_id; // Local synced event has eventbrite_id
-          const eventName = event.title || event.name?.text || event.name || 'Untitled Event';
-          const eventDate = event.start_time || event.start?.utc || event.start_date;
-          const eventLocation = event.venue_name || event.venue?.name || event.location || 'Location TBD';
+          const eventName = event.name?.text || event.title || event.name || 'Untitled Event';
+          const eventDate = event.start?.utc || event.start_time || event.start_date;
+          const eventLocation = event.venue?.name || event.venue_name || 'Location TBD';
           const eventStatus = event.status || 'Unknown';
-          const eventDescription = event.description || (event.description?.text ? event.description.text.substring(0, 200) : 'No description available');
+          const eventDescription = event.description?.text || event.description || 'No description available';
+          const eventId = event.id || event.eventbrite_id;
           
           return `
-          <div class="event-card ${isLocal ? 'synced-event' : 'eventbrite-event'}">
+          <div class="event-card eventbrite-event">
             <div class="event-header">
               <h3>${escapeHtml(eventName)}</h3>
-              <span class="event-source ${isLocal ? 'source-local' : 'source-eventbrite'}">${isLocal ? 'Synced' : 'Eventbrite'}</span>
+              <span class="event-source source-eventbrite">${response.source === 'backup' ? 'From Backup' : 'Live from Eventbrite'}</span>
             </div>
             <div class="event-details">
               <p><strong>Date:</strong> ${formatDate(eventDate)}</p>
               <p><strong>Location:</strong> ${escapeHtml(eventLocation)}</p>
               <p><strong>Status:</strong> <span class="status-badge status-${eventStatus.toLowerCase()}">${escapeHtml(eventStatus)}</span></p>
-              ${event.eventbrite_id ? `<p><strong>Event ID:</strong> ${event.eventbrite_id}</p>` : ''}
+              <p><strong>Event ID:</strong> ${eventId}</p>
+              ${event.venue?.address ? `<p><strong>Address:</strong> ${escapeHtml(event.venue.address.localized_address_display || event.venue_address || '')}</p>` : ''}
             </div>
             <div class="event-summary">
               ${escapeHtml(eventDescription)}
             </div>
             <div class="event-actions">
               <a href="${event.url}" target="_blank" class="btn btn-sm btn-secondary">View on Eventbrite</a>
-              ${isLocal ? `<button class="btn btn-sm btn-danger" onclick="deleteEvent(${event.id})">Remove from Local</button>` : ''}
+              <a href="${event.url}" target="_blank" class="btn btn-sm btn-primary">Get Tickets</a>
             </div>
           </div>
         `;
@@ -1416,6 +1420,31 @@ async function loadEvents() {
   } catch (err) {
     console.error('Events load error:', err);
     showError(content, err.message);
+  }
+}
+
+async function backupSyncEvents() {
+  const button = event?.target;
+  if (button) {
+    button.disabled = true;
+    button.innerHTML = '<span class="loading-spinner"></span> Backing up...';
+  }
+  
+  try {
+    const response = await apiRequest('/api/events/backup-sync', {
+      method: 'POST'
+    });
+    
+    showSuccess(response.message || 'Events backed up successfully!');
+    await loadEvents(); // Refresh to show any changes
+  } catch (err) {
+    console.error('Backup sync error:', err);
+    showError(document.getElementById('events-content'), err.message);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.innerHTML = 'Backup to Database';
+    }
   }
 }
 
@@ -1508,6 +1537,10 @@ async function autoSyncEvents() {
 // Utility function for HTML escaping
 function escapeHtml(text) {
   if (!text) return '';
+  // Convert to string to handle non-string values
+  if (typeof text !== 'string') {
+    text = String(text);
+  }
   const map = {
     '&': '&amp;',
     '<': '&lt;',
@@ -1523,6 +1556,7 @@ window.openSyncEventModal = openSyncEventModal;
 window.handleSyncEvent = handleSyncEvent;
 window.deleteEvent = deleteEvent;
 window.autoSyncEvents = autoSyncEvents;
+window.backupSyncEvents = backupSyncEvents;
 
 // ==================== ANALYTICS VIEW ====================
 
