@@ -919,6 +919,80 @@ async function extractVenueData(eventData, enableScraping = true) {
   return { venueName, venueAddress };
 }
 
+// Helper function to extract ticket availability data from Eventbrite
+async function extractTicketAvailability(eventData, eventId) {
+  let capacity = 0;
+  let ticketsSold = 0;
+  let ticketsRemaining = 0;
+  let soldOut = false;
+  
+  try {
+    console.log('🎫 Processing ticket availability for event:', eventId);
+    
+    // Get capacity from ticket_classes if available
+    if (eventData.ticket_classes && eventData.ticket_classes.length > 0) {
+      console.log('🎫 Found ticket classes:', eventData.ticket_classes.length);
+      
+      for (const ticketClass of eventData.ticket_classes) {
+        if (ticketClass.quantity_total) {
+          capacity += ticketClass.quantity_total;
+          console.log(`🎫 Ticket class "${ticketClass.name}": ${ticketClass.quantity_total} total, ${ticketClass.quantity_sold || 0} sold`);
+          
+          if (ticketClass.quantity_sold) {
+            ticketsSold += ticketClass.quantity_sold;
+          }
+        }
+      }
+    }
+    
+    // If we don't have ticket_classes data, try to get attendance data
+    if (capacity === 0) {
+      console.log('🎫 No ticket classes found, trying attendees endpoint...');
+      
+      const attendeesResponse = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/attendees/?status=attending`, {
+        headers: {
+          'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (attendeesResponse.ok) {
+        const attendeesData = await attendeesResponse.json();
+        ticketsSold = attendeesData.attendees ? attendeesData.attendees.length : 0;
+        console.log('🎫 Found attendees count:', ticketsSold);
+        
+        // If we have event capacity from the main event data
+        if (eventData.capacity) {
+          capacity = eventData.capacity;
+        }
+      }
+    }
+    
+    // Calculate remaining tickets
+    if (capacity > 0) {
+      ticketsRemaining = capacity - ticketsSold;
+      soldOut = ticketsRemaining <= 0;
+    }
+    
+    console.log('🎫 Final ticket data:', {
+      capacity,
+      ticketsSold,
+      ticketsRemaining,
+      soldOut
+    });
+    
+  } catch (error) {
+    console.warn('⚠️ Failed to extract ticket availability:', error.message);
+  }
+  
+  return {
+    capacity,
+    ticketsSold,
+    ticketsRemaining,
+    soldOut
+  };
+}
+
 // Cache for events data
 let eventsCache = {
   data: null,
@@ -950,7 +1024,7 @@ app.get('/api/events', requireSupabaseAuth, async (req, res) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
 
-      const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue`, {
+      const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue,ticket_classes`, {
         headers: {
           'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
           'Content-Type': 'application/json'
@@ -976,7 +1050,7 @@ app.get('/api/events', requireSupabaseAuth, async (req, res) => {
     if (useBackup) {
       const { data: backupEvents, error } = await supabase
         .from('events')
-        .select('id, eventbrite_id, title, description, start_time, end_time, url, status, venue_name, venue_address')
+        .select('id, eventbrite_id, title, description, full-description, start_time, end_time, url, status, venue_name, venue_address, capacity, tickets_sold, tickets_remaining, sold_out, synced_at, created_at, updated_at')
         .order('start_time', { ascending: true })
         .limit(50); // Limit for faster query
 
@@ -1032,8 +1106,8 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
       }
     }
 
-    // Fetch event details from Eventbrite with venue expansion
-    const response = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/?expand=venue,category,subcategory,format,organizer`, {
+    // Fetch event details from Eventbrite with venue expansion and ticket classes
+    const response = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/?expand=venue,category,subcategory,format,organizer,ticket_classes`, {
       headers: {
         'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
         'Content-Type': 'application/json'
@@ -1056,19 +1130,27 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
     // Enhanced description extraction using helper function
     const fullDescription = await extractEventDescription(eventData);
 
+    // Extract ticket availability data
+    const { capacity, ticketsSold, ticketsRemaining, soldOut } = await extractTicketAvailability(eventData, eventId);
+
     // Store in local database
     const { data, error } = await supabase
       .from('events')
       .insert([{
         eventbrite_id: eventId,
         title: eventData.name.text,
-        description: fullDescription,
+        description: eventData.description?.text || 'No description available',
+        'full-description': fullDescription,
         start_time: eventData.start.utc,
         end_time: eventData.end.utc,
         url: eventData.url,
         status: eventData.status,
         venue_name: venueName,
         venue_address: venueAddress,
+        capacity: capacity,
+        tickets_sold: ticketsSold,
+        tickets_remaining: ticketsRemaining,
+        sold_out: soldOut,
         synced_at: new Date().toISOString()
       }])
       .select();
@@ -1106,8 +1188,8 @@ app.post('/api/events/sync-detailed', requireSupabaseAuth, async (req, res) => {
       }
     }
 
-    // Fetch event details from Eventbrite with venue expansion
-    const response = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/?expand=venue,category,subcategory,format,organizer`, {
+    // Fetch event details from Eventbrite with venue expansion and ticket classes
+    const response = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/?expand=venue,category,subcategory,format,organizer,ticket_classes`, {
       headers: {
         'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
         'Content-Type': 'application/json'
@@ -1127,19 +1209,27 @@ app.post('/api/events/sync-detailed', requireSupabaseAuth, async (req, res) => {
     const { venueName, venueAddress } = await extractVenueData(eventData, true);
     const fullDescription = await extractEventDescription(eventData, true);
 
+    // Extract ticket availability data
+    const { capacity, ticketsSold, ticketsRemaining, soldOut } = await extractTicketAvailability(eventData, eventId);
+
     // Store in local database with detailed info
     const { data, error } = await supabase
       .from('events')
       .insert([{
         eventbrite_id: eventId,
         title: eventData.name.text,
-        description: fullDescription,
+        description: eventData.description?.text || 'No description available',
+        'full-description': fullDescription,
         start_time: eventData.start.utc,
         end_time: eventData.end.utc,
         url: eventData.url,
         status: eventData.status,
         venue_name: venueName,
         venue_address: venueAddress,
+        capacity: capacity,
+        tickets_sold: ticketsSold,
+        tickets_remaining: ticketsRemaining,
+        sold_out: soldOut,
         synced_at: new Date().toISOString()
       }])
       .select();
@@ -1167,8 +1257,8 @@ app.post('/api/events/auto-sync', requireSupabaseAuth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Eventbrite API token not configured' });
     }
 
-    // Fetch all events from Eventbrite organization with venue expansion
-    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue`, {
+    // Fetch all events from Eventbrite organization with venue expansion and ticket classes
+    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue,ticket_classes`, {
       headers: {
         'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
         'Content-Type': 'application/json'
@@ -1202,19 +1292,27 @@ app.post('/api/events/auto-sync', requireSupabaseAuth, async (req, res) => {
         
         // Extract description (API only for bulk operations)  
         const fullDescription = await extractEventDescription(event, false);
+
+        // Extract ticket availability data
+        const { capacity, ticketsSold, ticketsRemaining, soldOut } = await extractTicketAvailability(event, event.id);
         
         const { error } = await supabase
           .from('events')
           .insert([{
             eventbrite_id: event.id,
             title: event.name.text,
-            description: fullDescription,
+            description: event.description?.text || 'No description available',
+            'full-description': fullDescription,
             start_time: event.start.utc,
             end_time: event.end.utc,
             url: event.url,
             status: event.status,
             venue_name: venueName,
             venue_address: venueAddress,
+            capacity: capacity,
+            tickets_sold: ticketsSold,
+            tickets_remaining: ticketsRemaining,
+            sold_out: soldOut,
             synced_at: new Date().toISOString()
           }]);
 
@@ -1244,8 +1342,8 @@ app.post('/api/events/backup-sync', requireSupabaseAuth, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Eventbrite API token not configured' });
     }
 
-    // Fetch all events from Eventbrite organization with venue expansion
-    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue`, {
+    // Fetch all events from Eventbrite organization with venue expansion and ticket classes
+    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue,ticket_classes`, {
       headers: {
         'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
         'Content-Type': 'application/json'
@@ -1275,19 +1373,27 @@ app.post('/api/events/backup-sync', requireSupabaseAuth, async (req, res) => {
       
       // Extract description (API only for bulk operations)
       const fullDescription = await extractEventDescription(event, false);
+
+      // Extract ticket availability data
+      const { capacity, ticketsSold, ticketsRemaining, soldOut } = await extractTicketAvailability(event, event.id);
       
       const { error } = await supabase
         .from('events')
         .insert([{
           eventbrite_id: event.id,
           title: event.name.text,
-          description: fullDescription,
+          description: event.description?.text || 'No description available',
+          'full-description': fullDescription,
           start_time: event.start.utc,
           end_time: event.end.utc,
           url: event.url,
           status: event.status,
           venue_name: venueName,
           venue_address: venueAddress,
+          capacity: capacity,
+          tickets_sold: ticketsSold,
+          tickets_remaining: ticketsRemaining,
+          sold_out: soldOut,
           synced_at: new Date().toISOString()
         }]);
 
@@ -1336,8 +1442,8 @@ app.get('/api/events/public', async (req, res) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout for public
 
-      // Fetch ALL events for debugging (not just live) with venue expansion
-      const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue`, {
+      // Fetch ALL events for debugging (not just live) with venue expansion and ticket classes
+      const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc&expand=venue,ticket_classes`, {
         headers: {
           'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
           'Content-Type': 'application/json'
@@ -1381,8 +1487,7 @@ app.get('/api/events/public', async (req, res) => {
       // Fallback to Supabase backup
       const { data: backupEvents, error } = await supabase
         .from('events')
-        .select('title, description, start_time, end_time, url, status, venue_name')
-        .eq('status', 'live')
+        .select('id, eventbrite_id, title, description, full-description, start_time, end_time, url, status, venue_name, venue_address, capacity, tickets_sold, tickets_remaining, sold_out, synced_at')
         .gte('start_time', new Date().toISOString())
         .order('start_time', { ascending: true })
         .limit(20); // Limit for faster query

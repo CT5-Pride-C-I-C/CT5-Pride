@@ -326,16 +326,19 @@ function renderEvents(events) {
             finalAddress: venueAddress
         });
         
-        // Description extraction - handle Eventbrite's description object
-        let eventDescription = '';
+        // Description extraction - handle both summary and full description
+        let eventSummary = '';
+        let eventFullDescription = '';
+        
+        // Get summary (short description)
         if (event.description) {
             if (typeof event.description === 'string') {
-                eventDescription = event.description;
+                eventSummary = event.description;
             } else if (event.description.text) {
-                eventDescription = event.description.text;
+                eventSummary = event.description.text;
             } else if (event.description.html) {
                 // Strip HTML tags from description but preserve formatting
-                eventDescription = event.description.html
+                eventSummary = event.description.html
                     .replace(/<br\s*\/?>/gi, '\n')
                     .replace(/<\/p>/gi, '\n\n')
                     .replace(/<[^>]*>/g, '')
@@ -343,18 +346,26 @@ function renderEvents(events) {
             }
         }
         
+        // Get full description (detailed content from scraping)
+        if (event['full-description']) {
+            eventFullDescription = event['full-description'];
+        }
+        
         // If no venue found, try to extract from description
-        if (!eventLocation && eventDescription) {
-            const venueMatch = eventDescription.match(/(?:at|@)\s+([^.!?]+(?:Trading Company|Pub|Bar|Centre|Hall|Club)[^.!?]*)/i);
+        if (!eventLocation && eventSummary) {
+            const venueMatch = eventSummary.match(/(?:at|@)\s+([^.!?]+(?:Trading Company|Pub|Bar|Centre|Hall|Club)[^.!?]*)/i);
             if (venueMatch) {
                 eventLocation = venueMatch[1].trim();
                 console.log('🏢 Extracted venue from description:', eventLocation);
             }
         }
         
-        // Ensure eventDescription is a string for display
-        if (eventDescription && typeof eventDescription !== 'string') {
-            eventDescription = String(eventDescription);
+        // Ensure descriptions are strings for display
+        if (eventSummary && typeof eventSummary !== 'string') {
+            eventSummary = String(eventSummary);
+        }
+        if (eventFullDescription && typeof eventFullDescription !== 'string') {
+            eventFullDescription = String(eventFullDescription);
         }
         
         // Format time display
@@ -373,46 +384,131 @@ function renderEvents(events) {
         const isMultiDay = endDate.toDateString() !== startDate.toDateString();
         const isSameTime = startDate.getTime() === endDate.getTime();
         
+        // Enhanced ticket availability status with debug logging
+        let ticketStatusHtml = '';
+        
+        console.log('🎫 Ticket data for event:', {
+            title: eventTitle,
+            sold_out: event.sold_out,
+            capacity: event.capacity,
+            tickets_sold: event.tickets_sold,
+            tickets_remaining: event.tickets_remaining,
+            status: event.status
+        });
+        
+        // Check for sold out status
+        if (event.sold_out === true || event.sold_out === 'true') {
+            ticketStatusHtml = `<div class="ticket-status sold-out">
+                <span class="sold-out-badge">❌ SOLD OUT</span>
+            </div>`;
+        } else if (event.tickets_remaining !== undefined && event.tickets_remaining !== null) {
+            const remaining = parseInt(event.tickets_remaining);
+            
+            if (remaining <= 0) {
+                ticketStatusHtml = `<div class="ticket-status sold-out">
+                    <span class="sold-out-badge">❌ SOLD OUT</span>
+                </div>`;
+            } else if (remaining <= 10) {
+                ticketStatusHtml = `<div class="ticket-status limited">
+                    <span class="ticket-count">🔥 Only ${remaining} tickets left!</span>
+                </div>`;
+            } else if (remaining <= 50) {
+                ticketStatusHtml = `<div class="ticket-status moderate">
+                    <span class="ticket-count">🎫 ${remaining} tickets remaining</span>
+                </div>`;
+            } else {
+                ticketStatusHtml = `<div class="ticket-status available">
+                    <span class="ticket-count">✅ ${remaining} tickets available</span>
+                </div>`;
+            }
+        } else if (event.capacity > 0) {
+            // Show capacity if available but no ticket counts
+            ticketStatusHtml = `<div class="ticket-status capacity">
+                <span class="ticket-count">🏟️ Capacity: ${event.capacity} people</span>
+            </div>`;
+        }
+        
+        // Add ticket sales info if available
+        let ticketInfoHtml = '';
+        if (event.tickets_sold > 0 || event.capacity > 0) {
+            const sold = parseInt(event.tickets_sold || 0);
+            const capacity = parseInt(event.capacity || 0);
+            const remaining = parseInt(event.tickets_remaining || 0);
+            
+            if (capacity > 0) {
+                const percentage = capacity > 0 ? Math.round((sold / capacity) * 100) : 0;
+                ticketInfoHtml = `<div class="ticket-sales-info">
+                    <div class="sales-stats">
+                        <span class="stat">Sold: ${sold}</span>
+                        <span class="stat">Remaining: ${remaining}</span>
+                        <span class="stat">Capacity: ${capacity}</span>
+                    </div>
+                    <div class="sales-bar">
+                        <div class="sales-progress" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="sales-percentage">${percentage}% sold</div>
+                </div>`;
+            }
+        }
+        
         eventCard.innerHTML = `
             <div class="event-header">
                 <h3 class="event-title">${escapeHtml(eventTitle)}</h3>
-                <div class="event-date">
-                    <span class="date-main">${startDate.toLocaleDateString('en-GB', { 
-                        weekday: 'short', 
-                        day: 'numeric', 
-                        month: 'short' 
-                    })}</span>
-                    <span class="event-time">
-                        ${timeStr}
-                        ${!isSameTime && !isMultiDay ? ` - ${endTimeStr}` : ''}
-                    </span>
-                    ${isMultiDay ? 
-                        `<span class="date-range">- ${endDate.toLocaleDateString('en-GB', { 
+                <div class="event-date-time">
+                    <div class="event-date">
+                        <span class="date-day">${startDate.toLocaleDateString('en-GB', { weekday: 'long' })}</span>
+                        <span class="date-main">${startDate.toLocaleDateString('en-GB', { 
                             day: 'numeric', 
-                            month: 'short' 
-                        })} ${endTimeStr}</span>` : ''
-                    }
+                            month: 'long',
+                            year: 'numeric'
+                        })}</span>
+                    </div>
+                    <div class="event-times">
+                        <span class="start-time">🕐 Start: ${timeStr}</span>
+                        ${!isSameTime ? `<span class="end-time">🕓 End: ${endTimeStr}</span>` : ''}
+                        ${isMultiDay ? 
+                            `<span class="end-date">Ends: ${endDate.toLocaleDateString('en-GB', { 
+                                day: 'numeric', 
+                                month: 'long',
+                                year: endDate.getFullYear() !== startDate.getFullYear() ? 'numeric' : undefined
+                            })} ${endTimeStr}</span>` : ''
+                        }
+                    </div>
                 </div>
             </div>
             
-            <div class="event-details">
-                ${eventLocation ? `<p class="event-location">📍 ${escapeHtml(eventLocation)}</p>` : ''}
-                ${venueAddress ? `<p class="event-address">🏠 ${escapeHtml(venueAddress)}</p>` : ''}
-                
-                ${eventDescription ? `<div class="event-description">
-                    <h4>About this event</h4>
-                    <div class="event-description-content">${escapeHtml(eventDescription).replace(/\n/g, '<br>')}</div>
-                </div>` : ''}
-                
+            <div class="event-venue">
+                ${eventLocation ? `<p class="venue-name">📍 <strong>${escapeHtml(eventLocation)}</strong></p>` : ''}
+                ${venueAddress ? `<p class="venue-address">🏠 ${escapeHtml(venueAddress)}</p>` : ''}
                 ${!eventLocation && !venueAddress ? `
                     <div class="venue-fallback">
-                        <p class="event-location">📍 Venue details available on Eventbrite</p>
+                        <p class="venue-name">📍 Venue details available on Eventbrite</p>
                     </div>
                 ` : ''}
             </div>
             
+            ${eventSummary ? `<div class="event-summary">
+                <h4>Event Summary</h4>
+                <div class="event-summary-content">${escapeHtml(eventSummary).replace(/\n/g, '<br>')}</div>
+            </div>` : ''}
+            
+            ${eventFullDescription ? `<div class="event-full-details">
+                <h4>Full Event Details</h4>
+                <div class="event-details-content">${escapeHtml(eventFullDescription).replace(/\n/g, '<br>')}</div>
+            </div>` : ''}
+            
+            <div class="event-status-info">
+                ${event.status ? `<div class="event-status">
+                    <span class="status-label">Status:</span>
+                    <span class="status-value status-${event.status.toLowerCase()}">${escapeHtml(event.status.toUpperCase())}</span>
+                </div>` : ''}
+            </div>
+            
+            ${ticketStatusHtml}
+            ${ticketInfoHtml}
+            
             <div class="event-actions">
-                ${event.url ? `<a href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Get Tickets</a>` : ''}
+                ${event.url ? `<a href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">${event.sold_out ? 'View Event Details' : 'Get Tickets'}</a>` : ''}
             </div>`;
         
         eventsGrid.appendChild(eventCard);

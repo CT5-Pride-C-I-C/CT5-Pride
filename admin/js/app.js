@@ -1440,6 +1440,20 @@ function renderEventCard(event, source) {
         <p><strong>Status:</strong> <span class="status-badge status-${eventStatus.toLowerCase()}">${escapeHtml(eventStatus)}</span></p>
         <p><strong>Event ID:</strong> ${eventId}</p>
         ${event.venue?.address || event.venue_address ? `<p><strong>Address:</strong> ${escapeHtml(event.venue?.address?.localized_address_display || event.venue_address || '')}</p>` : ''}
+        ${event.capacity || event.tickets_sold !== undefined ? `
+          <div class="ticket-info">
+            <p><strong>Capacity:</strong> ${event.capacity || 'Unknown'}</p>
+            <p><strong>Tickets Sold:</strong> ${event.tickets_sold || 0}</p>
+            <p><strong>Remaining:</strong> ${event.tickets_remaining || 0}</p>
+            ${event.sold_out ? '<p class="sold-out-indicator">❌ <strong>SOLD OUT</strong></p>' : ''}
+            ${event.capacity && event.tickets_sold ? `
+              <div class="admin-sales-bar">
+                <div class="admin-sales-progress" style="width: ${Math.round((event.tickets_sold / event.capacity) * 100)}%"></div>
+              </div>
+              <p class="sales-percentage"><strong>${Math.round((event.tickets_sold / event.capacity) * 100)}% Sold</strong></p>
+            ` : ''}
+          </div>
+        ` : ''}
       </div>
       <div class="event-summary">
         ${escapeHtml(eventDescription.substring(0, 150))}${eventDescription.length > 150 ? '...' : ''}
