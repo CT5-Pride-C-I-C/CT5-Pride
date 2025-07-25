@@ -1358,16 +1358,22 @@ async function renderEvents() {
 
 async function loadEvents() {
   const content = document.getElementById('events-content');
-  showLoading(content, 'Loading events...');
+  
+  // Show minimal loading for better perceived performance
+  content.innerHTML = '<div class="loading-minimal">⚡ Loading events...</div>';
   
   try {
+    const startTime = Date.now();
     const response = await apiRequest('/api/events');
+    const loadTime = Date.now() - startTime;
+    
     events = response.events || [];
     
-    // Show data source indicator
+    // Show data source indicator with performance info
+    const cacheStatus = response.cached ? ' (cached)' : '';
     const sourceIndicator = response.source === 'backup' ? 
-      '<div class="alert alert-warning">⚠️ Using backup data - Eventbrite API unavailable</div>' :
-      '<div class="alert alert-success">📡 Live data from Eventbrite</div>';
+      `<div class="alert alert-warning">⚠️ Using backup data - Eventbrite API unavailable${cacheStatus}</div>` :
+      `<div class="alert alert-success">📡 Live data from Eventbrite${cacheStatus} <small>(${loadTime}ms)</small></div>`;
     
     if (events.length === 0) {
       content.innerHTML = `
@@ -1381,46 +1387,69 @@ async function loadEvents() {
       return;
     }
     
-    content.innerHTML = `
+    // Use DocumentFragment for better DOM performance
+    const fragment = document.createDocumentFragment();
+    const tempContainer = document.createElement('div');
+    tempContainer.innerHTML = `
       ${sourceIndicator}
       <div class="events-grid">
-        ${events.map(event => {
-          const eventName = event.name?.text || event.title || event.name || 'Untitled Event';
-          const eventDate = event.start?.utc || event.start_time || event.start_date;
-          const eventLocation = event.venue?.name || event.venue_name || 'Location TBD';
-          const eventStatus = event.status || 'Unknown';
-          const eventDescription = event.description?.text || event.description || 'No description available';
-          const eventId = event.id || event.eventbrite_id;
-          
-          return `
-          <div class="event-card eventbrite-event">
-            <div class="event-header">
-              <h3>${escapeHtml(eventName)}</h3>
-              <span class="event-source source-eventbrite">${response.source === 'backup' ? 'From Backup' : 'Live from Eventbrite'}</span>
-            </div>
-            <div class="event-details">
-              <p><strong>Date:</strong> ${formatDate(eventDate)}</p>
-              <p><strong>Location:</strong> ${escapeHtml(eventLocation)}</p>
-              <p><strong>Status:</strong> <span class="status-badge status-${eventStatus.toLowerCase()}">${escapeHtml(eventStatus)}</span></p>
-              <p><strong>Event ID:</strong> ${eventId}</p>
-              ${event.venue?.address ? `<p><strong>Address:</strong> ${escapeHtml(event.venue.address.localized_address_display || event.venue_address || '')}</p>` : ''}
-            </div>
-            <div class="event-summary">
-              ${escapeHtml(eventDescription)}
-            </div>
-            <div class="event-actions">
-              <a href="${event.url}" target="_blank" class="btn btn-sm btn-secondary">View on Eventbrite</a>
-              <a href="${event.url}" target="_blank" class="btn btn-sm btn-primary">Get Tickets</a>
-            </div>
-          </div>
-        `;
-        }).join('')}
+        ${events.map(event => renderEventCard(event, response.source)).join('')}
       </div>
     `;
+    
+    // Move all elements to fragment at once
+    while (tempContainer.firstChild) {
+      fragment.appendChild(tempContainer.firstChild);
+    }
+    
+    // Single DOM update
+    content.innerHTML = '';
+    content.appendChild(fragment);
+    
+    console.log(`✅ Rendered ${events.length} events in ${Date.now() - startTime}ms`);
+    
   } catch (err) {
     console.error('Events load error:', err);
-    showError(content, err.message);
+    content.innerHTML = `
+      <div class="alert alert-danger">
+        ❌ Failed to load events: ${err.message}
+        <button class="btn btn-sm btn-secondary" onclick="loadEvents()" style="margin-left: 10px;">Retry</button>
+      </div>
+    `;
   }
+}
+
+// Optimized event card rendering function
+function renderEventCard(event, source) {
+  const eventName = event.name?.text || event.title || event.name || 'Untitled Event';
+  const eventDate = event.start?.utc || event.start_time || event.start_date;
+  const eventLocation = event.venue?.name || event.venue_name || 'Location TBD';
+  const eventStatus = event.status || 'Unknown';
+  const eventDescription = event.description?.text || event.description || 'No description available';
+  const eventId = event.id || event.eventbrite_id;
+  
+  return `
+    <div class="event-card eventbrite-event">
+      <div class="event-header">
+        <h3>${escapeHtml(eventName)}</h3>
+        <span class="event-source source-eventbrite">${source === 'backup' ? 'From Backup' : 'Live from Eventbrite'}</span>
+      </div>
+      <div class="event-details">
+        <p><strong>Date:</strong> ${formatDate(eventDate)}</p>
+        <p><strong>Location:</strong> ${escapeHtml(eventLocation)}</p>
+        <p><strong>Status:</strong> <span class="status-badge status-${eventStatus.toLowerCase()}">${escapeHtml(eventStatus)}</span></p>
+        <p><strong>Event ID:</strong> ${eventId}</p>
+        ${event.venue?.address || event.venue_address ? `<p><strong>Address:</strong> ${escapeHtml(event.venue?.address?.localized_address_display || event.venue_address || '')}</p>` : ''}
+      </div>
+      <div class="event-summary">
+        ${escapeHtml(eventDescription.substring(0, 150))}${eventDescription.length > 150 ? '...' : ''}
+      </div>
+      <div class="event-actions">
+        <a href="${event.url}" target="_blank" class="btn btn-sm btn-secondary">View on Eventbrite</a>
+        <a href="${event.url}" target="_blank" class="btn btn-sm btn-primary">Get Tickets</a>
+      </div>
+    </div>
+  `;
 }
 
 async function backupSyncEvents() {

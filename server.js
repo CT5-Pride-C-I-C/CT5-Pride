@@ -723,20 +723,46 @@ app.get('/api/cv/:filename', requireSupabaseAuth, async (req, res) => {
 
 // ==================== EVENTS API (EVENTBRITE INTEGRATION) ====================
 
-// Get events with live data + backup
+// Cache for events data
+let eventsCache = {
+  data: null,
+  timestamp: 0,
+  source: null
+};
+const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes cache
+
+// Get events with live data + backup (optimized for speed)
 app.get('/api/events', requireSupabaseAuth, async (req, res) => {
   try {
+    // Check cache first for faster response
+    const now = Date.now();
+    if (eventsCache.data && (now - eventsCache.timestamp) < CACHE_DURATION) {
+      console.log(`⚡ Returning cached events (${eventsCache.data.length} events)`);
+      return res.json({ 
+        success: true, 
+        events: eventsCache.data,
+        source: eventsCache.source,
+        cached: true
+      });
+    }
+
     let eventbriteEvents = [];
     let useBackup = false;
 
-    // Try to fetch from Eventbrite first (live data)
+    // Try to fetch from Eventbrite with timeout (fast fail)
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
       const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc`, {
         headers: {
           'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
           'Content-Type': 'application/json'
-        }
+        },
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const eventbriteData = await response.json();
@@ -746,16 +772,17 @@ app.get('/api/events', requireSupabaseAuth, async (req, res) => {
         throw new Error(`Eventbrite API error: ${response.status}`);
       }
     } catch (eventbriteError) {
-      console.warn('⚠️ Eventbrite API unavailable, falling back to Supabase backup:', eventbriteError.message);
+      console.warn('⚠️ Eventbrite API unavailable, using backup:', eventbriteError.message);
       useBackup = true;
     }
 
-    // If Eventbrite fails, use Supabase backup
+    // If Eventbrite fails, use Supabase backup (faster query)
     if (useBackup) {
       const { data: backupEvents, error } = await supabase
         .from('events')
-        .select('*')
-        .order('start_time', { ascending: true });
+        .select('id, eventbrite_id, title, description, start_time, end_time, url, status, venue_name, venue_address')
+        .order('start_time', { ascending: true })
+        .limit(50); // Limit for faster query
 
       if (error) {
         throw new Error('Both Eventbrite and backup database failed');
@@ -764,11 +791,19 @@ app.get('/api/events', requireSupabaseAuth, async (req, res) => {
       eventbriteEvents = backupEvents || [];
       console.log(`💾 Using ${eventbriteEvents.length} events from Supabase backup`);
     }
+
+    // Update cache
+    eventsCache = {
+      data: eventbriteEvents,
+      timestamp: now,
+      source: useBackup ? 'backup' : 'live'
+    };
     
     res.json({ 
       success: true, 
       events: eventbriteEvents,
-      source: useBackup ? 'backup' : 'live'
+      source: useBackup ? 'backup' : 'live',
+      cached: false
     });
   } catch (err) {
     console.error('Get events error:', err);
@@ -985,32 +1020,85 @@ app.post('/api/events/backup-sync', requireSupabaseAuth, async (req, res) => {
   }
 });
 
-// Public events endpoint - fetch live events directly from Eventbrite
+// Cache for public events
+let publicEventsCache = {
+  data: null,
+  timestamp: 0
+};
+
+// Public events endpoint - optimized for speed
 app.get('/api/events/public', async (req, res) => {
   try {
-    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=live&order_by=start_asc`, {
-      headers: {
-        'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`Eventbrite API error: ${response.status}`);
+    // Check cache first
+    const now = Date.now();
+    if (publicEventsCache.data && (now - publicEventsCache.timestamp) < CACHE_DURATION) {
+      console.log(`⚡ Returning cached public events (${publicEventsCache.data.length} events)`);
+      return res.json({ success: true, events: publicEventsCache.data, cached: true });
     }
 
-    const eventbriteData = await response.json();
-    
-    // Filter for future events only
-    const now = new Date().toISOString();
-    const futureEvents = (eventbriteData.events || []).filter(event => 
-      event.start?.utc && event.start.utc > now
-    );
+    // Try Eventbrite first with timeout
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout for public
 
-    res.json({ success: true, events: futureEvents });
+      const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=live&order_by=start_asc`, {
+        headers: {
+          'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const eventbriteData = await response.json();
+        
+        // Filter for future events only
+        const now = new Date().toISOString();
+        const futureEvents = (eventbriteData.events || []).filter(event => 
+          event.start?.utc && event.start.utc > now
+        );
+
+        // Update cache
+        publicEventsCache = {
+          data: futureEvents,
+          timestamp: Date.now()
+        };
+
+        return res.json({ success: true, events: futureEvents, cached: false });
+      } else {
+        throw new Error(`Eventbrite API error: ${response.status}`);
+      }
+    } catch (eventbriteError) {
+      console.warn('⚠️ Eventbrite API unavailable for public, using backup');
+      
+      // Fallback to Supabase backup
+      const { data: backupEvents, error } = await supabase
+        .from('events')
+        .select('title, description, start_time, end_time, url, status, venue_name')
+        .eq('status', 'live')
+        .gte('start_time', new Date().toISOString())
+        .order('start_time', { ascending: true })
+        .limit(20); // Limit for faster query
+
+      if (error) {
+        throw new Error('Failed to fetch events from backup');
+      }
+
+      const events = backupEvents || [];
+      
+      // Update cache
+      publicEventsCache = {
+        data: events,
+        timestamp: Date.now()
+      };
+
+      res.json({ success: true, events, cached: false });
+    }
   } catch (err) {
     console.error('Public events error:', err);
-    res.status(500).json({ success: false, message: 'Failed to fetch events from Eventbrite' });
+    res.status(500).json({ success: false, message: 'Failed to fetch events' });
   }
 });
 

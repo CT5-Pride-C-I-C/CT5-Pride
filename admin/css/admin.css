@@ -183,13 +183,27 @@ body {
 }
 
 .loading-spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgba(255, 111, 145, 0.2);
-  border-left: 4px solid var(--primary-pink);
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid var(--primary-pink);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: var(--space-4);
+  margin-right: 5px;
+}
+
+.loading-minimal {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+.alert-danger {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
 
 @keyframes spin {

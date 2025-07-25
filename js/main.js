@@ -176,52 +176,52 @@ async function loadEvents() {
     }
     
     try {
-        // Show loading state
+        // Show optimized loading state
         eventsContainer.innerHTML = `
             <div class="loading-events">
                 <div class="loading-spinner"></div>
-                <p>Loading upcoming events...</p>
+                <p>⚡ Loading upcoming events...</p>
             </div>
         `;
         
-        // Try to fetch events from the admin API
+        const startTime = Date.now();
         let response, data;
         let hasNetworkError = false;
         
         try {
-            // First try public API endpoint
+            // Use public API endpoint for better performance
             response = await fetch('/api/events/public');
             
             if (response.ok) {
                 data = await response.json();
-                console.log('📅 Events data received from public API:', data);
+                const loadTime = Date.now() - startTime;
+                console.log(`📅 Events data received in ${loadTime}ms:`, data);
+                
+                // Show cache status in console for debugging
+                if (data.cached) {
+                    console.log('⚡ Data served from cache');
+                }
             } else if (response.status === 404) {
-                // 404 means no events configured, not an error
                 console.log('ℹ️ Public API returned 404 - no events configured');
                 data = { success: true, events: [] };
             } else {
-                // Other HTTP errors are actual problems
                 console.log(`⚠️ Public API returned ${response.status}, trying fallback...`);
                 hasNetworkError = true;
                 throw new Error(`Public API returned ${response.status}`);
             }
         } catch (adminError) {
             if (!hasNetworkError && (adminError.name === 'TypeError' || adminError.message.includes('fetch'))) {
-                // Network/CORS errors are real problems
                 hasNetworkError = true;
             }
             
-            console.log('ℹ️ Admin API not available, trying direct approach...');
-            
-            // For now, if admin API fails, just show empty state
-            // In the future, could add Eventbrite public API as fallback
+            console.log('ℹ️ Public API not available, trying direct approach...');
             console.log('📝 No fallback API configured, showing empty state');
             data = { success: true, events: [] };
         }
         
         // Check if we have valid events data
         if (data && data.events && Array.isArray(data.events) && data.events.length > 0) {
-            // Display events
+            // Display events with optimized rendering
             renderEvents(data.events);
         } else if (!hasNetworkError) {
             // No events found but API worked - show branded empty state
@@ -240,50 +240,59 @@ async function loadEvents() {
 function renderEvents(events) {
     const eventsContainer = document.getElementById('eventsContainer');
     
-    const eventsHTML = events.map(event => {
+    // Use DocumentFragment for better performance
+    const fragment = document.createDocumentFragment();
+    const eventsGrid = document.createElement('div');
+    eventsGrid.className = 'events-grid';
+    
+    // Render events efficiently
+    events.forEach(event => {
+        const eventCard = document.createElement('div');
+        eventCard.className = 'event-card';
+        
         const startDate = new Date(event.start_time || event.start?.utc || event.start_date);
         const endDate = new Date(event.end_time || event.end?.utc || event.end_date);
+        const eventTitle = event.title || event.name?.text || event.name;
+        const eventLocation = event.venue_name || event.venue?.name || event.location;
+        const eventDescription = event.description || event.description?.text;
         
-        return `
-            <div class="event-card">
-                <div class="event-header">
-                    <h3 class="event-title">${escapeHtml(event.title || event.name?.text || event.name)}</h3>
-                    <div class="event-date">
-                        <span class="date-main">${startDate.toLocaleDateString('en-GB', { 
-                            weekday: 'short', 
+        eventCard.innerHTML = `
+            <div class="event-header">
+                <h3 class="event-title">${escapeHtml(eventTitle)}</h3>
+                <div class="event-date">
+                    <span class="date-main">${startDate.toLocaleDateString('en-GB', { 
+                        weekday: 'short', 
+                        day: 'numeric', 
+                        month: 'short' 
+                    })}</span>
+                    ${endDate.toDateString() !== startDate.toDateString() ? 
+                        `<span class="date-range">- ${endDate.toLocaleDateString('en-GB', { 
                             day: 'numeric', 
                             month: 'short' 
-                        })}</span>
-                        ${endDate.toDateString() !== startDate.toDateString() ? 
-                            `<span class="date-range">- ${endDate.toLocaleDateString('en-GB', { 
-                                day: 'numeric', 
-                                month: 'short' 
-                            })}</span>` : ''
-                        }
-                    </div>
-                </div>
-                
-                <div class="event-details">
-                    ${event.venue_name ? `<p class="event-location">📍 ${escapeHtml(event.venue_name)}</p>` : 
-                      event.venue?.name ? `<p class="event-location">📍 ${escapeHtml(event.venue.name)}</p>` : 
-                      event.location ? `<p class="event-location">📍 ${escapeHtml(event.location)}</p>` : ''}
-                    ${event.description ? `<p class="event-description">${escapeHtml(event.description.substring(0, 150))}${event.description.length > 150 ? '...' : ''}</p>` : 
-                      event.description?.text ? `<p class="event-description">${escapeHtml(event.description.text.substring(0, 150))}${event.description.text.length > 150 ? '...' : ''}</p>` : ''}
-                </div>
-                
-                <div class="event-actions">
-                    ${event.url ? `<a href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Get Tickets</a>` : ''}
-                    ${event.status ? `<span class="event-status status-${event.status.toLowerCase()}">${escapeHtml(event.status)}</span>` : ''}
+                        })}</span>` : ''
+                    }
                 </div>
             </div>
+            
+            <div class="event-details">
+                ${eventLocation ? `<p class="event-location">📍 ${escapeHtml(eventLocation)}</p>` : ''}
+                ${eventDescription ? `<p class="event-description">${escapeHtml(eventDescription.substring(0, 150))}${eventDescription.length > 150 ? '...' : ''}</p>` : ''}
+            </div>
+            
+            <div class="event-actions">
+                ${event.url ? `<a href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Get Tickets</a>` : ''}
+                ${event.status ? `<span class="event-status status-${event.status.toLowerCase()}">${escapeHtml(event.status)}</span>` : ''}
+            </div>
         `;
-    }).join('');
+        
+        eventsGrid.appendChild(eventCard);
+    });
     
-    eventsContainer.innerHTML = `
-        <div class="events-grid">
-            ${eventsHTML}
-        </div>
-    `;
+    fragment.appendChild(eventsGrid);
+    
+    // Single DOM update
+    eventsContainer.innerHTML = '';
+    eventsContainer.appendChild(fragment);
     
     console.log(`✅ Rendered ${events.length} events`);
 }
