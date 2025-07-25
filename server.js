@@ -1054,11 +1054,20 @@ app.get('/api/events/public', async (req, res) => {
       if (response.ok) {
         const eventbriteData = await response.json();
         
+        console.log(`🔍 Debug: Found ${eventbriteData.events?.length || 0} events from Eventbrite`);
+        
         // Filter for future events only
         const now = new Date().toISOString();
-        const futureEvents = (eventbriteData.events || []).filter(event => 
-          event.start?.utc && event.start.utc > now
-        );
+        console.log(`🔍 Debug: Current time: ${now}`);
+        
+        const futureEvents = (eventbriteData.events || []).filter(event => {
+          const eventStart = event.start?.utc;
+          const isFuture = eventStart && eventStart > now;
+          console.log(`🔍 Event: ${event.name?.text}, Start: ${eventStart}, Future: ${isFuture}`);
+          return isFuture;
+        });
+
+        console.log(`🔍 Debug: ${futureEvents.length} future events found`);
 
         // Update cache
         publicEventsCache = {
