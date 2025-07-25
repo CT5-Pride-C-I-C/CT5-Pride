@@ -65,19 +65,55 @@ function setupAccessibility() {
         menu: !!accessibilityMenu
     });
     
+    // Additional debugging
+    if (accessibilityToggle) {
+        console.log('🔍 Toggle element:', accessibilityToggle);
+        console.log('🔍 Toggle computed styles:', window.getComputedStyle(accessibilityToggle));
+    }
+    if (accessibilityMenu) {
+        console.log('🔍 Menu element:', accessibilityMenu);
+        console.log('🔍 Menu computed styles:', window.getComputedStyle(accessibilityMenu));
+        console.log('🔍 Menu initial display:', window.getComputedStyle(accessibilityMenu).display);
+    }
+    
     if (accessibilityToggle && accessibilityMenu) {
         console.log('✅ Adding click listener to accessibility toggle');
         
+        // Ensure the toggle is always visible and clickable
+        accessibilityToggle.style.display = 'flex';
+        accessibilityToggle.style.position = 'fixed';
+        accessibilityToggle.style.bottom = '20px';
+        accessibilityToggle.style.right = '20px';
+        accessibilityToggle.style.zIndex = '9999';
+        accessibilityToggle.style.pointerEvents = 'auto';
+        
+        console.log('🔧 Applied force-visible styles to accessibility toggle');
+        
         accessibilityToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             console.log('🖱️ Accessibility toggle clicked!');
             
             const isExpanded = accessibilityToggle.getAttribute('aria-expanded') === 'true';
             console.log('📋 Current state - expanded:', isExpanded);
+            console.log('📋 Menu current classes:', accessibilityMenu.className);
+            console.log('📋 Menu current display:', window.getComputedStyle(accessibilityMenu).display);
             
             accessibilityToggle.setAttribute('aria-expanded', !isExpanded);
             accessibilityMenu.classList.toggle('open');
             
             console.log('📋 New state - expanded:', !isExpanded, 'menu has open class:', accessibilityMenu.classList.contains('open'));
+            console.log('📋 Menu new classes:', accessibilityMenu.className);
+            console.log('📋 Menu new display:', window.getComputedStyle(accessibilityMenu).display);
+            
+            // Force visibility check
+            if (accessibilityMenu.classList.contains('open')) {
+                accessibilityMenu.style.display = 'block';
+                console.log('🔧 Forced menu display to block');
+            } else {
+                accessibilityMenu.style.display = 'none';
+                console.log('🔧 Forced menu display to none');
+            }
         });
         
         // Setup accessibility toggles
@@ -148,6 +184,30 @@ function setupAccessibility() {
                 document.body.classList.add(`text-size-${savedTextSize}`);
             }
         }
+    } else {
+        console.error('❌ Accessibility elements not found!', {
+            toggle: accessibilityToggle,
+            panel: accessibilityPanel,
+            menu: accessibilityMenu
+        });
+        
+        // Try to find and fix the issue
+        setTimeout(() => {
+            console.log('🔄 Retrying accessibility setup...');
+            const retryToggle = document.querySelector('.accessibility-toggle');
+            const retryMenu = document.querySelector('.accessibility-menu');
+            
+            if (retryToggle && retryMenu) {
+                console.log('✅ Found elements on retry');
+                retryToggle.onclick = function() {
+                    console.log('🖱️ Backup click handler activated');
+                    const isOpen = retryMenu.classList.contains('open');
+                    retryMenu.classList.toggle('open', !isOpen);
+                    retryMenu.style.display = !isOpen ? 'block' : 'none';
+                    retryToggle.setAttribute('aria-expanded', !isOpen);
+                };
+            }
+        }, 1000);
     }
 }
 
