@@ -254,7 +254,12 @@ function renderEvents(events) {
         const endDate = new Date(event.end_time || event.end?.utc || event.end_date);
         const eventTitle = event.title || event.name?.text || event.name;
         const eventLocation = event.venue_name || event.venue?.name || event.location;
-        const eventDescription = event.description || event.description?.text;
+        let eventDescription = event.description || event.description?.text;
+        
+        // Ensure eventDescription is a string for substring operation
+        if (eventDescription && typeof eventDescription !== 'string') {
+            eventDescription = String(eventDescription);
+        }
         
         eventCard.innerHTML = `
             <div class="event-header">
@@ -336,6 +341,10 @@ function showEventsError(errorMessage) {
 
 function escapeHtml(text) {
     if (!text) return '';
+    // Ensure text is a string
+    if (typeof text !== 'string') {
+        text = String(text);
+    }
     const map = {
         '&': '&amp;',
         '<': '&lt;',
