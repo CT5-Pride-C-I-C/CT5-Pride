@@ -776,9 +776,9 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
       // https://www.eventbrite.com/e/event-name-123456789
       // https://www.eventbrite.co.uk/e/event-name-tickets-123456789  
       // https://www.eventbrite.com/events/123456789
-      const urlMatch = eventbriteUrl.match(/\/e\/.*-(\d+)$|\/events\/(\d+)/);
+      const urlMatch = eventbriteUrl.match(/\/e\/[^\/]*-(\d+)$/) || eventbriteUrl.match(/\/events\/(\d+)/);
       if (urlMatch) {
-        eventId = urlMatch[1] || urlMatch[2];
+        eventId = urlMatch[1];
       } else {
         return res.status(400).json({ success: false, message: 'Invalid Eventbrite URL format. Please use a URL like: https://www.eventbrite.co.uk/e/event-name-123456789' });
       }

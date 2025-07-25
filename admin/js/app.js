@@ -1505,6 +1505,19 @@ async function autoSyncEvents() {
   }
 }
 
+// Utility function for HTML escaping
+function escapeHtml(text) {
+  if (!text) return '';
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, m => map[m]);
+}
+
 // Global functions for event management
 window.openSyncEventModal = openSyncEventModal;
 window.handleSyncEvent = handleSyncEvent;
