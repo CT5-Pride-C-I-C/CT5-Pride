@@ -723,6 +723,51 @@ app.get('/api/cv/:filename', requireSupabaseAuth, async (req, res) => {
 
 // ==================== EVENTS API (EVENTBRITE INTEGRATION) ====================
 
+// Helper function to extract venue data from Eventbrite
+async function extractVenueData(eventData) {
+  let venueName = null;
+  let venueAddress = null;
+  
+  if (eventData.venue) {
+    // Try different venue data structures
+    venueName = eventData.venue.name || eventData.venue.resource_uri;
+    
+    if (eventData.venue.address) {
+      venueAddress = eventData.venue.address.localized_address_display || 
+                    eventData.venue.address.address_1 || 
+                    eventData.venue.address.city;
+    }
+    
+    // If venue has only an ID, fetch the full venue details
+    if (eventData.venue.id && !venueName) {
+      try {
+        console.log('🏢 Fetching venue details for ID:', eventData.venue.id);
+        const venueResponse = await fetch(`https://www.eventbriteapi.com/v3/venues/${eventData.venue.id}/`, {
+          headers: {
+            'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (venueResponse.ok) {
+          const venueData = await venueResponse.json();
+          console.log('🏢 Venue details received:', venueData);
+          venueName = venueData.name;
+          if (venueData.address) {
+            venueAddress = venueData.address.localized_address_display || 
+                          `${venueData.address.address_1}, ${venueData.address.city}`;
+          }
+        }
+      } catch (venueError) {
+        console.error('⚠️ Failed to fetch venue details:', venueError);
+      }
+    }
+  }
+  
+  console.log('🏢 Final venue data - Name:', venueName, 'Address:', venueAddress);
+  return { venueName, venueAddress };
+}
+
 // Cache for events data
 let eventsCache = {
   data: null,
@@ -850,6 +895,13 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
 
     const eventData = await response.json();
 
+    // Debug logging to see the actual venue data structure
+    console.log('🔍 Full event data from Eventbrite:', JSON.stringify(eventData, null, 2));
+    console.log('🔍 Venue data specifically:', eventData.venue);
+
+    // Enhanced venue extraction using helper function
+    const { venueName, venueAddress } = await extractVenueData(eventData);
+
     // Store in local database
     const { data, error } = await supabase
       .from('events')
@@ -861,8 +913,8 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
         end_time: eventData.end.utc,
         url: eventData.url,
         status: eventData.status,
-        venue_name: eventData.venue?.name || null,
-        venue_address: eventData.venue?.address?.localized_address_display || null,
+        venue_name: venueName,
+        venue_address: venueAddress,
         synced_at: new Date().toISOString()
       }])
       .select();
@@ -916,6 +968,9 @@ app.post('/api/events/auto-sync', requireSupabaseAuth, async (req, res) => {
     // Sync new events
     for (const event of events) {
       if (!existingIds.has(event.id)) {
+        // Extract venue data for each event
+        const { venueName, venueAddress } = await extractVenueData(event);
+        
         const { error } = await supabase
           .from('events')
           .insert([{
@@ -926,8 +981,8 @@ app.post('/api/events/auto-sync', requireSupabaseAuth, async (req, res) => {
             end_time: event.end.utc,
             url: event.url,
             status: event.status,
-            venue_name: event.venue?.name || null,
-            venue_address: event.venue?.address?.localized_address_display || null,
+            venue_name: venueName,
+            venue_address: venueAddress,
             synced_at: new Date().toISOString()
           }]);
 
@@ -981,8 +1036,11 @@ app.post('/api/events/backup-sync', requireSupabaseAuth, async (req, res) => {
 
     let syncedCount = 0;
 
-    // Sync all events to backup
+    // Sync all events to backup database
     for (const event of events) {
+      // Extract venue data for each event
+      const { venueName, venueAddress } = await extractVenueData(event);
+      
       const { error } = await supabase
         .from('events')
         .insert([{
@@ -993,8 +1051,8 @@ app.post('/api/events/backup-sync', requireSupabaseAuth, async (req, res) => {
           end_time: event.end.utc,
           url: event.url,
           status: event.status,
-          venue_name: event.venue?.name || null,
-          venue_address: event.venue?.address?.localized_address_display || null,
+          venue_name: venueName,
+          venue_address: venueAddress,
           synced_at: new Date().toISOString()
         }]);
 
