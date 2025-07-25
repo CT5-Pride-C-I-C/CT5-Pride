@@ -723,6 +723,36 @@ app.get('/api/cv/:filename', requireSupabaseAuth, async (req, res) => {
 
 // ==================== EVENTS API (EVENTBRITE INTEGRATION) ====================
 
+// Helper function to clean HTML content
+function cleanHtmlContent(htmlContent) {
+  if (!htmlContent) return '';
+  
+  return htmlContent
+    // Preserve line breaks and paragraph structure
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<\/h[1-6]>/gi, '\n\n')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '• ')
+    .replace(/<\/ul>/gi, '\n')
+    .replace(/<\/ol>/gi, '\n')
+    // Remove all other HTML tags
+    .replace(/<[^>]*>/g, '')
+    // Clean up whitespace
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    // Normalize whitespace but preserve intentional line breaks
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n\s+/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 // Helper function to extract detailed event description from Eventbrite page
 async function extractEventDescription(eventData, enableScraping = true) {
   let description = eventData.description?.text || '';
@@ -739,51 +769,83 @@ async function extractEventDescription(eventData, enableScraping = true) {
       
       if (pageResponse.ok) {
         const html = await pageResponse.text();
+        console.log('📄 Successfully fetched HTML, length:', html.length);
         
-        // Extract description from event-description__content classes
+        // Extract description from Eventbrite detailed content classes
         const descriptionPatterns = [
+          // Primary target - event details main inner content (highest priority)
           /<div[^>]*class="[^"]*event-details__main-inner[^"]*"[^>]*>(.*?)<\/div>/is,
+          // Structured rich content with paragraphs
+          /<div[^>]*class="[^"]*structured-content-rich-text[^"]*"[^>]*>(.*?)<\/div>/is,
+          // User generated content container
+          /<div[^>]*class="[^"]*has-user-generated-content[^"]*"[^>]*>(.*?)<\/div>/is,
+          // Fallback patterns
           /<div[^>]*class="[^"]*event-description__content--expanded[^"]*"[^>]*>(.*?)<\/div>/is,
-          /<div[^>]*class="[^"]*event-description__content[^"]*"[^>]*>(.*?)<\/div>/is,
-          /<div[^>]*class="[^"]*has-user-generated-content[^"]*"[^>]*>(.*?)<\/div>/is
+          /<div[^>]*class="[^"]*event-description__content[^"]*"[^>]*>(.*?)<\/div>/is
         ];
         
+        // Also try specific content patterns for paragraphs and lists
+        const specificContentPatterns = [
+          // All paragraphs within structured content
+          /<div[^>]*class="[^"]*structured-content-rich-text[^"]*"[^>]*>([\s\S]*?)<\/div>/gi,
+          // All content within user generated content
+          /<div[^>]*class="[^"]*has-user-generated-content[^"]*"[^>]*>([\s\S]*?)<\/div>/gi,
+          // Direct paragraph patterns
+          /<p[^>]*class="[^"]*structured-content-rich-text[^"]*"[^>]*>([\s\S]*?)<\/p>/gi,
+          /<p[^>]*class="[^"]*has-user-generated-content[^"]*"[^>]*>([\s\S]*?)<\/p>/gi
+        ];
+        
+        // First try main description patterns
         for (const pattern of descriptionPatterns) {
           const match = html.match(pattern);
           if (match) {
-            const fullDescription = match[1]
-              .replace(/<br\s*\/?>/gi, '\n')
-              .replace(/<\/p>/gi, '\n\n')
-              .replace(/<\/div>/gi, '\n')
-              .replace(/<\/h[1-6]>/gi, '\n\n')
-              .replace(/<li>/gi, '• ')
-              .replace(/<\/li>/gi, '\n')
-              .replace(/<[^>]*>/g, '')
-              .replace(/\s+/g, ' ')
-              .replace(/\n\s+/g, '\n')
-              .replace(/\n{3,}/g, '\n\n')
-              .trim();
+            console.log('📄 Found match with pattern:', pattern.source.substring(0, 50) + '...');
+            const fullDescription = cleanHtmlContent(match[1]);
             
             if (fullDescription && fullDescription.length > description.length) {
               description = fullDescription;
-              console.log('📄 Scraped enhanced description:', description.substring(0, 100) + '...');
+              console.log('📄 Scraped enhanced description:', description.substring(0, 150) + '...');
               break;
+            }
+          }
+        }
+        
+        // If no good description found, try specific content patterns
+        if (!description || description.length < 100) {
+          console.log('📄 Trying specific content patterns...');
+          for (const pattern of specificContentPatterns) {
+            const matches = [...html.matchAll(pattern)];
+            console.log(`📄 Pattern found ${matches.length} matches:`, pattern.source.substring(0, 50) + '...');
+            
+            if (matches.length > 0) {
+              // Take the first substantial match
+              for (const match of matches) {
+                let combinedContent = cleanHtmlContent(match[1]);
+                
+                if (combinedContent && combinedContent.length > Math.max(description.length, 50)) {
+                  description = combinedContent;
+                  console.log('📄 Scraped specific content:', description.substring(0, 150) + '...');
+                  break;
+                }
+              }
+              
+              if (description && description.length > 100) {
+                break; // Found good content, stop searching
+              }
             }
           }
         }
         
         // Also try to extract from first child of has-user-generated-content
         if (!description || description.length < 50) {
+          console.log('📄 Trying first child extraction...');
           const firstChildMatch = html.match(/<div[^>]*class="[^"]*has-user-generated-content[^"]*"[^>]*>\s*<[^>]+>(.*?)<\//is);
           if (firstChildMatch) {
-            const firstChildDescription = firstChildMatch[1]
-              .replace(/<[^>]*>/g, '')
-              .replace(/\s+/g, ' ')
-              .trim();
+            const firstChildDescription = cleanHtmlContent(firstChildMatch[1]);
             
             if (firstChildDescription && firstChildDescription.length > description.length) {
               description = firstChildDescription;
-              console.log('📄 Scraped description from first child:', description.substring(0, 100) + '...');
+              console.log('📄 Scraped description from first child:', description.substring(0, 150) + '...');
             }
           }
         }
@@ -1127,8 +1189,8 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
     // Enhanced venue extraction using helper function
     const { venueName, venueAddress } = await extractVenueData(eventData);
     
-    // Enhanced description extraction using helper function
-    const fullDescription = await extractEventDescription(eventData);
+    // Enhanced description extraction using helper function (with full scraping)
+    const fullDescription = await extractEventDescription(eventData, true);
 
     // Extract ticket availability data
     const { capacity, ticketsSold, ticketsRemaining, soldOut } = await extractTicketAvailability(eventData, eventId);
