@@ -53,19 +53,37 @@ function setupNavigation() {
 // ==================== ACCESSIBILITY ====================
 
 function setupAccessibility() {
+    console.log('🛠️ Setting up accessibility features...');
+    
     const accessibilityToggle = document.querySelector('.accessibility-toggle');
     const accessibilityPanel = document.querySelector('.accessibility-panel');
     const accessibilityMenu = document.querySelector('.accessibility-menu');
     
+    console.log('🔍 Accessibility elements found:', {
+        toggle: !!accessibilityToggle,
+        panel: !!accessibilityPanel,
+        menu: !!accessibilityMenu
+    });
+    
     if (accessibilityToggle && accessibilityMenu) {
-        accessibilityToggle.addEventListener('click', () => {
+        console.log('✅ Adding click listener to accessibility toggle');
+        
+        accessibilityToggle.addEventListener('click', (e) => {
+            console.log('🖱️ Accessibility toggle clicked!');
+            
             const isExpanded = accessibilityToggle.getAttribute('aria-expanded') === 'true';
+            console.log('📋 Current state - expanded:', isExpanded);
+            
             accessibilityToggle.setAttribute('aria-expanded', !isExpanded);
             accessibilityMenu.classList.toggle('open');
+            
+            console.log('📋 New state - expanded:', !isExpanded, 'menu has open class:', accessibilityMenu.classList.contains('open'));
         });
         
         // Setup accessibility toggles
         const toggles = document.querySelectorAll('.accessibility-toggle-switch');
+        console.log(`🔧 Found ${toggles.length} accessibility toggle switches`);
+        
         toggles.forEach(toggle => {
             toggle.addEventListener('click', () => {
                 const isChecked = toggle.getAttribute('aria-checked') === 'true';
@@ -355,11 +373,48 @@ function renderEvents(events) {
             <div class="event-details">
                 ${eventLocation ? `<p class="event-location">📍 ${escapeHtml(eventLocation)}</p>` : ''}
                 ${event.venue_address ? `<p class="event-address">🏠 ${escapeHtml(event.venue_address)}</p>` : ''}
-                ${!eventLocation && !event.venue_address && event.venue ? `<p class="event-location">📍 Location details available on Eventbrite</p>` : ''}
+                
+                <div class="event-timing-details">
+                    <h4>📅 Event Details</h4>
+                    <div class="timing-grid">
+                        <div class="timing-item">
+                            <span class="timing-label">Date:</span>
+                            <span class="timing-value">${startDate.toLocaleDateString('en-GB', { 
+                                weekday: 'long', 
+                                day: 'numeric', 
+                                month: 'long',
+                                year: 'numeric' 
+                            })}</span>
+                        </div>
+                        <div class="timing-item">
+                            <span class="timing-label">Start:</span>
+                            <span class="timing-value">${timeStr}</span>
+                        </div>
+                        ${!isSameTime ? `
+                            <div class="timing-item">
+                                <span class="timing-label">End:</span>
+                                <span class="timing-value">${endTimeStr}</span>
+                            </div>
+                        ` : ''}
+                        ${event.status ? `
+                            <div class="timing-item">
+                                <span class="timing-label">Status:</span>
+                                <span class="timing-value timing-status">${escapeHtml(event.status)}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                
                 ${eventDescription ? `<div class="event-description">
                     <h4>About this event</h4>
                     <div class="event-description-content">${escapeHtml(eventDescription)}</div>
                 </div>` : ''}
+                
+                ${!eventLocation && !event.venue_address ? `
+                    <div class="venue-fallback">
+                        <p class="event-location">📍 Venue details available on Eventbrite</p>
+                    </div>
+                ` : ''}
             </div>
             
             <div class="event-actions">
