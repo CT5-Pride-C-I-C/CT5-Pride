@@ -388,20 +388,39 @@ function renderEvents(events) {
         let ticketIndicator = '';
         let buttonText = 'Get Tickets';
         
+        // Debug ticket data
+        console.log('🎫 Processing ticket data for:', eventTitle, {
+            sold_out: event.sold_out,
+            tickets_remaining: event.tickets_remaining,
+            capacity: event.capacity,
+            tickets_sold: event.tickets_sold
+        });
+        
         // Check for sold out status
         if (event.sold_out === true || event.sold_out === 'true') {
             ticketIndicator = '<span class="ticket-indicator sold-out">Sold Out</span>';
             buttonText = 'View Event Details';
+            console.log('🔴 Event marked as sold out');
         } else if (event.tickets_remaining !== undefined && event.tickets_remaining !== null) {
             const remaining = parseInt(event.tickets_remaining);
+            console.log('🎫 Tickets remaining:', remaining);
             
             if (remaining <= 0) {
                 ticketIndicator = '<span class="ticket-indicator sold-out">Sold Out</span>';
                 buttonText = 'View Event Details';
+                console.log('🔴 No tickets remaining');
             } else if (remaining <= 20) {
                 ticketIndicator = `<span class="ticket-indicator limited">${remaining} left</span>`;
+                console.log('🟡 Limited tickets:', remaining);
+            } else {
+                console.log('✅ Plenty of tickets available:', remaining);
             }
+        } else {
+            console.log('ℹ️ No ticket data available');
         }
+        
+        // Debug final indicator
+        console.log('🏷️ Final ticket indicator:', ticketIndicator || 'none');
         
         eventCard.innerHTML = `
             <div class="event-header">
@@ -453,7 +472,7 @@ function renderEvents(events) {
                 ${event.url ? `
                     <a href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">${buttonText}</a>
                     ${ticketIndicator}
-                ` : ''}
+                ` : ticketIndicator ? `<div class="ticket-only">${ticketIndicator}</div>` : ''}
             </div>`;
         
         eventsGrid.appendChild(eventCard);
