@@ -240,6 +240,12 @@ async function loadEvents() {
 function renderEvents(events) {
     const eventsContainer = document.getElementById('eventsContainer');
     
+    // Debug logging to see the data structure
+    console.log('🔍 Events data structure:', events);
+    if (events.length > 0) {
+        console.log('🔍 First event sample:', events[0]);
+    }
+    
     // Use DocumentFragment for better performance
     const fragment = document.createDocumentFragment();
     const eventsGrid = document.createElement('div');
@@ -250,16 +256,48 @@ function renderEvents(events) {
         const eventCard = document.createElement('div');
         eventCard.className = 'event-card';
         
-        const startDate = new Date(event.start_time || event.start?.utc || event.start_date);
-        const endDate = new Date(event.end_time || event.end?.utc || event.end_date);
-        const eventTitle = event.title || event.name?.text || event.name;
-        const eventLocation = event.venue_name || event.venue?.name || event.location;
-        let eventDescription = event.description || event.description?.text;
+        // Extract data with better fallback logic for Eventbrite API format
+        const startDate = new Date(event.start_time || event.start?.utc || event.start_date || event.start);
+        const endDate = new Date(event.end_time || event.end?.utc || event.end_date || event.end);
+        
+        // Title extraction
+        const eventTitle = event.title || event.name?.text || event.name || 'Untitled Event';
+        
+        // Location extraction - handle Eventbrite's venue object
+        let eventLocation = '';
+        if (event.venue_name) {
+            eventLocation = event.venue_name;
+        } else if (event.venue?.name) {
+            eventLocation = event.venue.name;
+        } else if (event.venue?.address?.localized_address_display) {
+            eventLocation = event.venue.address.localized_address_display;
+        } else if (event.location) {
+            eventLocation = event.location;
+        }
+        
+        // Description extraction - handle Eventbrite's description object
+        let eventDescription = '';
+        if (event.description) {
+            if (typeof event.description === 'string') {
+                eventDescription = event.description;
+            } else if (event.description.text) {
+                eventDescription = event.description.text;
+            } else if (event.description.html) {
+                // Strip HTML tags from description
+                eventDescription = event.description.html.replace(/<[^>]*>/g, '');
+            }
+        }
         
         // Ensure eventDescription is a string for substring operation
         if (eventDescription && typeof eventDescription !== 'string') {
             eventDescription = String(eventDescription);
         }
+        
+        // Format time display
+        const timeStr = startDate.toLocaleTimeString('en-GB', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
         
         eventCard.innerHTML = `
             <div class="event-header">
@@ -270,6 +308,7 @@ function renderEvents(events) {
                         day: 'numeric', 
                         month: 'short' 
                     })}</span>
+                    <span class="event-time">${timeStr}</span>
                     ${endDate.toDateString() !== startDate.toDateString() ? 
                         `<span class="date-range">- ${endDate.toLocaleDateString('en-GB', { 
                             day: 'numeric', 
@@ -287,8 +326,7 @@ function renderEvents(events) {
             <div class="event-actions">
                 ${event.url ? `<a href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Get Tickets</a>` : ''}
                 ${event.status ? `<span class="event-status status-${event.status.toLowerCase()}">${escapeHtml(event.status)}</span>` : ''}
-            </div>
-        `;
+            </div>`;
         
         eventsGrid.appendChild(eventCard);
     });

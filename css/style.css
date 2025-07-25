@@ -151,6 +151,13 @@
   font-size: 1.1rem;
 }
 
+.event-time {
+  display: block;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-top: 0.2rem;
+}
+
 .date-range {
   font-size: 0.9rem;
   opacity: 0.8;
