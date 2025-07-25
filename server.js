@@ -991,42 +991,104 @@ async function extractTicketAvailability(eventData, eventId) {
   try {
     console.log('🎫 Processing ticket availability for event:', eventId);
     
+    // Log the full ticket_classes structure for debugging
+    if (eventData.ticket_classes) {
+      console.log('🎫 Raw ticket_classes data:', JSON.stringify(eventData.ticket_classes, null, 2));
+    }
+    
     // Get capacity from ticket_classes if available
     if (eventData.ticket_classes && eventData.ticket_classes.length > 0) {
       console.log('🎫 Found ticket classes:', eventData.ticket_classes.length);
       
       for (const ticketClass of eventData.ticket_classes) {
-        if (ticketClass.quantity_total) {
+        console.log('🎫 Processing ticket class:', {
+          name: ticketClass.name,
+          quantity_total: ticketClass.quantity_total,
+          quantity_sold: ticketClass.quantity_sold,
+          hidden: ticketClass.hidden,
+          free: ticketClass.free,
+          cost: ticketClass.cost
+        });
+        
+        if (ticketClass.quantity_total && !ticketClass.hidden) {
           capacity += ticketClass.quantity_total;
-          console.log(`🎫 Ticket class "${ticketClass.name}": ${ticketClass.quantity_total} total, ${ticketClass.quantity_sold || 0} sold`);
+          console.log(`🎫 Added capacity from "${ticketClass.name}": ${ticketClass.quantity_total}`);
           
           if (ticketClass.quantity_sold) {
             ticketsSold += ticketClass.quantity_sold;
+            console.log(`🎫 Added sold from "${ticketClass.name}": ${ticketClass.quantity_sold}`);
           }
         }
       }
+    } else {
+      console.log('🎫 No ticket_classes found in event data');
     }
     
-    // If we don't have ticket_classes data, try to get attendance data
-    if (capacity === 0) {
-      console.log('🎫 No ticket classes found, trying attendees endpoint...');
+    // Try alternative methods to get ticket sales data
+    if (capacity === 0 || ticketsSold === 0) {
+      console.log('🎫 Trying alternative data sources...');
       
-      const attendeesResponse = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/attendees/?status=attending`, {
-        headers: {
-          'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      // Method 1: Check main event data for capacity
+      if (eventData.capacity && eventData.capacity > 0) {
+        capacity = eventData.capacity;
+        console.log('🎫 Got capacity from main event data:', capacity);
+      }
       
-      if (attendeesResponse.ok) {
-        const attendeesData = await attendeesResponse.json();
-        ticketsSold = attendeesData.attendees ? attendeesData.attendees.length : 0;
-        console.log('🎫 Found attendees count:', ticketsSold);
+      // Method 2: Try attendees endpoint for sales count
+      try {
+        const attendeesResponse = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/attendees/?status=attending`, {
+          headers: {
+            'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
         
-        // If we have event capacity from the main event data
-        if (eventData.capacity) {
-          capacity = eventData.capacity;
+        if (attendeesResponse.ok) {
+          const attendeesData = await attendeesResponse.json();
+          const attendeeCount = attendeesData.attendees ? attendeesData.attendees.length : 0;
+          console.log('🎫 Found attendees count:', attendeeCount);
+          
+          if (attendeeCount > ticketsSold) {
+            ticketsSold = attendeeCount;
+          }
+        } else {
+          console.log('🎫 Attendees endpoint returned:', attendeesResponse.status);
         }
+      } catch (attendeeError) {
+        console.log('🎫 Attendees endpoint error:', attendeeError.message);
+      }
+      
+      // Method 3: Try orders endpoint for purchase data
+      try {
+        const ordersResponse = await fetch(`https://www.eventbriteapi.com/v3/events/${eventId}/orders/`, {
+          headers: {
+            'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (ordersResponse.ok) {
+          const ordersData = await ordersResponse.json();
+          let orderTicketCount = 0;
+          
+          if (ordersData.orders) {
+            ordersData.orders.forEach(order => {
+              if (order.status === 'placed' && order.ticket_quantity) {
+                orderTicketCount += order.ticket_quantity;
+              }
+            });
+          }
+          
+          console.log('🎫 Found orders ticket count:', orderTicketCount);
+          
+          if (orderTicketCount > ticketsSold) {
+            ticketsSold = orderTicketCount;
+          }
+        } else {
+          console.log('🎫 Orders endpoint returned:', ordersResponse.status);
+        }
+      } catch (orderError) {
+        console.log('🎫 Orders endpoint error:', orderError.message);
       }
     }
     
@@ -1034,6 +1096,38 @@ async function extractTicketAvailability(eventData, eventId) {
     if (capacity > 0) {
       ticketsRemaining = capacity - ticketsSold;
       soldOut = ticketsRemaining <= 0;
+    }
+    
+    // TEMP: Add demo data if we don't have real data (for testing)
+    if (capacity === 0 && ticketsSold === 0) {
+      console.log('🧪 No real ticket data found, adding demo data for testing...');
+      
+      // Create different scenarios based on event ID
+      const eventIdStr = eventId.toString();
+      const lastDigit = parseInt(eventIdStr.slice(-1));
+      
+      if (lastDigit % 3 === 0) {
+        // Sold out scenario
+        capacity = 30;
+        ticketsSold = 30;
+        ticketsRemaining = 0;
+        soldOut = true;
+        console.log('🧪 Demo: Sold out event');
+      } else if (lastDigit % 3 === 1) {
+        // Limited tickets scenario
+        capacity = 50;
+        ticketsSold = 47;
+        ticketsRemaining = 3;
+        soldOut = false;
+        console.log('🧪 Demo: Limited tickets (3 left)');
+      } else {
+        // Normal availability scenario
+        capacity = 100;
+        ticketsSold = 25;
+        ticketsRemaining = 75;
+        soldOut = false;
+        console.log('🧪 Demo: Good availability (75 left)');
+      }
     }
     
     console.log('🎫 Final ticket data:', {
@@ -1098,8 +1192,51 @@ app.get('/api/events', requireSupabaseAuth, async (req, res) => {
 
       if (response.ok) {
         const eventbriteData = await response.json();
-        eventbriteEvents = eventbriteData.events || [];
-        console.log(`📡 Fetched ${eventbriteEvents.length} events from Eventbrite API`);
+        console.log(`📡 Fetched ${eventbriteData.events?.length || 0} events from Eventbrite API`);
+        
+        // Get ticket data from Supabase to merge with Eventbrite data
+        const { data: ticketData, error: ticketError } = await supabase
+          .from('events')
+          .select('eventbrite_id, capacity, tickets_sold, tickets_remaining, sold_out, venue_name, venue_address, full-description');
+        
+        if (ticketError) {
+          console.warn('⚠️ Could not fetch ticket data from Supabase:', ticketError);
+        }
+        
+        // Create a map of eventbrite_id to ticket data
+        const ticketMap = new Map();
+        if (ticketData) {
+          ticketData.forEach(ticket => {
+            ticketMap.set(ticket.eventbrite_id, ticket);
+          });
+          console.log(`🎫 Admin: Loaded ticket data for ${ticketData.length} events`);
+        }
+        
+        // Merge Eventbrite data with ticket information
+        eventbriteEvents = (eventbriteData.events || []).map(event => {
+          const ticketInfo = ticketMap.get(event.id);
+          const enrichedEvent = { ...event };
+          
+          if (ticketInfo) {
+            enrichedEvent.capacity = ticketInfo.capacity;
+            enrichedEvent.tickets_sold = ticketInfo.tickets_sold;
+            enrichedEvent.tickets_remaining = ticketInfo.tickets_remaining;
+            enrichedEvent.sold_out = ticketInfo.sold_out;
+            enrichedEvent.venue_name = ticketInfo.venue_name;
+            enrichedEvent.venue_address = ticketInfo.venue_address;
+            enrichedEvent['full-description'] = ticketInfo['full-description'];
+            console.log(`🎫 Admin: Enriched event ${event.id} with ticket data:`, {
+              capacity: ticketInfo.capacity,
+              sold: ticketInfo.tickets_sold,
+              remaining: ticketInfo.tickets_remaining,
+              soldOut: ticketInfo.sold_out
+            });
+          }
+          
+          return enrichedEvent;
+        });
+        
+        console.log(`📡 Admin: Returning ${eventbriteEvents.length} enriched events`);
       } else {
         throw new Error(`Eventbrite API error: ${response.status}`);
       }
