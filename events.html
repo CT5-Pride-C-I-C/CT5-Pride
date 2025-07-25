@@ -10,8 +10,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Main JavaScript -->
-    <script src="js/main.js" defer></script>
 </head>
 <body>
     <!-- Skip to Main Content -->
@@ -280,53 +278,5 @@
     </div>
 
     <script src="js/main.js"></script>
-    
-    <!-- Force accessibility button to work -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('🔧 Events page: Adding backup accessibility handler');
-        
-        setTimeout(function() {
-            const toggle = document.querySelector('.accessibility-toggle');
-            const menu = document.querySelector('.accessibility-menu');
-            
-            if (toggle && menu) {
-                console.log('✅ Found accessibility elements, adding force handler');
-                
-                // Remove any existing event listeners and add our own
-                toggle.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    console.log('🖱️ Force accessibility toggle clicked');
-                    const isOpen = menu.classList.contains('open');
-                    
-                    if (isOpen) {
-                        menu.classList.remove('open');
-                        menu.style.display = 'none';
-                        toggle.setAttribute('aria-expanded', 'false');
-                        console.log('🔒 Closed accessibility menu');
-                    } else {
-                        menu.classList.add('open');
-                        menu.style.display = 'block';
-                        toggle.setAttribute('aria-expanded', 'true');
-                        console.log('🔓 Opened accessibility menu');
-                    }
-                };
-                
-                // Ensure visibility
-                toggle.style.display = 'flex';
-                toggle.style.position = 'fixed';
-                toggle.style.bottom = '20px';
-                toggle.style.right = '20px';
-                toggle.style.zIndex = '10000';
-                
-                console.log('🔧 Applied force visibility styles');
-            } else {
-                console.error('❌ Could not find accessibility elements');
-            }
-        }, 500);
-    });
-    </script>
 </body>
 </html> 
