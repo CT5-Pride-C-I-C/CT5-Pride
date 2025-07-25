@@ -1340,16 +1340,10 @@ async function renderEvents() {
       <main class="admin-content">
         <div class="page-header">
           <h1>Event Management</h1>
-          <p>Automatically sync and manage events from your Eventbrite organization</p>
+          <p>Sync and manage events from Eventbrite</p>
           <div class="page-header-actions">
-            <button class="btn btn-primary" onclick="autoSyncEvents()">
-              <span class="btn-icon">🔄</span>
-              Auto-Sync All Events
-            </button>
-            <button class="btn btn-secondary" onclick="openSyncEventModal()">
-              <span class="btn-icon">➕</span>
-              Manual Sync Event
-            </button>
+            <button class="btn btn-secondary" onclick="autoSyncEvents()">Auto-Sync All Events</button>
+            <button class="btn btn-primary" onclick="openSyncEventModal()">Manual Sync Event</button>
           </div>
         </div>
         <div id="events-content" class="events-container">
@@ -1368,102 +1362,60 @@ async function loadEvents() {
   
   try {
     const response = await apiRequest('/api/events');
-    events = response.events;
+    const allEvents = [
+      ...(response.eventbriteEvents || []),
+      ...(response.localEvents || [])
+    ];
+    events = allEvents;
     
     if (events.length === 0) {
       content.innerHTML = `
         <div class="no-data">
-          <div class="no-data-icon">📅</div>
-          <h3>No events synced yet</h3>
-          <p>Click "Auto-Sync All Events" to automatically import all events from your Eventbrite organization.</p>
-          <button class="btn btn-primary" onclick="autoSyncEvents()">
-            <span class="btn-icon">🔄</span>
-            Auto-Sync All Events
-          </button>
+          <h3>No events found</h3>
+          <p>Use the Auto-Sync button above to sync all events from Eventbrite automatically.</p>
+          <button class="btn btn-primary" onclick="autoSyncEvents()">Auto-Sync All Events</button>
         </div>
       `;
       return;
     }
     
     content.innerHTML = `
-      <div class="events-stats">
-        <div class="stat-item">
-          <span class="stat-number">${events.length}</span>
-          <span class="stat-label">Total Events</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">${events.filter(e => e.status === 'live').length}</span>
-          <span class="stat-label">Live Events</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">${events.filter(e => new Date(e.start_time) > new Date()).length}</span>
-          <span class="stat-label">Upcoming</span>
-        </div>
-      </div>
       <div class="events-grid">
-        ${events.map(event => `
-          <div class="event-card">
+        ${events.map(event => {
+          const isLocal = event.eventbrite_id; // Local synced event has eventbrite_id
+          const eventName = event.title || event.name?.text || event.name || 'Untitled Event';
+          const eventDate = event.start_time || event.start?.utc || event.start_date;
+          const eventLocation = event.venue_name || event.venue?.name || event.location || 'Location TBD';
+          const eventStatus = event.status || 'Unknown';
+          const eventDescription = event.description || (event.description?.text ? event.description.text.substring(0, 200) : 'No description available');
+          
+          return `
+          <div class="event-card ${isLocal ? 'synced-event' : 'eventbrite-event'}">
             <div class="event-header">
-              <h3>${event.title}</h3>
-              <span class="event-status status-${event.status}">${event.status}</span>
+              <h3>${escapeHtml(eventName)}</h3>
+              <span class="event-source ${isLocal ? 'source-local' : 'source-eventbrite'}">${isLocal ? 'Synced' : 'Eventbrite'}</span>
             </div>
             <div class="event-details">
-              <p><strong>Date:</strong> ${formatDate(event.start_time)}</p>
-              <p><strong>Location:</strong> ${event.venue_name || event.venue_address || 'Online'}</p>
-              <p><strong>Eventbrite ID:</strong> ${event.eventbrite_id}</p>
+              <p><strong>Date:</strong> ${formatDate(eventDate)}</p>
+              <p><strong>Location:</strong> ${escapeHtml(eventLocation)}</p>
+              <p><strong>Status:</strong> <span class="status-badge status-${eventStatus.toLowerCase()}">${escapeHtml(eventStatus)}</span></p>
+              ${event.eventbrite_id ? `<p><strong>Event ID:</strong> ${event.eventbrite_id}</p>` : ''}
             </div>
             <div class="event-summary">
-              ${event.description ? event.description.substring(0, 150) + '...' : 'No description available'}
+              ${escapeHtml(eventDescription)}
             </div>
             <div class="event-actions">
               <a href="${event.url}" target="_blank" class="btn btn-sm btn-secondary">View on Eventbrite</a>
-              <button class="btn btn-sm btn-danger" onclick="deleteEvent(${event.id})">Remove</button>
+              ${isLocal ? `<button class="btn btn-sm btn-danger" onclick="deleteEvent(${event.id})">Remove from Local</button>` : ''}
             </div>
           </div>
-        `).join('')}
+        `;
+        }).join('')}
       </div>
     `;
   } catch (err) {
     console.error('Events load error:', err);
     showError(content, err.message);
-  }
-}
-
-async function autoSyncEvents() {
-  const syncBtn = document.querySelector('button[onclick="autoSyncEvents()"]');
-  const originalContent = syncBtn.innerHTML;
-  
-  try {
-    // Show loading state
-    syncBtn.innerHTML = '<span class="btn-spinner"></span> Syncing...';
-    syncBtn.disabled = true;
-    
-    console.log('🔄 Starting auto-sync...');
-    
-    const response = await apiRequest('/api/events/auto-sync', {
-      method: 'POST'
-    });
-    
-    console.log('✅ Auto-sync response:', response);
-    
-    // Show success message with details
-    let message = response.message;
-    if (response.errors && response.errors.length > 0) {
-      message += `\\n\\nSome errors occurred:\\n${response.errors.join('\\n')}`;
-    }
-    
-    showSuccess(message);
-    
-    // Reload events to show the newly synced data
-    await loadEvents();
-    
-  } catch (err) {
-    console.error('Auto-sync error:', err);
-    showError(document.getElementById('events-content'), 'Auto-sync failed: ' + err.message);
-  } finally {
-    // Reset button state
-    syncBtn.innerHTML = originalContent;
-    syncBtn.disabled = false;
   }
 }
 
@@ -1479,7 +1431,7 @@ function openSyncEventModal() {
       <form class="modal-form" onsubmit="handleSyncEvent(event)">
         <div class="form-group">
           <label>Eventbrite Event URL or ID</label>
-          <input type="text" name="eventInput" placeholder="https://www.eventbrite.co.uk/e/event-name-1527430157719" required>
+          <input type="text" name="eventInput" placeholder="https://www.eventbrite.com/e/event-name-123456789" required>
           <small>Enter the full Eventbrite URL or just the event ID</small>
         </div>
         <div class="modal-actions">
@@ -1528,11 +1480,36 @@ async function deleteEvent(eventId) {
   }
 }
 
+async function autoSyncEvents() {
+  const button = event?.target;
+  if (button) {
+    button.disabled = true;
+    button.innerHTML = '<span class="loading-spinner"></span> Syncing...';
+  }
+  
+  try {
+    const response = await apiRequest('/api/events/auto-sync', {
+      method: 'POST'
+    });
+    
+    showSuccess(response.message || 'Events synced successfully!');
+    await loadEvents();
+  } catch (err) {
+    console.error('Auto-sync error:', err);
+    showError(document.getElementById('events-content'), err.message);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.innerHTML = 'Auto-Sync All Events';
+    }
+  }
+}
+
 // Global functions for event management
-window.autoSyncEvents = autoSyncEvents;
 window.openSyncEventModal = openSyncEventModal;
 window.handleSyncEvent = handleSyncEvent;
 window.deleteEvent = deleteEvent;
+window.autoSyncEvents = autoSyncEvents;
 
 // ==================== ANALYTICS VIEW ====================
 

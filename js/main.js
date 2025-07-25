@@ -184,12 +184,12 @@ async function loadEvents() {
             </div>
         `;
         
-        // Try to fetch events from the admin API (no auth required for public view)
+        // Try to fetch events from the admin API
         let response, data;
         let hasNetworkError = false;
         
         try {
-            // Try to fetch public events endpoint (we need to create this)
+            // First try public API endpoint
             response = await fetch('/api/events/public');
             
             if (response.ok) {
@@ -241,38 +241,20 @@ function renderEvents(events) {
     const eventsContainer = document.getElementById('eventsContainer');
     
     const eventsHTML = events.map(event => {
-        // Handle different date formats from auto-sync vs manual sync
         const startDate = new Date(event.start_time || event.start?.utc || event.start_date);
         const endDate = new Date(event.end_time || event.end?.utc || event.end_date);
-        
-        // Handle different location formats
-        let location = '';
-        if (event.venue_name) {
-            location = event.venue_name;
-            if (event.venue_address) {
-                location += `, ${event.venue_address}`;
-            }
-        } else if (event.venue?.name) {
-            location = event.venue.name;
-        } else if (event.location) {
-            location = event.location;
-        }
-        
-        // Handle different title and description formats
-        const title = event.title || event.name?.text || event.name || 'Untitled Event';
-        const description = event.description || event.description?.text || '';
         
         return `
             <div class="event-card">
                 <div class="event-header">
-                    <h3 class="event-title">${escapeHtml(title)}</h3>
+                    <h3 class="event-title">${escapeHtml(event.title || event.name?.text || event.name)}</h3>
                     <div class="event-date">
                         <span class="date-main">${startDate.toLocaleDateString('en-GB', { 
                             weekday: 'short', 
                             day: 'numeric', 
                             month: 'short' 
                         })}</span>
-                        ${endDate && endDate.toDateString() !== startDate.toDateString() ? 
+                        ${endDate.toDateString() !== startDate.toDateString() ? 
                             `<span class="date-range">- ${endDate.toLocaleDateString('en-GB', { 
                                 day: 'numeric', 
                                 month: 'short' 
@@ -282,12 +264,15 @@ function renderEvents(events) {
                 </div>
                 
                 <div class="event-details">
-                    ${location ? `<p class="event-location">📍 ${escapeHtml(location)}</p>` : ''}
-                    ${description ? `<p class="event-description">${escapeHtml(description.substring(0, 150))}${description.length > 150 ? '...' : ''}</p>` : ''}
+                    ${event.venue_name ? `<p class="event-location">📍 ${escapeHtml(event.venue_name)}</p>` : 
+                      event.venue?.name ? `<p class="event-location">📍 ${escapeHtml(event.venue.name)}</p>` : 
+                      event.location ? `<p class="event-location">📍 ${escapeHtml(event.location)}</p>` : ''}
+                    ${event.description ? `<p class="event-description">${escapeHtml(event.description.substring(0, 150))}${event.description.length > 150 ? '...' : ''}</p>` : 
+                      event.description?.text ? `<p class="event-description">${escapeHtml(event.description.text.substring(0, 150))}${event.description.text.length > 150 ? '...' : ''}</p>` : ''}
                 </div>
                 
                 <div class="event-actions">
-                    ${event.url ? `<a href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer" class="btn">View Event</a>` : ''}
+                    ${event.url ? `<a href="${escapeHtml(event.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Get Tickets</a>` : ''}
                     ${event.status ? `<span class="event-status status-${event.status.toLowerCase()}">${escapeHtml(event.status)}</span>` : ''}
                 </div>
             </div>
@@ -440,7 +425,6 @@ function applyTheme(theme) {
         bisexual: '#d60270',
         pansexual: '#ff218c',
         asexual: '#800080',
-        bear: '#654321',
         default: '#e91e63'
     };
     
@@ -476,7 +460,6 @@ function addThemeCelebrationEffect(theme) {
         bisexual: ['#d60270', '#9b59b6', '#0038a8'],
         pansexual: ['#ff218c', '#ffd800', '#21b1ff'],
         asexual: ['#000000', '#a3a3a3', '#ffffff', '#800080'],
-        bear: ['#654321', '#d2691e', '#ffdd44', '#ffeaa7', '#ffffff', '#666666', '#000000'],
         default: ['#e91e63', '#2196f3', '#e91e63']
     };
     
@@ -550,8 +533,7 @@ function announceThemeChange(theme) {
         gay: 'Gay Pride',
         bisexual: 'Bisexual Pride',
         pansexual: 'Pansexual Pride',
-        asexual: 'Asexual Pride',
-        bear: 'Bear Pride'
+        asexual: 'Asexual Pride'
     };
     
     const themeDescriptions = {
@@ -564,8 +546,7 @@ function announceThemeChange(theme) {
         gay: 'Gay pride colors in teal, green, and blue tones',
         bisexual: 'Bisexual pride colors in pink, purple, and blue',
         pansexual: 'Pansexual pride colors in pink, yellow, and blue',
-        asexual: 'Asexual pride colors in black, gray, white, and purple',
-        bear: 'Bear pride colors in brown, orange, yellow, beige, white, gray, and black representing the bear community'
+        asexual: 'Asexual pride colors in black, gray, white, and purple'
     };
     
     announcement.textContent = `${themeNames[theme]} theme temporarily activated. ${themeDescriptions[theme]}. Footer, header, and website elements updated with new color scheme. Theme will reset on page refresh.`;

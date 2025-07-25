@@ -723,70 +723,10 @@ app.get('/api/cv/:filename', requireSupabaseAuth, async (req, res) => {
 
 // ==================== EVENTS API (EVENTBRITE INTEGRATION) ====================
 
-// Get events from Eventbrite and local database
+// Get events from Eventbrite
 app.get('/api/events', requireSupabaseAuth, async (req, res) => {
   try {
-    // Get synced events from local database
-    const { data: localEvents, error } = await supabase
-      .from('events')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Local events fetch error:', error);
-      return res.status(500).json({ success: false, message: 'Failed to fetch local events' });
-    }
-
-    res.json({ 
-      success: true, 
-      events: localEvents || [] 
-    });
-  } catch (err) {
-    console.error('Get events error:', err);
-    res.status(500).json({ success: false, message: 'Failed to fetch events' });
-  }
-});
-
-// Public events endpoint (no auth required)
-app.get('/api/events/public', async (req, res) => {
-  try {
-    // Get synced events from local database for public display
-    const { data: events, error } = await supabase
-      .from('events')
-      .select('*')
-      .eq('status', 'live') // Only show live events to public
-      .gte('end_time', new Date().toISOString()) // Only show future/current events
-      .order('start_time', { ascending: true });
-
-    if (error) {
-      console.error('Public events fetch error:', error);
-      return res.status(500).json({ success: false, message: 'Failed to fetch events' });
-    }
-
-    res.json({ 
-      success: true, 
-      events: events || [] 
-    });
-  } catch (err) {
-    console.error('Public events error:', err);
-    res.status(500).json({ success: false, message: 'Failed to fetch events' });
-  }
-});
-
-// Auto-sync all events from Eventbrite
-app.post('/api/events/auto-sync', requireSupabaseAuth, async (req, res) => {
-  try {
-    console.log('🔄 Starting automatic Eventbrite sync...');
-    
-    if (!config.EVENTBRITE_PRIVATE_TOKEN) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Eventbrite API token not configured' 
-      });
-    }
-
-    // Fetch all events from Eventbrite organization
-    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/me/events/?status=all&order_by=start_asc`, {
+    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/`, {
       headers: {
         'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
         'Content-Type': 'application/json'
@@ -794,102 +734,29 @@ app.post('/api/events/auto-sync', requireSupabaseAuth, async (req, res) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Eventbrite API error:', response.status, errorText);
-      return res.status(400).json({ 
-        success: false, 
-        message: `Eventbrite API error: ${response.status}. Check your API token.` 
-      });
+      throw new Error(`Eventbrite API error: ${response.status}`);
     }
 
     const eventbriteData = await response.json();
-    const eventbriteEvents = eventbriteData.events || [];
     
-    console.log(`📅 Found ${eventbriteEvents.length} events on Eventbrite`);
-
-    if (eventbriteEvents.length === 0) {
-      return res.json({ 
-        success: true, 
-        message: 'No events found on Eventbrite',
-        synced: 0,
-        skipped: 0
-      });
-    }
-
-    // Get existing events from local database to avoid duplicates
-    const { data: existingEvents } = await supabase
+    // Also get synced events from Supabase
+    const { data: localEvents, error } = await supabase
       .from('events')
-      .select('eventbrite_id');
+      .select('*')
+      .order('created_at', { ascending: false });
 
-    const existingEventbriteIds = new Set(
-      existingEvents?.map(event => event.eventbrite_id) || []
-    );
-
-    let syncedCount = 0;
-    let skippedCount = 0;
-    const syncErrors = [];
-
-    // Process each Eventbrite event
-    for (const event of eventbriteEvents) {
-      try {
-        const eventbriteId = event.id;
-        
-        // Skip if already synced
-        if (existingEventbriteIds.has(eventbriteId)) {
-          console.log(`⏭️  Skipping ${event.name?.text} (already synced)`);
-          skippedCount++;
-          continue;
-        }
-
-        // Prepare event data for local storage
-        const eventData = {
-          eventbrite_id: eventbriteId,
-          title: event.name?.text || 'Untitled Event',
-          description: event.description?.text || null,
-          start_time: event.start?.utc || null,
-          end_time: event.end?.utc || null,
-          url: event.url || null,
-          status: event.status || 'live',
-          venue_name: event.venue?.name || null,
-          venue_address: event.venue?.address?.localized_address_display || null,
-          synced_at: new Date().toISOString()
-        };
-
-        // Insert into local database
-        const { error: insertError } = await supabase
-          .from('events')
-          .insert([eventData]);
-
-        if (insertError) {
-          console.error(`❌ Failed to sync ${event.name?.text}:`, insertError);
-          syncErrors.push(`${event.name?.text}: ${insertError.message}`);
-        } else {
-          console.log(`✅ Synced: ${event.name?.text}`);
-          syncedCount++;
-        }
-
-      } catch (eventError) {
-        console.error(`❌ Error processing event ${event.id}:`, eventError);
-        syncErrors.push(`Event ${event.id}: ${eventError.message}`);
-      }
+    if (error) {
+      console.error('Local events fetch error:', error);
     }
-
-    console.log(`🎉 Auto-sync complete: ${syncedCount} synced, ${skippedCount} skipped`);
 
     res.json({ 
       success: true, 
-      message: `Sync complete: ${syncedCount} events synced, ${skippedCount} already existed`,
-      synced: syncedCount,
-      skipped: skippedCount,
-      errors: syncErrors.length > 0 ? syncErrors : undefined
+      eventbriteEvents: eventbriteData.events || [],
+      localEvents: localEvents || [] 
     });
-
   } catch (err) {
-    console.error('Auto-sync error:', err);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Auto-sync failed: ' + err.message 
-    });
+    console.error('Get events error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch events' });
   }
 });
 
@@ -954,6 +821,99 @@ app.post('/api/events/sync', requireSupabaseAuth, async (req, res) => {
   } catch (err) {
     console.error('Sync event error:', err);
     res.status(500).json({ success: false, message: 'Failed to sync event' });
+  }
+});
+
+// Auto-sync all events from Eventbrite
+app.post('/api/events/auto-sync', requireSupabaseAuth, async (req, res) => {
+  try {
+    if (!config.EVENTBRITE_PRIVATE_TOKEN) {
+      return res.status(400).json({ success: false, message: 'Eventbrite API token not configured' });
+    }
+
+    // Fetch all events from Eventbrite organization
+    const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc`, {
+      headers: {
+        'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      return res.status(400).json({ success: false, message: `Eventbrite API error: ${response.status}. Check your API token.` });
+    }
+
+    const eventbriteData = await response.json();
+    const events = eventbriteData.events || [];
+
+    if (events.length === 0) {
+      return res.json({ success: true, message: 'No events found on Eventbrite', syncedCount: 0 });
+    }
+
+    // Get existing events from Supabase to avoid duplicates
+    const { data: existingEvents } = await supabase
+      .from('events')
+      .select('eventbrite_id');
+
+    const existingIds = new Set((existingEvents || []).map(e => e.eventbrite_id));
+    let syncedCount = 0;
+
+    // Sync new events
+    for (const event of events) {
+      if (!existingIds.has(event.id)) {
+        const { error } = await supabase
+          .from('events')
+          .insert([{
+            eventbrite_id: event.id,
+            title: event.name.text,
+            description: event.description?.text || '',
+            start_time: event.start.utc,
+            end_time: event.end.utc,
+            url: event.url,
+            status: event.status,
+            venue_name: event.venue?.name || null,
+            venue_address: event.venue?.address?.localized_address_display || null,
+            synced_at: new Date().toISOString()
+          }]);
+
+        if (!error) {
+          syncedCount++;
+        }
+      }
+    }
+
+    res.json({ 
+      success: true, 
+      message: `Auto-sync completed. ${syncedCount} new events synced.`,
+      totalEvents: events.length,
+      syncedCount 
+    });
+
+  } catch (err) {
+    console.error('Auto-sync error:', err);
+    res.status(500).json({ success: false, message: 'Auto-sync failed: ' + err.message });
+  }
+});
+
+// Public events endpoint (no auth required)
+app.get('/api/events/public', async (req, res) => {
+  try {
+    const { data: events, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('status', 'live')
+      .gte('start_time', new Date().toISOString())
+      .order('start_time', { ascending: true });
+
+    if (error) {
+      console.error('Public events fetch error:', error);
+      return res.status(500).json({ success: false, message: 'Failed to fetch events' });
+    }
+
+    res.json({ success: true, events: events || [] });
+  } catch (err) {
+    console.error('Public events error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
