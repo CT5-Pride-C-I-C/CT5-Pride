@@ -2411,9 +2411,9 @@ footer::after {
 
 .flags-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: var(--spacing-xs);
-  max-width: 280px;
+  max-width: 330px;
   margin: 0 auto;
 }
 
@@ -2667,6 +2667,19 @@ footer::after {
     );
 }
 
+/* Bear Flag */
+.bear-flag {
+    background: linear-gradient(to bottom,
+        #623311 0%, #623311 14.28%,
+        #D2611C 14.28%, #D2611C 28.57%,
+        #FDD951 28.57%, #FDD951 42.86%,
+        #FFF2A1 42.86%, #FFF2A1 57.14%,
+        #ffffff 57.14%, #ffffff 71.43%,
+        #9A9A9A 71.43%, #9A9A9A 85.71%,
+        #000000 85.71%, #000000 100%
+    );
+}
+
 /* ==================== THEME SWITCHING FUNCTIONALITY ==================== */
 
 /* Theme override styles - applied to body when theme is active */
@@ -2760,6 +2773,16 @@ body.theme-asexual {
     --background: #ffffff;
 }
 
+body.theme-bear {
+    --primary: #623311;
+    --secondary: #D2611C;
+    --accent: #FDD951;
+    --vibrant-pink: #D2611C;
+    --text: #2c2c2c;
+    --text-light: #4a4a4a;
+    --background: #ffffff;
+}
+
 /* ==================== ENHANCED THEME VISUAL EFFECTS ==================== */
 
 /* Footer theme gradients with dark overlay for better text contrast */
@@ -2838,6 +2861,19 @@ body.theme-asexual footer {
         linear-gradient(135deg,
             #000000 0%, #a3a3a3 25%, 
             #ffffff 50%, #800080 100%) !important;
+}
+
+body.theme-bear footer {
+    background: 
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        linear-gradient(135deg,
+            #623311 0%, #623311 14.28%,
+            #D2611C 14.28%, #D2611C 28.57%,
+            #FDD951 28.57%, #FDD951 42.86%,
+            #FFF2A1 42.86%, #FFF2A1 57.14%,
+            #ffffff 57.14%, #ffffff 71.43%,
+            #9A9A9A 71.43%, #9A9A9A 85.71%,
+            #000000 85.71%, #000000 100%) !important;
 }
 
 /* Header theme effects */
@@ -2995,7 +3031,8 @@ body.theme-rainbow .social-links a,
 body.theme-progress .social-links a,
 body.theme-gay .social-links a,
 body.theme-lesbian .social-links a,
-body.theme-bisexual .social-links a {
+body.theme-bisexual .social-links a,
+body.theme-bear .social-links a {
     color: white !important;
 }
 
@@ -3058,6 +3095,13 @@ body.theme-pansexual .social-links a {
 body.theme-asexual .social-links a {
     background: linear-gradient(135deg, #000000, #a3a3a3) !important;
     border-color: #800080 !important;
+    color: white !important;
+}
+
+/* Bear Theme */
+body.theme-bear .social-links a {
+    background: linear-gradient(135deg, #623311, #D2611C) !important;
+    border-color: #FDD951 !important;
     color: white !important;
 }
 

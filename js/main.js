@@ -727,6 +727,7 @@ function applyTheme(theme) {
         bisexual: '#d60270',
         pansexual: '#ff218c',
         asexual: '#800080',
+        bear: '#623311',
         default: '#e91e63'
     };
     
