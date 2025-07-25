@@ -1029,19 +1029,22 @@ let publicEventsCache = {
 // Public events endpoint - optimized for speed
 app.get('/api/events/public', async (req, res) => {
   try {
-    // Check cache first
-    const now = Date.now();
-    if (publicEventsCache.data && (now - publicEventsCache.timestamp) < CACHE_DURATION) {
-      console.log(`⚡ Returning cached public events (${publicEventsCache.data.length} events)`);
-      return res.json({ success: true, events: publicEventsCache.data, cached: true });
-    }
+    // Temporarily bypass cache for debugging
+    // const now = Date.now();
+    // if (publicEventsCache.data && (now - publicEventsCache.timestamp) < CACHE_DURATION) {
+    //   console.log(`⚡ Returning cached public events (${publicEventsCache.data.length} events)`);
+    //   return res.json({ success: true, events: publicEventsCache.data, cached: true });
+    // }
+
+    console.log('🔍 Fetching fresh data from Eventbrite...');
 
     // Try Eventbrite first with timeout
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout for public
 
-      const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=live&order_by=start_asc`, {
+      // Fetch ALL events for debugging (not just live)
+      const response = await fetch(`https://www.eventbriteapi.com/v3/organizations/2840348402211/events/?status=all&order_by=start_asc`, {
         headers: {
           'Authorization': `Bearer ${config.EVENTBRITE_PRIVATE_TOKEN}`,
           'Content-Type': 'application/json'
@@ -1055,27 +1058,27 @@ app.get('/api/events/public', async (req, res) => {
         const eventbriteData = await response.json();
         
         console.log(`🔍 Debug: Found ${eventbriteData.events?.length || 0} events from Eventbrite`);
+        console.log(`🔍 Debug: Event details:`, eventbriteData.events?.map(e => ({ name: e.name?.text, start: e.start?.utc, status: e.status })));
         
-        // Filter for future events only
-        const now = new Date().toISOString();
-        console.log(`🔍 Debug: Current time: ${now}`);
+        // TEMPORARILY RETURN ALL EVENTS FOR DEBUGGING
+        const allEvents = eventbriteData.events || [];
         
-        const futureEvents = (eventbriteData.events || []).filter(event => {
-          const eventStart = event.start?.utc;
-          const isFuture = eventStart && eventStart > now;
-          console.log(`🔍 Event: ${event.name?.text}, Start: ${eventStart}, Future: ${isFuture}`);
-          return isFuture;
-        });
-
-        console.log(`🔍 Debug: ${futureEvents.length} future events found`);
-
         // Update cache
         publicEventsCache = {
-          data: futureEvents,
+          data: allEvents,
           timestamp: Date.now()
         };
 
-        return res.json({ success: true, events: futureEvents, cached: false });
+        return res.json({ 
+          success: true, 
+          events: allEvents, 
+          cached: false, 
+          debug: { 
+            total: eventbriteData.events?.length, 
+            returned: allEvents.length,
+            currentTime: new Date().toISOString()
+          } 
+        });
       } else {
         throw new Error(`Eventbrite API error: ${response.status}`);
       }
