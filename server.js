@@ -742,6 +742,7 @@ async function extractEventDescription(eventData, enableScraping = true) {
         
         // Extract description from event-description__content classes
         const descriptionPatterns = [
+          /<div[^>]*class="[^"]*event-details__main-inner[^"]*"[^>]*>(.*?)<\/div>/is,
           /<div[^>]*class="[^"]*event-description__content--expanded[^"]*"[^>]*>(.*?)<\/div>/is,
           /<div[^>]*class="[^"]*event-description__content[^"]*"[^>]*>(.*?)<\/div>/is,
           /<div[^>]*class="[^"]*has-user-generated-content[^"]*"[^>]*>(.*?)<\/div>/is
@@ -753,9 +754,14 @@ async function extractEventDescription(eventData, enableScraping = true) {
             const fullDescription = match[1]
               .replace(/<br\s*\/?>/gi, '\n')
               .replace(/<\/p>/gi, '\n\n')
+              .replace(/<\/div>/gi, '\n')
+              .replace(/<\/h[1-6]>/gi, '\n\n')
+              .replace(/<li>/gi, '• ')
+              .replace(/<\/li>/gi, '\n')
               .replace(/<[^>]*>/g, '')
               .replace(/\s+/g, ' ')
               .replace(/\n\s+/g, '\n')
+              .replace(/\n{3,}/g, '\n\n')
               .trim();
             
             if (fullDescription && fullDescription.length > description.length) {

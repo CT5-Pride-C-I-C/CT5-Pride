@@ -399,40 +399,9 @@ function renderEvents(events) {
                 ${eventLocation ? `<p class="event-location">📍 ${escapeHtml(eventLocation)}</p>` : ''}
                 ${venueAddress ? `<p class="event-address">🏠 ${escapeHtml(venueAddress)}</p>` : ''}
                 
-                <div class="event-timing-details">
-                    <h4>📅 Event Details</h4>
-                    <div class="timing-grid">
-                        <div class="timing-item">
-                            <span class="timing-label">Date:</span>
-                            <span class="timing-value">${startDate.toLocaleDateString('en-GB', { 
-                                weekday: 'long', 
-                                day: 'numeric', 
-                                month: 'long',
-                                year: 'numeric' 
-                            })}</span>
-                        </div>
-                        <div class="timing-item">
-                            <span class="timing-label">Start:</span>
-                            <span class="timing-value">${timeStr}</span>
-                        </div>
-                        ${!isSameTime ? `
-                            <div class="timing-item">
-                                <span class="timing-label">End:</span>
-                                <span class="timing-value">${endTimeStr}</span>
-                            </div>
-                        ` : ''}
-                        ${event.status ? `
-                            <div class="timing-item">
-                                <span class="timing-label">Status:</span>
-                                <span class="timing-value timing-status">${escapeHtml(event.status)}</span>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-                
                 ${eventDescription ? `<div class="event-description">
                     <h4>About this event</h4>
-                    <div class="event-description-content">${escapeHtml(eventDescription)}</div>
+                    <div class="event-description-content">${escapeHtml(eventDescription).replace(/\n/g, '<br>')}</div>
                 </div>` : ''}
                 
                 ${!eventLocation && !venueAddress ? `
@@ -800,4 +769,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Make functions available globally
 window.loadEvents = loadEvents;
-window.switchTheme = switchTheme; 
+window.switchTheme = switchTheme;
