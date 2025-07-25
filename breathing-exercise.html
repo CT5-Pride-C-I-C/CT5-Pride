@@ -61,7 +61,14 @@
                                 <li role="none"><a href="contact.html" role="menuitem">Contact Us</a></li>
                             </ul>
                         </li>
-                        <li><a href="help-support.html">Help & Support</a></li>
+                        <li class="dropdown">
+                            <a href="#" aria-haspopup="true" aria-expanded="false">Support & Education</a>
+                            <ul class="dropdown-content" role="menu">
+                                <li role="none"><a href="help-support.html" role="menuitem">Help & Support</a></li>
+                                <li role="none"><a href="pride-quiz.html" role="menuitem">Pride Knowledge Quiz</a></li>
+                                <li role="none"><a href="breathing-exercise.html" role="menuitem" aria-current="page">Mindful Breathing Exercise</a></li>
+                            </ul>
+                        </li>
                         <li class="donate-button">
                             <a href="https://www.justgiving.com/crowdfunding/ct5pride" target="_blank" rel="noopener noreferrer" class="donate-link">
                                 💝 Donate
@@ -74,18 +81,27 @@
     </header>
 
     <main id="main-content">
-        <!-- Hero Section -->
-        <section class="hero-section breathing-hero">
-            <div class="container">
-                <div class="hero-content">
-                    <h1>Anxiety Support: Mindful Breathing Exercise</h1>
-                    <p class="hero-subtitle">Feeling anxious or overwhelmed? You're not alone. Take a few minutes to follow this guided breathing exercise designed to reduce stress and bring calmness.</p>
+        <!-- Enhanced Breathing Exercise Hero Section -->
+        <section class="hero decorative-shapes" style="background: var(--cosmic-gradient); padding: 4rem 0; position: relative;">
+            <!-- IDEOGRAM GRAPHIC ACTIVE: Breathing Tool background -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('Images/Breathing-tool.svg') center/cover no-repeat; opacity: 0.2; z-index: 1;"></div>
+            <div class="container" style="position: relative; z-index: 2;">
+                <div style="text-align: center; color: white; max-width: 800px; margin: 0 auto;">
+                    <h1 style="font-size: 3.5rem; margin-bottom: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                        🧘‍♀️ Mindful Breathing Exercise
+                    </h1>
+                    <p style="font-size: 1.4rem; line-height: 1.8; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                        Feeling anxious or overwhelmed? You're not alone. Take a few minutes to follow this guided breathing exercise designed to reduce stress and bring calmness.
+                    </p>
                 </div>
             </div>
         </section>
 
+        <!-- Vibrant Section Divider -->
+        <div class="section-divider" role="separator" aria-hidden="true"></div>
+
         <!-- Breathing Exercise Section -->
-        <section class="breathing-section">
+        <section class="decorative-shapes" style="background: var(--pastel-gradient); padding: 4rem 0;">
             <div class="container">
                 <div class="breathing-container">
                     <!-- Exercise Selection -->
@@ -158,8 +174,11 @@
             </div>
         </section>
 
+        <!-- Vibrant Section Divider -->
+        <div class="section-divider" role="separator" aria-hidden="true"></div>
+
         <!-- Supporting Message -->
-        <section class="support-message breathing-support">
+        <section class="decorative-shapes" style="background: var(--soft-rainbow-bg); padding: 4rem 0;">
             <div class="container">
                 <div class="message-content">
                     <h2>Remember</h2>
@@ -179,8 +198,11 @@
             </div>
         </section>
 
+        <!-- Vibrant Section Divider -->
+        <div class="section-divider" role="separator" aria-hidden="true"></div>
+
         <!-- Additional Resources -->
-        <section class="additional-resources">
+        <section class="decorative-shapes" style="background: var(--pastel-gradient); padding: 4rem 0;">
             <div class="container">
                 <h2>More Ways to Support Your Wellbeing</h2>
                 <div class="resources-grid">

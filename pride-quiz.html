@@ -61,7 +61,14 @@
                                 <li role="none"><a href="contact.html" role="menuitem">Contact Us</a></li>
                             </ul>
                         </li>
-                        <li><a href="help-support.html">Help & Support</a></li>
+                        <li class="dropdown">
+                            <a href="#" aria-haspopup="true" aria-expanded="false">Support & Education</a>
+                            <ul class="dropdown-content" role="menu">
+                                <li role="none"><a href="help-support.html" role="menuitem">Help & Support</a></li>
+                                <li role="none"><a href="pride-quiz.html" role="menuitem" aria-current="page">Pride Knowledge Quiz</a></li>
+                                <li role="none"><a href="breathing-exercise.html" role="menuitem">Mindful Breathing Exercise</a></li>
+                            </ul>
+                        </li>
                         <li class="donate-button">
                             <a href="https://www.justgiving.com/crowdfunding/ct5pride" target="_blank" rel="noopener noreferrer" class="donate-link">
                                 💝 Donate
@@ -74,18 +81,27 @@
     </header>
 
     <main id="main-content">
-        <!-- Hero Section -->
-        <section class="hero-section quiz-hero">
-            <div class="container">
-                <div class="hero-content">
-                    <h1>Pride Knowledge Quiz</h1>
-                    <p class="hero-subtitle">Test your knowledge about LGBTQIA+ history, achievements, culture, and more. Whether you ace it or learn something new, celebrate your Pride knowledge!</p>
+        <!-- Enhanced Pride Quiz Hero Section -->
+        <section class="hero decorative-shapes" style="background: var(--cosmic-gradient); padding: 4rem 0; position: relative;">
+            <!-- IDEOGRAM GRAPHIC ACTIVE: Education background -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('Images/community_pattern.svg') center/cover no-repeat; opacity: 0.2; z-index: 1;"></div>
+            <div class="container" style="position: relative; z-index: 2;">
+                <div style="text-align: center; color: white; max-width: 800px; margin: 0 auto;">
+                    <h1 style="font-size: 3.5rem; margin-bottom: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                        🏳️‍🌈 Pride Knowledge Quiz
+                    </h1>
+                    <p style="font-size: 1.4rem; line-height: 1.8; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                        Test your knowledge about LGBTQIA+ history, achievements, culture, and more. Whether you ace it or learn something new, celebrate your Pride knowledge!
+                    </p>
                 </div>
             </div>
         </section>
 
+        <!-- Vibrant Section Divider -->
+        <div class="section-divider" role="separator" aria-hidden="true"></div>
+
         <!-- Quiz Container -->
-        <section class="quiz-section">
+        <section class="decorative-shapes" style="background: var(--pastel-gradient); padding: 4rem 0;">
             <div class="container">
                 <div class="quiz-container">
                     <!-- Quiz Progress -->
@@ -128,8 +144,11 @@
             </div>
         </section>
 
+        <!-- Vibrant Section Divider -->
+        <div class="section-divider" role="separator" aria-hidden="true"></div>
+
         <!-- Learning Resources -->
-        <section class="learning-resources">
+        <section class="decorative-shapes" style="background: var(--soft-rainbow-bg); padding: 4rem 0;">
             <div class="container">
                 <h2>Want to Learn More?</h2>
                 <p>Check out these resources to expand your LGBTQIA+ knowledge:</p>
