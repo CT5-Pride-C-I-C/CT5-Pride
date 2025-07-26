@@ -331,6 +331,114 @@ const lgbtqTerms = [
         category: "general",
         definition: "HIV medication (antiretroviral treatment, or ART) works by reducing the amount of the virus in the blood to undetectable levels. This means the levels of HIV are so low that the virus cannot be passed on.",
         example: "This is called having an undetectable viral load or being undetectable."
+    },
+    {
+        term: "Polyamorous",
+        category: "sexual-orientation",
+        definition: "Also known as Poly, refers to the practice or desire to have multiple romantic relationships simultaneously, with the informed consent and knowledge of all partners involved. It's a form of consensual non-monogamy where emotional and romantic intimacy can be shared with multiple people. Polyamory is distinct from other forms of non-monogamy, like open relationships or swinging, because it emphasizes emotional connections and often involves multiple partners who are aware of and agree to the arrangement.",
+        example: "A polyamorous person might have multiple committed romantic relationships with different people, all of whom are aware of and consent to the arrangement."
+    },
+    {
+        term: "Gay Polyamorous",
+        category: "sexual-orientation",
+        definition: "Also known as gay poly or poly gay, refers to individuals who identify as both gay (or homosexual) and polyamorous. This means they are attracted to people of the same gender and also have a philosophy or practice of engaging in romantic or sexual relationships with multiple partners, with the consent of all involved.",
+        example: "A gay polyamorous person might be a man attracted to other men who also practices polyamory, having multiple romantic relationships with other men simultaneously."
+    },
+    {
+        term: "Bears",
+        category: "community-tribes",
+        definition: "30+, broad/heavier build (drinks beer), usually hairy, often with facial hair. Likely habitats: RVT",
+        example: "Bears are often characterized by their larger, more masculine appearance and are a well-established community within LGBTQ+ culture."
+    },
+    {
+        term: "Cubs",
+        category: "community-tribes",
+        definition: "Late 20s-30s, younger bears, usually hairy, often with facial hair. Likely habitats: RVT, Brüt, Eagle",
+        example: "Cubs are essentially younger versions of bears, often in their late twenties to thirties with similar physical characteristics."
+    },
+    {
+        term: "Chubs",
+        category: "community-tribes",
+        definition: "Heavier to overweight, often less hairy or none, or a hairless bear",
+        example: "Chubs are characterized by their larger body size and may have less body hair compared to traditional bears."
+    },
+    {
+        term: "Drag Queens",
+        category: "community-tribes",
+        definition: "Big buxom or svelte, smooth as a baby's, very possibly waxed, facial hair no longer a barrier. Likely habitats: Halfway to Heaven, Molly Moggs, Two Brewers, and on stages everywhere",
+        example: "Drag queens are performers who dress in feminine clothing and makeup for entertainment, often performing in clubs and venues."
+    },
+    {
+        term: "Circuit Gays",
+        category: "community-tribes",
+        definition: "Also known as Gym bunnies: Late 20s-30s, athletic to muscular build, less likely to be hairy, possibly waxed. Likely habitats: Fire, RVT, Ministry of Sound",
+        example: "Circuit gays are often associated with the party circuit scene and typically maintain a fit, athletic appearance."
+    },
+    {
+        term: "Jocks",
+        category: "community-tribes",
+        definition: "Late 20s-30s, muscular build and gym obsessed, less likely to be hairy, possibly waxed. Likely habitats: Fire, RVT, Ministry of Sound",
+        example: "Jocks are characterized by their athletic, muscular physique and dedication to fitness and gym culture."
+    },
+    {
+        term: "Muscle Bears",
+        category: "community-tribes",
+        definition: "30+, broad/heavier build (drinks protein shakes), usually hairy, may be trimmed or sculpted to reflect their body shape, often with facial hair. Likely habitats: RVT, Brüt, Eagle",
+        example: "Muscle bears combine the larger build of traditional bears with a more muscular, fitness-focused physique."
+    },
+    {
+        term: "Otters",
+        category: "community-tribes",
+        definition: "Late 20s to 30s, leaner, usually hairy, often with facial hair. Skinny bears. Likely habitats: RVT, Duke of Wellington",
+        example: "Otters are essentially leaner versions of bears, maintaining the hairiness but with a slimmer build."
+    },
+    {
+        term: "Pups",
+        category: "community-tribes",
+        definition: "Late 20s-30s, lean to muscular, can be hairy, puppy genre on the fetish scene becoming increasingly popular. Likely habitats: RVT, Brüt, Eagle",
+        example: "Pups are part of a growing subculture that incorporates elements of puppy play into their identity and social interactions."
+    },
+    {
+        term: "Spunk Monkey",
+        category: "community-tribes",
+        definition: "Late 30s. Laid back but easily excited around men. Into long bouts of energetic, bouncy 'Tiggerish' sex. Likely habitats: Camberwell",
+        example: "This term describes a specific personality type within the community, characterized by high energy and enthusiasm."
+    },
+    {
+        term: "Twinks",
+        category: "community-tribes",
+        definition: "Late teens-early 20s, boyish features, thinner to slim build, usually smooth, may have highlights. Likely habitats: GAY, QBar, Heaven",
+        example: "Twinks are typically young men with a slim, boyish appearance and smooth skin."
+    },
+    {
+        term: "Twunks",
+        category: "community-tribes",
+        definition: "Older twinks, not quite jocks, easily confused. Late teens-early 20s, boyish features, thinner to slim build, usually smooth, may have highlights. Likely habitats: GAY, Heaven",
+        example: "Twunks are essentially older twinks who maintain their boyish features but may have slightly more muscle definition."
+    },
+    {
+        term: "Twas",
+        category: "community-tribes",
+        definition: "Former twinks and Twunks",
+        example: "Twas refers to those who were once identified as twinks or twunks but have aged out of those categories."
+    },
+    {
+        term: "Boy (Boi)",
+        category: "community-tribes",
+        definition: "Huge in the 1990s, a young gay man with bleach blond hair often wearing a boy T-shirt and cap. As sexy-tragic then as it is now, there are rumblings the word is being reclaimed and re-imagined by today's queer community.",
+        example: "The 'boy' aesthetic was particularly popular in the 1990s and is seeing a resurgence in contemporary queer culture."
+    },
+    {
+        term: "Wolves",
+        category: "community-tribes",
+        definition: "Late 30s to 40s, lean to semi-muscular, usually hairy, often with facial hair. Likely habitats: RVT, Brüt",
+        example: "Wolves are typically older men with a lean to muscular build and natural body hair."
+    },
+    {
+        term: "Everyone Else",
+        category: "community-tribes",
+        definition: "And everyone else",
+        example: "This category acknowledges that not everyone fits into specific tribal categories and celebrates the diversity of the community."
     }
 ];
 
@@ -495,6 +603,7 @@ function getCategoryLabel(category) {
         'sexual-orientation': 'Sexual Orientation',
         'gender-identity': 'Gender Identity',
         'romantic-orientation': 'Romantic Orientation',
+        'community-tribes': 'Community Tribes',
         'general': 'General Terms'
     };
     return labels[category] || category;

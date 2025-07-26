@@ -54,7 +54,7 @@
             align-items: center;
             margin-bottom: 2rem;
             background: white;
-            border: 2px solid var(--gray-200);
+            border: 2px solid var(--border);
             border-radius: 16px;
             padding: 0.5rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
@@ -62,12 +62,12 @@
         }
         
         .search-box:focus-within {
-            border-color: var(--primary-pink);
+            border-color: var(--primary);
             box-shadow: 0 4px 20px rgba(233, 30, 99, 0.15);
         }
         
         .search-icon {
-            color: var(--gray-500);
+            color: var(--text-light);
             margin-left: 0.75rem;
             margin-right: 0.5rem;
         }
@@ -78,7 +78,7 @@
             border: none;
             background: transparent;
             font-size: 1rem;
-            color: var(--gray-800);
+            color: var(--text);
         }
         
         .search-input:focus {
@@ -86,13 +86,13 @@
         }
         
         .search-input::placeholder {
-            color: var(--gray-500);
+            color: var(--text-light);
         }
         
         .clear-search {
             background: none;
             border: none;
-            color: var(--gray-400);
+            color: var(--text-light);
             cursor: pointer;
             padding: 0.5rem;
             border-radius: 50%;
@@ -101,8 +101,8 @@
         }
         
         .clear-search:hover {
-            background: var(--gray-100);
-            color: var(--gray-600);
+            background: var(--gray);
+            color: var(--text);
         }
         
         .filter-buttons {
@@ -118,9 +118,9 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.75rem 1.25rem;
-            border: 2px solid var(--gray-200);
+            border: 2px solid var(--border);
             background: white;
-            color: var(--gray-700);
+            color: var(--text);
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -132,13 +132,13 @@
         .filter-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-color: var(--primary-pink);
+            border-color: var(--primary);
         }
         
         .filter-btn.active {
-            background: var(--primary-pink);
+            background: var(--primary);
             color: white;
-            border-color: var(--primary-pink);
+            border-color: var(--primary);
             box-shadow: 0 4px 16px rgba(233, 30, 99, 0.3);
         }
         
@@ -157,7 +157,7 @@
             padding: 1.5rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
-            border-left: 4px solid var(--primary-pink);
+            border-left: 4px solid var(--primary);
             cursor: pointer;
         }
         
@@ -180,14 +180,14 @@
         .term-title {
             font-size: 1.3rem;
             font-weight: 600;
-            color: var(--gray-800);
+            color: var(--text);
             margin: 0;
             flex: 1;
             margin-right: 1rem;
         }
         
         .term-category {
-            background: var(--primary-pink);
+            background: var(--primary);
             color: white;
             padding: 0.25rem 0.75rem;
             border-radius: 12px;
@@ -200,7 +200,7 @@
         .term-toggle {
             background: none;
             border: none;
-            color: var(--primary-pink);
+            color: var(--primary);
             cursor: pointer;
             padding: 0.5rem;
             border-radius: 50%;
@@ -212,7 +212,7 @@
         }
         
         .term-toggle:hover {
-            background: var(--gray-100);
+            background: var(--gray);
             transform: scale(1.1);
         }
         
@@ -241,25 +241,25 @@
         }
         
         .term-definition {
-            color: var(--gray-700);
+            color: var(--text);
             line-height: 1.6;
             margin-bottom: 1rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid var(--gray-200);
+            border-bottom: 1px solid var(--border);
         }
         
         .term-example {
-            background: var(--gray-50);
+            background: var(--gray);
             padding: 1rem;
             border-radius: 8px;
-            border-left: 3px solid var(--primary-pink);
+            border-left: 3px solid var(--primary);
             font-style: italic;
-            color: var(--gray-600);
+            color: var(--text);
             margin-top: 0.5rem;
         }
         
         .term-hint {
-            color: var(--gray-500);
+            color: var(--text-light);
             font-size: 0.9rem;
             font-style: italic;
             margin-top: 0.5rem;
@@ -269,7 +269,7 @@
         .no-results {
             text-align: center;
             padding: 3rem;
-            color: var(--gray-500);
+            color: var(--text-light);
         }
         
         .no-results h3 {
@@ -277,7 +277,7 @@
         }
         
         .results-count {
-            color: var(--gray-600);
+            color: var(--text);
             margin-bottom: 1rem;
             font-weight: 500;
         }
@@ -407,6 +407,20 @@
             </div>
         </section>
 
+        <!-- Educational Disclaimer -->
+        <section style="background: var(--gray); padding: 2rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+            <div class="container">
+                <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                    <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid var(--primary);">
+                        <h3 style="color: var(--text); margin-bottom: 1rem; font-size: 1.3rem;">📚 Educational Purpose Notice</h3>
+                        <p style="color: var(--text); line-height: 1.6; margin-bottom: 0; font-size: 1rem;">
+                            This page contains terms for educational purposes. Language and its usage evolve over time and can evoke different reactions from different people. Some terms and their definitions may vary across communities and individuals. While we have made efforts through research with Stonewall and other formal bodies to provide accurate information, we encourage kindness and respect in all interactions. If you're unsure how someone describes themselves, the best approach is to ask respectfully.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Terms Dictionary Section -->
         <section class="terms-container">
                     <!-- Modern Search and Filter Section -->
@@ -450,6 +464,10 @@
                     <button class="filter-btn" data-filter="romantic-orientation">
                         <span class="filter-icon">💝</span>
                         Romantic Orientation
+                    </button>
+                    <button class="filter-btn" data-filter="community-tribes">
+                        <span class="filter-icon">🏳️‍🌈</span>
+                        Community Tribes
                     </button>
                     <button class="filter-btn" data-filter="general">
                         <span class="filter-icon">📖</span>
