@@ -561,6 +561,7 @@ function renderNavigation(currentView) {
               href="${item.url || '#/' + item.id}" 
               class="nav-link ${currentView === item.id ? 'active' : ''}"
               aria-current="${currentView === item.id ? 'page' : 'false'}"
+              data-external="${item.url ? 'true' : 'false'}"
             >
               <span class="nav-icon">${item.icon}</span>
               <span class="nav-label">${item.label}</span>
@@ -1935,6 +1936,16 @@ function renderNotFound() {
 
 // Initialize the app
 window.addEventListener('hashchange', route);
+
+// Handle navigation clicks for external links
+document.addEventListener('click', function(e) {
+  const target = e.target.closest('.nav-link');
+  if (target && target.getAttribute('data-external') === 'true') {
+    e.preventDefault();
+    console.log('🔗 External navigation detected:', target.href);
+    window.location.href = target.href;
+  }
+});
 
 // Session management helper functions
 function isAuthenticated() {
