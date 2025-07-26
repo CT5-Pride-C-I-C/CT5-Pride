@@ -61,6 +61,8 @@ let events = [];
 let analytics = {};
 let risks = [];
 let filteredRisks = [];
+let conflicts = [];
+let filteredConflicts = [];
 
 // Risk types for filtering
 const RISK_TYPES = [
@@ -73,10 +75,21 @@ const RESIDUAL_RISK_LEVELS = [
     'Very Low', 'Low', 'Medium', 'High', 'Very High'
 ];
 
+// Conflict of interest types
+const CONFLICT_TYPES = [
+    'Financial', 'Personal', 'Professional', 'Political', 'Family', 'Business', 'Other'
+];
+
+// Conflict of interest statuses
+const CONFLICT_STATUSES = [
+    'Active', 'Resolved', 'Under Review', 'Withdrawn'
+];
+
 // Navigation state
 const navigation = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
   { id: 'risk-register', label: 'Risk Register', icon: '⚠️' },
+  { id: 'conflict-register', label: 'Conflict of Interest', icon: '⚖️' },
   { id: 'roles', label: 'Role Management', icon: '👥' },
   { id: 'applications', label: 'Applications', icon: '📝' },
   { id: 'events', label: 'Event Management', icon: '📅' },
@@ -290,6 +303,10 @@ function route() {
     case '#/risk-register':
       console.log('✓ Rendering risk register for authenticated user');
       renderRiskRegister();
+      break;
+    case '#/conflict-register':
+      console.log('✓ Rendering conflict of interest register for authenticated user');
+      renderConflictRegister();
       break;
     case '#/roles':
       console.log('✓ Rendering roles page for authenticated user');
@@ -2674,6 +2691,717 @@ window.exportToCSV = exportToCSV;
 window.exportToMarkdown = exportToMarkdown;
 window.exportToJSON = exportToJSON;
 window.exportToPrintableHTML = exportToPrintableHTML;
+
+// ==================== CONFLICT OF INTEREST REGISTER VIEW ====================
+
+async function renderConflictRegister() {
+  const app = document.getElementById('app');
+  
+  app.innerHTML = `
+    <div class="admin-layout">
+      ${renderNavigation('conflict-register')}
+      <main class="admin-content">
+        <div class="page-header">
+          <h1>Conflict of Interest Register</h1>
+          <p>Manage declared conflicts of interest and mitigation strategies</p>
+          <div class="page-header-actions" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <div class="export-dropdown" style="position: relative;">
+              <button class="btn btn-secondary dropdown-toggle" id="conflictExportBtn" onclick="toggleConflictExportMenu()">📊 Export Data</button>
+              <div class="dropdown-menu" id="conflictExportMenu" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #d1d5db; border-radius: 6px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 1000; min-width: 200px; margin-top: 0.25rem;">
+                <button class="dropdown-item" onclick="exportConflictsToCSV()">📄 Export as CSV</button>
+                <button class="dropdown-item" onclick="exportConflictsToMarkdown()">📝 Export as Markdown</button>
+                <button class="dropdown-item" onclick="exportConflictsToJSON()">💾 Export as JSON</button>
+                <button class="dropdown-item" onclick="exportConflictsToPrintableHTML()">🖨️ Printable Report</button>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="openConflictModal()">Add New Conflict</button>
+          </div>
+        </div>
+        
+        <!-- Conflict Filters -->
+        <div class="conflict-filters" style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center;">
+          <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.25rem;">
+            <label for="conflict-type-filter" style="font-size: 0.875rem; font-weight: 500; color: #374151;">Filter by Conflict Type</label>
+            <select id="conflict-type-filter" onchange="applyConflictFilters()" style="padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; background: white; min-width: 150px;">
+              <option value="">All Conflict Types</option>
+              ${CONFLICT_TYPES.map(type => `<option value="${type}">${type}</option>`).join('')}
+            </select>
+          </div>
+          <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.25rem;">
+            <label for="conflict-status-filter" style="font-size: 0.875rem; font-weight: 500; color: #374151;">Filter by Status</label>
+            <select id="conflict-status-filter" onchange="applyConflictFilters()" style="padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; background: white; min-width: 150px;">
+              <option value="">All Statuses</option>
+              ${CONFLICT_STATUSES.map(status => `<option value="${status}">${status}</option>`).join('')}
+            </select>
+          </div>
+          <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.25rem;">
+            <label for="conflict-risk-filter" style="font-size: 0.875rem; font-weight: 500; color: #374151;">Filter by Risk Level</label>
+            <select id="conflict-risk-filter" onchange="applyConflictFilters()" style="padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; background: white; min-width: 150px;">
+              <option value="">All Risk Levels</option>
+              ${RESIDUAL_RISK_LEVELS.map(level => `<option value="${level}">${level}</option>`).join('')}
+            </select>
+          </div>
+          <button class="btn btn-secondary" onclick="clearConflictFilters()" style="align-self: end;">Clear Filters</button>
+        </div>
+        
+        <!-- Conflicts Table Container -->
+        <div id="conflicts-table-container">
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Loading conflicts of interest...</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  `;
+  
+  // Load conflicts data
+  await loadConflicts();
+}
+
+// Load conflicts from API
+async function loadConflicts() {
+  try {
+    console.log('📊 Loading conflicts of interest...');
+    
+    const response = await fetch('/api/conflicts', {
+      headers: {
+        'Authorization': `Bearer ${getSession()}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.hash = '#/login';
+        return;
+      }
+      throw new Error(`HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to load conflicts');
+    }
+    
+    console.log(`✅ Loaded ${data.conflicts?.length || 0} conflicts of interest`);
+    
+    conflicts = data.conflicts || [];
+    filteredConflicts = [...conflicts];
+    renderConflictsTable();
+    
+  } catch (error) {
+    console.error('Error loading conflicts:', error);
+    showError(`Failed to load conflicts of interest: ${error.message}`);
+    
+    const container = document.getElementById('conflicts-table-container');
+    if (container) {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: #6b7280;">
+          <p>⚠️ Failed to load conflicts of interest</p>
+          <button class="btn btn-secondary" onclick="loadConflicts()">Retry</button>
+        </div>
+      `;
+    }
+  }
+}
+
+function renderConflictsTable() {
+  const container = document.getElementById('conflicts-table-container');
+  if (!container) return;
+  
+  if (!filteredConflicts || filteredConflicts.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 2rem; color: #6b7280;">
+        <p>No conflicts of interest found</p>
+        <button class="btn btn-primary" onclick="openConflictModal()">Add First Conflict</button>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = `
+    <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); overflow: hidden; border: 1px solid #e5e7eb;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+        <thead style="background: linear-gradient(135deg, #ff6f91, #ff9671); color: white;">
+          <tr>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">COI ID</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Individual</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Position</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Conflict Type</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Nature</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Status</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Risk Level</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filteredConflicts.map(conflict => `
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;"><strong>${conflict.coi_id || 'N/A'}</strong></td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">
+                <strong>${conflict.individual_name || 'Unknown'}</strong>
+                ${conflict.date_declared ? `<br><small style="color: #6b7280;">Declared: ${new Date(conflict.date_declared).toLocaleDateString('en-GB')}</small>` : ''}
+              </td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">${conflict.position_role || '–'}</td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">
+                <span class="conflict-type-badge" style="background: #e0e7ff; color: #3730a3; padding: 0.125rem 0.5rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 500;">${conflict.conflict_type || 'N/A'}</span>
+              </td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb; max-width: 200px;">
+                <strong>${conflict.nature_of_interest || 'Not specified'}</strong>
+                ${conflict.description ? `<br><small style="color: #6b7280;">${conflict.description.substring(0, 100)}${conflict.description.length > 100 ? '...' : ''}</small>` : ''}
+                ${conflict.monetary_value ? `<br><small style="color: #059669; font-weight: 500;">${conflict.currency || 'GBP'} ${parseFloat(conflict.monetary_value).toLocaleString()}</small>` : ''}
+              </td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">
+                <span class="status-badge ${getConflictStatusClass(conflict.status)}" style="padding: 0.125rem 0.5rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 500;">${conflict.status || 'Unknown'}</span>
+              </td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">
+                <span class="risk-level-badge ${getRiskLevelClass(conflict.risk_level)}" style="padding: 0.125rem 0.5rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 500;">${conflict.risk_level || 'Unknown'}</span>
+              </td>
+              <td style="padding: 0.75rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn btn-sm btn-secondary" onclick="editConflict('${conflict.id}')" title="Edit conflict">✏️</button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteConflict('${conflict.id}')" title="Delete conflict">🗑️</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function getConflictStatusClass(status) {
+  switch (status) {
+    case 'Active': return 'status-active';
+    case 'Resolved': return 'status-resolved';
+    case 'Under Review': return 'status-review';
+    case 'Withdrawn': return 'status-withdrawn';
+    default: return 'status-unknown';
+  }
+}
+
+function getRiskLevelClass(riskLevel) {
+  switch (riskLevel) {
+    case 'Very Low': return 'risk-very-low';
+    case 'Low': return 'risk-low';
+    case 'Medium': return 'risk-medium';
+    case 'High': return 'risk-high';
+    case 'Very High': return 'risk-very-high';
+    default: return 'risk-unknown';
+  }
+}
+
+// Apply conflict filters
+function applyConflictFilters() {
+  const typeFilter = document.getElementById('conflict-type-filter')?.value || '';
+  const statusFilter = document.getElementById('conflict-status-filter')?.value || '';
+  const riskFilter = document.getElementById('conflict-risk-filter')?.value || '';
+  
+  filteredConflicts = conflicts.filter(conflict => {
+    const matchesType = !typeFilter || conflict.conflict_type === typeFilter;
+    const matchesStatus = !statusFilter || conflict.status === statusFilter;
+    const matchesRisk = !riskFilter || conflict.risk_level === riskFilter;
+    
+    return matchesType && matchesStatus && matchesRisk;
+  });
+  
+  renderConflictsTable();
+}
+
+// Clear conflict filters
+function clearConflictFilters() {
+  const typeFilter = document.getElementById('conflict-type-filter');
+  const statusFilter = document.getElementById('conflict-status-filter');
+  const riskFilter = document.getElementById('conflict-risk-filter');
+  
+  if (typeFilter) typeFilter.value = '';
+  if (statusFilter) statusFilter.value = '';
+  if (riskFilter) riskFilter.value = '';
+  
+  filteredConflicts = [...conflicts];
+  renderConflictsTable();
+}
+
+// Conflict modal functions
+function openConflictModal(conflictId = null) {
+  const isEdit = conflictId !== null;
+  const conflict = isEdit ? conflicts.find(c => c.id === conflictId) : {};
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-dialog" style="max-width: 800px;">
+      <div class="modal-header">
+        <h2>${isEdit ? 'Edit Conflict of Interest' : 'Add New Conflict of Interest'}</h2>
+        <button class="modal-close" type="button">&times;</button>
+      </div>
+      <form class="modal-form" id="conflict-form">
+        <div class="form-group">
+          <label>Conflict ID *</label>
+          <input type="text" name="coi_id" value="${conflict.coi_id || ''}" required 
+                 placeholder="e.g. COI-001, COI-2024-01">
+          <small>Unique identifier for this conflict of interest</small>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Individual Name *</label>
+            <input type="text" name="individual_name" value="${conflict.individual_name || ''}" required
+                   placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label>Position/Role</label>
+            <input type="text" name="position_role" value="${conflict.position_role || ''}"
+                   placeholder="e.g. Board Member, Volunteer">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Nature of Interest *</label>
+          <input type="text" name="nature_of_interest" value="${conflict.nature_of_interest || ''}" required
+                 placeholder="Brief description of the interest">
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Conflict Type *</label>
+            <select name="conflict_type" required>
+              <option value="">Select conflict type</option>
+              ${CONFLICT_TYPES.map(type => `
+                <option value="${type}" ${conflict.conflict_type === type ? 'selected' : ''}>${type}</option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status *</label>
+            <select name="status" required>
+              <option value="">Select status</option>
+              ${CONFLICT_STATUSES.map(status => `
+                <option value="${status}" ${conflict.status === status ? 'selected' : ''}>${status}</option>
+              `).join('')}
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" rows="3" 
+                    placeholder="Detailed description of the conflict of interest">${conflict.description || ''}</textarea>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Monetary Value</label>
+            <input type="number" name="monetary_value" value="${conflict.monetary_value || ''}" step="0.01" min="0"
+                   placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>Currency</label>
+            <select name="currency">
+              <option value="GBP" ${(conflict.currency || 'GBP') === 'GBP' ? 'selected' : ''}>GBP (£)</option>
+              <option value="USD" ${conflict.currency === 'USD' ? 'selected' : ''}>USD ($)</option>
+              <option value="EUR" ${conflict.currency === 'EUR' ? 'selected' : ''}>EUR (€)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Risk Level *</label>
+            <select name="risk_level" required>
+              <option value="">Select risk level</option>
+              ${RESIDUAL_RISK_LEVELS.map(level => `
+                <option value="${level}" ${conflict.risk_level === level ? 'selected' : ''}>${level}</option>
+              `).join('')}
+            </select>
+          </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Date Declared *</label>
+            <input type="date" name="date_declared" value="${conflict.date_declared || ''}" required>
+          </div>
+          <div class="form-group">
+            <label>Review Date</label>
+            <input type="date" name="review_date" value="${conflict.review_date || ''}">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Mitigation Actions</label>
+          <textarea name="mitigation_actions" rows="3" 
+                    placeholder="Actions taken to mitigate the conflict">${conflict.mitigation_actions || ''}</textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea name="notes" rows="2" 
+                    placeholder="Additional notes or comments">${conflict.notes || ''}</textarea>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+          <button type="submit" class="btn btn-primary">${isEdit ? 'Update Conflict' : 'Create Conflict'}</button>
+        </div>
+      </form>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Handle form submission
+  const form = modal.querySelector('#conflict-form');
+  form.addEventListener('submit', (e) => handleConflictSubmit(e, conflictId));
+  
+  // Handle modal close
+  const closeBtn = modal.querySelector('.modal-close');
+  closeBtn.addEventListener('click', () => modal.remove());
+  
+  // Handle click outside modal
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.remove();
+  });
+  
+  // Focus first input
+  const firstInput = modal.querySelector('input[name="coi_id"]');
+  if (firstInput) firstInput.focus();
+}
+
+async function handleConflictSubmit(event, conflictId) {
+  event.preventDefault();
+  console.log('📝 Conflict form submitted', { conflictId });
+  
+  const form = event.target;
+  const formData = new FormData(form);
+  const conflictData = Object.fromEntries(formData.entries());
+  
+  console.log('📋 Form data collected:', conflictData);
+  
+  // Convert monetary_value to number if provided
+  if (conflictData.monetary_value) {
+    conflictData.monetary_value = parseFloat(conflictData.monetary_value);
+  }
+  
+  // Validate required fields
+  if (!conflictData.coi_id || !conflictData.individual_name || !conflictData.nature_of_interest || 
+      !conflictData.conflict_type || !conflictData.date_declared || !conflictData.status || !conflictData.risk_level) {
+    console.warn('❌ Validation failed:', conflictData);
+    showError('Please fill in all required fields');
+    return;
+  }
+  
+  console.log('✅ Validation passed, submitting to API...');
+  
+  try {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const isEdit = conflictId !== null;
+    submitBtn.disabled = true;
+    submitBtn.textContent = isEdit ? 'Updating...' : 'Creating...';
+    
+    const url = conflictId ? `/api/conflicts/${conflictId}` : '/api/conflicts';
+    const method = conflictId ? 'PUT' : 'POST';
+    
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Authorization': `Bearer ${getSession()}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(conflictData)
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.hash = '#/login';
+        return;
+      }
+      throw new Error(result.message || `HTTP ${response.status}`);
+    }
+    
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to save conflict');
+    }
+    
+    showSuccess(conflictId ? 'Conflict updated successfully!' : 'Conflict created successfully!');
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) modal.remove();
+    await loadConflicts();
+    
+  } catch (err) {
+    console.error('Conflict save error:', err);
+    showError(`Failed to save conflict: ${err.message}`);
+    
+    // Reset button
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = false;
+    submitBtn.textContent = conflictId ? 'Update Conflict' : 'Create Conflict';
+  }
+}
+
+async function editConflict(conflictId) {
+  openConflictModal(conflictId);
+}
+
+async function deleteConflict(conflictId) {
+  const conflict = conflicts.find(c => c.id === conflictId);
+  if (!conflict) {
+    showError('Conflict not found');
+    return;
+  }
+  
+  if (!confirm(`Are you sure you want to delete the conflict of interest for "${conflict.individual_name}"?\n\nThis action cannot be undone.`)) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/conflicts/${conflictId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${getSession()}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.hash = '#/login';
+        return;
+      }
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP ${response.status}`);
+    }
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to delete conflict');
+    }
+    
+    showSuccess('Conflict deleted successfully!');
+    await loadConflicts();
+    
+  } catch (err) {
+    console.error('Conflict delete error:', err);
+    showError(`Failed to delete conflict: ${err.message}`);
+  }
+}
+
+// Export functionality for conflicts
+function toggleConflictExportMenu() {
+  const menu = document.getElementById('conflictExportMenu');
+  if (menu.style.display === 'none') {
+    menu.style.display = 'block';
+    setTimeout(() => {
+      document.addEventListener('click', hideConflictExportMenu);
+    }, 0);
+  } else {
+    menu.style.display = 'none';
+  }
+}
+
+function hideConflictExportMenu(event) {
+  const menu = document.getElementById('conflictExportMenu');
+  const button = document.getElementById('conflictExportBtn');
+  
+  if (menu && button && !menu.contains(event.target) && !button.contains(event.target)) {
+    menu.style.display = 'none';
+    document.removeEventListener('click', hideConflictExportMenu);
+  }
+}
+
+function exportConflictsToCSV() {
+  if (!filteredConflicts || filteredConflicts.length === 0) {
+    showError('No conflicts to export. Please ensure conflicts are loaded.');
+    return;
+  }
+  
+  const headers = ['COI ID', 'Individual Name', 'Position/Role', 'Nature of Interest', 'Conflict Type', 'Description', 'Monetary Value', 'Currency', 'Date Declared', 'Status', 'Mitigation Actions', 'Risk Level', 'Review Date', 'Notes', 'Created Date', 'Updated Date'];
+  const csvContent = [
+    headers.join(','),
+    ...filteredConflicts.map(conflict => [
+      `"${(conflict.coi_id || '').replace(/"/g, '""')}"`,
+      `"${(conflict.individual_name || '').replace(/"/g, '""')}"`,
+      `"${(conflict.position_role || '').replace(/"/g, '""')}"`,
+      `"${(conflict.nature_of_interest || '').replace(/"/g, '""')}"`,
+      `"${(conflict.conflict_type || '').replace(/"/g, '""')}"`,
+      `"${(conflict.description || '').replace(/"/g, '""')}"`,
+      conflict.monetary_value || '',
+      `"${(conflict.currency || '').replace(/"/g, '""')}"`,
+      conflict.date_declared ? new Date(conflict.date_declared).toLocaleDateString('en-GB') : '',
+      `"${(conflict.status || '').replace(/"/g, '""')}"`,
+      `"${(conflict.mitigation_actions || '').replace(/"/g, '""')}"`,
+      `"${(conflict.risk_level || '').replace(/"/g, '""')}"`,
+      conflict.review_date ? new Date(conflict.review_date).toLocaleDateString('en-GB') : '',
+      `"${(conflict.notes || '').replace(/"/g, '""')}"`,
+      conflict.created_at ? new Date(conflict.created_at).toLocaleDateString('en-GB') : '',
+      conflict.updated_at ? new Date(conflict.updated_at).toLocaleDateString('en-GB') : ''
+    ].join(','))
+  ].join('\n');
+  
+  const filename = `CT5_Pride_Conflict_of_Interest_Register_${new Date().toISOString().split('T')[0]}.csv`;
+  downloadFile(csvContent, filename, 'text/csv');
+  
+  hideConflictExportMenu();
+  showSuccess(`Conflict register exported to ${filename}`);
+}
+
+function exportConflictsToMarkdown() {
+  if (!filteredConflicts || filteredConflicts.length === 0) {
+    showError('No conflicts to export. Please ensure conflicts are loaded.');
+    return;
+  }
+  
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+  
+  let markdown = `# CT5 Pride Conflict of Interest Register\n\n**Generated:** ${dateStr}\n**Total Conflicts:** ${filteredConflicts.length}\n\n`;
+  
+  const sortedConflicts = [...filteredConflicts].sort((a, b) => new Date(b.date_declared || 0) - new Date(a.date_declared || 0));
+  
+  sortedConflicts.forEach((conflict, index) => {
+    markdown += `### ${index + 1}. ${conflict.individual_name || 'Unknown Individual'}\n\n`;
+    markdown += `- **COI ID:** ${conflict.coi_id || 'N/A'}\n`;
+    markdown += `- **Position/Role:** ${conflict.position_role || 'N/A'}\n`;
+    markdown += `- **Conflict Type:** ${conflict.conflict_type || 'N/A'}\n`;
+    markdown += `- **Nature of Interest:** ${conflict.nature_of_interest || 'N/A'}\n`;
+    markdown += `- **Status:** ${conflict.status || 'N/A'}\n`;
+    markdown += `- **Risk Level:** ${conflict.risk_level || 'N/A'}\n`;
+    markdown += `- **Date Declared:** ${conflict.date_declared ? new Date(conflict.date_declared).toLocaleDateString('en-GB') : 'N/A'}\n`;
+    
+    if (conflict.monetary_value) {
+      markdown += `- **Monetary Value:** ${conflict.currency || 'GBP'} ${parseFloat(conflict.monetary_value).toLocaleString()}\n`;
+    }
+    
+    if (conflict.description) {
+      markdown += `\n**Description:** ${conflict.description}\n`;
+    }
+    
+    if (conflict.mitigation_actions) {
+      markdown += `\n**Mitigation Actions:** ${conflict.mitigation_actions}\n`;
+    }
+    
+    if (conflict.review_date) {
+      markdown += `\n**Review Date:** ${new Date(conflict.review_date).toLocaleDateString('en-GB')}\n`;
+    }
+    
+    if (conflict.notes) {
+      markdown += `\n**Notes:** ${conflict.notes}\n`;
+    }
+    
+    markdown += `\n---\n\n`;
+  });
+  
+  markdown += `\n*Report generated by CT5 Pride Conflict of Interest Management System*\n`;
+  
+  const filename = `CT5_Pride_Conflict_of_Interest_Register_${new Date().toISOString().split('T')[0]}.md`;
+  downloadFile(markdown, filename, 'text/markdown');
+  
+  hideConflictExportMenu();
+  showSuccess(`Conflict register exported to ${filename}`);
+}
+
+function exportConflictsToJSON() {
+  if (!filteredConflicts || filteredConflicts.length === 0) {
+    showError('No conflicts to export. Please ensure conflicts are loaded.');
+    return;
+  }
+  
+  const exportData = {
+    metadata: {
+      generated_at: new Date().toISOString(),
+      generated_by: 'CT5 Pride Conflict of Interest Management System',
+      total_conflicts: filteredConflicts.length,
+      export_version: '1.0'
+    },
+    conflicts: filteredConflicts
+  };
+  
+  const jsonContent = JSON.stringify(exportData, null, 2);
+  const filename = `CT5_Pride_Conflict_of_Interest_Register_${new Date().toISOString().split('T')[0]}.json`;
+  downloadFile(jsonContent, filename, 'application/json');
+  
+  hideConflictExportMenu();
+  showSuccess(`Conflict register exported to ${filename}`);
+}
+
+function exportConflictsToPrintableHTML() {
+  if (!filteredConflicts || filteredConflicts.length === 0) {
+    showError('No conflicts to export. Please ensure conflicts are loaded.');
+    return;
+  }
+  
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+  
+  const htmlContent = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+      <title>CT5 Pride Conflict of Interest Register - ${dateStr}</title>
+      <style>
+          body { font-family: Arial, sans-serif; margin: 2rem; line-height: 1.6; }
+          h1 { color: #ff6f91; border-bottom: 3px solid #ff6f91; padding-bottom: 0.5rem; }
+          .header { margin-bottom: 2rem; }
+          .conflict { margin-bottom: 2rem; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; }
+          .conflict h3 { margin-top: 0; color: #333; }
+          .field { margin: 0.5rem 0; }
+          .label { font-weight: bold; color: #555; }
+          @media print { body { margin: 1rem; } }
+      </style>
+  </head>
+  <body>
+      <div class="header">
+          <h1>CT5 Pride Conflict of Interest Register</h1>
+          <p><strong>Generated:</strong> ${dateStr}</p>
+          <p><strong>Total Conflicts:</strong> ${filteredConflicts.length}</p>
+      </div>
+      
+      ${filteredConflicts.map((conflict, index) => `
+          <div class="conflict">
+              <h3>${index + 1}. ${conflict.individual_name || 'Unknown Individual'}</h3>
+              <div class="field"><span class="label">COI ID:</span> ${conflict.coi_id || 'N/A'}</div>
+              <div class="field"><span class="label">Position/Role:</span> ${conflict.position_role || 'N/A'}</div>
+              <div class="field"><span class="label">Conflict Type:</span> ${conflict.conflict_type || 'N/A'}</div>
+              <div class="field"><span class="label">Status:</span> ${conflict.status || 'N/A'}</div>
+              <div class="field"><span class="label">Risk Level:</span> ${conflict.risk_level || 'N/A'}</div>
+              <div class="field"><span class="label">Date Declared:</span> ${conflict.date_declared ? new Date(conflict.date_declared).toLocaleDateString('en-GB') : 'N/A'}</div>
+              ${conflict.monetary_value ? `<div class="field"><span class="label">Monetary Value:</span> ${conflict.currency || 'GBP'} ${parseFloat(conflict.monetary_value).toLocaleString()}</div>` : ''}
+              ${conflict.description ? `<p><strong>Description:</strong> ${conflict.description}</p>` : ''}
+              ${conflict.mitigation_actions ? `<p><strong>Mitigation Actions:</strong> ${conflict.mitigation_actions}</p>` : ''}
+              ${conflict.review_date ? `<div class="field"><span class="label">Review Date:</span> ${new Date(conflict.review_date).toLocaleDateString('en-GB')}</div>` : ''}
+              ${conflict.notes ? `<p><strong>Notes:</strong> ${conflict.notes}</p>` : ''}
+          </div>
+      `).join('')}
+  </body>
+  </html>`;
+  
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+  
+  printWindow.onload = function() {
+    setTimeout(() => printWindow.print(), 250);
+  };
+  
+  hideConflictExportMenu();
+  showSuccess('Printable report generated in new window');
+}
+
+// Make conflict functions globally available
+window.openConflictModal = openConflictModal;
+window.handleConflictSubmit = handleConflictSubmit;
+window.editConflict = editConflict;
+window.deleteConflict = deleteConflict;
+window.applyConflictFilters = applyConflictFilters;
+window.clearConflictFilters = clearConflictFilters;
+window.toggleConflictExportMenu = toggleConflictExportMenu;
+window.exportConflictsToCSV = exportConflictsToCSV;
+window.exportConflictsToMarkdown = exportConflictsToMarkdown;
+window.exportConflictsToJSON = exportConflictsToJSON;
+window.exportConflictsToPrintableHTML = exportConflictsToPrintableHTML;
 
 // ==================== 404 NOT FOUND VIEW ====================
 

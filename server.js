@@ -69,10 +69,35 @@ app.use((req, res, next) => {
   // Permissions Policy to suppress Chrome tracking warnings
   res.setHeader('Permissions-Policy', 'interest-cohort=(), browsing-topics=(), attribution-reporting=()');
   
-  // Additional security headers
+  // Security headers for hardening
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
+  
+  // Strict Transport Security (HSTS) - Force HTTPS for 1 year
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  
+  // Content Security Policy - Comprehensive security policy
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://js.stripe.com https://checkout.stripe.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: https: blob:",
+    "connect-src 'self' https://*.supabase.co https://api.stripe.com https://checkout.stripe.com https://api.eventbrite.com",
+    "frame-src 'none'",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests"
+  ].join('; ');
+  
+  res.setHeader('Content-Security-Policy', csp);
+  
+  // Additional security headers
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
   
   next();
 });
@@ -97,6 +122,52 @@ async function requireSupabaseAuth(req, res, next) {
     return res.status(401).json({ success: false, message: 'Unauthorized: Token validation failed' });
   }
 }
+
+// ==================== HEALTH CHECK ROUTES ====================
+
+// Health check endpoint to help prevent 503 errors and provide monitoring
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Basic ping endpoint for load balancers
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong');
+});
+
+// Database health check (optional - tests Supabase connection)
+app.get('/health/db', async (req, res) => {
+  try {
+    // Simple test query to check Supabase connection
+    const { data, error } = await supabase
+      .from('roles')
+      .select('count(*)')
+      .limit(1);
+    
+    if (error) {
+      throw error;
+    }
+    
+    res.status(200).json({
+      status: 'OK',
+      database: 'Connected',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'ERROR',
+      database: 'Disconnected',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
 
 // ==================== AUTHENTICATION ROUTES ====================
 
@@ -1931,6 +2002,368 @@ app.get('/api/risks', requireSupabaseAuth, async (req, res) => {
   }
 });
 
+// ==================== CONFLICT OF INTEREST API ENDPOINTS ====================
+
+// Get all conflicts of interest
+app.get('/api/conflicts', requireSupabaseAuth, async (req, res) => {
+  try {
+    console.log('📊 Fetching conflicts of interest from database...');
+    
+    const { data: conflicts, error } = await supabase
+      .from('conflict_of_interest')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Conflict fetch error:', error);
+      throw error;
+    }
+
+    console.log(`✅ Successfully fetched ${conflicts?.length || 0} conflicts of interest`);
+    
+    res.json({
+      success: true,
+      conflicts: conflicts || []
+    });
+
+  } catch (error) {
+    console.error('Conflict fetch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch conflicts of interest',
+      error: error.message
+    });
+  }
+});
+
+// Create new conflict of interest
+app.post('/api/conflicts', requireSupabaseAuth, async (req, res) => {
+  try {
+    console.log('📝 Creating new conflict of interest:', req.body);
+    
+    const conflictData = req.body;
+    
+    // Validate required fields
+    if (!conflictData.coi_id || !conflictData.individual_name || !conflictData.nature_of_interest || 
+        !conflictData.conflict_type || !conflictData.date_declared || !conflictData.status || !conflictData.risk_level) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+    
+    // Convert monetary_value to number if provided
+    if (conflictData.monetary_value) {
+      conflictData.monetary_value = parseFloat(conflictData.monetary_value);
+    }
+    
+    const { data: conflict, error } = await supabase
+      .from('conflict_of_interest')
+      .insert([conflictData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Conflict creation error:', error);
+      throw error;
+    }
+
+    console.log('✅ Conflict of interest created successfully:', conflict.id);
+    
+    res.json({
+      success: true,
+      conflict: conflict,
+      message: 'Conflict of interest created successfully'
+    });
+
+  } catch (error) {
+    console.error('Conflict creation error:', error);
+    
+    // Handle unique constraint violations
+    if (error.code === '23505') {
+      return res.status(400).json({
+        success: false,
+        message: 'Conflict ID already exists. Please use a unique identifier.'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create conflict of interest',
+      error: error.message
+    });
+  }
+});
+
+// Update existing conflict of interest
+app.put('/api/conflicts/:id', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const conflictData = req.body;
+    
+    console.log(`📝 Updating conflict of interest ${id}:`, conflictData);
+    
+    // Validate required fields
+    if (!conflictData.coi_id || !conflictData.individual_name || !conflictData.nature_of_interest || 
+        !conflictData.conflict_type || !conflictData.date_declared || !conflictData.status || !conflictData.risk_level) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+    
+    // Convert monetary_value to number if provided
+    if (conflictData.monetary_value) {
+      conflictData.monetary_value = parseFloat(conflictData.monetary_value);
+    }
+    
+    const { data: conflict, error } = await supabase
+      .from('conflict_of_interest')
+      .update(conflictData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Conflict update error:', error);
+      throw error;
+    }
+
+    if (!conflict) {
+      return res.status(404).json({
+        success: false,
+        message: 'Conflict of interest not found'
+      });
+    }
+
+    console.log('✅ Conflict of interest updated successfully:', id);
+    
+    res.json({
+      success: true,
+      conflict: conflict,
+      message: 'Conflict of interest updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Conflict update error:', error);
+    
+    // Handle unique constraint violations
+    if (error.code === '23505') {
+      return res.status(400).json({
+        success: false,
+        message: 'Conflict ID already exists. Please use a unique identifier.'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update conflict of interest',
+      error: error.message
+    });
+  }
+});
+
+// Delete conflict of interest
+app.delete('/api/conflicts/:id', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log(`🗑️ Deleting conflict of interest ${id}`);
+    
+    const { data: conflict, error } = await supabase
+      .from('conflict_of_interest')
+      .delete()
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Conflict deletion error:', error);
+      throw error;
+    }
+
+    if (!conflict) {
+      return res.status(404).json({
+        success: false,
+        message: 'Conflict of interest not found'
+      });
+    }
+
+    console.log('✅ Conflict of interest deleted successfully:', id);
+    
+    res.json({
+      success: true,
+      message: 'Conflict of interest deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Conflict deletion error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete conflict of interest',
+      error: error.message
+    });
+  }
+});
+
+// Get single conflict of interest by ID
+app.get('/api/conflicts/:id', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log(`📊 Fetching conflict of interest ${id}`);
+    
+    const { data: conflict, error } = await supabase
+      .from('conflict_of_interest')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Conflict fetch error:', error);
+      throw error;
+    }
+
+    if (!conflict) {
+      return res.status(404).json({
+        success: false,
+        message: 'Conflict of interest not found'
+      });
+    }
+
+    console.log('✅ Conflict of interest fetched successfully:', id);
+    
+    res.json({
+      success: true,
+      conflict: conflict
+    });
+
+  } catch (error) {
+    console.error('Conflict fetch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch conflict of interest',
+      error: error.message
+    });
+  }
+});
+
+// Export conflicts of interest in various formats
+app.get('/api/conflicts/export/:format', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { format } = req.params;
+    const { conflict_type, status, risk_level } = req.query;
+    
+    console.log(`📄 Exporting conflicts of interest to ${format}...`);
+    
+    // Build query with optional filters
+    let query = supabase
+      .from('conflict_of_interest')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (conflict_type) {
+      query = query.eq('conflict_type', conflict_type);
+    }
+    
+    if (status) {
+      query = query.eq('status', status);
+    }
+    
+    if (risk_level) {
+      query = query.eq('risk_level', risk_level);
+    }
+    
+    const { data: conflicts, error } = await query;
+
+    if (error) {
+      console.error('Conflict export fetch error:', error);
+      throw error;
+    }
+
+    if (!conflicts || conflicts.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No conflicts of interest found to export'
+      });
+    }
+
+    const timestamp = new Date().toISOString().split('T')[0];
+    
+    switch (format.toLowerCase()) {
+      case 'csv':
+        const csvHeaders = [
+          'COI ID', 'Individual Name', 'Position/Role', 'Nature of Interest', 'Conflict Type', 
+          'Description', 'Monetary Value', 'Currency', 'Date Declared', 'Status', 
+          'Mitigation Actions', 'Risk Level', 'Review Date', 'Notes', 'Created Date', 'Updated Date'
+        ];
+        
+        const csvRows = conflicts.map(conflict => [
+          `"${(conflict.coi_id || '').replace(/"/g, '""')}"`,
+          `"${(conflict.individual_name || '').replace(/"/g, '""')}"`,
+          `"${(conflict.position_role || '').replace(/"/g, '""')}"`,
+          `"${(conflict.nature_of_interest || '').replace(/"/g, '""')}"`,
+          `"${(conflict.conflict_type || '').replace(/"/g, '""')}"`,
+          `"${(conflict.description || '').replace(/"/g, '""')}"`,
+          conflict.monetary_value || '',
+          `"${(conflict.currency || '').replace(/"/g, '""')}"`,
+          conflict.date_declared ? new Date(conflict.date_declared).toLocaleDateString('en-GB') : '',
+          `"${(conflict.status || '').replace(/"/g, '""')}"`,
+          `"${(conflict.mitigation_actions || '').replace(/"/g, '""')}"`,
+          `"${(conflict.risk_level || '').replace(/"/g, '""')}"`,
+          conflict.review_date ? new Date(conflict.review_date).toLocaleDateString('en-GB') : '',
+          `"${(conflict.notes || '').replace(/"/g, '""')}"`,
+          conflict.created_at ? new Date(conflict.created_at).toLocaleDateString('en-GB') : '',
+          conflict.updated_at ? new Date(conflict.updated_at).toLocaleDateString('en-GB') : ''
+        ].join(','));
+        
+        const csvContent = [csvHeaders.join(','), ...csvRows].join('\n');
+        
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="CT5_Pride_Conflict_of_Interest_Register_${timestamp}.csv"`);
+        res.send(csvContent);
+        break;
+        
+      case 'json':
+        const exportData = {
+          metadata: {
+            generated_at: new Date().toISOString(),
+            generated_by: 'CT5 Pride Conflict of Interest Management System',
+            total_conflicts: conflicts.length,
+            export_version: '1.0',
+            filters: {
+              conflict_type: conflict_type || null,
+              status: status || null,
+              risk_level: risk_level || null
+            }
+          },
+          conflicts: conflicts
+        };
+        
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="CT5_Pride_Conflict_of_Interest_Register_${timestamp}.json"`);
+        res.json(exportData);
+        break;
+        
+      default:
+        res.status(400).json({
+          success: false,
+          message: 'Unsupported export format. Use CSV or JSON.'
+        });
+    }
+
+    console.log(`✅ Successfully exported ${conflicts.length} conflicts of interest as ${format.toUpperCase()}`);
+
+  } catch (error) {
+    console.error('Conflict export error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to export conflicts of interest',
+      error: error.message
+    });
+  }
+});
+
 // Create new risk
 app.post('/api/risks', requireSupabaseAuth, async (req, res) => {
   try {
@@ -2288,10 +2721,58 @@ app.get('*', (req, res, next) => {
   res.status(404).send('404 Not Found');
 });
 
+// ==================== ERROR HANDLING MIDDLEWARE ====================
+
+// Global error handler to prevent 503 Service Unavailable errors
+app.use((err, req, res, next) => {
+  console.error('🚨 Unhandled error:', err);
+  
+  // Don't send error details in production
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
+  res.status(err.status || 500).json({
+    success: false,
+    message: isDevelopment ? err.message : 'Internal server error',
+    ...(isDevelopment && { stack: err.stack })
+  });
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🚨 Unhandled Promise Rejection:', reason);
+  // Don't exit the process in production, just log the error
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('Promise:', promise);
+  }
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('🚨 Uncaught Exception:', error);
+  // In production, try to gracefully shutdown
+  if (process.env.NODE_ENV === 'production') {
+    console.log('🔄 Attempting graceful shutdown...');
+    process.exit(1);
+  }
+});
+
+// Graceful shutdown handler
+process.on('SIGTERM', () => {
+  console.log('🛑 Received SIGTERM, shutting down gracefully...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 Received SIGINT, shutting down gracefully...');
+  process.exit(0);
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 CT5 Pride Admin server running on port ${PORT}`);
   console.log(`📁 Serving admin dashboard from: ${adminDir}`);
   console.log('🌐 Visit: https://admin.ct5pride.co.uk/');
   console.log('🔐 API endpoints protected with Supabase Auth');
   console.log('📊 Analytics, roles, applications, events, and memberships APIs ready');
+  console.log('🛡️ Security headers enabled (CSP, HSTS, X-Frame-Options, etc.)');
+  console.log('❤️  Health checks available at /health, /ping, /health/db');
 }); 

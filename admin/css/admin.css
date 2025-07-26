@@ -3258,4 +3258,123 @@ html, body {
   .admin-content, .modal-content {
     padding-bottom: 120px !important;
   }
+}
+
+/* ==================== CONFLICT OF INTEREST REGISTER STYLES ==================== */
+
+/* Conflict status badges */
+.status-badge.status-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.status-resolved {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.status-badge.status-review {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.status-withdrawn {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.status-badge.status-unknown {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Risk level badges for conflicts */
+.risk-level-badge.risk-very-low {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.risk-level-badge.risk-low {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.risk-level-badge.risk-medium {
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.risk-level-badge.risk-high {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.risk-level-badge.risk-very-high {
+  background: #450a0a;
+  color: #fef2f2;
+}
+
+.risk-level-badge.risk-unknown {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Conflict type badge */
+.conflict-type-badge {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Conflict register responsive tables */
+@media (max-width: 768px) {
+  .conflicts-table thead {
+    display: none;
+  }
+  
+  .conflicts-table tbody tr {
+    display: block;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--space-4);
+    padding: var(--space-4);
+    background: white;
+  }
+  
+  .conflicts-table tbody td {
+    display: block;
+    border: none;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  
+  .conflicts-table tbody td:last-child {
+    border-bottom: none;
+  }
+  
+  .conflicts-table tbody td::before {
+    content: attr(data-label) ": ";
+    font-weight: 600;
+    color: var(--gray-700);
+  }
+}
+
+/* Conflict filters responsive */
+@media (max-width: 768px) {
+  .conflict-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .conflict-filters .filter-group {
+    width: 100%;
+    margin-bottom: var(--space-3);
+  }
+  
+  .conflict-filters .filter-group select {
+    min-width: 100%;
+  }
 } 
