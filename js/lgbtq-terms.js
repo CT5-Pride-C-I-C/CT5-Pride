@@ -357,6 +357,21 @@ function setupEventListeners() {
         filterTerms();
     });
 
+    // Clear search button
+    const clearSearchBtn = document.getElementById('clearSearch');
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            filterTerms();
+            this.style.display = 'none';
+        });
+        
+        // Show/hide clear button based on search input
+        searchInput.addEventListener('input', function() {
+            clearSearchBtn.style.display = this.value.trim() ? 'block' : 'none';
+        });
+    }
+
     // Filter buttons
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -404,16 +419,60 @@ function renderTerms() {
         return;
     }
     
-    termsGrid.innerHTML = filteredTerms.map(term => `
-        <div class="term-card">
+    termsGrid.innerHTML = filteredTerms.map((term, index) => `
+        <div class="term-card" data-term-index="${index}">
             <div class="term-header">
                 <h3 class="term-title">${term.term}</h3>
                 <span class="term-category">${getCategoryLabel(term.category)}</span>
+                <button class="term-toggle" aria-label="Toggle term details">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6,9 12,15 18,9"></polyline>
+                    </svg>
+                </button>
             </div>
-            <div class="term-definition">${term.definition}</div>
-            ${term.example ? `<div class="term-example">${term.example}</div>` : ''}
+            <div class="term-content">
+                <div class="term-definition">${term.definition}</div>
+                ${term.example ? `<div class="term-example">${term.example}</div>` : ''}
+            </div>
+            <div class="term-hint">Click to expand and learn more</div>
         </div>
     `).join('');
+    
+    // Add click event listeners to term cards
+    const termCards = document.querySelectorAll('.term-card');
+    termCards.forEach(card => {
+        const toggleBtn = card.querySelector('.term-toggle');
+        const content = card.querySelector('.term-content');
+        const hint = card.querySelector('.term-hint');
+        
+        const toggleCard = () => {
+            const isExpanded = card.classList.contains('expanded');
+            
+            if (isExpanded) {
+                card.classList.remove('expanded');
+                toggleBtn.classList.remove('expanded');
+                content.classList.remove('expanded');
+                hint.textContent = 'Click to expand and learn more';
+            } else {
+                card.classList.add('expanded');
+                toggleBtn.classList.add('expanded');
+                content.classList.add('expanded');
+                hint.textContent = 'Click to collapse';
+            }
+        };
+        
+        // Click on card or toggle button
+        card.addEventListener('click', (e) => {
+            if (e.target !== toggleBtn && !toggleBtn.contains(e.target)) {
+                toggleCard();
+            }
+        });
+        
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleCard();
+        });
+    });
 }
 
 // Update results count
@@ -445,7 +504,44 @@ function getCategoryLabel(category) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         searchInput.blur();
+        // Close any expanded term cards
+        const expandedCards = document.querySelectorAll('.term-card.expanded');
+        expandedCards.forEach(card => {
+            const toggleBtn = card.querySelector('.term-toggle');
+            const content = card.querySelector('.term-content');
+            const hint = card.querySelector('.term-hint');
+            
+            card.classList.remove('expanded');
+            toggleBtn.classList.remove('expanded');
+            content.classList.remove('expanded');
+            hint.textContent = 'Click to expand and learn more';
+        });
     }
+});
+
+// Add smooth scrolling for better UX
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Add search suggestions (optional enhancement)
+searchInput.addEventListener('focus', function() {
+    if (this.value.trim() === '') {
+        this.placeholder = 'Try searching for "asexual", "transgender", "ally"...';
+    }
+});
+
+searchInput.addEventListener('blur', function() {
+    this.placeholder = 'Search for terms, definitions, or keywords...';
 });
 
 // Add smooth scrolling for better UX

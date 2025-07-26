@@ -836,7 +836,8 @@ function announceThemeChange(theme) {
         gay: 'Gay Pride',
         bisexual: 'Bisexual Pride',
         pansexual: 'Pansexual Pride',
-        asexual: 'Asexual Pride'
+        asexual: 'Asexual Pride',
+        bear: 'Bear Flag Theme'
     };
     
     const themeDescriptions = {
@@ -849,7 +850,8 @@ function announceThemeChange(theme) {
         gay: 'Gay pride colors in teal, green, and blue tones',
         bisexual: 'Bisexual pride colors in pink, purple, and blue',
         pansexual: 'Pansexual pride colors in pink, yellow, and blue',
-        asexual: 'Asexual pride colors in black, gray, white, and purple'
+        asexual: 'Asexual pride colors in black, gray, white, and purple',
+        bear: 'Bear pride colors in brown, tan, and earth tones representing the bear community'
     };
     
     announcement.textContent = `${themeNames[theme]} theme temporarily activated. ${themeDescriptions[theme]}. Footer, header, and website elements updated with new color scheme. Theme will reset on page refresh.`;
