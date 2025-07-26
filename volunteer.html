@@ -770,12 +770,16 @@
         function formatCriteria(criteriaText) {
             if (!criteriaText) return '<li>No criteria specified</li>';
             
-            // Split by line breaks and bullet points
-            const items = criteriaText.split(/\n|•|\*|-/).filter(item => item.trim());
+            // Split by line breaks only - each line should be a complete criteria item
+            const items = criteriaText.split(/\n/).filter(item => item.trim());
             
             if (items.length === 0) return '<li>No criteria specified</li>';
             
-            return items.map(item => `<li>${item.trim()}</li>`).join('');
+            // Format each item as a list item, preserving the full stop
+            return items.map(item => {
+                const trimmedItem = item.trim();
+                return `<li>${trimmedItem}</li>`;
+            }).join('');
         }
 
         // Function to create modal for role details

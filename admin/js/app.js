@@ -811,6 +811,7 @@ function formatCriteriaPreview(criteriaText, maxItems = 3) {
   if (!criteriaText) return 'No criteria specified';
   
   // Split by line breaks and filter out empty lines
+  // Each line should be a complete criteria item ending with a full stop
   const items = criteriaText.split(/\n/).filter(item => item.trim());
   
   if (items.length === 0) return 'No criteria specified';
@@ -819,7 +820,13 @@ function formatCriteriaPreview(criteriaText, maxItems = 3) {
   const previewItems = items.slice(0, maxItems);
   const hasMore = items.length > maxItems;
   
-  const formattedItems = previewItems.map(item => `• ${item.trim()}`).join('<br>');
+  // Format each item as a bullet point, ensuring it's properly trimmed
+  const formattedItems = previewItems.map(item => {
+    const trimmedItem = item.trim();
+    // Remove trailing full stop if present for cleaner display
+    const displayText = trimmedItem.endsWith('.') ? trimmedItem.slice(0, -1) : trimmedItem;
+    return `• ${displayText}`;
+  }).join('<br>');
   
   return formattedItems + (hasMore ? `<br>• ... and ${items.length - maxItems} more` : '');
 }
@@ -833,7 +840,11 @@ function formatCriteriaFull(criteriaText) {
   
   if (items.length === 0) return '<li>No criteria specified</li>';
   
-  return items.map(item => `<li>${item.trim()}</li>`).join('');
+  // Format each item as a list item, preserving the full stop
+  return items.map(item => {
+    const trimmedItem = item.trim();
+    return `<li>${trimmedItem}</li>`;
+  }).join('');
 }
 
 async function loadRoles() {
@@ -1721,17 +1732,23 @@ async function loadAnalytics() {
   showLoading(content, 'Loading analytics...');
   
   try {
-    // Load both analytics and conflicts data for comprehensive reporting
-    const [analyticsResponse, conflictsResponse] = await Promise.all([
+    // Load analytics, conflicts, and risks data for comprehensive reporting
+    const [analyticsResponse, conflictsResponse, risksResponse] = await Promise.all([
       apiRequest('/api/analytics'),
-      apiRequest('/api/conflicts')
+      apiRequest('/api/conflicts'),
+      apiRequest('/api/risks')
     ]);
     
     analytics = analyticsResponse.analytics;
     
-    // Store conflicts data for risk analytics
+    // Store conflicts data for conflict analytics
     if (conflictsResponse.success) {
       window.conflictsForAnalytics = conflictsResponse.conflicts;
+    }
+    
+    // Store risks data for risk analytics
+    if (risksResponse.success) {
+      window.risksForAnalytics = risksResponse.risks;
     }
     
     // Load default tab (applications)
@@ -1818,15 +1835,15 @@ async function renderApplicationsAnalytics() {
 // Risk Analytics Tab
 async function renderRiskAnalytics() {
   const content = document.getElementById('analytics-content');
-  const conflicts = window.conflictsForAnalytics || [];
+  const risks = window.risksForAnalytics || [];
   
   // Calculate risk analytics
-  const riskAnalytics = calculateRiskAnalytics(conflicts);
+  const riskAnalytics = calculateRiskAnalytics(risks);
   
   content.innerHTML = `
     <div class="analytics-grid">
       <div class="analytics-section">
-        <h2>Average Organizational Risk Levels</h2>
+        <h2>Risk Score Distribution</h2>
         <div class="chart-container">
           <canvas id="riskLevelsChart"></canvas>
         </div>
@@ -1841,34 +1858,34 @@ async function renderRiskAnalytics() {
       
       <div class="risk-stats-grid">
         <div class="performance-card risk-improvement">
-          <h3>Risk Improvement</h3>
-          <p>${riskAnalytics.improvementPercentage}%</p>
-          <small>Average reduction from mitigation</small>
+          <h3>Average Risk Score</h3>
+          <p>${riskAnalytics.averageScore}</p>
+          <small>Overall organizational risk level</small>
         </div>
         <div class="performance-card">
-          <h3>Total Conflicts</h3>
-          <p>${riskAnalytics.totalConflicts}</p>
+          <h3>Total Risks</h3>
+          <p>${riskAnalytics.totalRisks}</p>
           <small>Under management</small>
         </div>
         <div class="performance-card">
-          <h3>High Risk Conflicts</h3>
+          <h3>High Risk Items</h3>
           <p>${riskAnalytics.highRiskCount}</p>
           <small>Requiring attention</small>
         </div>
         <div class="performance-card">
-          <h3>Avg Pre-Mitigation</h3>
-          <p>${riskAnalytics.avgPreMitigation}</p>
-          <small>Before actions taken</small>
+          <h3>Avg Likelihood</h3>
+          <p>${riskAnalytics.avgLikelihood}</p>
+          <small>Risk occurrence probability</small>
         </div>
         <div class="performance-card">
-          <h3>Avg Post-Mitigation</h3>
-          <p>${riskAnalytics.avgPostMitigation}</p>
-          <small>After mitigation actions</small>
+          <h3>Avg Impact</h3>
+          <p>${riskAnalytics.avgImpact}</p>
+          <small>Potential impact severity</small>
         </div>
         <div class="performance-card">
           <h3>Most Common Type</h3>
           <p>${riskAnalytics.mostCommonType}</p>
-          <small>Conflict category</small>
+          <small>Risk category</small>
         </div>
       </div>
     </div>
@@ -1961,13 +1978,13 @@ function calculateResponseRate() {
 }
 
 // Risk Analytics Calculations
-function calculateRiskAnalytics(conflicts) {
-  if (!conflicts || conflicts.length === 0) {
+function calculateRiskAnalytics(risks) {
+  if (!risks || risks.length === 0) {
     return {
-      totalConflicts: 0,
-      avgPreMitigation: 'N/A',
-      avgPostMitigation: 'N/A',
-      improvementPercentage: 0,
+      totalRisks: 0,
+      averageScore: 'N/A',
+      avgLikelihood: 'N/A',
+      avgImpact: 'N/A',
       highRiskCount: 0,
       mostCommonType: 'N/A',
       riskLevelsData: {},
@@ -1975,79 +1992,67 @@ function calculateRiskAnalytics(conflicts) {
     };
   }
 
-  // Risk level mapping for calculations
-  const riskLevelValues = {
-    'Very Low': 1,
-    'Low': 2,
-    'Medium': 3,
-    'High': 4,
-    'Very High': 5
-  };
-
-  const reverseRiskMap = {
-    1: 'Very Low',
-    2: 'Low', 
-    3: 'Medium',
-    4: 'High',
-    5: 'Very High'
-  };
-
   // Calculate averages
-  let totalPreMitigation = 0;
-  let totalPostMitigation = 0;
-  let validConflicts = 0;
+  let totalScore = 0;
+  let totalLikelihood = 0;
+  let totalImpact = 0;
+  let validRisks = 0;
   let highRiskCount = 0;
   const typeCount = {};
+  const scoreRanges = {
+    'Very Low (1-4)': 0,
+    'Low (5-8)': 0,
+    'Medium (9-12)': 0,
+    'High (13-16)': 0,
+    'Very High (17-25)': 0
+  };
 
-  conflicts.forEach(conflict => {
-    const preRisk = riskLevelValues[conflict.before_mitigation_risk_level];
-    const postRisk = riskLevelValues[conflict.residual_risk_level];
+  risks.forEach(risk => {
+    const score = parseInt(risk.score) || 0;
+    const likelihood = parseInt(risk.likelihood) || 0;
+    const impact = parseInt(risk.impact) || 0;
     
-    if (preRisk && postRisk) {
-      totalPreMitigation += preRisk;
-      totalPostMitigation += postRisk;
-      validConflicts++;
+    if (score > 0) {
+      totalScore += score;
+      totalLikelihood += likelihood;
+      totalImpact += impact;
+      validRisks++;
       
-      // Count high risk conflicts (residual risk High or Very High)
-      if (postRisk >= 4) {
+      // Count high risk items (score 13 or higher)
+      if (score >= 13) {
         highRiskCount++;
       }
+      
+      // Categorize by score range
+      if (score >= 1 && score <= 4) scoreRanges['Very Low (1-4)']++;
+      else if (score >= 5 && score <= 8) scoreRanges['Low (5-8)']++;
+      else if (score >= 9 && score <= 12) scoreRanges['Medium (9-12)']++;
+      else if (score >= 13 && score <= 16) scoreRanges['High (13-16)']++;
+      else if (score >= 17 && score <= 25) scoreRanges['Very High (17-25)']++;
     }
     
-    // Count conflict types
-    if (conflict.conflict_type) {
-      typeCount[conflict.conflict_type] = (typeCount[conflict.conflict_type] || 0) + 1;
+    // Count risk types
+    if (risk.risk_type) {
+      typeCount[risk.risk_type] = (typeCount[risk.risk_type] || 0) + 1;
     }
   });
 
-  const avgPreValue = validConflicts > 0 ? totalPreMitigation / validConflicts : 0;
-  const avgPostValue = validConflicts > 0 ? totalPostMitigation / validConflicts : 0;
-  
-  const avgPreMitigation = validConflicts > 0 ? reverseRiskMap[Math.round(avgPreValue)] : 'N/A';
-  const avgPostMitigation = validConflicts > 0 ? reverseRiskMap[Math.round(avgPostValue)] : 'N/A';
-  
-  // Calculate improvement percentage
-  const improvementPercentage = validConflicts > 0 ? 
-    Math.round(((avgPreValue - avgPostValue) / avgPreValue) * 100) : 0;
+  const averageScore = validRisks > 0 ? Math.round(totalScore / validRisks) : 'N/A';
+  const avgLikelihood = validRisks > 0 ? Math.round(totalLikelihood / validRisks) : 'N/A';
+  const avgImpact = validRisks > 0 ? Math.round(totalImpact / validRisks) : 'N/A';
 
   // Find most common type
   const mostCommonType = Object.keys(typeCount).length > 0 ?
     Object.keys(typeCount).reduce((a, b) => typeCount[a] > typeCount[b] ? a : b) : 'N/A';
 
-  // Prepare chart data
-  const riskLevelsData = {
-    'Before Mitigation': avgPreValue,
-    'After Mitigation': avgPostValue
-  };
-
   return {
-    totalConflicts: conflicts.length,
-    avgPreMitigation,
-    avgPostMitigation,
-    improvementPercentage: Math.max(0, improvementPercentage), // Ensure non-negative
+    totalRisks: risks.length,
+    averageScore,
+    avgLikelihood,
+    avgImpact,
     highRiskCount,
     mostCommonType,
-    riskLevelsData,
+    riskLevelsData: scoreRanges,
     riskTypesData: typeCount
   };
 }
@@ -2057,18 +2062,31 @@ function renderRiskLevelsChart(riskAnalytics) {
   const ctx = document.getElementById('riskLevelsChart');
   if (!ctx) return;
 
+  const data = riskAnalytics.riskLevelsData;
+  const labels = Object.keys(data);
+  const values = Object.values(data);
+
   new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['Before Mitigation', 'After Mitigation'],
+      labels: labels,
       datasets: [{
-        label: 'Average Risk Level',
-        data: [
-          riskAnalytics.riskLevelsData['Before Mitigation'] || 0,
-          riskAnalytics.riskLevelsData['After Mitigation'] || 0
+        label: 'Number of Risks',
+        data: values,
+        backgroundColor: [
+          '#22c55e', // Very Low - Green
+          '#84cc16', // Low - Light Green
+          '#eab308', // Medium - Yellow
+          '#f97316', // High - Orange
+          '#ef4444'  // Very High - Red
         ],
-        backgroundColor: ['#ff6b6b', '#4ecdc4'],
-        borderColor: ['#e55656', '#45b7b8'],
+        borderColor: [
+          '#16a34a',
+          '#65a30d',
+          '#ca8a04',
+          '#ea580c',
+          '#dc2626'
+        ],
         borderWidth: 2,
         borderRadius: 8
       }]
@@ -2079,19 +2097,8 @@ function renderRiskLevelsChart(riskAnalytics) {
       scales: {
         y: {
           beginAtZero: true,
-          max: 5,
           ticks: {
-            stepSize: 1,
-            callback: function(value) {
-              const riskLabels = {
-                1: 'Very Low',
-                2: 'Low',
-                3: 'Medium', 
-                4: 'High',
-                5: 'Very High'
-              };
-              return riskLabels[value] || value;
-            }
+            stepSize: 1
           }
         }
       },
@@ -2102,15 +2109,7 @@ function renderRiskLevelsChart(riskAnalytics) {
         tooltip: {
           callbacks: {
             label: function(context) {
-              const riskLabels = {
-                1: 'Very Low',
-                2: 'Low',
-                3: 'Medium',
-                4: 'High', 
-                5: 'Very High'
-              };
-              const value = Math.round(context.parsed.y);
-              return `${context.label}: ${riskLabels[value] || value}`;
+              return `${context.label}: ${context.parsed.y} risks`;
             }
           }
         }
@@ -2123,7 +2122,7 @@ function renderRiskTypesChart(riskAnalytics) {
   const ctx = document.getElementById('riskTypesChart');
   if (!ctx || !riskAnalytics.riskTypesData || Object.keys(riskAnalytics.riskTypesData).length === 0) {
     if (ctx) {
-      ctx.getContext('2d').fillText('No conflict type data available', 50, 50);
+      ctx.getContext('2d').fillText('No risk type data available', 50, 50);
     }
     return;
   }
@@ -2148,6 +2147,13 @@ function renderRiskTypesChart(riskAnalytics) {
       plugins: {
         legend: {
           position: 'bottom'
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.label}: ${context.parsed} risks`;
+            }
+          }
         }
       }
     }

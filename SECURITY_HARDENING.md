@@ -392,6 +392,38 @@ These implementations address:
 - **Responsive Grid Layout** - Optimal viewing on all device sizes
 - **Loading States** - User feedback during analytics calculation and chart rendering
 
+## Risk Analytics Data Source Fix
+
+**Issue:** Risk analytics tab was not displaying data from the risk register, showing empty charts and metrics.
+
+**Root Cause:** The risk analytics was incorrectly trying to load data from `/api/conflicts` (conflict of interest data) instead of `/api/risks` (risk register data).
+
+**Solution Implemented:**
+- ✅ **Updated Data Source** - Changed from `/api/conflicts` to `/api/risks` endpoint
+- ✅ **Modified Analytics Loading** - Now loads both conflicts and risks data for comprehensive reporting
+- ✅ **Updated Risk Calculations** - Adapted calculations to work with risk register data structure
+- ✅ **Enhanced Metrics** - Changed from conflict-based to risk-based metrics:
+  - Average Risk Score (instead of improvement percentage)
+  - Total Risks (instead of total conflicts)
+  - High Risk Items (score 13+)
+  - Average Likelihood and Impact
+  - Risk Type Distribution
+- ✅ **Updated Charts** - Modified chart rendering to display risk score distribution and risk types
+
+**Risk Register Data Structure Used:**
+- `score` - Risk score (1-25)
+- `likelihood` - Risk occurrence probability (1-5)
+- `impact` - Potential impact severity (1-5)
+- `risk_type` - Category of risk
+- `residual_risk_level` - Risk level after mitigation
+
+**New Analytics Features:**
+- **Risk Score Distribution Chart** - Bar chart showing risks by score ranges (Very Low to Very High)
+- **Risk Type Distribution** - Doughnut chart showing breakdown by risk categories
+- **Comprehensive Metrics** - 6 key performance indicators for organizational risk management
+
+**Result:** Risk analytics now properly displays data from the risk register with meaningful insights and visualizations.
+
 ## Conflict Risk Level Enhancement
 
 **New Supabase Columns Added:**
@@ -420,4 +452,31 @@ These implementations address:
 **Technical Implementation:**
 - Form now shows: Before Mitigation Risk → Mitigation Actions → Residual Risk Level
 - Filtering uses `residual_risk_level` for operational decisions
-- All exports include both risk assessments for complete audit trail 
+- All exports include both risk assessments for complete audit trail
+
+## Role Criteria Display Fix - Enhanced
+
+**Issue:** Criteria bullet points were being cut off mid-sentence and breaking across multiple bullet points incorrectly.
+
+**Root Cause:** The criteria formatting functions were splitting text by multiple delimiters (line breaks, bullet points, asterisks, dashes) instead of respecting the intended format where each criteria item is on its own line ending with a full stop.
+
+**Solution Applied:**
+- **Admin Dashboard (`admin/js/app.js`):** Updated `formatCriteriaPreview()` and `formatCriteriaFull()` functions
+- **Public Volunteer Page (`volunteer.html`):** Updated `formatCriteria()` function
+- **Consistent Format:** Both functions now split only by line breaks (`\n`) and preserve complete sentences
+- **Clean Display:** Preview removes trailing full stops for cleaner bullet point display
+- **Full Display:** Complete criteria preserves full stops for proper sentence endings
+
+**Expected Format:** Each criteria item should be entered on a new line and end with a full stop, e.g.:
+```
+Experience managing volunteer teams.
+Strong communication and interpersonal skills.
+Available for weekend events and meetings.
+Knowledge of LGBTQIA+ community issues.
+```
+
+**Benefits:**
+- **Complete Sentences:** No more broken or truncated criteria items
+- **Consistent Display:** Same formatting across admin and public views
+- **Professional Appearance:** Clean, readable bullet point lists
+- **User-Friendly:** Clear instructions in form placeholders guide proper entry 
