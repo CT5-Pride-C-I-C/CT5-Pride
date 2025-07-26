@@ -2164,14 +2164,14 @@ function openRiskModal(riskId = null) {
     <div class="modal-dialog" style="max-width: 700px;">
       <div class="modal-header">
         <h2>${isEdit ? 'Edit Risk' : 'Add New Risk'}</h2>
-        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+        <button class="modal-close" type="button">&times;</button>
       </div>
-      <form class="modal-form" onsubmit="handleRiskSubmit(event, ${riskId ? `'${riskId}'` : 'null'})">
+      <form class="modal-form" id="risk-form">
         <div class="form-group">
           <label>Risk ID *</label>
           <input type="text" name="risk_id" value="${risk.risk_id || ''}" required 
                  placeholder="e.g. RISK-001, OP-2024-01">
-          <small style="font-size: 0.75rem; color: #6b7280;">Unique identifier for this risk</small>
+          <small>Unique identifier for this risk</small>
         </div>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
@@ -2200,29 +2200,29 @@ function openRiskModal(riskId = null) {
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
             <label>Likelihood (1-5) *</label>
-            <select name="likelihood" required onchange="updateRiskScore()">
+            <select name="likelihood" required>
               <option value="">Select</option>
               ${[1,2,3,4,5].map(val => `
                 <option value="${val}" ${risk.likelihood == val ? 'selected' : ''}>${val}</option>
               `).join('')}
             </select>
-            <small style="font-size: 0.75rem; color: #6b7280;">1 = Very Unlikely, 5 = Very Likely</small>
+            <small>1 = Very Unlikely, 5 = Very Likely</small>
           </div>
           <div class="form-group">
             <label>Impact (1-5) *</label>
-            <select name="impact" required onchange="updateRiskScore()">
+            <select name="impact" required>
               <option value="">Select</option>
               ${[1,2,3,4,5].map(val => `
                 <option value="${val}" ${risk.impact == val ? 'selected' : ''}>${val}</option>
               `).join('')}
             </select>
-            <small style="font-size: 0.75rem; color: #6b7280;">1 = Very Low Impact, 5 = Very High Impact</small>
+            <small>1 = Very Low Impact, 5 = Very High Impact</small>
           </div>
         </div>
         
         <div class="form-group">
           <label>Risk Score (Auto-calculated)</label>
-          <div id="risk-score-display" style="background: #f9fafb; border: 1px solid #d1d5db; border-radius: 6px; padding: 0.75rem; text-align: center; font-weight: 600; font-size: 1.125rem; color: #ff6f91;">
+          <div id="risk-score-display">
             ${risk.score || 'Select likelihood and impact'}
           </div>
         </div>
@@ -2241,11 +2241,11 @@ function openRiskModal(riskId = null) {
               <option value="${level}" ${risk.residual_risk_level === level ? 'selected' : ''}>${level}</option>
             `).join('')}
           </select>
-          <small style="font-size: 0.75rem; color: #6b7280;">Risk level after mitigation controls are applied</small>
+          <small>Risk level after mitigation controls are applied</small>
         </div>
         
         <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+          <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
           <button type="submit" class="btn btn-primary">${isEdit ? 'Update' : 'Create'} Risk</button>
         </div>
       </form>
@@ -2254,50 +2254,121 @@ function openRiskModal(riskId = null) {
   
   document.body.appendChild(modal);
   
-  // Initialize score if editing
-  if (isEdit && risk.likelihood && risk.impact) {
-    setTimeout(() => updateRiskScore(), 100);
+  // Add event listeners
+  const closeBtn = modal.querySelector('.modal-close');
+  const cancelBtn = modal.querySelector('.cancel-btn');
+  const form = modal.querySelector('#risk-form');
+  
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => modal.remove());
   }
+  
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => modal.remove());
+  }
+  
+  if (form) {
+    form.addEventListener('submit', (e) => handleRiskSubmit(e, riskId));
+    
+    // Add event listeners for score calculation
+    const likelihoodSelect = form.querySelector('select[name="likelihood"]');
+    const impactSelect = form.querySelector('select[name="impact"]');
+    
+    if (likelihoodSelect) {
+      likelihoodSelect.addEventListener('change', updateRiskScore);
+    }
+    
+    if (impactSelect) {
+      impactSelect.addEventListener('change', updateRiskScore);
+    }
+  }
+  
+  // Close modal when clicking outside
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  });
+  
+  // Initialize score display
+  setTimeout(() => {
+    if (isEdit && risk.likelihood && risk.impact) {
+      console.log('🔄 Initializing score for existing risk:', risk.score);
+      updateRiskScore();
+    } else {
+      // Set initial display for new risks
+      const scoreDisplay = document.querySelector('.modal-overlay #risk-score-display');
+      if (scoreDisplay) {
+        scoreDisplay.style.cssText = 'background: var(--gray-50); color: var(--primary-pink); border: 1px solid var(--gray-300); border-radius: var(--border-radius); padding: var(--space-3); text-align: center; font-weight: 600; font-size: var(--font-size-lg);';
+      }
+    }
+  }, 150);
 }
 
 function updateRiskScore() {
-  const likelihoodSelect = document.querySelector('select[name="likelihood"]');
-  const impactSelect = document.querySelector('select[name="impact"]');
-  const scoreDisplay = document.getElementById('risk-score-display');
+  console.log('🔢 Updating risk score...');
   
-  if (!likelihoodSelect || !impactSelect || !scoreDisplay) return;
+  const likelihoodSelect = document.querySelector('.modal-overlay select[name="likelihood"]');
+  const impactSelect = document.querySelector('.modal-overlay select[name="impact"]');
+  const scoreDisplay = document.querySelector('.modal-overlay #risk-score-display');
+  
+  console.log('Elements found:', { 
+    likelihood: !!likelihoodSelect, 
+    impact: !!impactSelect, 
+    display: !!scoreDisplay 
+  });
+  
+  if (!likelihoodSelect || !impactSelect || !scoreDisplay) {
+    console.warn('Risk score elements not found');
+    return;
+  }
   
   const likelihood = parseInt(likelihoodSelect.value) || 0;
   const impact = parseInt(impactSelect.value) || 0;
   
+  console.log('Values:', { likelihood, impact });
+  
   if (likelihood && impact) {
     const score = likelihood * impact;
+    console.log('Calculated score:', score);
     scoreDisplay.textContent = score;
-    scoreDisplay.style.cssText = `background: ${getRiskScoreStyle(score)}; color: white; border: 1px solid #d1d5db; border-radius: 6px; padding: 0.75rem; text-align: center; font-weight: 600; font-size: 1.125rem;`;
+    scoreDisplay.style.cssText = `${getRiskScoreStyle(score)} color: white; border: 1px solid var(--gray-300); border-radius: var(--border-radius); padding: var(--space-3); text-align: center; font-weight: 600; font-size: var(--font-size-lg);`;
   } else {
     scoreDisplay.textContent = 'Select likelihood and impact';
-    scoreDisplay.style.cssText = 'background: #f9fafb; color: #ff6f91; border: 1px solid #d1d5db; border-radius: 6px; padding: 0.75rem; text-align: center; font-weight: 600; font-size: 1.125rem;';
+    scoreDisplay.style.cssText = 'background: var(--gray-50); color: var(--primary-pink); border: 1px solid var(--gray-300); border-radius: var(--border-radius); padding: var(--space-3); text-align: center; font-weight: 600; font-size: var(--font-size-lg);';
   }
 }
 
 async function handleRiskSubmit(event, riskId) {
   event.preventDefault();
+  console.log('📝 Risk form submitted', { riskId });
   
   const form = event.target;
   const formData = new FormData(form);
   const riskData = Object.fromEntries(formData.entries());
+  
+  console.log('📋 Form data collected:', riskData);
   
   // Calculate score
   riskData.likelihood = parseInt(riskData.likelihood);
   riskData.impact = parseInt(riskData.impact);
   riskData.score = riskData.likelihood * riskData.impact;
   
+  console.log('🔢 Calculated values:', { 
+    likelihood: riskData.likelihood, 
+    impact: riskData.impact, 
+    score: riskData.score 
+  });
+  
   // Validate required fields
   if (!riskData.risk_id || !riskData.title || !riskData.risk_type || 
       !riskData.likelihood || !riskData.impact || !riskData.residual_risk_level) {
+    console.warn('❌ Validation failed:', riskData);
     showError('Please fill in all required fields');
     return;
   }
+  
+  console.log('✅ Validation passed, submitting to API...');
   
   try {
     const submitBtn = form.querySelector('button[type="submit"]');
@@ -2332,7 +2403,8 @@ async function handleRiskSubmit(event, riskId) {
     }
     
     showSuccess(riskId ? 'Risk updated successfully!' : 'Risk created successfully!');
-    document.querySelector('.modal-overlay').remove();
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) modal.remove();
     await loadRisks();
     
   } catch (err) {

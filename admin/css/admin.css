@@ -1236,6 +1236,372 @@ body {
   text-decoration: underline;
 }
 
+/* ==================== RISK REGISTER STYLES ==================== */
+
+/* Risk Register Page Header Actions */
+.page-header-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Export Dropdown Styles */
+.export-dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  position: relative;
+}
+
+.dropdown-toggle::after {
+  content: " ▼";
+  font-size: 0.8em;
+  margin-left: var(--space-1);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  min-width: 200px;
+  margin-top: var(--space-1);
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: var(--font-size-sm);
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: var(--transition);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.dropdown-item:hover {
+  background: var(--gray-50);
+  color: var(--primary-pink);
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
+.dropdown-item:first-child {
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+/* Risk Table Styles */
+.risk-register-container {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+}
+
+.risk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.risk-table thead {
+  background: var(--cosmic-gradient);
+  color: white;
+}
+
+.risk-table th {
+  padding: var(--space-3);
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.risk-table td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--gray-200);
+  border-right: 1px solid var(--gray-200);
+}
+
+.risk-table tbody tr:hover {
+  background: var(--gray-50);
+}
+
+/* Risk Score Badge */
+.risk-score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: white;
+}
+
+/* Residual Risk Level Badge */
+.residual-risk-badge {
+  padding: var(--space-1) var(--space-2);
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* Filter Controls */
+.risk-filters {
+  display: flex;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.filter-group label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.filter-group select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  background: white;
+  min-width: 150px;
+}
+
+/* Modal Styles for Risk Register */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: var(--space-4);
+}
+
+.modal-dialog {
+  background: white;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  padding: var(--space-6);
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--cosmic-gradient);
+  color: white;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: white;
+  cursor: pointer;
+  padding: var(--space-2);
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-form {
+  padding: var(--space-6);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.form-group {
+  margin-bottom: var(--space-5);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-weight: 500;
+  color: var(--gray-700);
+  font-size: var(--font-size-sm);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  transition: var(--transition);
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-pink);
+  box-shadow: 0 0 0 3px rgba(255, 111, 145, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.form-group small {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
+}
+
+.modal-actions {
+  padding: var(--space-6);
+  border-top: 1px solid var(--gray-200);
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+/* Risk Score Display */
+#risk-score-display {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  padding: var(--space-3);
+  text-align: center;
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+  color: var(--primary-pink);
+  transition: var(--transition);
+}
+
+/* Risk Register Mobile Responsive */
+@media (max-width: 768px) {
+  .page-header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  
+  .export-dropdown {
+    width: 100%;
+  }
+  
+  .dropdown-toggle {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .dropdown-menu {
+    left: 0;
+    right: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .dropdown-item {
+    padding: var(--space-4);
+    font-size: var(--font-size-base);
+  }
+  
+  .risk-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .filter-group select {
+    min-width: 100%;
+  }
+  
+  .modal-dialog {
+    margin: var(--space-2);
+    max-width: none;
+    width: calc(100% - 2 * var(--space-2));
+  }
+  
+  .modal-form {
+    padding: var(--space-4);
+  }
+  
+  .modal-header {
+    padding: var(--space-4);
+  }
+  
+  .modal-actions {
+    padding: var(--space-4);
+    flex-direction: column;
+  }
+  
+  /* Make grid layouts stack on mobile */
+  .modal-form div[style*="grid-template-columns"] {
+    display: block !important;
+  }
+  
+  .modal-form div[style*="grid-template-columns"] .form-group {
+    margin-bottom: var(--space-4);
+  }
+  
+  .risk-table {
+    font-size: var(--font-size-xs);
+  }
+  
+  .risk-table th,
+  .risk-table td {
+    padding: var(--space-2);
+  }
+}
+
 /* ==================== RESPONSIVE DESIGN ==================== */
 
 /* Mobile-first improvements */
