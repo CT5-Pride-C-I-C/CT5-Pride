@@ -1897,6 +1897,358 @@ app.get('/api/memberships', requireSupabaseAuth, async (req, res) => {
   }
 });
 
+// ==================== RISK REGISTER API ENDPOINTS ====================
+
+// Get all risks
+app.get('/api/risks', requireSupabaseAuth, async (req, res) => {
+  try {
+    console.log('📊 Fetching risks from database...');
+    
+    const { data: risks, error } = await supabase
+      .from('risk_register')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Risk fetch error:', error);
+      throw error;
+    }
+
+    console.log(`✅ Successfully fetched ${risks?.length || 0} risks`);
+    
+    res.json({
+      success: true,
+      risks: risks || []
+    });
+
+  } catch (error) {
+    console.error('Risk fetch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch risks',
+      error: error.message
+    });
+  }
+});
+
+// Create new risk
+app.post('/api/risks', requireSupabaseAuth, async (req, res) => {
+  try {
+    console.log('📝 Creating new risk:', req.body);
+    
+    const riskData = req.body;
+    
+    // Validate required fields
+    if (!riskData.risk_id || !riskData.title || !riskData.risk_type || 
+        !riskData.likelihood || !riskData.impact || !riskData.residual_risk_level) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+    
+    // Ensure likelihood and impact are numbers
+    riskData.likelihood = parseInt(riskData.likelihood);
+    riskData.impact = parseInt(riskData.impact);
+    riskData.score = riskData.likelihood * riskData.impact;
+    
+    const { data: risk, error } = await supabase
+      .from('risk_register')
+      .insert([riskData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Risk creation error:', error);
+      throw error;
+    }
+
+    console.log('✅ Risk created successfully:', risk.id);
+    
+    res.json({
+      success: true,
+      risk: risk,
+      message: 'Risk created successfully'
+    });
+
+  } catch (error) {
+    console.error('Risk creation error:', error);
+    
+    // Handle unique constraint violations
+    if (error.code === '23505') {
+      return res.status(400).json({
+        success: false,
+        message: 'Risk ID already exists. Please use a unique identifier.'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create risk',
+      error: error.message
+    });
+  }
+});
+
+// Update existing risk
+app.put('/api/risks/:id', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const riskData = req.body;
+    
+    console.log(`📝 Updating risk ${id}:`, riskData);
+    
+    // Validate required fields
+    if (!riskData.risk_id || !riskData.title || !riskData.risk_type || 
+        !riskData.likelihood || !riskData.impact || !riskData.residual_risk_level) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
+    }
+    
+    // Ensure likelihood and impact are numbers
+    riskData.likelihood = parseInt(riskData.likelihood);
+    riskData.impact = parseInt(riskData.impact);
+    riskData.score = riskData.likelihood * riskData.impact;
+    
+    const { data: risk, error } = await supabase
+      .from('risk_register')
+      .update(riskData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Risk update error:', error);
+      throw error;
+    }
+
+    if (!risk) {
+      return res.status(404).json({
+        success: false,
+        message: 'Risk not found'
+      });
+    }
+
+    console.log('✅ Risk updated successfully:', id);
+    
+    res.json({
+      success: true,
+      risk: risk,
+      message: 'Risk updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Risk update error:', error);
+    
+    // Handle unique constraint violations
+    if (error.code === '23505') {
+      return res.status(400).json({
+        success: false,
+        message: 'Risk ID already exists. Please use a unique identifier.'
+      });
+    }
+    
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update risk',
+      error: error.message
+    });
+  }
+});
+
+// Delete risk
+app.delete('/api/risks/:id', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log(`🗑️ Deleting risk ${id}`);
+    
+    const { data: risk, error } = await supabase
+      .from('risk_register')
+      .delete()
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Risk deletion error:', error);
+      throw error;
+    }
+
+    if (!risk) {
+      return res.status(404).json({
+        success: false,
+        message: 'Risk not found'
+      });
+    }
+
+    console.log('✅ Risk deleted successfully:', id);
+    
+    res.json({
+      success: true,
+      message: 'Risk deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Risk deletion error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete risk',
+      error: error.message
+    });
+  }
+});
+
+// Get single risk by ID
+app.get('/api/risks/:id', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log(`📊 Fetching risk ${id}`);
+    
+    const { data: risk, error } = await supabase
+      .from('risk_register')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Risk fetch error:', error);
+      throw error;
+    }
+
+    if (!risk) {
+      return res.status(404).json({
+        success: false,
+        message: 'Risk not found'
+      });
+    }
+
+    console.log('✅ Risk fetched successfully:', id);
+    
+    res.json({
+      success: true,
+      risk: risk
+    });
+
+  } catch (error) {
+    console.error('Risk fetch error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch risk',
+      error: error.message
+    });
+  }
+});
+
+// Export risks in various formats
+app.get('/api/risks/export/:format', requireSupabaseAuth, async (req, res) => {
+  try {
+    const { format } = req.params;
+    const { risk_type, residual_risk_level } = req.query;
+    
+    console.log(`📄 Exporting risks to ${format}...`);
+    
+    // Build query with optional filters
+    let query = supabase
+      .from('risk_register')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (risk_type) {
+      query = query.eq('risk_type', risk_type);
+    }
+    
+    if (residual_risk_level) {
+      query = query.eq('residual_risk_level', residual_risk_level);
+    }
+    
+    const { data: risks, error } = await query;
+
+    if (error) {
+      console.error('Risk export fetch error:', error);
+      throw error;
+    }
+
+    if (!risks || risks.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No risks found to export'
+      });
+    }
+
+    const timestamp = new Date().toISOString().split('T')[0];
+    
+    switch (format.toLowerCase()) {
+      case 'csv':
+        const csvHeaders = [
+          'Risk ID', 'Title', 'Description', 'Risk Type', 'Likelihood', 
+          'Impact', 'Score', 'Mitigation', 'Residual Risk Level', 
+          'Created Date', 'Updated Date'
+        ];
+        
+        const csvRows = risks.map(risk => [
+          `"${(risk.risk_id || '').replace(/"/g, '""')}"`,
+          `"${(risk.title || '').replace(/"/g, '""')}"`,
+          `"${(risk.description || '').replace(/"/g, '""')}"`,
+          `"${(risk.risk_type || '').replace(/"/g, '""')}"`,
+          risk.likelihood || '',
+          risk.impact || '',
+          risk.score || '',
+          `"${(risk.mitigation || '').replace(/"/g, '""')}"`,
+          `"${(risk.residual_risk_level || '').replace(/"/g, '""')}"`,
+          risk.created_at ? new Date(risk.created_at).toLocaleDateString('en-GB') : '',
+          risk.updated_at ? new Date(risk.updated_at).toLocaleDateString('en-GB') : ''
+        ].join(','));
+        
+        const csvContent = [csvHeaders.join(','), ...csvRows].join('\n');
+        
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="CT5_Pride_Risk_Register_${timestamp}.csv"`);
+        res.send(csvContent);
+        break;
+        
+      case 'json':
+        const exportData = {
+          metadata: {
+            generated_at: new Date().toISOString(),
+            generated_by: 'CT5 Pride Risk Management System',
+            total_risks: risks.length,
+            export_version: '1.0',
+            filters: {
+              risk_type: risk_type || null,
+              residual_risk_level: residual_risk_level || null
+            }
+          },
+          risks: risks
+        };
+        
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="CT5_Pride_Risk_Register_${timestamp}.json"`);
+        res.json(exportData);
+        break;
+        
+      default:
+        res.status(400).json({
+          success: false,
+          message: 'Unsupported export format. Use CSV or JSON.'
+        });
+    }
+
+    console.log(`✅ Successfully exported ${risks.length} risks as ${format.toUpperCase()}`);
+
+  } catch (error) {
+    console.error('Risk export error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to export risks',
+      error: error.message
+    });
+  }
+});
+
 // ==================== STATIC FILE SERVING ====================
 
 // Serve Images directory at root level for logo and assets  

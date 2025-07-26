@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Permissions-Policy" content="interest-cohort=(), bounces=(), browsing-topics=()">
+    <title>CT5 Pride - Risk Register</title>
+    <meta name="description" content="Manage organizational risks and mitigation strategies">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/Images/Logo-with-Transparent-background.svg">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/Images/Logo-with-Transparent-background.svg" as="image">
+    
+    <!-- Load Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Load Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Admin Styles -->
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    
+    <style>
+        /* Risk Register Specific Styles */
+        .risk-register-container {
+            padding: var(--space-6);
+        }
+        
+        .risk-filters {
+            display: flex;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+        }
+        
+        .filter-group label {
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+        
+        .filter-group select {
+            padding: var(--space-2) var(--space-3);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-sm);
+            background: white;
+            min-width: 150px;
+        }
+        
+        .risk-table-container {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--gray-200);
+        }
+        
+        .risk-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--font-size-sm);
+        }
+        
+        .risk-table thead {
+            background: linear-gradient(135deg, var(--primary-pink), var(--secondary-coral));
+            color: white;
+        }
+        
+        .risk-table th,
+        .risk-table td {
+            padding: var(--space-3);
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .risk-table th {
+            font-weight: 600;
+            font-size: var(--font-size-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .risk-table tbody tr:hover {
+            background-color: var(--gray-50);
+        }
+        
+        .risk-score-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+            color: white;
+        }
+        
+        .risk-score-1-4 { background-color: #22c55e; } /* Green - Very Low */
+        .risk-score-5-8 { background-color: #84cc16; } /* Light Green - Low */
+        .risk-score-9-12 { background-color: #eab308; } /* Yellow - Medium */
+        .risk-score-13-16 { background-color: #f97316; } /* Orange - High */
+        .risk-score-17-25 { background-color: #ef4444; } /* Red - Very High */
+        
+        .residual-risk-badge {
+            padding: var(--space-1) var(--space-2);
+            border-radius: 12px;
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .residual-very-low { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+        .residual-low { background: rgba(132, 204, 22, 0.1); color: #84cc16; }
+        .residual-medium { background: rgba(234, 179, 8, 0.1); color: #eab308; }
+        .residual-high { background: rgba(249, 115, 22, 0.1); color: #f97316; }
+        .residual-very-high { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        
+        .action-buttons {
+            display: flex;
+            gap: var(--space-2);
+        }
+        
+        .action-buttons button {
+            padding: var(--space-1) var(--space-2);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-edit {
+            background: var(--info-blue);
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+        
+        .btn-delete {
+            background: var(--danger-red);
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+        
+        .score-display {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            padding: var(--space-3);
+            text-align: center;
+            font-weight: 600;
+            font-size: var(--font-size-lg);
+            color: var(--primary-pink);
+        }
+        
+        .no-risks {
+            text-align: center;
+            padding: var(--space-8);
+            color: var(--gray-500);
+        }
+        
+        .no-risks h3 {
+            font-size: var(--font-size-xl);
+            color: var(--gray-700);
+            margin: 0 0 var(--space-4) 0;
+        }
+        
+        .no-risks p {
+            margin: 0 0 var(--space-6) 0;
+        }
+        
+        /* Export Dropdown Styles */
+        .page-header-actions {
+            display: flex;
+            gap: var(--space-3);
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .export-dropdown {
+            position: relative;
+        }
+        
+        .dropdown-toggle {
+            position: relative;
+        }
+        
+        .dropdown-toggle::after {
+            content: " ▼";
+            font-size: 0.8em;
+            margin-left: var(--space-1);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            min-width: 200px;
+            margin-top: var(--space-1);
+        }
+        
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            border: none;
+            background: none;
+            text-align: left;
+            font-size: var(--font-size-sm);
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid var(--gray-100);
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--gray-50);
+            color: var(--primary-pink);
+        }
+        
+        .dropdown-item:first-child {
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+        }
+        
+        @media (max-width: 768px) {
+            .risk-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group select {
+                min-width: 100%;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .risk-table-container {
+                overflow-x: auto;
+            }
+            
+            .risk-table {
+                min-width: 800px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            /* Mobile export dropdown */
+            .page-header-actions {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--space-2);
+            }
+            
+            .export-dropdown {
+                width: 100%;
+            }
+            
+            .dropdown-toggle {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .dropdown-menu {
+                left: 0;
+                right: 0;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .dropdown-item {
+                padding: var(--space-4);
+                font-size: var(--font-size-base);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip to Main Content -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Progress Pride Flag Stripe -->
+    <div class="pride-stripe" role="presentation"></div>
+    
+    <!-- Main App Container -->
+    <div id="app" role="main" aria-live="polite" tabindex="-1">
+        <!-- Content will be dynamically loaded here -->
+        <div class="loading-container">
+            <div class="hero-section">
+                <div class="hero-background"></div>
+                <div class="hero-content">
+                    <img src="/Images/Logo-with-Transparent-background.svg" alt="CT5 Pride Logo" class="hero-logo">
+                    <h1 class="hero-title">CT5 Pride</h1>
+                    <p class="hero-subtitle">Risk Register Management</p>
+                </div>
+            </div>
+            <div class="loading-spinner"></div>
+            <p>Initializing risk register...</p>
+        </div>
+    </div>
+    
+    <!-- Footer with pride stripe -->
+    <div class="pride-stripe" role="presentation"></div>
+    
+    <footer class="admin-footer">
+        <div class="container">
+            <p>&copy; 2024 CT5 Pride Community Interest Company</p>
+            <div class="footer-links">
+                <a href="/privacy.html">Privacy Policy</a>
+                <a href="/">Main Site</a>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Load risk register JavaScript -->
+    <script src="/admin/js/risk-register.js"></script>
+</body>
+</html> 

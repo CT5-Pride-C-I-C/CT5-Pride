@@ -63,6 +63,7 @@ let analytics = {};
 // Navigation state
 const navigation = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+  { id: 'risk-register', label: 'Risk Register', icon: '⚠️', url: '/admin/risk_register.html' },
   { id: 'roles', label: 'Role Management', icon: '👥' },
   { id: 'applications', label: 'Applications', icon: '📝' },
   { id: 'events', label: 'Event Management', icon: '📅' },
@@ -557,7 +558,7 @@ function renderNavigation(currentView) {
         ${navigation.map(item => `
           <li>
             <a 
-              href="#/${item.id}" 
+              href="${item.url || '#/' + item.id}" 
               class="nav-link ${currentView === item.id ? 'active' : ''}"
               aria-current="${currentView === item.id ? 'page' : 'false'}"
             >
