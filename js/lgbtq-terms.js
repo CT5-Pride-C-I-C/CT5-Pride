@@ -81,6 +81,19 @@ const lgbtqTerms = [
         example: "Coming out is a personal and ongoing process that can happen multiple times throughout a person's life."
     },
     {
+        term: "Closet",
+        category: "general",
+        definition: "Used as slang for the state of not publicising one's sexual orientation or gender identity, keeping it private, living an outwardly heterosexual life while identifying as LGBTQ+, or not being forthcoming about one's identity. At times, being in the closet also means not wanting to admit one's sexual identity to oneself.",
+        example: "Someone might say 'I'm in the closet' to describe keeping their LGBTQ+ identity private from family, friends, or colleagues."
+    },
+    {
+        term: "Cruising",
+        category: "general",
+        definition: "To search (as in public places) for a sexual partner.",
+        example: "Cruising typically involves visiting specific locations where people look for casual sexual encounters.",
+        mature: true
+    },
+    {
         term: "Deadnaming",
         category: "general",
         definition: "Calling someone by their birth name after they have changed their name. This term is often associated with trans people who have changed their name as part of their transition.",
@@ -129,6 +142,12 @@ const lgbtqTerms = [
         example: "A person's gender identity is their internal understanding of who they are, regardless of how they present to the world."
     },
     {
+        term: "Fluid",
+        category: "gender-identity",
+        definition: "A sexual or gender identity that exists beyond a binary system of either gay or straight, man or woman. People with a fluid identity may resist using labels or choosing boxes to define themselves. Also used by people whose sexual or gender identity is not fixed on one point of a continuum.",
+        example: "A person with a fluid identity might feel more masculine on some days and more feminine on others, or may reject gender and sexual orientation labels entirely."
+    },
+    {
         term: "Gender incongruence",
         category: "gender-identity",
         definition: "A term used to describe the mismatch between a person's gender and the sex they were assigned at birth. This is also the clinical diagnosis used by the NHS for someone who is trans.",
@@ -157,6 +176,12 @@ const lgbtqTerms = [
         category: "gender-identity",
         definition: "This enables trans people to be legally recognised in their affirmed gender and to be issued with a new birth certificate, if they choose. You currently have to be over 18 to apply.",
         example: "A GRC allows a trans person to be legally recognised as their true gender for official purposes."
+    },
+    {
+        term: "Gender Transition",
+        category: "general",
+        definition: "The social, psychological &/or medical process of transitioning from one gender to another. Gender transition is an individualized process and does not involve the same steps for everyone. Transition may include telling one's social support network; legally changing one's name or sex; therapeutic treatment with hormones; and possibly, though in not all instances, surgery.",
+        example: "A person's gender transition might involve coming out to friends and family, changing their name legally, starting hormone therapy, or undergoing gender-affirming surgeries."
     },
     {
         term: "Grey (sexual and romantic)",
@@ -207,6 +232,12 @@ const lgbtqTerms = [
         example: "The '+' symbol represents the many other identities that are part of the community."
     },
     {
+        term: "LGBTQIA2S+",
+        category: "general",
+        definition: "An acronym for Lesbian, Gay, Bisexual, Transgender, Queer and/or Questioning, Intersex, Asexual, Two-Spirit, and the countless affirmative ways in which people choose to self-identify.",
+        example: "The LGBTQIA2S+ acronym is an expanded version that includes more identities, with the '+' symbol representing the countless other ways people choose to self-identify."
+    },
+    {
         term: "Non-binary",
         category: "gender-identity",
         definition: "A term for people whose gender doesn't sit comfortably with 'man' or 'woman'. Non-binary identities are varied and can include people who identify with some aspects of binary identities, while others reject them entirely.",
@@ -225,10 +256,22 @@ const lgbtqTerms = [
         example: "Being outed can be very distressing and can put people at risk of discrimination or harm."
     },
     {
+        term: "Outing",
+        category: "general",
+        definition: "When someone discloses information about another's sexual orientation or gender identity without their knowledge and/or consent. If you need support following an outing experience please see our help & support section.",
+        example: "Outing someone can have serious consequences for their safety, relationships, and mental health, and should never be done without explicit consent."
+    },
+    {
         term: "Pan",
         category: "sexual-orientation",
         definition: "Refers to a person whose attraction towards others doesn't regard sex or gender. Stonewall includes pan within its umbrella term 'bi'.",
         example: "A pan person might be attracted to people regardless of their gender identity."
+    },
+    {
+        term: "Questioning",
+        category: "sexual-orientation",
+        definition: "The process of examining one's sexual orientation and/or gender identity. Can be used as an adjective.",
+        example: "Someone who is questioning their sexual orientation might be exploring their attraction patterns and trying to understand their sexuality."
     },
     {
         term: "Passing",
@@ -257,7 +300,7 @@ const lgbtqTerms = [
     {
         term: "Questioning",
         category: "general",
-        definition: "The process of exploring your own sexual orientation and/or gender identity.",
+        definition: "The process of examining one's sexual orientation and/or gender identity. Can be used as an adjective.",
         example: "Someone who is questioning might be unsure about their sexuality or gender and is actively exploring these aspects of themselves."
     },
     {
@@ -273,6 +316,12 @@ const lgbtqTerms = [
         example: "Someone might be asexual but still experience romantic attraction to people of the same gender."
     },
     {
+        term: "Gay Polyamorous",
+        category: "romantic-orientation",
+        definition: "Also known as gay poly or poly gay, refers to individuals who identify as both gay (or homosexual) and polyamorous. This means they are attracted to people of the same gender and also have a philosophy or practice of engaging in romantic relationships with multiple partners, with the consent of all involved.",
+        example: "A gay polyamorous person might be a man romantically attracted to other men who also practices polyamory, having multiple romantic relationships with other men simultaneously."
+    },
+    {
         term: "Sex",
         category: "general",
         definition: "The categories of male and female, which are assigned to a person on the basis of their primary sex characteristics (genitalia) and reproductive functions. 'Sex' also refers to sexual activity and intercourse.",
@@ -283,6 +332,12 @@ const lgbtqTerms = [
         category: "sexual-orientation",
         definition: "A person's sexual attraction to other people, or lack thereof. Along with romantic orientation, this forms a person's orientation identity.",
         example: "Sexual orientation describes who you are sexually attracted to, while romantic orientation describes who you are romantically attracted to."
+    },
+    {
+        term: "Sapiosexual",
+        category: "sexual-orientation",
+        definition: "A person who is emotionally, romantically, sexually, affectionately, or relationally attracted to intelligence and its use.",
+        example: "A sapiosexual person might be primarily attracted to someone's intellectual capacity, wit, or how they use their intelligence in conversation and problem-solving."
     },
     {
         term: "Spectrum",
@@ -402,7 +457,8 @@ const lgbtqTerms = [
         term: "Spunk Monkey",
         category: "community-tribes",
         definition: "Late 30s. Laid back but easily excited around men. Into long bouts of energetic, bouncy 'Tiggerish' sex. Likely habitats: Camberwell",
-        example: "This term describes a specific personality type within the community, characterized by high energy and enthusiasm."
+        example: "This term describes a specific personality type within the community, characterized by high energy and enthusiasm.",
+        mature: true
     },
     {
         term: "Twinks",
@@ -439,6 +495,18 @@ const lgbtqTerms = [
         category: "community-tribes",
         definition: "And everyone else",
         example: "This category acknowledges that not everyone fits into specific tribal categories and celebrates the diversity of the community."
+    },
+    {
+        term: "Drag King",
+        category: "general",
+        definition: "A female-bodied individual who dresses in masculine or male-designated clothing. A Drag King's cross-dressing is usually on a part-time basis and many work as entertainers at LGBTQ or straight nightclubs.",
+        example: "Drag Kings often perform in nightclubs, creating masculine personas through clothing, makeup, and performance."
+    },
+    {
+        term: "Drag Queen",
+        category: "general",
+        definition: "A male-bodied individual who wears female-designated or feminine clothing. Drag Queens usually cross-dress on a part-time basis and often perform in nightclubs by singing, dancing, or lip-synching.",
+        example: "Drag Queens are performers who create feminine personas through elaborate costumes, makeup, and entertainment acts."
     }
 ];
 
@@ -492,15 +560,36 @@ function setupEventListeners() {
             filterTerms();
         });
     });
+    
+    // Mature content toggle
+    const matureToggle = document.getElementById('matureToggle');
+    if (matureToggle) {
+        matureToggle.addEventListener('change', function() {
+            filterTerms();
+            
+            // Show/hide mature filter button
+            const matureFilterBtn = document.querySelector('.mature-filter');
+            if (matureFilterBtn) {
+                matureFilterBtn.style.display = this.checked ? 'inline-flex' : 'none';
+            }
+        });
+    }
 }
 
 // Filter and search terms
 function filterTerms() {
     const searchTerm = searchInput.value.toLowerCase().trim();
+    const matureToggle = document.getElementById('matureToggle');
+    const showMatureContent = matureToggle ? matureToggle.checked : false;
     
     filteredTerms = lgbtqTerms.filter(term => {
         // Check if term matches current filter
-        const matchesFilter = currentFilter === 'all' || term.category === currentFilter;
+        let matchesFilter = currentFilter === 'all' || term.category === currentFilter;
+        
+        // Handle mature filter
+        if (currentFilter === 'mature') {
+            matchesFilter = term.mature === true;
+        }
         
         // Check if term matches search
         const matchesSearch = searchTerm === '' || 
@@ -508,7 +597,10 @@ function filterTerms() {
             term.definition.toLowerCase().includes(searchTerm) ||
             term.example.toLowerCase().includes(searchTerm);
         
-        return matchesFilter && matchesSearch;
+        // Check mature content filter
+        const matchesMatureFilter = !term.mature || showMatureContent;
+        
+        return matchesFilter && matchesSearch && matchesMatureFilter;
     });
     
     renderTerms();
@@ -528,7 +620,7 @@ function renderTerms() {
     }
     
     termsGrid.innerHTML = filteredTerms.map((term, index) => `
-        <div class="term-card" data-term-index="${index}">
+        <div class="term-card ${term.mature ? 'mature' : ''}" data-term-index="${index}">
             <div class="term-header">
                 <h3 class="term-title">${term.term}</h3>
                 <span class="term-category">${getCategoryLabel(term.category)}</span>
@@ -604,7 +696,8 @@ function getCategoryLabel(category) {
         'gender-identity': 'Gender Identity',
         'romantic-orientation': 'Romantic Orientation',
         'community-tribes': 'Community Tribes',
-        'general': 'General Terms'
+        'general': 'General Terms',
+        'mature': 'Mature Content'
     };
     return labels[category] || category;
 }
