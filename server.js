@@ -77,10 +77,10 @@ app.use((req, res, next) => {
   // Strict Transport Security (HSTS) - Force HTTPS for 1 year
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   
-  // Content Security Policy - Comprehensive security policy
+  // Content Security Policy - Secure policy without unsafe directives
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://js.stripe.com https://checkout.stripe.com",
+    "script-src 'self' https://cdn.jsdelivr.net https://js.stripe.com https://checkout.stripe.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
