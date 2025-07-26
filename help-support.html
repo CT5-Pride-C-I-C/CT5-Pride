@@ -69,6 +69,7 @@
                             <a href="#" aria-haspopup="true" aria-expanded="false" aria-current="page">Support & Education</a>
                             <ul class="dropdown-content" role="menu">
                                 <li role="none"><a href="help-support.html" role="menuitem" aria-current="page">Help & Support</a></li>
+                                <li role="none"><a href="lgbtq-terms.html" role="menuitem">LGBTQ+ Terms</a></li>
                                 <li role="none"><a href="pride-quiz.html" role="menuitem">Pride Knowledge Quiz</a></li>
                                 <li role="none"><a href="breathing-exercise.html" role="menuitem">Mindful Breathing Exercise</a></li>
                                 <li role="none"><a href="lgbtq-history.html" role="menuitem">History of LGBTQ+ Rights</a></li>
@@ -102,93 +103,112 @@
             </div>
         </section>
 
-        <!-- Vibrant Section Divider -->
-        <div class="section-divider" role="separator" aria-hidden="true"></div>
-
-        <!-- Emergency Notice with better contrast -->
-        <section style="background: linear-gradient(135deg, #d32f2f, #f44336); color: white; padding: 2rem 0; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <!-- Emergency Support Section -->
+        <section class="emergency-notice" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 2rem 0; text-align: center;">
             <div class="container">
-                <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 2rem; border: 2px solid rgba(255,255,255,0.2);">
-                    <h2 style="margin-bottom: 1rem; font-size: 1.8rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🚨 Emergency Support</h2>
-                    <p style="font-size: 1.2rem; font-weight: 600; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); line-height: 1.6;">
-                        If you're in immediate danger or experiencing a mental health crisis, please call <a href="tel:999" style="color: #ffeb3b; text-decoration: none; font-weight: bold; font-size: 1.3rem;">999</a> or go to your nearest A&E department.
+                <div class="emergency-content">
+                    <h2 style="font-size: 2rem; margin-bottom: 1rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
+                        🚨 Emergency Support
+                    </h2>
+                    <p style="font-size: 1.2rem; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                        If you're in immediate danger or experiencing a mental health crisis, please call <strong>999</strong> or go to your nearest A&E department.
                     </p>
                 </div>
             </div>
         </section>
 
-        <!-- Interactive Tools Section - Featured at Top -->
-        <section class="decorative-shapes" style="background: var(--pastel-gradient); padding: 4rem 0;">
+        <!-- Interactive Tools Section -->
+        <section class="support-section" style="padding: 4rem 0; background: var(--gray-50);">
             <div class="container">
-                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 1.5rem; color: var(--text); text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
-                    🛠️ Interactive Tools & Resources
-                </h2>
-                <p style="text-align: center; font-size: 1.2rem; color: var(--text-light); margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-                    Start here! Use our custom-built educational and wellbeing tools designed specifically for our community.
-                </p>
-                
-                <div class="tools-grid">
-                    <div class="tool-card" style="background: linear-gradient(135deg, rgba(228, 3, 3, 0.1), rgba(255, 255, 255, 0.95)); border-left: 6px solid var(--pride-red);">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">🏳️‍🌈</div>
-                        <h3>Pride Knowledge Quiz</h3>
-                        <p>Celebrate and learn! Test your knowledge on LGBTQIA+ history, culture, and community achievements. Interactive, educational, and fun!</p>
-                        <a href="pride-quiz.html" class="button primary" style="margin-top: 1rem;">Take the Pride Quiz</a>
+                <div class="section-intro" style="text-align: center; margin-bottom: 3rem;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--gray-800);">
+                        🛠️ Interactive Tools & Resources
+                    </h2>
+                    <p style="font-size: 1.2rem; color: var(--gray-600); max-width: 600px; margin: 0 auto;">
+                        Start here! Use our custom-built educational and wellbeing tools designed specifically for our community.
+                    </p>
+                </div>
+
+                <div class="tools-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                    <!-- Pride Knowledge Quiz -->
+                    <div class="tool-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
+                        <div style="text-align: center; margin-bottom: 1.5rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🏳️‍🌈</div>
+                            <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--gray-800);">Pride Knowledge Quiz</h3>
+                            <p style="color: var(--gray-600); line-height: 1.6; margin-bottom: 1.5rem;">
+                                Celebrate and learn! Test your knowledge on LGBTQIA+ history, culture, and community achievements. Interactive, educational, and fun!
+                            </p>
+                            <a href="pride-quiz.html" class="button" style="display: inline-block; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #ff6f91, #ff9671); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">
+                                Take the Pride Quiz
+                            </a>
+                        </div>
                     </div>
 
-                    <div class="tool-card" style="background: linear-gradient(135deg, rgba(91, 207, 250, 0.1), rgba(255, 255, 255, 0.95)); border-left: 6px solid #5bcffa;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">🧘‍♀️</div>
-                        <h3>Mindful Breathing Exercise</h3>
-                        <p>Feeling anxious or overwhelmed? Take a moment to practice calming breathing exercises designed to help you centre yourself and manage stress.</p>
-                        <a href="breathing-exercise.html" class="button primary" style="margin-top: 1rem;">Start Breathing Exercise</a>
+                    <!-- Mindful Breathing Exercise -->
+                    <div class="tool-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
+                        <div style="text-align: center; margin-bottom: 1.5rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🧘‍♀️</div>
+                            <h3 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--gray-800);">Mindful Breathing Exercise</h3>
+                            <p style="color: var(--gray-600); line-height: 1.6; margin-bottom: 1.5rem;">
+                                Feeling anxious or overwhelmed? Take a moment to practice calming breathing exercises designed to help you centre yourself and manage stress.
+                            </p>
+                            <a href="breathing-exercise.html" class="button" style="display: inline-block; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #4ecdc4, #44a08d); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">
+                                Start Breathing Exercise
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
-
-        <!-- Vibrant Section Divider -->
-        <div class="section-divider" role="separator" aria-hidden="true"></div>
 
         <!-- Crisis Support Section -->
-        <section class="decorative-shapes" style="background: var(--soft-rainbow-bg); padding: 4rem 0;">
+        <section class="support-section" style="padding: 4rem 0;">
             <div class="container">
-                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 1.5rem; color: var(--text); text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
-                    📞 Immediate Crisis Support
-                </h2>
-                <p style="text-align: center; font-size: 1.2rem; color: var(--text-light); margin-bottom: 3rem;">24/7 confidential support when you need it most</p>
-                
-                <div class="support-grid">
-                    <div class="support-card">
-                        <h3>Samaritans</h3>
-                        <p>Confidential emotional support 24/7</p>
+                <div class="section-intro" style="text-align: center; margin-bottom: 3rem;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--gray-800);">
+                        📞 Immediate Crisis Support
+                    </h2>
+                    <p style="font-size: 1.2rem; color: var(--gray-600); max-width: 600px; margin: 0 auto;">
+                        24/7 confidential support when you need it most
+                    </p>
+                </div>
+
+                <div class="support-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                    <!-- Samaritans -->
+                    <div class="support-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #2ecc71;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--gray-800);">Samaritans</h3>
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Confidential emotional support 24/7</p>
                         <div class="contact-info">
-                            <div class="contact-item">
-                                <strong>Phone:</strong> <a href="tel:116123">116 123</a>
+                            <div class="contact-item" style="margin-bottom: 0.5rem;">
+                                <strong>Phone:</strong> <a href="tel:116123" style="color: var(--primary-pink); text-decoration: none;">116 123</a>
                             </div>
                             <div class="contact-item">
-                                <strong>Website:</strong> <a href="https://samaritans.org" target="_blank" rel="noopener noreferrer">samaritans.org</a>
+                                <strong>Website:</strong> <a href="https://samaritans.org" target="_blank" rel="noopener noreferrer" style="color: var(--primary-pink); text-decoration: none;">samaritans.org</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="support-card">
-                        <h3>Shout 85258</h3>
-                        <p>Free, confidential, 24/7 text message support for those in crisis</p>
+                    <!-- Shout 85258 -->
+                    <div class="support-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #3498db;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--gray-800);">Shout 85258</h3>
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Free, confidential, 24/7 text message support for those in crisis</p>
                         <div class="contact-info">
-                            <div class="contact-item">
-                                <strong>Text:</strong> <span class="highlight">SHOUT to 85258</span>
+                            <div class="contact-item" style="margin-bottom: 0.5rem;">
+                                <strong>Text:</strong> <span style="color: var(--gray-800);">SHOUT to 85258</span>
                             </div>
                             <div class="contact-item">
-                                <strong>Website:</strong> <a href="https://giveusashout.org" target="_blank" rel="noopener noreferrer">giveusashout.org</a>
+                                <strong>Website:</strong> <a href="https://giveusashout.org" target="_blank" rel="noopener noreferrer" style="color: var(--primary-pink); text-decoration: none;">giveusashout.org</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="support-card emergency-card">
-                        <h3>999 Emergency Services</h3>
-                        <p>If someone is in immediate danger or harm, call emergency services</p>
+                    <!-- 999 Emergency Services -->
+                    <div class="support-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #e74c3c;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--gray-800);">999 Emergency Services</h3>
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">If someone is in immediate danger or harm, call emergency services</p>
                         <div class="contact-info">
                             <div class="contact-item">
-                                <strong>Phone:</strong> <a href="tel:999" class="emergency-number">999</a>
+                                <strong>Phone:</strong> <a href="tel:999" style="color: var(--primary-pink); text-decoration: none;">999</a>
                             </div>
                         </div>
                     </div>
@@ -196,53 +216,55 @@
             </div>
         </section>
 
-        <!-- Vibrant Section Divider -->
-        <div class="section-divider" role="separator" aria-hidden="true"></div>
-
-        <!-- LGBTQIA+ Specific Support -->
-        <section class="decorative-shapes" style="background: var(--pastel-gradient); padding: 4rem 0;">
+        <!-- LGBTQIA+ Specific Support Section -->
+        <section class="support-section" style="padding: 4rem 0; background: var(--gray-50);">
             <div class="container">
-                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 1.5rem; color: var(--text); text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
-                    🏳️‍⚧️ LGBTQIA+ Specific Support
-                </h2>
-                <p style="text-align: center; font-size: 1.2rem; color: var(--text-light); margin-bottom: 3rem;">Specialist support services for the LGBTQIA+ community</p>
-                
-                <div class="support-grid">
-                    <div class="support-card">
-                        <h3>LGBTQ+ Switchboard</h3>
-                        <p>Emotional support and information service for the LGBTQIA+ community</p>
+                <div class="section-intro" style="text-align: center; margin-bottom: 3rem;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--gray-800);">
+                        🏳️‍⚧️ LGBTQIA+ Specific Support
+                    </h2>
+                    <p style="font-size: 1.2rem; color: var(--gray-600); max-width: 600px; margin: 0 auto;">
+                        Specialist support services for the LGBTQIA+ community
+                    </p>
+                </div>
+
+                <div class="support-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                    <!-- LGBTQ+ Switchboard -->
+                    <div class="support-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #9b59b6;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--gray-800);">LGBTQ+ Switchboard</h3>
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Emotional support and information service for the LGBTQIA+ community</p>
                         <div class="contact-info">
-                            <div class="contact-item">
-                                <strong>Phone:</strong> <a href="tel:03003300630">0300 330 0630</a>
+                            <div class="contact-item" style="margin-bottom: 0.5rem;">
+                                <strong>Phone:</strong> <a href="tel:03003300630" style="color: var(--primary-pink); text-decoration: none;">0300 330 0630</a>
+                                <br><small style="color: var(--gray-500);">(10am-10pm daily)</small>
                             </div>
                             <div class="contact-item">
-                                <span class="hours">(10am-10pm daily)</span>
-                            </div>
-                            <div class="contact-item">
-                                <strong>Website:</strong> <a href="https://switchboard.lgbt" target="_blank" rel="noopener noreferrer">switchboard.lgbt</a>
+                                <strong>Website:</strong> <a href="https://switchboard.lgbt" target="_blank" rel="noopener noreferrer" style="color: var(--primary-pink); text-decoration: none;">switchboard.lgbt</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="support-card">
-                        <h3>MindOut</h3>
-                        <p>LGBTQIA+ mental health service providing counselling, peer support, and advocacy</p>
+                    <!-- MindOut -->
+                    <div class="support-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #f39c12;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--gray-800);">MindOut</h3>
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">LGBTQIA+ mental health service providing counselling, peer support, and advocacy</p>
                         <div class="contact-info">
                             <div class="contact-item">
-                                <strong>Website:</strong> <a href="https://mindout.org.uk" target="_blank" rel="noopener noreferrer">mindout.org.uk</a>
+                                <strong>Website:</strong> <a href="https://mindout.org.uk" target="_blank" rel="noopener noreferrer" style="color: var(--primary-pink); text-decoration: none;">mindout.org.uk</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="support-card">
-                        <h3>Mermaids</h3>
-                        <p>Support and advice for trans and gender-diverse young people and their families</p>
+                    <!-- Mermaids -->
+                    <div class="support-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #e91e63;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--gray-800);">Mermaids</h3>
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Support and advice for trans and gender-diverse young people and their families</p>
                         <div class="contact-info">
-                            <div class="contact-item">
-                                <strong>Phone:</strong> <a href="tel:08088010400">0808 801 0400</a>
+                            <div class="contact-item" style="margin-bottom: 0.5rem;">
+                                <strong>Phone:</strong> <a href="tel:08088010400" style="color: var(--primary-pink); text-decoration: none;">0808 801 0400</a>
                             </div>
                             <div class="contact-item">
-                                <strong>Website:</strong> <a href="https://mermaidsuk.org.uk" target="_blank" rel="noopener noreferrer">mermaidsuk.org.uk</a>
+                                <strong>Website:</strong> <a href="https://mermaidsuk.org.uk" target="_blank" rel="noopener noreferrer" style="color: var(--primary-pink); text-decoration: none;">mermaidsuk.org.uk</a>
                             </div>
                         </div>
                     </div>
@@ -250,34 +272,37 @@
             </div>
         </section>
 
-        <!-- Vibrant Section Divider -->
-        <div class="section-divider" role="separator" aria-hidden="true"></div>
-
-        <!-- LGBTQIA+ Youth Support -->
-        <section class="decorative-shapes" style="background: var(--soft-rainbow-bg); padding: 4rem 0;">
+        <!-- LGBTQIA+ Youth Support Section -->
+        <section class="support-section" style="padding: 4rem 0;">
             <div class="container">
-                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 1.5rem; color: var(--text); text-shadow: 2px 2px 4px rgba(0,0,0,0.1);">
-                    🌟 LGBTQIA+ Youth Support
-                </h2>
-                <p style="text-align: center; font-size: 1.2rem; color: var(--text-light); margin-bottom: 3rem;">Specialized support for young LGBTQIA+ people</p>
-                
-                <div class="support-grid">
-                    <div class="support-card">
-                        <h3>AKT (Albert Kennedy Trust)</h3>
-                        <p>Supporting LGBTQIA+ young people aged 16-25 facing homelessness or hostile living environments</p>
+                <div class="section-intro" style="text-align: center; margin-bottom: 3rem;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--gray-800);">
+                        🌟 LGBTQIA+ Youth Support
+                    </h2>
+                    <p style="font-size: 1.2rem; color: var(--gray-600); max-width: 600px; margin: 0 auto;">
+                        Specialized support for young LGBTQIA+ people
+                    </p>
+                </div>
+
+                <div class="support-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                    <!-- AKT -->
+                    <div class="support-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #1abc9c;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--gray-800);">AKT (Albert Kennedy Trust)</h3>
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Supporting LGBTQIA+ young people aged 16-25 facing homelessness or hostile living environments</p>
                         <div class="contact-info">
                             <div class="contact-item">
-                                <strong>Website:</strong> <a href="https://akt.org.uk" target="_blank" rel="noopener noreferrer">akt.org.uk</a>
+                                <strong>Website:</strong> <a href="https://akt.org.uk" target="_blank" rel="noopener noreferrer" style="color: var(--primary-pink); text-decoration: none;">akt.org.uk</a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="support-card">
-                        <h3>The Proud Trust</h3>
-                        <p>Supporting LGBTQIA+ young people with groups, resources, and safe spaces</p>
+                    <!-- The Proud Trust -->
+                    <div class="support-card" style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-left: 4px solid #8e44ad;">
+                        <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--gray-800);">The Proud Trust</h3>
+                        <p style="color: var(--gray-600); margin-bottom: 1.5rem;">Supporting LGBTQIA+ young people with groups, resources, and safe spaces</p>
                         <div class="contact-info">
                             <div class="contact-item">
-                                <strong>Website:</strong> <a href="https://theproudtrust.org" target="_blank" rel="noopener noreferrer">theproudtrust.org</a>
+                                <strong>Website:</strong> <a href="https://theproudtrust.org" target="_blank" rel="noopener noreferrer" style="color: var(--primary-pink); text-decoration: none;">theproudtrust.org</a>
                             </div>
                         </div>
                     </div>
@@ -285,60 +310,41 @@
             </div>
         </section>
 
-
-
-        <!-- Vibrant Section Divider -->
-        <div class="section-divider" role="separator" aria-hidden="true"></div>
-
-        <!-- Support Message -->
-        <section class="decorative-shapes" style="background: var(--cosmic-gradient); padding: 4rem 0; position: relative;">
-            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('Images/community_pattern.svg') center/cover no-repeat; opacity: 0.1; z-index: 1;"></div>
-            <div class="container" style="position: relative; z-index: 2;">
-                <div style="text-align: center; color: white; max-width: 700px; margin: 0 auto;">
-                    <h2 style="font-size: 2.5rem; margin-bottom: 2rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+        <!-- Remember Section -->
+        <section class="support-message" style="padding: 4rem 0; background: linear-gradient(135deg, #667eea, #764ba2); color: white; text-align: center;">
+            <div class="container">
+                <div class="message-content">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">
                         💜 Remember
                     </h2>
-                    <p style="font-size: 1.3rem; line-height: 1.8; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); margin-bottom: 2rem;">
-                        You deserve support, care, and understanding. These resources are here for you whenever you need them. 
+                    <p style="font-size: 1.3rem; line-height: 1.8; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        You deserve support, care, and understanding. These resources are here for you whenever you need them.
                     </p>
-                    <div style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 15px; padding: 2rem; border: 1px solid rgba(255,255,255,0.2);">
-                        <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">
-                            Can't find what you're looking for? We're here to help.
-                        </p>
-                        <a href="contact.html" class="button" style="background: white; color: var(--primary); border: none; font-weight: 600;">Contact Us for Support</a>
-                    </div>
+                    <p style="font-size: 1.1rem; margin-bottom: 2rem; opacity: 0.9;">
+                        Can't find what you're looking for? We're here to help.
+                    </p>
+                    <a href="contact.html" class="button" style="display: inline-block; padding: 1rem 2rem; background: rgba(255,255,255,0.2); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; border: 2px solid white; transition: all 0.3s ease;">
+                        Contact Us for Support
+                    </a>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer>
+        <footer>
         <div class="container">
             <div class="footer-layout">
                 <!-- Left Section: Company Info -->
                 <div class="footer-info">
-                    <h3>CT5 Pride CIC</h3>
+                    <h3>CT5 Pride Community Interest Company</h3>
                     <div class="contact-links">
-                        <a href="mailto:hello@ct5pride.org.uk" aria-label="Email us">
-                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383l-4.758 2.855L15 11.114v-5.73zm-.034 6.878L9.271 8.82 8 9.583 6.728 8.82l-5.694 3.44A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.739zM1 11.114l4.758-2.876L1 5.383v5.73z"/>
+                        <a href="mailto:hello@ct5pride.org.uk" aria-label="Email CT5 Pride">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                             </svg>
                             hello@ct5pride.org.uk
                         </a>
-                        <a href="privacy.html">Privacy Policy</a>
-                    </div>                    
-                    <!-- Facebook Community Group Button -->
-                    <div style="margin-top: 1.5rem;">
-                        <a href="https://www.facebook.com/groups/1452370402865655/" 
-                           target="_blank" 
-                           rel="noopener noreferrer" 
-                           class="button primary"
-                           style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #1877f2, #42a5f5); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(24, 119, 242, 0.3);">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                            </svg>
-                            Join our Facebook Community Group
-                        </a>
+                        <a href="/privacy.html">Privacy Policy</a>
                     </div>
                 </div>
                 
@@ -423,20 +429,42 @@
                 <!-- Right Section: Social Links -->
                 <div class="footer-social">
                     <div class="social-links">
-                        <a href="https://www.facebook.com/CT5Pride" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/>
+                    <a href="https://www.facebook.com/CT5Pride" target="_blank" rel="noopener noreferrer" 
+                       aria-label="Follow us on Facebook">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.instagram.com/ct5pride" target="_blank" rel="noopener noreferrer" 
+                       aria-label="Follow us on Instagram">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+                    <a href="https://www.linkedin.com/company/ct5-pride" target="_blank" rel="noopener noreferrer" 
+                       aria-label="Follow us on LinkedIn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                        </svg>
+                    </a>
+                    <a href="mailto:hello@ct5pride.org.uk" aria-label="Email us">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                    </a>
+                    </div>
+                    
+                    <!-- Facebook Community Group Button -->
+                    <div style="margin-top: 2rem; text-align: center;">
+                        <a href="https://www.facebook.com/groups/1452370402865655/" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="button primary"
+                           style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 1rem 1.5rem; background: linear-gradient(135deg, #1877f2, #42a5f5); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(24, 119, 242, 0.3); white-space: nowrap; min-width: fit-content;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                             </svg>
-                        </a>
-                        <a href="https://www.instagram.com/ct5pride" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z"/>
-                            </svg>
-                        </a>
-                        <a href="mailto:hello@ct5pride.org.uk" aria-label="Email">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383l-4.758 2.855L15 11.114v-5.73zm-.034 6.878L9.271 8.82 8 9.583 6.728 8.82l-5.694 3.44A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.739zM1 11.114l4.758-2.876L1 5.383v5.73z"/>
-                            </svg>
+                            Join our Facebook Community Group
                         </a>
                     </div>
                 </div>
