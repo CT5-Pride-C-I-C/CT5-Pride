@@ -574,16 +574,16 @@ function setupEventListeners() {
         });
     });
     
-    // Mature content toggle
-    const matureToggle = document.getElementById('matureToggle');
-    if (matureToggle) {
-        matureToggle.addEventListener('change', function() {
+    // Sensitive content toggle
+    const sensitiveToggle = document.getElementById('sensitiveToggle');
+    if (sensitiveToggle) {
+        sensitiveToggle.addEventListener('change', function() {
             filterTerms();
             
-            // Show/hide mature filter button
-            const matureFilterBtn = document.querySelector('.mature-filter');
-            if (matureFilterBtn) {
-                matureFilterBtn.style.display = this.checked ? 'inline-flex' : 'none';
+            // Show/hide sensitive filter button
+            const sensitiveFilterBtn = document.querySelector('.sensitive-filter');
+            if (sensitiveFilterBtn) {
+                sensitiveFilterBtn.style.display = this.checked ? 'inline-flex' : 'none';
             }
         });
     }
@@ -592,15 +592,15 @@ function setupEventListeners() {
 // Filter and search terms
 function filterTerms() {
     const searchTerm = searchInput.value.toLowerCase().trim();
-    const matureToggle = document.getElementById('matureToggle');
-    const showMatureContent = matureToggle ? matureToggle.checked : false;
+    const sensitiveToggle = document.getElementById('sensitiveToggle');
+    const showSensitiveContent = sensitiveToggle ? sensitiveToggle.checked : false;
     
     filteredTerms = lgbtqTerms.filter(term => {
         // Check if term matches current filter
         let matchesFilter = currentFilter === 'all' || term.category === currentFilter;
         
-        // Handle mature filter
-        if (currentFilter === 'mature') {
+        // Handle sensitive filter
+        if (currentFilter === 'sensitive') {
             matchesFilter = term.mature === true;
         }
         
@@ -610,10 +610,10 @@ function filterTerms() {
             term.definition.toLowerCase().includes(searchTerm) ||
             term.example.toLowerCase().includes(searchTerm);
         
-        // Check mature content filter
-        const matchesMatureFilter = !term.mature || showMatureContent;
+        // Check sensitive content filter
+        const matchesSensitiveFilter = !term.mature || showSensitiveContent;
         
-        return matchesFilter && matchesSearch && matchesMatureFilter;
+        return matchesFilter && matchesSearch && matchesSensitiveFilter;
     });
     
     renderTerms();
@@ -633,7 +633,7 @@ function renderTerms() {
     }
     
     termsGrid.innerHTML = filteredTerms.map((term, index) => `
-        <div class="term-card ${term.mature ? 'mature' : ''}" data-term-index="${index}">
+        <div class="term-card ${term.mature ? 'sensitive' : ''}" data-term-index="${index}">
             <div class="term-header">
                 <h3 class="term-title">${term.term}</h3>
                 <span class="term-category">${getCategoryLabel(term.category)}</span>
@@ -710,7 +710,7 @@ function getCategoryLabel(category) {
         'romantic-orientation': 'Romantic Orientation',
         'community-tribes': 'Community Tribes',
         'general': 'General Terms',
-        'mature': 'Mature Content'
+        'sensitive': 'Sensitive Content'
     };
     return labels[category] || category;
 }

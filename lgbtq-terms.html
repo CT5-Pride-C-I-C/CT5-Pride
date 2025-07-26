@@ -328,12 +328,12 @@
             }
         }
         
-        .mature-content-toggle {
+        .sensitive-content-toggle {
             text-align: center;
             margin: 1rem 0;
         }
         
-        .mature-toggle-label {
+        .sensitive-toggle-label {
             display: inline-flex;
             align-items: center;
             gap: 0.75rem;
@@ -346,11 +346,11 @@
             transition: all 0.3s ease;
         }
         
-        .mature-toggle-label:hover {
+        .sensitive-toggle-label:hover {
             background: var(--border);
         }
         
-        .mature-toggle-switch {
+        .sensitive-toggle-switch {
             position: relative;
             width: 48px;
             height: 24px;
@@ -359,7 +359,7 @@
             transition: all 0.3s ease;
         }
         
-        .mature-toggle-switch::before {
+        .sensitive-toggle-switch::before {
             content: '';
             position: absolute;
             top: 2px;
@@ -372,38 +372,38 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
-        #matureToggle:checked + .mature-toggle-switch {
+        #sensitiveToggle:checked + .sensitive-toggle-switch {
             background: var(--primary);
         }
         
-        #matureToggle:checked + .mature-toggle-switch::before {
+        #sensitiveToggle:checked + .sensitive-toggle-switch::before {
             transform: translateX(24px);
         }
         
-        .mature-filter {
+        .sensitive-filter {
             background: #ff6b6b !important;
             color: white !important;
             border-color: #ff6b6b !important;
         }
         
-        .mature-filter:hover {
+        .sensitive-filter:hover {
             background: #ff5252 !important;
             border-color: #ff5252 !important;
         }
         
-        .mature-filter.active {
+        .sensitive-filter.active {
             background: #ff4757 !important;
             border-color: #ff4757 !important;
             box-shadow: 0 4px 16px rgba(255, 71, 87, 0.3) !important;
         }
         
-        .term-card.mature {
+        .term-card.sensitive {
             border-left-color: #ff6b6b;
             position: relative;
         }
         
-        .term-card.mature::before {
-            content: '🔞';
+        .term-card.sensitive::before {
+            content: '⚠️';
             position: absolute;
             top: 0.5rem;
             right: 0.5rem;
@@ -555,17 +555,17 @@
                         <span class="filter-icon">📖</span>
                         General Terms
                     </button>
-                    <button class="filter-btn mature-filter" data-filter="mature" style="display: none;">
-                        <span class="filter-icon">🔞</span>
-                        Mature Content
+                    <button class="filter-btn sensitive-filter" data-filter="sensitive" style="display: none;">
+                        <span class="filter-icon">⚠️</span>
+                        Sensitive Content
                     </button>
                 </div>
                 
-                <div class="mature-content-toggle" style="text-align: center; margin: 1rem 0;">
-                    <label class="mature-toggle-label">
-                        <input type="checkbox" id="matureToggle" style="display: none;">
-                        <span class="mature-toggle-switch"></span>
-                        Show Mature Content (18+)
+                <div class="sensitive-content-toggle" style="text-align: center; margin: 1rem 0;">
+                    <label class="sensitive-toggle-label">
+                        <input type="checkbox" id="sensitiveToggle" style="display: none;">
+                        <span class="sensitive-toggle-switch"></span>
+                        Show Sensitive Content
                     </label>
                 </div>
                 
