@@ -64,40 +64,63 @@ app.use((req, res, next) => {
   }
 });
 
-// Security headers including Permissions-Policy to suppress Chrome warnings
+// Security headers with host-based configuration
 app.use((req, res, next) => {
-  // Permissions Policy to suppress Chrome tracking warnings
-  res.setHeader('Permissions-Policy', 'interest-cohort=(), browsing-topics=(), attribution-reporting=()');
+  const host = req.get('host') || '';
+  const isAdmin = host.startsWith('admin.') || host.includes('admin');
   
-  // Security headers for hardening
+  // Common security headers for all sites
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  
-  // Strict Transport Security (HSTS) - Force HTTPS for 1 year
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
-  
-  // Content Security Policy - Secure policy without unsafe directives
-  const csp = [
-    "default-src 'self'",
-    "script-src 'self' https://cdn.jsdelivr.net https://js.stripe.com https://checkout.stripe.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
-    "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://*.supabase.co https://api.stripe.com https://checkout.stripe.com https://api.eventbrite.com",
-    "frame-src 'none'",
-    "frame-ancestors 'none'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "upgrade-insecure-requests"
-  ].join('; ');
-  
-  res.setHeader('Content-Security-Policy', csp);
-  
-  // Additional security headers
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+  
+  if (isAdmin) {
+    // Admin site security headers (strict)
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Permissions-Policy', 'interest-cohort=(), browsing-topics=(), attribution-reporting=()');
+    
+    // Admin CSP - Functional policy for admin dashboard (needs unsafe-inline for onclick handlers)
+    const adminCSP = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.stripe.com https://checkout.stripe.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: https: blob:",
+      "connect-src 'self' https://*.supabase.co https://api.stripe.com https://checkout.stripe.com https://api.eventbrite.com",
+      "frame-src 'none'",
+      "frame-ancestors 'none'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "upgrade-insecure-requests"
+    ].join('; ');
+    
+    res.setHeader('Content-Security-Policy', adminCSP);
+  } else {
+    // Main site security headers (more permissive for public content)
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Permissions-Policy', 'interest-cohort=(), browsing-topics=(), attribution-reporting=(), geolocation=(), microphone=(), camera=()');
+    
+    // Main site CSP - Tailored for public website functionality
+    const mainCSP = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.google-analytics.com https://www.googletagmanager.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: https:",
+      "connect-src 'self' https://www.google-analytics.com",
+      "frame-src 'self' https://www.youtube.com https://player.vimeo.com",
+      "frame-ancestors 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "upgrade-insecure-requests"
+    ].join('; ');
+    
+    res.setHeader('Content-Security-Policy', mainCSP);
+  }
   
   next();
 });
@@ -2688,33 +2711,89 @@ app.get('/api/risks/export/:format', requireSupabaseAuth, async (req, res) => {
 
 // ==================== STATIC FILE SERVING ====================
 
-// Serve Images directory at root level for logo and assets  
-app.use('/Images', express.static(path.join(__dirname, 'Images')));
-
-// CRITICAL: Serve static files from /admin directory with explicit paths
-// This ensures CSS and JS files are served correctly before wildcard route
-app.use('/css', express.static(path.join(adminDir, 'css')));
-app.use('/js', express.static(path.join(adminDir, 'js')));
-
-// Serve all other static files from /admin (for any other assets)
-app.use(express.static(adminDir));
-
-// Route / to serve admin/index.html
-app.get('/', (req, res) => {
-  res.sendFile(path.join(adminDir, 'index.html'));
+// Host-based static file serving
+app.use((req, res, next) => {
+  const host = req.get('host') || '';
+  const isAdmin = host.startsWith('admin.') || host.includes('admin');
+  
+  if (isAdmin) {
+    // Admin subdomain: serve admin static files
+    if (req.path.startsWith('/css/')) {
+      return express.static(path.join(adminDir, 'css'))(req, res, next);
+    }
+    if (req.path.startsWith('/js/')) {
+      return express.static(path.join(adminDir, 'js'))(req, res, next);
+    }
+    // Serve other admin static files
+    express.static(adminDir)(req, res, next);
+  } else {
+    // Main site: serve main site static files
+    if (req.path.startsWith('/css/')) {
+      return express.static(path.join(__dirname, 'css'))(req, res, next);
+    }
+    if (req.path.startsWith('/js/')) {
+      return express.static(path.join(__dirname, 'js'))(req, res, next);
+    }
+    // Serve other main site static files
+    express.static(__dirname)(req, res, next);
+  }
 });
 
-// Wildcard route for SPA client-side routing (MUST be last)
+// Serve Images directory for both sites
+app.use('/Images', express.static(path.join(__dirname, 'Images')));
+
+// Host-based root route handling
+app.get('/', (req, res) => {
+  const host = req.get('host') || '';
+  const isAdmin = host.startsWith('admin.') || host.includes('admin');
+  
+  if (isAdmin) {
+    // Admin subdomain: serve admin dashboard
+    res.sendFile(path.join(adminDir, 'index.html'));
+  } else {
+    // Main domain: serve main site homepage
+    res.sendFile(path.join(__dirname, 'index.html'));
+  }
+});
+
+// Host-based wildcard route for SPA routing and file serving
 app.get('*', (req, res, next) => {
   // Skip API routes
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ success: false, message: 'API endpoint not found' });
   }
-
-  // For SPA client-side routing, serve index.html for all non-file routes
-  const indexPath = path.join(adminDir, 'index.html');
-  if (fs.existsSync(indexPath)) {
-    return res.sendFile(indexPath);
+  
+  const host = req.get('host') || '';
+  const isAdmin = host.startsWith('admin.') || host.includes('admin');
+  
+  if (isAdmin) {
+    // Admin subdomain: SPA routing for admin dashboard
+    const adminIndexPath = path.join(adminDir, 'index.html');
+    if (fs.existsSync(adminIndexPath)) {
+      return res.sendFile(adminIndexPath);
+    }
+  } else {
+    // Main site: check for specific HTML files first
+    const requestedFile = req.path.slice(1); // Remove leading slash
+    if (requestedFile && !requestedFile.includes('.')) {
+      // Try to serve .html file for clean URLs
+      const htmlPath = path.join(__dirname, `${requestedFile}.html`);
+      if (fs.existsSync(htmlPath)) {
+        return res.sendFile(htmlPath);
+      }
+    }
+    
+    // Try to serve the exact file
+    const exactPath = path.join(__dirname, req.path);
+    if (fs.existsSync(exactPath) && !fs.statSync(exactPath).isDirectory()) {
+      return res.sendFile(exactPath);
+    }
+    
+    // Fallback to main site index for client-side routing
+    const mainIndexPath = path.join(__dirname, 'index.html');
+    if (fs.existsSync(mainIndexPath)) {
+      return res.sendFile(mainIndexPath);
+    }
   }
   
   // Fallback 404
