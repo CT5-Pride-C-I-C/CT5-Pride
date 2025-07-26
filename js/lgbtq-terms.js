@@ -57,6 +57,12 @@ const lgbtqTerms = [
         example: "A bi person might be attracted to men, women, and non-binary people, though the specific nature of their attraction can vary."
     },
     {
+        term: "Bicurious",
+        category: "sexual-orientation",
+        definition: "An individual who identifies as gay or straight while showing some curiosity for a relationship or sexual activity with a person of the sex they do not favor. (Related terms: heteroflexible, homoflexible)",
+        example: "A straight person who is bicurious might be curious about exploring relationships with people of the same gender."
+    },
+    {
         term: "Biphobia",
         category: "general",
         definition: "Prejudice or negative attitudes, beliefs or views about bi people. This can include the fear or dislike of someone who is, or is perceived to be, bi.",
@@ -206,6 +212,13 @@ const lgbtqTerms = [
         category: "general",
         definition: "Prejudice or negative attitudes, beliefs or views about gay people. This can include the fear or dislike of someone because they are, or are perceived to be, gay.",
         example: "Homophobia can manifest as discrimination, violence, or negative stereotypes about gay people."
+    },
+    {
+        term: "He-She",
+        category: "general",
+        definition: "A often seen as derogatory term used to describe often refer to a transgender/ transsexual, intersex, or gender non-conforming people often used by when someone refuses to acknowledge the person's gender.",
+        example: "This term is considered offensive and should not be used, as it denies a person's true gender identity.",
+        mature: true
     },
     {
         term: "Intersex",
