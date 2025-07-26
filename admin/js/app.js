@@ -806,6 +806,36 @@ async function renderRoles() {
   await loadRoles();
 }
 
+// Function to format criteria text into preview with proper line breaks
+function formatCriteriaPreview(criteriaText, maxItems = 3) {
+  if (!criteriaText) return 'No criteria specified';
+  
+  // Split by line breaks and filter out empty lines
+  const items = criteriaText.split(/\n/).filter(item => item.trim());
+  
+  if (items.length === 0) return 'No criteria specified';
+  
+  // Take only first few items for preview
+  const previewItems = items.slice(0, maxItems);
+  const hasMore = items.length > maxItems;
+  
+  const formattedItems = previewItems.map(item => `• ${item.trim()}`).join('<br>');
+  
+  return formattedItems + (hasMore ? `<br>• ... and ${items.length - maxItems} more` : '');
+}
+
+// Function to format criteria text into full bulleted list
+function formatCriteriaFull(criteriaText) {
+  if (!criteriaText) return '<li>No criteria specified</li>';
+  
+  // Split by line breaks and filter out empty lines
+  const items = criteriaText.split(/\n/).filter(item => item.trim());
+  
+  if (items.length === 0) return '<li>No criteria specified</li>';
+  
+  return items.map(item => `<li>${item.trim()}</li>`).join('');
+}
+
 async function loadRoles() {
   const content = document.getElementById('roles-content');
   showLoading(content, 'Loading roles...');
@@ -846,13 +876,13 @@ async function loadRoles() {
               ${role.essential_criteria ? `
                 <div class="criteria-section">
                   <strong>🟢 Essential Criteria:</strong>
-                  <div class="criteria-preview">${role.essential_criteria.substring(0, 100)}${role.essential_criteria.length > 100 ? '...' : ''}</div>
+                  <div class="criteria-preview">${formatCriteriaPreview(role.essential_criteria)}</div>
                 </div>
               ` : ''}
               ${role.desirable_criteria ? `
                 <div class="criteria-section">
                   <strong>🔵 Desirable Criteria:</strong>
-                  <div class="criteria-preview">${role.desirable_criteria.substring(0, 100)}${role.desirable_criteria.length > 100 ? '...' : ''}</div>
+                  <div class="criteria-preview">${formatCriteriaPreview(role.desirable_criteria)}</div>
                 </div>
               ` : ''}
             </div>
@@ -1663,8 +1693,19 @@ async function renderAnalytics() {
       <main class="admin-content">
         <div class="page-header">
           <h1>Analytics</h1>
-          <p>Detailed insights into volunteer applications and role performance</p>
+          <p>Detailed insights and reporting across all organizational areas</p>
         </div>
+        
+        <!-- Analytics Tabs -->
+        <div class="analytics-tabs">
+          <button class="analytics-tab-btn active" onclick="switchAnalyticsTab('applications')">
+            📊 Applications Analytics
+          </button>
+          <button class="analytics-tab-btn" onclick="switchAnalyticsTab('risk')">
+            ⚠️ Risk Analytics
+          </button>
+        </div>
+        
         <div id="analytics-content" class="analytics-container">
           <!-- Content will be loaded here -->
         </div>
@@ -1680,49 +1721,164 @@ async function loadAnalytics() {
   showLoading(content, 'Loading analytics...');
   
   try {
-    const response = await apiRequest('/api/analytics');
-    analytics = response.analytics;
+    // Load both analytics and conflicts data for comprehensive reporting
+    const [analyticsResponse, conflictsResponse] = await Promise.all([
+      apiRequest('/api/analytics'),
+      apiRequest('/api/conflicts')
+    ]);
     
-    content.innerHTML = `
-      <div class="analytics-grid">
-        <div class="analytics-section">
-          <h2>Application Status Distribution</h2>
-          <div class="chart-container">
-            <canvas id="statusChart"></canvas>
-          </div>
-        </div>
-        
-        <div class="analytics-section">
-          <h2>Applications by Role</h2>
-          <div class="chart-container">
-            <canvas id="roleChart"></canvas>
-          </div>
-        </div>
-        
-        <div class="performance-grid">
-          <div class="performance-card">
-            <h3>Most Popular Role</h3>
-            <p>${getMostPopularRole()}</p>
-          </div>
-          <div class="performance-card">
-            <h3>Application Rate</h3>
-            <p>${calculateApplicationRate()}</p>
-          </div>
-          <div class="performance-card">
-            <h3>Response Rate</h3>
-            <p>${calculateResponseRate()}</p>
-          </div>
-        </div>
-      </div>
-    `;
+    analytics = analyticsResponse.analytics;
     
-    // Render charts
-    renderStatusChart();
-    renderRoleChart();
+    // Store conflicts data for risk analytics
+    if (conflictsResponse.success) {
+      window.conflictsForAnalytics = conflictsResponse.conflicts;
+    }
+    
+    // Load default tab (applications)
+    await switchAnalyticsTab('applications');
+    
   } catch (err) {
     console.error('Analytics load error:', err);
     showError(content, err.message);
   }
+}
+
+// Analytics tab switching functionality
+async function switchAnalyticsTab(tabName) {
+  const content = document.getElementById('analytics-content');
+  const tabButtons = document.querySelectorAll('.analytics-tab-btn');
+  
+  // Update active tab button
+  tabButtons.forEach(btn => btn.classList.remove('active'));
+  event?.target?.classList.add('active') || document.querySelector(`[onclick="switchAnalyticsTab('${tabName}')"]`)?.classList.add('active');
+  
+  showLoading(content, `Loading ${tabName} analytics...`);
+  
+  try {
+    switch (tabName) {
+      case 'applications':
+        await renderApplicationsAnalytics();
+        break;
+      case 'risk':
+        await renderRiskAnalytics();
+        break;
+      default:
+        await renderApplicationsAnalytics();
+    }
+  } catch (err) {
+    console.error(`Error loading ${tabName} analytics:`, err);
+    showError(content, err.message);
+  }
+}
+
+// Applications Analytics Tab
+async function renderApplicationsAnalytics() {
+  const content = document.getElementById('analytics-content');
+  
+  content.innerHTML = `
+    <div class="analytics-grid">
+      <div class="analytics-section">
+        <h2>Application Status Distribution</h2>
+        <div class="chart-container">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="analytics-section">
+        <h2>Applications by Role</h2>
+        <div class="chart-container">
+          <canvas id="roleChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="performance-grid">
+        <div class="performance-card">
+          <h3>Most Popular Role</h3>
+          <p>${getMostPopularRole()}</p>
+        </div>
+        <div class="performance-card">
+          <h3>Application Rate</h3>
+          <p>${calculateApplicationRate()}</p>
+        </div>
+        <div class="performance-card">
+          <h3>Response Rate</h3>
+          <p>${calculateResponseRate()}</p>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Render charts
+  setTimeout(() => {
+    renderStatusChart();
+    renderRoleChart();
+  }, 100);
+}
+
+// Risk Analytics Tab
+async function renderRiskAnalytics() {
+  const content = document.getElementById('analytics-content');
+  const conflicts = window.conflictsForAnalytics || [];
+  
+  // Calculate risk analytics
+  const riskAnalytics = calculateRiskAnalytics(conflicts);
+  
+  content.innerHTML = `
+    <div class="analytics-grid">
+      <div class="analytics-section">
+        <h2>Average Organizational Risk Levels</h2>
+        <div class="chart-container">
+          <canvas id="riskLevelsChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="analytics-section">
+        <h2>Risk Distribution by Type</h2>
+        <div class="chart-container">
+          <canvas id="riskTypesChart"></canvas>
+        </div>
+      </div>
+      
+      <div class="risk-stats-grid">
+        <div class="performance-card risk-improvement">
+          <h3>Risk Improvement</h3>
+          <p>${riskAnalytics.improvementPercentage}%</p>
+          <small>Average reduction from mitigation</small>
+        </div>
+        <div class="performance-card">
+          <h3>Total Conflicts</h3>
+          <p>${riskAnalytics.totalConflicts}</p>
+          <small>Under management</small>
+        </div>
+        <div class="performance-card">
+          <h3>High Risk Conflicts</h3>
+          <p>${riskAnalytics.highRiskCount}</p>
+          <small>Requiring attention</small>
+        </div>
+        <div class="performance-card">
+          <h3>Avg Pre-Mitigation</h3>
+          <p>${riskAnalytics.avgPreMitigation}</p>
+          <small>Before actions taken</small>
+        </div>
+        <div class="performance-card">
+          <h3>Avg Post-Mitigation</h3>
+          <p>${riskAnalytics.avgPostMitigation}</p>
+          <small>After mitigation actions</small>
+        </div>
+        <div class="performance-card">
+          <h3>Most Common Type</h3>
+          <p>${riskAnalytics.mostCommonType}</p>
+          <small>Conflict category</small>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  // Render risk charts
+  setTimeout(() => {
+    renderRiskLevelsChart(riskAnalytics);
+    renderRiskTypesChart(riskAnalytics);
+  }, 100);
 }
 
 function renderStatusChart() {
@@ -1803,6 +1959,203 @@ function calculateResponseRate() {
   const rate = ((responded / total) * 100).toFixed(1);
   return `${rate}%`;
 }
+
+// Risk Analytics Calculations
+function calculateRiskAnalytics(conflicts) {
+  if (!conflicts || conflicts.length === 0) {
+    return {
+      totalConflicts: 0,
+      avgPreMitigation: 'N/A',
+      avgPostMitigation: 'N/A',
+      improvementPercentage: 0,
+      highRiskCount: 0,
+      mostCommonType: 'N/A',
+      riskLevelsData: {},
+      riskTypesData: {}
+    };
+  }
+
+  // Risk level mapping for calculations
+  const riskLevelValues = {
+    'Very Low': 1,
+    'Low': 2,
+    'Medium': 3,
+    'High': 4,
+    'Very High': 5
+  };
+
+  const reverseRiskMap = {
+    1: 'Very Low',
+    2: 'Low', 
+    3: 'Medium',
+    4: 'High',
+    5: 'Very High'
+  };
+
+  // Calculate averages
+  let totalPreMitigation = 0;
+  let totalPostMitigation = 0;
+  let validConflicts = 0;
+  let highRiskCount = 0;
+  const typeCount = {};
+
+  conflicts.forEach(conflict => {
+    const preRisk = riskLevelValues[conflict.before_mitigation_risk_level];
+    const postRisk = riskLevelValues[conflict.residual_risk_level];
+    
+    if (preRisk && postRisk) {
+      totalPreMitigation += preRisk;
+      totalPostMitigation += postRisk;
+      validConflicts++;
+      
+      // Count high risk conflicts (residual risk High or Very High)
+      if (postRisk >= 4) {
+        highRiskCount++;
+      }
+    }
+    
+    // Count conflict types
+    if (conflict.conflict_type) {
+      typeCount[conflict.conflict_type] = (typeCount[conflict.conflict_type] || 0) + 1;
+    }
+  });
+
+  const avgPreValue = validConflicts > 0 ? totalPreMitigation / validConflicts : 0;
+  const avgPostValue = validConflicts > 0 ? totalPostMitigation / validConflicts : 0;
+  
+  const avgPreMitigation = validConflicts > 0 ? reverseRiskMap[Math.round(avgPreValue)] : 'N/A';
+  const avgPostMitigation = validConflicts > 0 ? reverseRiskMap[Math.round(avgPostValue)] : 'N/A';
+  
+  // Calculate improvement percentage
+  const improvementPercentage = validConflicts > 0 ? 
+    Math.round(((avgPreValue - avgPostValue) / avgPreValue) * 100) : 0;
+
+  // Find most common type
+  const mostCommonType = Object.keys(typeCount).length > 0 ?
+    Object.keys(typeCount).reduce((a, b) => typeCount[a] > typeCount[b] ? a : b) : 'N/A';
+
+  // Prepare chart data
+  const riskLevelsData = {
+    'Before Mitigation': avgPreValue,
+    'After Mitigation': avgPostValue
+  };
+
+  return {
+    totalConflicts: conflicts.length,
+    avgPreMitigation,
+    avgPostMitigation,
+    improvementPercentage: Math.max(0, improvementPercentage), // Ensure non-negative
+    highRiskCount,
+    mostCommonType,
+    riskLevelsData,
+    riskTypesData: typeCount
+  };
+}
+
+// Risk Charts Rendering
+function renderRiskLevelsChart(riskAnalytics) {
+  const ctx = document.getElementById('riskLevelsChart');
+  if (!ctx) return;
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Before Mitigation', 'After Mitigation'],
+      datasets: [{
+        label: 'Average Risk Level',
+        data: [
+          riskAnalytics.riskLevelsData['Before Mitigation'] || 0,
+          riskAnalytics.riskLevelsData['After Mitigation'] || 0
+        ],
+        backgroundColor: ['#ff6b6b', '#4ecdc4'],
+        borderColor: ['#e55656', '#45b7b8'],
+        borderWidth: 2,
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 5,
+          ticks: {
+            stepSize: 1,
+            callback: function(value) {
+              const riskLabels = {
+                1: 'Very Low',
+                2: 'Low',
+                3: 'Medium', 
+                4: 'High',
+                5: 'Very High'
+              };
+              return riskLabels[value] || value;
+            }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const riskLabels = {
+                1: 'Very Low',
+                2: 'Low',
+                3: 'Medium',
+                4: 'High', 
+                5: 'Very High'
+              };
+              const value = Math.round(context.parsed.y);
+              return `${context.label}: ${riskLabels[value] || value}`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderRiskTypesChart(riskAnalytics) {
+  const ctx = document.getElementById('riskTypesChart');
+  if (!ctx || !riskAnalytics.riskTypesData || Object.keys(riskAnalytics.riskTypesData).length === 0) {
+    if (ctx) {
+      ctx.getContext('2d').fillText('No conflict type data available', 50, 50);
+    }
+    return;
+  }
+
+  const data = riskAnalytics.riskTypesData;
+  
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(data),
+      datasets: [{
+        data: Object.values(data),
+        backgroundColor: [
+          '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', 
+          '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
+}
+
+// Global function exports for HTML onclick handlers
+window.switchAnalyticsTab = switchAnalyticsTab;
 
 // ==================== MEMBERSHIPS VIEW ====================
 
@@ -2751,7 +3104,7 @@ async function renderConflictRegister() {
             </select>
           </div>
           <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.25rem;">
-            <label for="conflict-risk-filter" style="font-size: 0.875rem; font-weight: 500; color: #374151;">Filter by Risk Level</label>
+            <label for="conflict-risk-filter" style="font-size: 0.875rem; font-weight: 500; color: #374151;">Filter by Residual Risk</label>
             <select id="conflict-risk-filter" onchange="applyConflictFilters()" style="padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; background: white; min-width: 150px;">
               <option value="">All Risk Levels</option>
               ${RESIDUAL_RISK_LEVELS.map(level => `<option value="${level}">${level}</option>`).join('')}
@@ -2842,20 +3195,21 @@ function renderConflictsTable() {
       <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
         <thead style="background: linear-gradient(135deg, #ff6f91, #ff9671); color: white;">
           <tr>
-            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">COI ID</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">ID</th>
             <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Individual</th>
             <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Position</th>
             <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Conflict Type</th>
             <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Nature</th>
             <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Status</th>
-            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Risk Level</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Before Risk</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Residual Risk</th>
             <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Actions</th>
           </tr>
         </thead>
         <tbody>
           ${filteredConflicts.map(conflict => `
             <tr style="border-bottom: 1px solid #e5e7eb;">
-              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;"><strong>${conflict.coi_id || 'N/A'}</strong></td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;"><strong>${conflict.id ? conflict.id.substring(0, 8) + '...' : 'N/A'}</strong></td>
               <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">
                 <strong>${conflict.individual_name || 'Unknown'}</strong>
                 ${conflict.date_declared ? `<br><small style="color: #6b7280;">Declared: ${new Date(conflict.date_declared).toLocaleDateString('en-GB')}</small>` : ''}
@@ -2873,7 +3227,10 @@ function renderConflictsTable() {
                 <span class="status-badge ${getConflictStatusClass(conflict.status)}" style="padding: 0.125rem 0.5rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 500;">${conflict.status || 'Unknown'}</span>
               </td>
               <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">
-                <span class="risk-level-badge ${getRiskLevelClass(conflict.risk_level)}" style="padding: 0.125rem 0.5rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 500;">${conflict.risk_level || 'Unknown'}</span>
+                <span class="risk-level-badge ${getRiskLevelClass(conflict.before_mitigation_risk_level)}" style="padding: 0.125rem 0.5rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 500;">${conflict.before_mitigation_risk_level || 'Unknown'}</span>
+              </td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">
+                <span class="risk-level-badge ${getRiskLevelClass(conflict.residual_risk_level)}" style="padding: 0.125rem 0.5rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 500;">${conflict.residual_risk_level || 'Unknown'}</span>
               </td>
               <td style="padding: 0.75rem;">
                 <div style="display: flex; gap: 0.5rem;">
@@ -2919,7 +3276,7 @@ function applyConflictFilters() {
   filteredConflicts = conflicts.filter(conflict => {
     const matchesType = !typeFilter || conflict.conflict_type === typeFilter;
     const matchesStatus = !statusFilter || conflict.status === statusFilter;
-    const matchesRisk = !riskFilter || conflict.risk_level === riskFilter;
+    const matchesRisk = !riskFilter || conflict.residual_risk_level === riskFilter;
     
     return matchesType && matchesStatus && matchesRisk;
   });
@@ -2955,12 +3312,7 @@ function openConflictModal(conflictId = null) {
         <button class="modal-close" type="button">&times;</button>
       </div>
       <form class="modal-form" id="conflict-form">
-        <div class="form-group">
-          <label>Conflict ID *</label>
-          <input type="text" name="coi_id" value="${conflict.coi_id || ''}" required 
-                 placeholder="e.g. COI-001, COI-2024-01">
-          <small>Unique identifier for this conflict of interest</small>
-        </div>
+        <!-- Conflict ID is now auto-generated as UUID by database -->
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
           <div class="form-group">
@@ -3023,13 +3375,42 @@ function openConflictModal(conflictId = null) {
             </select>
           </div>
           <div class="form-group">
-            <label>Risk Level *</label>
-            <select name="risk_level" required>
-              <option value="">Select risk level</option>
+            <label>Before Mitigation Risk Level *</label>
+            <select name="before_mitigation_risk_level" required>
+              <option value="">Select initial risk level</option>
+              ${RESIDUAL_RISK_LEVELS.map(level => `
+                <option value="${level}" ${conflict.before_mitigation_risk_level === level ? 'selected' : ''}>${level}</option>
+              `).join('')}
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Mitigation Actions</label>
+          <textarea name="mitigation_actions" rows="3" 
+                    placeholder="Actions taken to mitigate the conflict">${conflict.mitigation_actions || ''}</textarea>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Residual Risk Level *</label>
+            <select name="residual_risk_level" required>
+              <option value="">Select residual risk level</option>
+              ${RESIDUAL_RISK_LEVELS.map(level => `
+                <option value="${level}" ${conflict.residual_risk_level === level ? 'selected' : ''}>${level}</option>
+              `).join('')}
+            </select>
+            <small class="form-help">Risk level after mitigation actions</small>
+          </div>
+          <div class="form-group">
+            <label>Legacy Risk Level</label>
+            <select name="risk_level">
+              <option value="">Select legacy risk level</option>
               ${RESIDUAL_RISK_LEVELS.map(level => `
                 <option value="${level}" ${conflict.risk_level === level ? 'selected' : ''}>${level}</option>
               `).join('')}
             </select>
+            <small class="form-help">Keep for compatibility - use Residual Risk Level above</small>
           </div>
         </div>
         
@@ -3042,12 +3423,6 @@ function openConflictModal(conflictId = null) {
             <label>Review Date</label>
             <input type="date" name="review_date" value="${conflict.review_date || ''}">
           </div>
-        </div>
-        
-        <div class="form-group">
-          <label>Mitigation Actions</label>
-          <textarea name="mitigation_actions" rows="3" 
-                    placeholder="Actions taken to mitigate the conflict">${conflict.mitigation_actions || ''}</textarea>
         </div>
         
         <div class="form-group">
@@ -3084,7 +3459,7 @@ function openConflictModal(conflictId = null) {
   });
   
   // Focus first input
-  const firstInput = modal.querySelector('input[name="coi_id"]');
+  const firstInput = modal.querySelector('input[name="individual_name"]');
   if (firstInput) firstInput.focus();
 }
 
@@ -3099,13 +3474,13 @@ async function handleConflictSubmit(event, conflictId) {
   
   console.log('📋 Form data collected:', conflictData);
   console.log('📋 Required fields check:');
-  console.log('  - coi_id:', conflictData.coi_id ? '✅' : '❌', conflictData.coi_id);
   console.log('  - individual_name:', conflictData.individual_name ? '✅' : '❌', conflictData.individual_name);
   console.log('  - nature_of_interest:', conflictData.nature_of_interest ? '✅' : '❌', conflictData.nature_of_interest);
   console.log('  - conflict_type:', conflictData.conflict_type ? '✅' : '❌', conflictData.conflict_type);
   console.log('  - date_declared:', conflictData.date_declared ? '✅' : '❌', conflictData.date_declared);
   console.log('  - status:', conflictData.status ? '✅' : '❌', conflictData.status);
-  console.log('  - risk_level:', conflictData.risk_level ? '✅' : '❌', conflictData.risk_level);
+  console.log('  - before_mitigation_risk_level:', conflictData.before_mitigation_risk_level ? '✅' : '❌', conflictData.before_mitigation_risk_level);
+  console.log('  - residual_risk_level:', conflictData.residual_risk_level ? '✅' : '❌', conflictData.residual_risk_level);
   
   // Convert monetary_value to number if provided
   if (conflictData.monetary_value) {
@@ -3113,17 +3488,18 @@ async function handleConflictSubmit(event, conflictId) {
   }
   
   // Validate required fields
-  if (!conflictData.coi_id || !conflictData.individual_name || !conflictData.nature_of_interest || 
-      !conflictData.conflict_type || !conflictData.date_declared || !conflictData.status || !conflictData.risk_level) {
+  if (!conflictData.individual_name || !conflictData.nature_of_interest || 
+      !conflictData.conflict_type || !conflictData.date_declared || !conflictData.status || 
+      !conflictData.before_mitigation_risk_level || !conflictData.residual_risk_level) {
     console.warn('❌ Validation failed:', conflictData);
     const missingFields = [];
-    if (!conflictData.coi_id) missingFields.push('Conflict ID');
     if (!conflictData.individual_name) missingFields.push('Individual Name');
     if (!conflictData.nature_of_interest) missingFields.push('Nature of Interest');
     if (!conflictData.conflict_type) missingFields.push('Conflict Type');
     if (!conflictData.date_declared) missingFields.push('Date Declared');
     if (!conflictData.status) missingFields.push('Status');
-    if (!conflictData.risk_level) missingFields.push('Risk Level');
+    if (!conflictData.before_mitigation_risk_level) missingFields.push('Before Mitigation Risk Level');
+    if (!conflictData.residual_risk_level) missingFields.push('Residual Risk Level');
     
     showError(`Please fill in all required fields: ${missingFields.join(', ')}`);
     return;
@@ -3268,11 +3644,11 @@ function exportConflictsToCSV() {
     return;
   }
   
-  const headers = ['COI ID', 'Individual Name', 'Position/Role', 'Nature of Interest', 'Conflict Type', 'Description', 'Monetary Value', 'Currency', 'Date Declared', 'Status', 'Mitigation Actions', 'Risk Level', 'Review Date', 'Notes', 'Created Date', 'Updated Date'];
+  const headers = ['ID', 'Individual Name', 'Position/Role', 'Nature of Interest', 'Conflict Type', 'Description', 'Monetary Value', 'Currency', 'Date Declared', 'Status', 'Mitigation Actions', 'Before Mitigation Risk', 'Residual Risk Level', 'Review Date', 'Notes', 'Created Date', 'Updated Date'];
   const csvContent = [
     headers.join(','),
     ...filteredConflicts.map(conflict => [
-      `"${(conflict.coi_id || '').replace(/"/g, '""')}"`,
+      `"${(conflict.id || '').replace(/"/g, '""')}"`,
       `"${(conflict.individual_name || '').replace(/"/g, '""')}"`,
       `"${(conflict.position_role || '').replace(/"/g, '""')}"`,
       `"${(conflict.nature_of_interest || '').replace(/"/g, '""')}"`,
@@ -3283,7 +3659,8 @@ function exportConflictsToCSV() {
       conflict.date_declared ? new Date(conflict.date_declared).toLocaleDateString('en-GB') : '',
       `"${(conflict.status || '').replace(/"/g, '""')}"`,
       `"${(conflict.mitigation_actions || '').replace(/"/g, '""')}"`,
-      `"${(conflict.risk_level || '').replace(/"/g, '""')}"`,
+      `"${(conflict.before_mitigation_risk_level || '').replace(/"/g, '""')}"`,
+      `"${(conflict.residual_risk_level || '').replace(/"/g, '""')}"`,
       conflict.review_date ? new Date(conflict.review_date).toLocaleDateString('en-GB') : '',
       `"${(conflict.notes || '').replace(/"/g, '""')}"`,
       conflict.created_at ? new Date(conflict.created_at).toLocaleDateString('en-GB') : '',
@@ -3313,12 +3690,13 @@ function exportConflictsToMarkdown() {
   
   sortedConflicts.forEach((conflict, index) => {
     markdown += `### ${index + 1}. ${conflict.individual_name || 'Unknown Individual'}\n\n`;
-    markdown += `- **COI ID:** ${conflict.coi_id || 'N/A'}\n`;
+    markdown += `- **ID:** ${conflict.id || 'N/A'}\n`;
     markdown += `- **Position/Role:** ${conflict.position_role || 'N/A'}\n`;
     markdown += `- **Conflict Type:** ${conflict.conflict_type || 'N/A'}\n`;
     markdown += `- **Nature of Interest:** ${conflict.nature_of_interest || 'N/A'}\n`;
     markdown += `- **Status:** ${conflict.status || 'N/A'}\n`;
-    markdown += `- **Risk Level:** ${conflict.risk_level || 'N/A'}\n`;
+    markdown += `- **Before Mitigation Risk:** ${conflict.before_mitigation_risk_level || 'N/A'}\n`;
+    markdown += `- **Residual Risk Level:** ${conflict.residual_risk_level || 'N/A'}\n`;
     markdown += `- **Date Declared:** ${conflict.date_declared ? new Date(conflict.date_declared).toLocaleDateString('en-GB') : 'N/A'}\n`;
     
     if (conflict.monetary_value) {
@@ -3412,11 +3790,12 @@ function exportConflictsToPrintableHTML() {
       ${filteredConflicts.map((conflict, index) => `
           <div class="conflict">
               <h3>${index + 1}. ${conflict.individual_name || 'Unknown Individual'}</h3>
-              <div class="field"><span class="label">COI ID:</span> ${conflict.coi_id || 'N/A'}</div>
+              <div class="field"><span class="label">ID:</span> ${conflict.id || 'N/A'}</div>
               <div class="field"><span class="label">Position/Role:</span> ${conflict.position_role || 'N/A'}</div>
               <div class="field"><span class="label">Conflict Type:</span> ${conflict.conflict_type || 'N/A'}</div>
               <div class="field"><span class="label">Status:</span> ${conflict.status || 'N/A'}</div>
-              <div class="field"><span class="label">Risk Level:</span> ${conflict.risk_level || 'N/A'}</div>
+                              <div class="field"><span class="label">Before Mitigation Risk:</span> ${conflict.before_mitigation_risk_level || 'N/A'}</div>
+                <div class="field"><span class="label">Residual Risk Level:</span> ${conflict.residual_risk_level || 'N/A'}</div>
               <div class="field"><span class="label">Date Declared:</span> ${conflict.date_declared ? new Date(conflict.date_declared).toLocaleDateString('en-GB') : 'N/A'}</div>
               ${conflict.monetary_value ? `<div class="field"><span class="label">Monetary Value:</span> ${conflict.currency || 'GBP'} ${parseFloat(conflict.monetary_value).toLocaleString()}</div>` : ''}
               ${conflict.description ? `<p><strong>Description:</strong> ${conflict.description}</p>` : ''}

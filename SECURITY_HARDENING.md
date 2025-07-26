@@ -306,4 +306,118 @@ These implementations address:
 2. **Authentication Problems** - Token presence/validity now logged
 3. **Network Issues** - Full API request/response details captured
 4. **JavaScript Errors** - Global error handlers catch all exceptions
-5. **Form Event Issues** - Event handler registration and triggering logged 
+5. **Form Event Issues** - Event handler registration and triggering logged
+
+## Role Criteria Display Fix
+
+**Issue:** Role essential and desirable criteria bullet points cutting off sentences early
+
+**Root Cause:** Admin dashboard was using `substring(0, 100)` to truncate criteria text, which cut sentences mid-word instead of respecting line breaks and complete bullet points.
+
+**Solution Implemented:**
+- ✅ **New formatCriteriaPreview() function** - Properly splits criteria by line breaks and shows complete bullet points
+- ✅ **Improved preview display** - Shows first 3 complete criteria items with "...and X more" indicator
+- ✅ **Enhanced CSS styling** - Better line spacing and word wrapping for criteria preview
+- ✅ **Consistent formatting** - Now matches the public-facing site's criteria display logic
+
+**Technical Details:**
+- Replaced `criteriaText.substring(0, 100)` with `formatCriteriaPreview(criteriaText)` 
+- Function splits text by newlines: `criteriaText.split(/\n/).filter(item => item.trim())`
+- Formats as bullet points: `previewItems.map(item => '• ${item.trim()}').join('<br>')`
+- Indicates additional items: `"...and ${items.length - maxItems} more"`
+
+**Result:** Role criteria now display complete bullet points without cutting off sentences, showing proper previews that respect the original formatting entered by administrators.
+
+## Conflict of Interest Database Schema Fix
+
+**Issue:** F12 error "Could not find the 'coi_id' column" when creating new conflicts
+
+**Root Cause:** Database table only has UUID `id` column, not the `coi_id` TEXT column as originally planned
+
+**Solution Implemented:**
+- ✅ **Removed coi_id field requirement** - Form no longer requires manual conflict ID entry
+- ✅ **Updated validation logic** - Removed `coi_id` from required fields validation (frontend and backend)
+- ✅ **Database auto-generates UUID** - Conflicts now use auto-generated UUID as primary identifier
+- ✅ **Updated display logic** - Tables and exports now show UUID (truncated for readability)
+- ✅ **Fixed form focus** - First input now focuses on Individual Name instead of removed COI ID field
+
+**Technical Changes:**
+- **Frontend:** Removed `<input name="coi_id">` from form modal
+- **Validation:** Updated both frontend and backend to not require `coi_id`
+- **Display:** Changed table headers from "COI ID" to "ID" and show `conflict.id.substring(0, 8) + '...'`
+- **Exports:** Updated CSV/Markdown exports to use UUID `id` instead of `coi_id`
+- **Database:** Relies on PostgreSQL `gen_random_uuid()` for unique identifiers
+
+**Result:** Conflict creation now works correctly with database-generated UUIDs as identifiers.
+
+## Admin Analytics Enhancement with Tab System
+
+**Enhancement:** Admin dashboard analytics upgraded with tab functionality for different reporting categories
+
+**New Features Added:**
+- ✅ **Tab Navigation System** - Clean tab interface for switching between different analytics views
+- ✅ **Applications Analytics Tab** - Original analytics moved to dedicated tab (status distribution, role popularity, performance metrics)
+- ✅ **Risk Analytics Tab** - New comprehensive risk reporting and visualization
+- ✅ **Organizational Risk Metrics** - Average risk levels pre and post mitigation calculations
+- ✅ **Risk Improvement Tracking** - Percentage improvement from mitigation actions
+- ✅ **Visual Risk Comparisons** - Bar charts comparing before/after mitigation risk levels
+- ✅ **Risk Type Distribution** - Doughnut charts showing conflict types breakdown
+
+**Risk Analytics Metrics:**
+- **Average Pre-Mitigation Risk** - Organization's initial risk exposure
+- **Average Post-Mitigation Risk** - Residual risk after actions taken  
+- **Risk Improvement Percentage** - Effectiveness of mitigation strategies
+- **High Risk Conflicts Count** - Number of conflicts still requiring attention
+- **Total Conflicts Under Management** - Overall organizational risk portfolio
+- **Most Common Conflict Type** - Primary risk category identification
+
+**Technical Implementation:**
+- **Data Integration** - Combines conflicts and applications data for comprehensive reporting
+- **Smart Calculations** - Risk level mapping (Very Low=1 to Very High=5) for mathematical analysis
+- **Dynamic Charts** - Chart.js integration with custom tooltips showing risk level names
+- **Responsive Design** - Tab system adapts to mobile with vertical layout
+- **Real-time Updates** - Analytics refresh when switching tabs
+- **Error Handling** - Graceful handling of missing data with appropriate fallbacks
+
+**Benefits:**
+- **Executive Dashboard** - High-level organizational risk overview at a glance
+- **Compliance Ready** - Demonstrates risk management effectiveness for audits
+- **Strategic Planning** - Data-driven insights for risk mitigation priorities
+- **Performance Tracking** - Quantifiable measurement of risk reduction efforts
+- **Scalable Framework** - Tab system ready for additional analytics categories
+
+**UI/UX Improvements:**
+- **Professional Tab Design** - Clean, modern tab interface with hover effects
+- **Color-coded Metrics** - Visual indicators for different risk levels and improvements
+- **Responsive Grid Layout** - Optimal viewing on all device sizes
+- **Loading States** - User feedback during analytics calculation and chart rendering
+
+## Conflict Risk Level Enhancement
+
+**New Supabase Columns Added:**
+- `residual_risk_level` - Risk level after mitigation actions applied
+- `before_mitigation_risk_level` - Initial risk level before any mitigation
+
+**Frontend Enhancements:**
+- ✅ **Updated Form Fields** - Added two new required risk level dropdowns with "Very Low, Low, Medium, High, Very High" options
+- ✅ **Improved Form Layout** - Reorganized form to show logical flow: Before Risk → Mitigation Actions → Residual Risk
+- ✅ **Enhanced Validation** - Both new risk level fields are now required for conflict creation/editing
+- ✅ **Updated Table Display** - Split single "Risk Level" column into "Before Risk" and "Residual Risk" columns
+- ✅ **Smart Filtering** - Filter function now filters on `residual_risk_level` (post-mitigation) for better decision making
+- ✅ **Legacy Support** - Kept original `risk_level` field for backward compatibility
+
+**Backend Updates:**
+- ✅ **Server Validation** - Updated both POST and PUT endpoints to require new risk level fields
+- ✅ **Export Enhancement** - CSV, Markdown, and HTML exports now include both risk levels
+- ✅ **API Compatibility** - Maintains backward compatibility while supporting new enhanced risk assessment
+
+**Benefits:**
+- **Better Risk Management** - Track risk reduction effectiveness through before/after comparison
+- **Compliance Ready** - Proper documentation of mitigation impact for auditing
+- **Decision Support** - Filter on actual residual risk for priority management
+- **Process Improvement** - Clear visibility into which mitigation strategies are most effective
+
+**Technical Implementation:**
+- Form now shows: Before Mitigation Risk → Mitigation Actions → Residual Risk Level
+- Filtering uses `residual_risk_level` for operational decisions
+- All exports include both risk assessments for complete audit trail 

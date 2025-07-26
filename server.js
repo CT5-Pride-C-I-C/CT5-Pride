@@ -2067,8 +2067,9 @@ app.post('/api/conflicts', requireSupabaseAuth, async (req, res) => {
     const conflictData = req.body;
     
     // Validate required fields
-    if (!conflictData.coi_id || !conflictData.individual_name || !conflictData.nature_of_interest || 
-        !conflictData.conflict_type || !conflictData.date_declared || !conflictData.status || !conflictData.risk_level) {
+    if (!conflictData.individual_name || !conflictData.nature_of_interest || 
+        !conflictData.conflict_type || !conflictData.date_declared || !conflictData.status || 
+        !conflictData.before_mitigation_risk_level || !conflictData.residual_risk_level) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields'
@@ -2127,8 +2128,9 @@ app.put('/api/conflicts/:id', requireSupabaseAuth, async (req, res) => {
     console.log(`📝 Updating conflict of interest ${id}:`, conflictData);
     
     // Validate required fields
-    if (!conflictData.coi_id || !conflictData.individual_name || !conflictData.nature_of_interest || 
-        !conflictData.conflict_type || !conflictData.date_declared || !conflictData.status || !conflictData.risk_level) {
+    if (!conflictData.individual_name || !conflictData.nature_of_interest || 
+        !conflictData.conflict_type || !conflictData.date_declared || !conflictData.status || 
+        !conflictData.before_mitigation_risk_level || !conflictData.residual_risk_level) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields'
@@ -2316,13 +2318,13 @@ app.get('/api/conflicts/export/:format', requireSupabaseAuth, async (req, res) =
     switch (format.toLowerCase()) {
       case 'csv':
         const csvHeaders = [
-          'COI ID', 'Individual Name', 'Position/Role', 'Nature of Interest', 'Conflict Type', 
+          'ID', 'Individual Name', 'Position/Role', 'Nature of Interest', 'Conflict Type', 
           'Description', 'Monetary Value', 'Currency', 'Date Declared', 'Status', 
-          'Mitigation Actions', 'Risk Level', 'Review Date', 'Notes', 'Created Date', 'Updated Date'
+          'Mitigation Actions', 'Before Mitigation Risk', 'Residual Risk Level', 'Review Date', 'Notes', 'Created Date', 'Updated Date'
         ];
         
         const csvRows = conflicts.map(conflict => [
-          `"${(conflict.coi_id || '').replace(/"/g, '""')}"`,
+                      `"${(conflict.id || '').replace(/"/g, '""')}"`,
           `"${(conflict.individual_name || '').replace(/"/g, '""')}"`,
           `"${(conflict.position_role || '').replace(/"/g, '""')}"`,
           `"${(conflict.nature_of_interest || '').replace(/"/g, '""')}"`,
@@ -2333,7 +2335,8 @@ app.get('/api/conflicts/export/:format', requireSupabaseAuth, async (req, res) =
           conflict.date_declared ? new Date(conflict.date_declared).toLocaleDateString('en-GB') : '',
           `"${(conflict.status || '').replace(/"/g, '""')}"`,
           `"${(conflict.mitigation_actions || '').replace(/"/g, '""')}"`,
-          `"${(conflict.risk_level || '').replace(/"/g, '""')}"`,
+          `"${(conflict.before_mitigation_risk_level || '').replace(/"/g, '""')}"`,
+          `"${(conflict.residual_risk_level || '').replace(/"/g, '""')}"`,
           conflict.review_date ? new Date(conflict.review_date).toLocaleDateString('en-GB') : '',
           `"${(conflict.notes || '').replace(/"/g, '""')}"`,
           conflict.created_at ? new Date(conflict.created_at).toLocaleDateString('en-GB') : '',

@@ -2370,6 +2370,142 @@ body {
   white-space: nowrap;
 }
 
+/* ==================== ANALYTICS TABS STYLING ==================== */
+
+/* Analytics tabs container */
+.analytics-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: var(--space-6);
+  border-bottom: 2px solid var(--gray-100);
+  padding-bottom: 0;
+}
+
+/* Individual tab buttons */
+.analytics-tab-btn {
+  background: transparent;
+  border: none;
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--gray-600);
+  cursor: pointer;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+  border-bottom: 3px solid transparent;
+}
+
+.analytics-tab-btn:hover {
+  background: var(--gray-50);
+  color: var(--gray-800);
+}
+
+.analytics-tab-btn.active {
+  background: white;
+  color: var(--primary-pink);
+  border-bottom-color: var(--primary-pink);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Risk analytics specific styling */
+.risk-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.risk-stats-grid .performance-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: var(--space-5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border-left: 4px solid var(--gray-300);
+}
+
+.risk-stats-grid .performance-card.risk-improvement {
+  border-left-color: var(--success-green);
+}
+
+.risk-stats-grid .performance-card.risk-improvement p {
+  color: var(--success-green);
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.risk-stats-grid .performance-card h3 {
+  color: var(--gray-700);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.risk-stats-grid .performance-card p {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-pink);
+  margin: var(--space-2) 0;
+}
+
+.risk-stats-grid .performance-card small {
+  color: var(--gray-500);
+  font-size: var(--font-size-xs);
+  display: block;
+}
+
+/* Chart containers for analytics */
+.analytics-grid .chart-container {
+  height: 300px;
+  position: relative;
+}
+
+.analytics-section {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: var(--space-5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: var(--space-4);
+}
+
+.analytics-section h2 {
+  color: var(--gray-800);
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-4);
+  border-bottom: 2px solid var(--gray-100);
+  padding-bottom: var(--space-2);
+}
+
+/* Responsive adjustments for analytics */
+@media (max-width: 768px) {
+  .analytics-tabs {
+    flex-direction: column;
+  }
+  
+  .analytics-tab-btn {
+    border-radius: var(--border-radius);
+    border-bottom: none;
+    border-left: 3px solid transparent;
+  }
+  
+  .analytics-tab-btn.active {
+    border-left-color: var(--primary-pink);
+    border-bottom-color: transparent;
+  }
+  
+  .risk-stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+  
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ==================== ROLE CRITERIA STYLING ==================== */
 
 /* Role criteria preview in admin cards */
@@ -2399,8 +2535,10 @@ body {
 .criteria-preview {
   font-size: var(--font-size-sm);
   color: var(--gray-600);
-  line-height: 1.4;
+  line-height: 1.6;
   margin-left: var(--space-4);
+  max-width: 100%;
+  word-wrap: break-word;
 }
 
 /* Form styling improvements */
