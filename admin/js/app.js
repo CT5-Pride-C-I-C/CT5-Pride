@@ -59,11 +59,24 @@ let roles = [];
 let applications = [];
 let events = [];
 let analytics = {};
+let risks = [];
+let filteredRisks = [];
+
+// Risk types for filtering
+const RISK_TYPES = [
+    'Financial', 'Operational', 'Strategic', 'Compliance', 'Reputational', 
+    'Legal', 'Health & Safety', 'Technology', 'Environmental', 'Other'
+];
+
+// Residual risk levels
+const RESIDUAL_RISK_LEVELS = [
+    'Very Low', 'Low', 'Medium', 'High', 'Very High'
+];
 
 // Navigation state
 const navigation = [
   { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-  { id: 'risk-register', label: 'Risk Register', icon: '⚠️', url: '/admin/risk_register.html' },
+  { id: 'risk-register', label: 'Risk Register', icon: '⚠️' },
   { id: 'roles', label: 'Role Management', icon: '👥' },
   { id: 'applications', label: 'Applications', icon: '📝' },
   { id: 'events', label: 'Event Management', icon: '📅' },
@@ -273,6 +286,10 @@ function route() {
       console.log('✓ Rendering dashboard for authenticated user');
       console.log('✓ Current user:', currentUser?.email || 'Unknown');
       renderDashboard();
+      break;
+    case '#/risk-register':
+      console.log('✓ Rendering risk register for authenticated user');
+      renderRiskRegister();
       break;
     case '#/roles':
       console.log('✓ Rendering roles page for authenticated user');
@@ -558,10 +575,9 @@ function renderNavigation(currentView) {
         ${navigation.map(item => `
           <li>
             <a 
-              href="${item.url || '#/' + item.id}" 
+              href="#/${item.id}" 
               class="nav-link ${currentView === item.id ? 'active' : ''}"
               aria-current="${currentView === item.id ? 'page' : 'false'}"
-              data-external="${item.url ? 'true' : 'false'}"
             >
               <span class="nav-icon">${item.icon}</span>
               <span class="nav-label">${item.label}</span>
@@ -1909,6 +1925,685 @@ function updateMembershipStripeUI(memberId, stripeData, errorMessage) {
   }
 }
 
+// ==================== RISK REGISTER VIEW ====================
+
+async function renderRiskRegister() {
+  const app = document.getElementById('app');
+  
+  app.innerHTML = `
+    <div class="admin-layout">
+      ${renderNavigation('risk-register')}
+      <main class="admin-content">
+        <div class="page-header">
+          <h1>Risk Register</h1>
+          <p>Manage organizational risks, assessments, and mitigation strategies</p>
+          <div class="page-header-actions" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <div class="export-dropdown" style="position: relative;">
+              <button class="btn btn-secondary dropdown-toggle" id="exportBtn" onclick="toggleExportMenu()">📊 Export Data</button>
+              <div class="dropdown-menu" id="exportMenu" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #d1d5db; border-radius: 6px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 1000; min-width: 200px; margin-top: 0.25rem;">
+                <button class="dropdown-item" onclick="exportToCSV()">📄 Export as CSV</button>
+                <button class="dropdown-item" onclick="exportToMarkdown()">📝 Export as Markdown</button>
+                <button class="dropdown-item" onclick="exportToJSON()">💾 Export as JSON</button>
+                <button class="dropdown-item" onclick="exportToPrintableHTML()">🖨️ Printable Report</button>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="openRiskModal()">Add New Risk</button>
+          </div>
+        </div>
+        
+        <!-- Risk Filters -->
+        <div class="risk-filters" style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center;">
+          <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.25rem;">
+            <label for="risk-type-filter" style="font-size: 0.875rem; font-weight: 500; color: #374151;">Filter by Risk Type</label>
+            <select id="risk-type-filter" onchange="applyFilters()" style="padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; background: white; min-width: 150px;">
+              <option value="">All Risk Types</option>
+              ${RISK_TYPES.map(type => `<option value="${type}">${type}</option>`).join('')}
+            </select>
+          </div>
+          <div class="filter-group" style="display: flex; flex-direction: column; gap: 0.25rem;">
+            <label for="residual-risk-filter" style="font-size: 0.875rem; font-weight: 500; color: #374151;">Filter by Residual Risk Level</label>
+            <select id="residual-risk-filter" onchange="applyFilters()" style="padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.875rem; background: white; min-width: 150px;">
+              <option value="">All Risk Levels</option>
+              ${RESIDUAL_RISK_LEVELS.map(level => `<option value="${level}">${level}</option>`).join('')}
+            </select>
+          </div>
+          <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+        </div>
+        
+        <!-- Risk Table -->
+        <div id="risks-content">
+          <!-- Content will be loaded here -->
+        </div>
+      </main>
+    </div>
+  `;
+  
+  await loadRisks();
+}
+
+async function loadRisks() {
+  const content = document.getElementById('risks-content');
+  
+  if (!content) {
+    console.error('Risk content container not found');
+    return;
+  }
+  
+  // Show loading state
+  content.innerHTML = `
+    <div style="text-align: center; padding: 2rem; color: #6b7280;">
+      <div class="loading-spinner" style="margin: 0 auto 1rem auto;"></div>
+      <p>Loading risks...</p>
+    </div>
+  `;
+  
+  try {
+    console.log('Fetching risks from API...');
+    const response = await fetch('/api/risks', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${getSession()}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Authentication failed, redirect to login
+        window.location.hash = '#/login';
+        return;
+      }
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to fetch risks');
+    }
+    
+    console.log('Risks loaded successfully:', data.risks);
+    risks = data.risks || [];
+    filteredRisks = [...risks];
+    
+    renderRisksTable();
+    
+  } catch (err) {
+    console.error('Load risks error:', err);
+    content.innerHTML = `
+      <div style="text-align: center; padding: 2rem; color: #ef4444;">
+        <h3>⚠️ Error Loading Risks</h3>
+        <p>Failed to load risk data: ${err.message}</p>
+        <button class="btn btn-primary" onclick="loadRisks()">Retry</button>
+      </div>
+    `;
+  }
+}
+
+function renderRisksTable() {
+  const content = document.getElementById('risks-content');
+  
+  if (filteredRisks.length === 0) {
+    const isEmpty = risks.length === 0;
+    content.innerHTML = `
+      <div style="text-align: center; padding: 2rem; color: #6b7280;">
+        <h3>${isEmpty ? 'No risks found' : 'No risks match current filters'}</h3>
+        <p>${isEmpty ? 'Start by creating your first risk assessment.' : 'Try adjusting your filter criteria.'}</p>
+        ${isEmpty ? '<button class="btn btn-primary" onclick="openRiskModal()">Add First Risk</button>' : ''}
+      </div>
+    `;
+    return;
+  }
+  
+  content.innerHTML = `
+    <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); overflow: hidden; border: 1px solid #e5e7eb;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+        <thead style="background: linear-gradient(135deg, #ff6f91, #ff9671); color: white;">
+          <tr>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Risk ID</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Title</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Risk Type</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Likelihood</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Impact</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Score</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Residual Risk Level</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Mitigation</th>
+            <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filteredRisks.map(risk => `
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;"><strong>${risk.risk_id || 'N/A'}</strong></td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">
+                <strong>${risk.title || 'Untitled Risk'}</strong>
+                ${risk.description ? `<br><small style="color: #6b7280;">${risk.description.substring(0, 80)}${risk.description.length > 80 ? '...' : ''}</small>` : ''}
+              </td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">${risk.risk_type || 'N/A'}</td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb; text-align: center;">${risk.likelihood || 'N/A'}</td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb; text-align: center;">${risk.impact || 'N/A'}</td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb; text-align: center;">
+                <span style="display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; border-radius: 50%; font-weight: 600; font-size: 0.875rem; color: white; ${getRiskScoreStyle(risk.score || 0)}">
+                  ${risk.score || 0}
+                </span>
+              </td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">
+                <span style="padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; ${getResidualRiskStyle(risk.residual_risk_level || 'Low')}">
+                  ${risk.residual_risk_level || 'N/A'}
+                </span>
+              </td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">
+                <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+                  ${risk.mitigation ? risk.mitigation.substring(0, 100) : 'No mitigation specified'}${risk.mitigation && risk.mitigation.length > 100 ? '...' : ''}
+                </div>
+              </td>
+              <td style="padding: 0.75rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                  <button onclick="editRisk('${risk.id}')" style="padding: 0.25rem 0.5rem; border: none; border-radius: 6px; font-size: 0.75rem; cursor: pointer; background: #3498db; color: white;">✏️ Edit</button>
+                  <button onclick="deleteRisk('${risk.id}')" style="padding: 0.25rem 0.5rem; border: none; border-radius: 6px; font-size: 0.75rem; cursor: pointer; background: #e74c3c; color: white;">🗑️ Delete</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function getRiskScoreStyle(score) {
+  if (score >= 1 && score <= 4) return 'background-color: #22c55e;'; // Green - Very Low
+  if (score >= 5 && score <= 8) return 'background-color: #84cc16;'; // Light Green - Low
+  if (score >= 9 && score <= 12) return 'background-color: #eab308;'; // Yellow - Medium
+  if (score >= 13 && score <= 16) return 'background-color: #f97316;'; // Orange - High
+  if (score >= 17 && score <= 25) return 'background-color: #ef4444;'; // Red - Very High
+  return 'background-color: #22c55e;';
+}
+
+function getResidualRiskStyle(level) {
+  switch (level.toLowerCase()) {
+    case 'very low': return 'background: rgba(34, 197, 94, 0.1); color: #22c55e;';
+    case 'low': return 'background: rgba(132, 204, 22, 0.1); color: #84cc16;';
+    case 'medium': return 'background: rgba(234, 179, 8, 0.1); color: #eab308;';
+    case 'high': return 'background: rgba(249, 115, 22, 0.1); color: #f97316;';
+    case 'very high': return 'background: rgba(239, 68, 68, 0.1); color: #ef4444;';
+    default: return 'background: rgba(132, 204, 22, 0.1); color: #84cc16;';
+  }
+}
+
+// Risk Register filtering
+function applyFilters() {
+  const riskTypeFilter = document.getElementById('risk-type-filter').value;
+  const residualRiskFilter = document.getElementById('residual-risk-filter').value;
+  
+  filteredRisks = risks.filter(risk => {
+    const matchesType = !riskTypeFilter || risk.risk_type === riskTypeFilter;
+    const matchesLevel = !residualRiskFilter || risk.residual_risk_level === residualRiskFilter;
+    return matchesType && matchesLevel;
+  });
+  
+  console.log(`Applied filters: ${filteredRisks.length}/${risks.length} risks match`);
+  renderRisksTable();
+}
+
+function clearFilters() {
+  document.getElementById('risk-type-filter').value = '';
+  document.getElementById('residual-risk-filter').value = '';
+  filteredRisks = [...risks];
+  renderRisksTable();
+}
+
+// Risk modal functions
+function openRiskModal(riskId = null) {
+  const isEdit = riskId !== null;
+  const risk = isEdit ? risks.find(r => r.id === riskId) : {};
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-dialog" style="max-width: 700px;">
+      <div class="modal-header">
+        <h2>${isEdit ? 'Edit Risk' : 'Add New Risk'}</h2>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">&times;</button>
+      </div>
+      <form class="modal-form" onsubmit="handleRiskSubmit(event, ${riskId ? `'${riskId}'` : 'null'})">
+        <div class="form-group">
+          <label>Risk ID *</label>
+          <input type="text" name="risk_id" value="${risk.risk_id || ''}" required 
+                 placeholder="e.g. RISK-001, OP-2024-01">
+          <small style="font-size: 0.75rem; color: #6b7280;">Unique identifier for this risk</small>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Title *</label>
+            <input type="text" name="title" value="${risk.title || ''}" required
+                   placeholder="Brief risk title">
+          </div>
+          <div class="form-group">
+            <label>Risk Type *</label>
+            <select name="risk_type" required>
+              <option value="">Select risk type</option>
+              ${RISK_TYPES.map(type => `
+                <option value="${type}" ${risk.risk_type === type ? 'selected' : ''}>${type}</option>
+              `).join('')}
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Description</label>
+          <textarea name="description" rows="3" 
+                    placeholder="Detailed description of the risk">${risk.description || ''}</textarea>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label>Likelihood (1-5) *</label>
+            <select name="likelihood" required onchange="updateRiskScore()">
+              <option value="">Select</option>
+              ${[1,2,3,4,5].map(val => `
+                <option value="${val}" ${risk.likelihood == val ? 'selected' : ''}>${val}</option>
+              `).join('')}
+            </select>
+            <small style="font-size: 0.75rem; color: #6b7280;">1 = Very Unlikely, 5 = Very Likely</small>
+          </div>
+          <div class="form-group">
+            <label>Impact (1-5) *</label>
+            <select name="impact" required onchange="updateRiskScore()">
+              <option value="">Select</option>
+              ${[1,2,3,4,5].map(val => `
+                <option value="${val}" ${risk.impact == val ? 'selected' : ''}>${val}</option>
+              `).join('')}
+            </select>
+            <small style="font-size: 0.75rem; color: #6b7280;">1 = Very Low Impact, 5 = Very High Impact</small>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Risk Score (Auto-calculated)</label>
+          <div id="risk-score-display" style="background: #f9fafb; border: 1px solid #d1d5db; border-radius: 6px; padding: 0.75rem; text-align: center; font-weight: 600; font-size: 1.125rem; color: #ff6f91;">
+            ${risk.score || 'Select likelihood and impact'}
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Mitigation Strategy</label>
+          <textarea name="mitigation" rows="3" 
+                    placeholder="Describe mitigation actions and controls">${risk.mitigation || ''}</textarea>
+        </div>
+        
+        <div class="form-group">
+          <label>Residual Risk Level *</label>
+          <select name="residual_risk_level" required>
+            <option value="">Select residual risk level</option>
+            ${RESIDUAL_RISK_LEVELS.map(level => `
+              <option value="${level}" ${risk.residual_risk_level === level ? 'selected' : ''}>${level}</option>
+            `).join('')}
+          </select>
+          <small style="font-size: 0.75rem; color: #6b7280;">Risk level after mitigation controls are applied</small>
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+          <button type="submit" class="btn btn-primary">${isEdit ? 'Update' : 'Create'} Risk</button>
+        </div>
+      </form>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Initialize score if editing
+  if (isEdit && risk.likelihood && risk.impact) {
+    setTimeout(() => updateRiskScore(), 100);
+  }
+}
+
+function updateRiskScore() {
+  const likelihoodSelect = document.querySelector('select[name="likelihood"]');
+  const impactSelect = document.querySelector('select[name="impact"]');
+  const scoreDisplay = document.getElementById('risk-score-display');
+  
+  if (!likelihoodSelect || !impactSelect || !scoreDisplay) return;
+  
+  const likelihood = parseInt(likelihoodSelect.value) || 0;
+  const impact = parseInt(impactSelect.value) || 0;
+  
+  if (likelihood && impact) {
+    const score = likelihood * impact;
+    scoreDisplay.textContent = score;
+    scoreDisplay.style.cssText = `background: ${getRiskScoreStyle(score)}; color: white; border: 1px solid #d1d5db; border-radius: 6px; padding: 0.75rem; text-align: center; font-weight: 600; font-size: 1.125rem;`;
+  } else {
+    scoreDisplay.textContent = 'Select likelihood and impact';
+    scoreDisplay.style.cssText = 'background: #f9fafb; color: #ff6f91; border: 1px solid #d1d5db; border-radius: 6px; padding: 0.75rem; text-align: center; font-weight: 600; font-size: 1.125rem;';
+  }
+}
+
+async function handleRiskSubmit(event, riskId) {
+  event.preventDefault();
+  
+  const form = event.target;
+  const formData = new FormData(form);
+  const riskData = Object.fromEntries(formData.entries());
+  
+  // Calculate score
+  riskData.likelihood = parseInt(riskData.likelihood);
+  riskData.impact = parseInt(riskData.impact);
+  riskData.score = riskData.likelihood * riskData.impact;
+  
+  // Validate required fields
+  if (!riskData.risk_id || !riskData.title || !riskData.risk_type || 
+      !riskData.likelihood || !riskData.impact || !riskData.residual_risk_level) {
+    showError('Please fill in all required fields');
+    return;
+  }
+  
+  try {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const isEdit = riskId !== null;
+    submitBtn.disabled = true;
+    submitBtn.textContent = isEdit ? 'Updating...' : 'Creating...';
+    
+    const url = riskId ? `/api/risks/${riskId}` : '/api/risks';
+    const method = riskId ? 'PUT' : 'POST';
+    
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Authorization': `Bearer ${getSession()}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(riskData)
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.hash = '#/login';
+        return;
+      }
+      throw new Error(result.message || `HTTP ${response.status}`);
+    }
+    
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to save risk');
+    }
+    
+    showSuccess(riskId ? 'Risk updated successfully!' : 'Risk created successfully!');
+    document.querySelector('.modal-overlay').remove();
+    await loadRisks();
+    
+  } catch (err) {
+    console.error('Risk save error:', err);
+    showError(`Failed to save risk: ${err.message}`);
+    
+    // Reset button
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = false;
+    submitBtn.textContent = riskId ? 'Update Risk' : 'Create Risk';
+  }
+}
+
+async function editRisk(riskId) {
+  openRiskModal(riskId);
+}
+
+async function deleteRisk(riskId) {
+  const risk = risks.find(r => r.id === riskId);
+  if (!risk) {
+    showError('Risk not found');
+    return;
+  }
+  
+  if (!confirm(`Are you sure you want to delete the risk "${risk.title}"?\n\nThis action cannot be undone.`)) {
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/api/risks/${riskId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${getSession()}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.hash = '#/login';
+        return;
+      }
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP ${response.status}`);
+    }
+    
+    const result = await response.json();
+    
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to delete risk');
+    }
+    
+    showSuccess('Risk deleted successfully!');
+    await loadRisks();
+    
+  } catch (err) {
+    console.error('Risk delete error:', err);
+    showError(`Failed to delete risk: ${err.message}`);
+  }
+}
+
+// Export functionality
+function toggleExportMenu() {
+  const menu = document.getElementById('exportMenu');
+  if (menu.style.display === 'none') {
+    menu.style.display = 'block';
+    setTimeout(() => {
+      document.addEventListener('click', hideExportMenu);
+    }, 0);
+  } else {
+    menu.style.display = 'none';
+  }
+}
+
+function hideExportMenu(event) {
+  const menu = document.getElementById('exportMenu');
+  const button = document.getElementById('exportBtn');
+  
+  if (!menu.contains(event.target) && !button.contains(event.target)) {
+    menu.style.display = 'none';
+    document.removeEventListener('click', hideExportMenu);
+  }
+}
+
+function downloadFile(content, filename, contentType) {
+  const blob = new Blob([content], { type: contentType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function exportToCSV() {
+  if (!filteredRisks || filteredRisks.length === 0) {
+    showError('No risks to export. Please ensure risks are loaded.');
+    return;
+  }
+  
+  const headers = ['Risk ID', 'Title', 'Description', 'Risk Type', 'Likelihood', 'Impact', 'Score', 'Mitigation', 'Residual Risk Level', 'Created Date', 'Updated Date'];
+  const csvContent = [
+    headers.join(','),
+    ...filteredRisks.map(risk => [
+      `"${(risk.risk_id || '').replace(/"/g, '""')}"`,
+      `"${(risk.title || '').replace(/"/g, '""')}"`,
+      `"${(risk.description || '').replace(/"/g, '""')}"`,
+      `"${(risk.risk_type || '').replace(/"/g, '""')}"`,
+      risk.likelihood || '',
+      risk.impact || '',
+      risk.score || '',
+      `"${(risk.mitigation || '').replace(/"/g, '""')}"`,
+      `"${(risk.residual_risk_level || '').replace(/"/g, '""')}"`,
+      risk.created_at ? new Date(risk.created_at).toLocaleDateString('en-GB') : '',
+      risk.updated_at ? new Date(risk.updated_at).toLocaleDateString('en-GB') : ''
+    ].join(','))
+  ].join('\n');
+  
+  const filename = `CT5_Pride_Risk_Register_${new Date().toISOString().split('T')[0]}.csv`;
+  downloadFile(csvContent, filename, 'text/csv');
+  
+  hideExportMenu();
+  showSuccess(`Risk register exported to ${filename}`);
+}
+
+function exportToMarkdown() {
+  if (!filteredRisks || filteredRisks.length === 0) {
+    showError('No risks to export. Please ensure risks are loaded.');
+    return;
+  }
+  
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+  
+  let markdown = `# CT5 Pride Risk Register\n\n**Generated:** ${dateStr}\n**Total Risks:** ${filteredRisks.length}\n\n`;
+  
+  const sortedRisks = [...filteredRisks].sort((a, b) => (b.score || 0) - (a.score || 0));
+  
+  sortedRisks.forEach((risk, index) => {
+    markdown += `### ${index + 1}. ${risk.title || 'Untitled Risk'}\n\n`;
+    markdown += `- **Risk ID:** ${risk.risk_id || 'N/A'}\n`;
+    markdown += `- **Type:** ${risk.risk_type || 'N/A'}\n`;
+    markdown += `- **Likelihood:** ${risk.likelihood || 'N/A'}/5\n`;
+    markdown += `- **Impact:** ${risk.impact || 'N/A'}/5\n`;
+    markdown += `- **Risk Score:** ${risk.score || 'N/A'}\n`;
+    markdown += `- **Residual Risk Level:** ${risk.residual_risk_level || 'N/A'}\n`;
+    
+    if (risk.description) {
+      markdown += `\n**Description:** ${risk.description}\n`;
+    }
+    
+    if (risk.mitigation) {
+      markdown += `\n**Mitigation Strategy:** ${risk.mitigation}\n`;
+    }
+    
+    markdown += `\n---\n\n`;
+  });
+  
+  markdown += `\n*Report generated by CT5 Pride Risk Management System*\n`;
+  
+  const filename = `CT5_Pride_Risk_Register_${new Date().toISOString().split('T')[0]}.md`;
+  downloadFile(markdown, filename, 'text/markdown');
+  
+  hideExportMenu();
+  showSuccess(`Risk register exported to ${filename}`);
+}
+
+function exportToJSON() {
+  if (!filteredRisks || filteredRisks.length === 0) {
+    showError('No risks to export. Please ensure risks are loaded.');
+    return;
+  }
+  
+  const exportData = {
+    metadata: {
+      generated_at: new Date().toISOString(),
+      generated_by: 'CT5 Pride Risk Management System',
+      total_risks: filteredRisks.length,
+      export_version: '1.0'
+    },
+    risks: filteredRisks
+  };
+  
+  const jsonContent = JSON.stringify(exportData, null, 2);
+  const filename = `CT5_Pride_Risk_Register_${new Date().toISOString().split('T')[0]}.json`;
+  downloadFile(jsonContent, filename, 'application/json');
+  
+  hideExportMenu();
+  showSuccess(`Risk register exported to ${filename}`);
+}
+
+function exportToPrintableHTML() {
+  if (!filteredRisks || filteredRisks.length === 0) {
+    showError('No risks to export. Please ensure risks are loaded.');
+    return;
+  }
+  
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+  const sortedRisks = [...filteredRisks].sort((a, b) => (b.score || 0) - (a.score || 0));
+  
+  const htmlContent = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <title>CT5 Pride Risk Register Report</title>
+      <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #374151; max-width: 1200px; margin: 0 auto; padding: 2rem; }
+          .header { text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 3px solid #ff6f91; }
+          .header h1 { color: #ff6f91; font-size: 2.5rem; margin: 0; }
+          .risk-item { background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+          .risk-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+          .risk-title { font-size: 1.25rem; font-weight: 600; color: #111827; margin: 0; }
+          .risk-score { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; height: 40px; border-radius: 50%; font-weight: 600; color: white; }
+          @media print { body { padding: 1rem; } .risk-item { page-break-inside: avoid; } }
+      </style>
+  </head>
+  <body>
+      <div class="header">
+          <h1>🏳️‍🌈 CT5 Pride Risk Register</h1>
+          <p><strong>Generated:</strong> ${dateStr}</p>
+          <p><strong>Total Risks:</strong> ${sortedRisks.length}</p>
+      </div>
+      
+      ${sortedRisks.map(risk => `
+          <div class="risk-item">
+              <div class="risk-header">
+                  <h3 class="risk-title">${risk.title || 'Untitled Risk'}</h3>
+                  <div class="risk-score" style="${getRiskScoreStyle(risk.score || 0)}">${risk.score || 0}</div>
+              </div>
+              <p><strong>Risk ID:</strong> ${risk.risk_id || 'N/A'}</p>
+              <p><strong>Type:</strong> ${risk.risk_type || 'N/A'}</p>
+              <p><strong>Likelihood:</strong> ${risk.likelihood || 'N/A'}/5</p>
+              <p><strong>Impact:</strong> ${risk.impact || 'N/A'}/5</p>
+              <p><strong>Residual Level:</strong> ${risk.residual_risk_level || 'N/A'}</p>
+              ${risk.description ? `<p><strong>Description:</strong> ${risk.description}</p>` : ''}
+              ${risk.mitigation ? `<p><strong>Mitigation:</strong> ${risk.mitigation}</p>` : ''}
+          </div>
+      `).join('')}
+  </body>
+  </html>`;
+  
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+  
+  printWindow.onload = function() {
+    setTimeout(() => printWindow.print(), 250);
+  };
+  
+  hideExportMenu();
+  showSuccess('Printable report generated in new window');
+}
+
+// Make risk functions globally available
+window.openRiskModal = openRiskModal;
+window.handleRiskSubmit = handleRiskSubmit;
+window.updateRiskScore = updateRiskScore;
+window.editRisk = editRisk;
+window.deleteRisk = deleteRisk;
+window.applyFilters = applyFilters;
+window.clearFilters = clearFilters;
+window.toggleExportMenu = toggleExportMenu;
+window.exportToCSV = exportToCSV;
+window.exportToMarkdown = exportToMarkdown;
+window.exportToJSON = exportToJSON;
+window.exportToPrintableHTML = exportToPrintableHTML;
+
 // ==================== 404 NOT FOUND VIEW ====================
 
 function renderNotFound() {
@@ -1936,16 +2631,6 @@ function renderNotFound() {
 
 // Initialize the app
 window.addEventListener('hashchange', route);
-
-// Handle navigation clicks for external links
-document.addEventListener('click', function(e) {
-  const target = e.target.closest('.nav-link');
-  if (target && target.getAttribute('data-external') === 'true') {
-    e.preventDefault();
-    console.log('🔗 External navigation detected:', target.href);
-    window.location.href = target.href;
-  }
-});
 
 // Session management helper functions
 function isAuthenticated() {

@@ -2267,23 +2267,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(adminDir, 'index.html'));
 });
 
-// Specific route for risk register page
-app.get('/admin/risk_register.html', (req, res) => {
-  console.log('📊 Serving risk register page');
-  const riskRegisterPath = path.join(adminDir, 'risk_register.html');
-  if (fs.existsSync(riskRegisterPath)) {
-    res.sendFile(riskRegisterPath);
-  } else {
-    console.error('❌ Risk register file not found:', riskRegisterPath);
-    res.status(404).send('Risk Register page not found');
-  }
-});
-
-// Alternative route without /admin prefix for convenience
-app.get('/risk_register.html', (req, res) => {
-  res.redirect('/admin/risk_register.html');
-});
-
 // Wildcard route for SPA client-side routing (MUST be last)
 app.get('*', (req, res, next) => {
   // Skip API routes
