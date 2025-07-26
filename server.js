@@ -1950,7 +1950,9 @@ app.post('/api/risks', requireSupabaseAuth, async (req, res) => {
     // Ensure likelihood and impact are numbers
     riskData.likelihood = parseInt(riskData.likelihood);
     riskData.impact = parseInt(riskData.impact);
-    riskData.score = riskData.likelihood * riskData.impact;
+    
+    // Remove score from insert data - it's auto-calculated by the database
+    delete riskData.score;
     
     const { data: risk, error } = await supabase
       .from('risk_register')
@@ -2010,7 +2012,9 @@ app.put('/api/risks/:id', requireSupabaseAuth, async (req, res) => {
     // Ensure likelihood and impact are numbers
     riskData.likelihood = parseInt(riskData.likelihood);
     riskData.impact = parseInt(riskData.impact);
-    riskData.score = riskData.likelihood * riskData.impact;
+    
+    // Remove score from update data - it's auto-calculated by the database
+    delete riskData.score;
     
     const { data: risk, error } = await supabase
       .from('risk_register')

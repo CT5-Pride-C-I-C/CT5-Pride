@@ -2349,15 +2349,14 @@ async function handleRiskSubmit(event, riskId) {
   
   console.log('📋 Form data collected:', riskData);
   
-  // Calculate score
+  // Ensure likelihood and impact are numbers (score is auto-calculated by database)
   riskData.likelihood = parseInt(riskData.likelihood);
   riskData.impact = parseInt(riskData.impact);
-  riskData.score = riskData.likelihood * riskData.impact;
   
   console.log('🔢 Calculated values:', { 
     likelihood: riskData.likelihood, 
     impact: riskData.impact, 
-    score: riskData.score 
+    calculatedScore: riskData.likelihood * riskData.impact
   });
   
   // Validate required fields
