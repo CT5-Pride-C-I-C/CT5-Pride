@@ -53,6 +53,22 @@ if (!window.supabase) {
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 console.log('Supabase client initialized successfully');
 
+// Global error handling for debugging
+window.addEventListener('error', (event) => {
+  console.error('🚨 Global error caught:', event.error);
+  console.error('🚨 Error details:', {
+    message: event.message,
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno
+  });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('🚨 Unhandled promise rejection:', event.reason);
+  event.preventDefault();
+});
+
 // Global state
 let currentUser = null;
 let roles = [];
@@ -3042,7 +3058,7 @@ function openConflictModal(conflictId = null) {
         
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
-          <button type="submit" class="btn btn-primary">${isEdit ? 'Update Conflict' : 'Create Conflict'}</button>
+          <button type="submit" class="btn btn-primary" onclick="console.log('🖱️ Submit button clicked!')">${isEdit ? 'Update Conflict' : 'Create Conflict'}</button>
         </div>
       </form>
     </div>
@@ -3052,7 +3068,11 @@ function openConflictModal(conflictId = null) {
   
   // Handle form submission
   const form = modal.querySelector('#conflict-form');
-  form.addEventListener('submit', (e) => handleConflictSubmit(e, conflictId));
+  console.log('🎯 Setting up form submission handler for conflict form');
+  form.addEventListener('submit', (e) => {
+    console.log('🔥 Form submit event triggered!');
+    handleConflictSubmit(e, conflictId);
+  });
   
   // Handle modal close
   const closeBtn = modal.querySelector('.modal-close');
@@ -3071,12 +3091,21 @@ function openConflictModal(conflictId = null) {
 async function handleConflictSubmit(event, conflictId) {
   event.preventDefault();
   console.log('📝 Conflict form submitted', { conflictId });
+  console.log('📋 Event details:', { target: event.target, type: event.type });
   
   const form = event.target;
   const formData = new FormData(form);
   const conflictData = Object.fromEntries(formData.entries());
   
   console.log('📋 Form data collected:', conflictData);
+  console.log('📋 Required fields check:');
+  console.log('  - coi_id:', conflictData.coi_id ? '✅' : '❌', conflictData.coi_id);
+  console.log('  - individual_name:', conflictData.individual_name ? '✅' : '❌', conflictData.individual_name);
+  console.log('  - nature_of_interest:', conflictData.nature_of_interest ? '✅' : '❌', conflictData.nature_of_interest);
+  console.log('  - conflict_type:', conflictData.conflict_type ? '✅' : '❌', conflictData.conflict_type);
+  console.log('  - date_declared:', conflictData.date_declared ? '✅' : '❌', conflictData.date_declared);
+  console.log('  - status:', conflictData.status ? '✅' : '❌', conflictData.status);
+  console.log('  - risk_level:', conflictData.risk_level ? '✅' : '❌', conflictData.risk_level);
   
   // Convert monetary_value to number if provided
   if (conflictData.monetary_value) {
@@ -3087,7 +3116,16 @@ async function handleConflictSubmit(event, conflictId) {
   if (!conflictData.coi_id || !conflictData.individual_name || !conflictData.nature_of_interest || 
       !conflictData.conflict_type || !conflictData.date_declared || !conflictData.status || !conflictData.risk_level) {
     console.warn('❌ Validation failed:', conflictData);
-    showError('Please fill in all required fields');
+    const missingFields = [];
+    if (!conflictData.coi_id) missingFields.push('Conflict ID');
+    if (!conflictData.individual_name) missingFields.push('Individual Name');
+    if (!conflictData.nature_of_interest) missingFields.push('Nature of Interest');
+    if (!conflictData.conflict_type) missingFields.push('Conflict Type');
+    if (!conflictData.date_declared) missingFields.push('Date Declared');
+    if (!conflictData.status) missingFields.push('Status');
+    if (!conflictData.risk_level) missingFields.push('Risk Level');
+    
+    showError(`Please fill in all required fields: ${missingFields.join(', ')}`);
     return;
   }
   
@@ -3101,24 +3139,36 @@ async function handleConflictSubmit(event, conflictId) {
     
     const url = conflictId ? `/api/conflicts/${conflictId}` : '/api/conflicts';
     const method = conflictId ? 'PUT' : 'POST';
+    const authToken = getSession();
+    
+    console.log('🔐 Auth token:', authToken ? 'Present' : 'Missing');
+    console.log('🌐 API URL:', url);
+    console.log('📡 Method:', method);
+    console.log('📤 Request payload:', JSON.stringify(conflictData, null, 2));
     
     const response = await fetch(url, {
       method: method,
       headers: {
-        'Authorization': `Bearer ${getSession()}`,
+        'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(conflictData)
     });
     
+    console.log('📨 Response status:', response.status);
+    console.log('📨 Response headers:', Object.fromEntries(response.headers.entries()));
+    
     const result = await response.json();
+    console.log('📨 Response body:', result);
     
     if (!response.ok) {
       if (response.status === 401) {
+        console.error('❌ Authentication failed - redirecting to login');
+        showError('Authentication failed. Please log in again.');
         window.location.hash = '#/login';
         return;
       }
-      throw new Error(result.message || `HTTP ${response.status}`);
+      throw new Error(result.message || `HTTP ${response.status}: ${response.statusText}`);
     }
     
     if (!result.success) {
