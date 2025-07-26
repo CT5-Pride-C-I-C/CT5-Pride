@@ -254,7 +254,7 @@ These implementations address:
 
 ## Admin Dashboard Functionality Fix
 
-**Issue Resolved:** "Add new" buttons not working in admin dashboard
+### Issue 1: "Add new" buttons not working
 - **Root Cause:** CSP policy was blocking inline onclick handlers used throughout admin interface
 - **Solution:** Restored `'unsafe-inline'` to admin site script-src (acceptable for authenticated admin interface)
 - **Functions Fixed:** 
@@ -262,4 +262,20 @@ These implementations address:
   - ✅ Add New Risk button (`openRiskModal()`)
   - ✅ Add New Conflict button (`openConflictModal()`)
   - ✅ All edit/delete buttons throughout admin interface
-- **Security Impact:** Minimal - admin site is behind authentication and not public-facing 
+- **Security Impact:** Minimal - admin site is behind authentication and not public-facing
+
+### Issue 2: Static files serving as HTML instead of CSS/JS
+- **Root Cause:** Complex host-based static file serving logic was incorrect
+- **Solution:** Simplified static file serving to properly route admin vs main site files
+- **Files Fixed:**
+  - ✅ `/css/admin.css` now serves correct CSS content
+  - ✅ `/js/app.js` now serves correct JavaScript content
+  - ✅ All admin static assets load properly
+
+### Issue 3: X-Frame-Options meta tag console warnings
+- **Root Cause:** X-Frame-Options only works as HTTP header, not HTML meta tag
+- **Solution:** Removed X-Frame-Options meta tags from all HTML files
+- **Files Updated:** All 12 main site HTML files + admin index.html
+- **Impact:** No functional change - X-Frame-Options still active via HTTP headers
+
+**All Console Errors Resolved:** ✅ Admin dashboard now loads without F12 console errors 

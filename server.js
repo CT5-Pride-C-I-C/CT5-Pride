@@ -2711,35 +2711,21 @@ app.get('/api/risks/export/:format', requireSupabaseAuth, async (req, res) => {
 
 // ==================== STATIC FILE SERVING ====================
 
-// Host-based static file serving
+// Host-based static file serving - FIXED
 app.use((req, res, next) => {
   const host = req.get('host') || '';
   const isAdmin = host.startsWith('admin.') || host.includes('admin');
   
   if (isAdmin) {
-    // Admin subdomain: serve admin static files
-    if (req.path.startsWith('/css/')) {
-      return express.static(path.join(adminDir, 'css'))(req, res, next);
-    }
-    if (req.path.startsWith('/js/')) {
-      return express.static(path.join(adminDir, 'js'))(req, res, next);
-    }
-    // Serve other admin static files
+    // Admin subdomain: serve files from admin directory
     express.static(adminDir)(req, res, next);
   } else {
-    // Main site: serve main site static files
-    if (req.path.startsWith('/css/')) {
-      return express.static(path.join(__dirname, 'css'))(req, res, next);
-    }
-    if (req.path.startsWith('/js/')) {
-      return express.static(path.join(__dirname, 'js'))(req, res, next);
-    }
-    // Serve other main site static files
+    // Main site: serve files from root directory  
     express.static(__dirname)(req, res, next);
   }
 });
 
-// Serve Images directory for both sites
+// Serve Images directory for both sites (shared assets)
 app.use('/Images', express.static(path.join(__dirname, 'Images')));
 
 // Host-based root route handling
