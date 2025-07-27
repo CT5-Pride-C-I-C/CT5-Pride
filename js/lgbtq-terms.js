@@ -335,6 +335,12 @@ const lgbtqTerms = [
         example: "A gay polyamorous person might be a man romantically attracted to other men who also practices polyamory, having multiple romantic relationships with other men simultaneously."
     },
     {
+        term: "Polyamorous",
+        category: "romantic-orientation",
+        definition: "Also known as Poly, refers to the practice or desire to have multiple romantic relationships simultaneously, with the informed consent and knowledge of all partners involved. It's a form of consensual non-monogamy where emotional and romantic intimacy can be shared with multiple people. Polyamory emphasizes deep emotional and romantic connections with multiple partners.",
+        example: "A polyamorous person might have multiple committed romantic relationships with different people, all of whom are aware of and consent to the arrangement."
+    },
+    {
         term: "Sex",
         category: "general",
         definition: "The categories of male and female, which are assigned to a person on the basis of their primary sex characteristics (genitalia) and reproductive functions. 'Sex' also refers to sexual activity and intercourse.",
