@@ -157,7 +157,6 @@ body {
   font-weight: 700;
   color: white;
   letter-spacing: 1px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
   margin: 0;
   margin-bottom: var(--space-2);
 }
