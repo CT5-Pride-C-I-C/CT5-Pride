@@ -532,32 +532,125 @@
             'outreach': '📍'
         };
 
-        // Function to load roles from Supabase API
+        // 🔒 LOCKED DOWN: Enhanced role loading with caching, timeout, and monitoring
         async function loadRoles() {
+            const API_URL = 'https://admin.ct5pride.co.uk/api/roles/public';
+            const CACHE_KEY = 'ct5pride_volunteer_roles';
+            const CACHE_TIMESTAMP_KEY = 'ct5pride_volunteer_roles_timestamp';
+            const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+            const REQUEST_TIMEOUT = 10000; // 10 second timeout
+            
             try {
-                console.log('🌐 Loading roles from public API...');
+                console.log('🌐 Loading roles from public API with enhanced security...');
                 
-                // Fetch from public API (no auth required)
-                const apiUrl = 'https://admin.ct5pride.co.uk/api/roles/public';
-                console.log('🔗 Fetching roles from:', apiUrl);
-                const response = await fetch(apiUrl, { credentials: 'omit' });
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('✅ API response:', data);
-                    if (!data.roles || !Array.isArray(data.roles)) {
-                        console.warn('⚠️ API did not return roles array:', data);
-                        return getFallbackRoles();
+                // 🔒 SECURITY: Check for cached data first (reduces server load)
+                const cached = localStorage.getItem(CACHE_KEY);
+                const cacheTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+                
+                if (cached && cacheTimestamp) {
+                    const age = Date.now() - parseInt(cacheTimestamp);
+                    if (age < CACHE_DURATION) {
+                        console.log('📦 Using valid cached roles data (age: ' + Math.round(age/1000) + 's)');
+                        try {
+                            const cachedRoles = JSON.parse(cached);
+                            if (Array.isArray(cachedRoles) && cachedRoles.length > 0) {
+                                return cachedRoles;
+                            }
+                        } catch (e) {
+                            console.warn('⚠️ Cached data corrupted, clearing cache');
+                            localStorage.removeItem(CACHE_KEY);
+                            localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+                        }
                     }
-                    console.log(`✅ Loaded ${data.roles.length} published roles`);
-                    return data.roles;
-                } else {
-                    console.error('❌ API response not ok:', response.status, response.statusText);
-                    throw new Error(`API error: ${response.status}`);
                 }
+                
+                // 🔒 SECURITY: Add request timeout to prevent hanging
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => {
+                    controller.abort();
+                    console.error('⏰ Request timeout after ' + REQUEST_TIMEOUT + 'ms');
+                }, REQUEST_TIMEOUT);
+                
+                console.log('🔗 Fetching roles from:', API_URL);
+                
+                // 🔒 SECURITY: Enhanced fetch with headers and timeout
+                const response = await fetch(API_URL, { 
+                    credentials: 'omit',
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache',
+                        'User-Agent': 'CT5Pride-Website/1.0'
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('✅ API response received:', data);
+                
+                // 🔒 SECURITY: Validate response structure thoroughly
+                if (!data || typeof data !== 'object') {
+                    throw new Error('Invalid response: not an object');
+                }
+                
+                if (data.success === false) {
+                    throw new Error(`API Error: ${data.message || 'Unknown API error'}`);
+                }
+                
+                if (!data.roles || !Array.isArray(data.roles)) {
+                    console.warn('⚠️ API returned no roles array, using fallback');
+                    return getFallbackRoles();
+                }
+                
+                // 🔒 SECURITY: Validate role data integrity
+                const validRoles = data.roles.filter(role => {
+                    return role && 
+                           typeof role === 'object' && 
+                           role.id && 
+                           role.title && 
+                           role.status === 'open';
+                });
+                
+                if (validRoles.length !== data.roles.length) {
+                    console.warn(`⚠️ Filtered ${data.roles.length - validRoles.length} invalid roles`);
+                }
+                
+                // 🔒 SECURITY: Cache successful response
+                try {
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(validRoles));
+                    localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+                    console.log('💾 Cached ' + validRoles.length + ' roles for future use');
+                } catch (e) {
+                    console.warn('⚠️ Failed to cache roles (storage full?)');
+                }
+                
+                console.log(`✅ Loaded ${validRoles.length} validated roles`);
+                return validRoles;
+                
             } catch (error) {
-                console.error('Failed to load roles from API:', error);
-                console.log('🔄 Using fallback roles...');
-                // Return fallback roles if API fails
+                console.error('❌ Failed to load roles from API:', error.message);
+                
+                // 🔒 FALLBACK: Try stale cache first
+                const staleCache = localStorage.getItem(CACHE_KEY);
+                if (staleCache) {
+                    try {
+                        const staleCachedRoles = JSON.parse(staleCache);
+                        if (Array.isArray(staleCachedRoles) && staleCachedRoles.length > 0) {
+                            console.log('🔄 Using stale cached data as emergency fallback');
+                            return staleCachedRoles;
+                        }
+                    } catch (e) {
+                        console.warn('⚠️ Stale cache corrupted');
+                    }
+                }
+                
+                // 🔒 FINAL FALLBACK: Use hardcoded roles
+                console.log('🔄 Using hardcoded fallback roles...');
                 return getFallbackRoles();
             }
         }
@@ -701,49 +794,121 @@ Content creation experience`
             return modal;
         }
 
-        // Initialize role loading
+        // 🔒 LOCKED DOWN: Health monitoring and status reporting
+        function reportSystemHealth(status, details) {
+            const healthReport = {
+                timestamp: new Date().toISOString(),
+                status: status, // 'healthy', 'degraded', 'failed'
+                details: details,
+                userAgent: navigator.userAgent,
+                url: window.location.href
+            };
+            
+            console.log('📊 System Health Report:', healthReport);
+            
+            // Store health status in localStorage for debugging
+            const healthHistory = JSON.parse(localStorage.getItem('ct5pride_health_history') || '[]');
+            healthHistory.push(healthReport);
+            
+            // Keep only last 10 reports
+            if (healthHistory.length > 10) {
+                healthHistory.shift();
+            }
+            
+            localStorage.setItem('ct5pride_health_history', JSON.stringify(healthHistory));
+        }
+
+        // 🔒 LOCKED DOWN: Enhanced role initialization with monitoring
         async function initializeRoles() {
             const container = document.getElementById('role-board');
-            if (!container) return;
+            if (!container) {
+                console.error('❌ Critical: role-board container not found');
+                reportSystemHealth('failed', 'Role board container missing');
+                return;
+            }
 
-            // Show loading state
+            // Show enhanced loading state with status
             container.innerHTML = `
                 <div class="loading-message">
                     <h3>🌈 Loading Volunteer Opportunities...</h3>
                     <div class="loading-spinner"></div>
+                    <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;">
+                        Connecting to secure CT5 Pride volunteer system...
+                    </p>
                 </div>
             `;
+            
+            const startTime = Date.now();
 
             try {
-                // Load roles from API
+                // 🔒 SECURITY: Load roles with enhanced monitoring
+                console.log('🔄 Loading roles...');
                 const roles = await loadRoles();
+                const loadTime = Date.now() - startTime;
                 
-                // Check if we should show draft roles
+                console.log(`⏱️ Roles loaded in ${loadTime}ms`);
+                
+                // 🔒 SECURITY: Validate roles data
+                if (!Array.isArray(roles)) {
+                    throw new Error('Invalid roles data: not an array');
+                }
+                
+                // Check if we should show draft roles (admin preview)
                 const showDraft = new URLSearchParams(window.location.search).get('preview') === 'true';
                 
-                // Filter roles - only show open roles and draft roles if in preview mode
+                // 🔒 SECURITY: Enhanced role filtering with validation
                 const visibleRoles = roles.filter(role => {
+                    // Validate role structure
+                    if (!role || typeof role !== 'object') return false;
+                    if (!role.title || !role.id) return false;
+                    
                     if (role.status === 'open') return true;
                     if (role.status === 'draft' && showDraft) return true;
-                    return false; // Hide closed roles completely
+                    return false; // Hide closed/invalid roles
                 });
 
+                console.log(`✅ Filtered to ${visibleRoles.length} visible roles (from ${roles.length} total)`);
+
                 if (!visibleRoles.length) {
+                    const isUsingFallback = roles.some(role => role.id && role.id.startsWith('fallback-'));
+                    
                     container.innerHTML = `
                         <div class="no-roles-message">
-                            <h3>🌈 No Open Positions Currently</h3>
-                            <p>We're not actively recruiting for new volunteer positions right now, but we'd still love to hear from you! 
-                            <a href="contact.html">Get in touch</a> to learn about future opportunities.</p>
+                            <h3>🌈 ${isUsingFallback ? 'System Notice' : 'No Open Positions Currently'}</h3>
+                            <p>${isUsingFallback ? 
+                                'Our volunteer system is currently operating in offline mode. Some positions may not be displayed. Please ' :
+                                "We're not actively recruiting for new volunteer positions right now, but we'd still love to hear from you! "
+                            }<a href="contact.html">get in touch</a> to learn about ${isUsingFallback ? 'all available' : 'future'} opportunities.</p>
+                            ${isUsingFallback ? '<p style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;">📡 Status: Operating in offline mode</p>' : ''}
                         </div>
                     `;
+                    
+                    reportSystemHealth(isUsingFallback ? 'degraded' : 'healthy', 
+                        isUsingFallback ? 'Using fallback data' : 'No open roles available');
                     return;
                 }
 
-                // Create role grid
-                container.innerHTML = visibleRoles.map(role => createRoleCard(role)).join('');
+                // 🔒 SECURITY: Create role grid with data validation
+                const roleCards = visibleRoles.map(role => {
+                    try {
+                        return createRoleCard(role);
+                    } catch (error) {
+                        console.warn('⚠️ Failed to create card for role:', role.title, error);
+                        return ''; // Skip invalid roles
+                    }
+                }).filter(card => card); // Remove empty cards
+                
+                container.innerHTML = roleCards.join('');
+                
+                // 🔒 MONITORING: Report successful load
+                const totalLoadTime = Date.now() - startTime;
+                console.log(`🎉 Successfully loaded ${visibleRoles.length} volunteer roles in ${totalLoadTime}ms`);
+                
+                const isUsingFallback = roles.some(role => role.id && role.id.startsWith('fallback-'));
+                reportSystemHealth(isUsingFallback ? 'degraded' : 'healthy', 
+                    `Loaded ${visibleRoles.length} roles in ${totalLoadTime}ms${isUsingFallback ? ' (fallback mode)' : ''}`);
 
-                // IMPORTANT: Add event listeners AFTER roles are injected into DOM
-                // Use setTimeout to ensure DOM is fully updated
+                // 🔒 SECURITY: Add event listeners AFTER roles are injected into DOM with error protection
                 setTimeout(() => {
                     // Add click handlers for view buttons (these are the "View details / Apply" buttons)
                     document.querySelectorAll('.view-btn').forEach(btn => {
@@ -787,13 +952,53 @@ Content creation experience`
                 }, 100); // Small delay to ensure DOM is ready
 
             } catch (error) {
-                console.error('Failed to initialize roles:', error);
-                container.innerHTML = `
-                    <div class="error-message">
-                        <h3>⚠️ Unable to Load Roles</h3>
-                        <p>We're having trouble loading our volunteer opportunities right now. Please try refreshing the page or <a href="contact.html">contact us</a> directly.</p>
-                    </div>
-                `;
+                // 🔒 SECURITY: Enhanced error handling with reporting
+                const errorTime = Date.now() - startTime;
+                console.error('❌ Critical: Failed to initialize roles:', error);
+                
+                // Report system failure
+                reportSystemHealth('failed', `Initialization failed after ${errorTime}ms: ${error.message}`);
+                
+                // Try emergency fallback
+                try {
+                    console.log('🚨 Attempting emergency fallback...');
+                    const emergencyRoles = getFallbackRoles();
+                    const emergencyCards = emergencyRoles.map(role => createRoleCard(role)).join('');
+                    
+                    container.innerHTML = `
+                        <div class="error-message" style="margin-bottom: 2rem;">
+                            <h3>⚠️ System Operating in Emergency Mode</h3>
+                            <p>Our volunteer system is temporarily experiencing issues. The positions below are available, but there may be additional opportunities not shown. Please <a href="contact.html">contact us directly</a> for the most up-to-date information.</p>
+                            <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;">📡 Status: Emergency fallback mode • Error ID: ${Date.now().toString(36)}</p>
+                        </div>
+                        ${emergencyCards}
+                    `;
+                    
+                    console.log('✅ Emergency fallback successful');
+                    reportSystemHealth('degraded', 'Emergency fallback mode active');
+                    
+                } catch (fallbackError) {
+                    console.error('💥 Emergency fallback also failed:', fallbackError);
+                    
+                    // Final fallback - basic contact message
+                    container.innerHTML = `
+                        <div class="error-message">
+                            <h3>🚨 System Temporarily Unavailable</h3>
+                            <p>We're experiencing technical difficulties with our volunteer system. Please <a href="contact.html" style="font-weight: bold;">contact us directly</a> to learn about volunteer opportunities.</p>
+                            <p>We apologize for the inconvenience and appreciate your interest in volunteering with CT5 Pride! 🌈</p>
+                            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.05); border-radius: 6px;">
+                                <p style="margin: 0; font-size: 0.9rem; color: var(--text-light);">
+                                    📧 <strong>Email:</strong> volunteer@ct5pride.co.uk<br>
+                                    📞 <strong>Phone:</strong> Available on our contact page<br>
+                                    📍 <strong>Location:</strong> Whitstable & CT5 Area, Kent
+                                </p>
+                            </div>
+                            <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 1rem;">Error ID: ${Date.now().toString(36)} • Time: ${new Date().toLocaleString()}</p>
+                        </div>
+                    `;
+                    
+                    reportSystemHealth('failed', 'Complete system failure - displaying contact information');
+                }
             }
         }
 
@@ -836,14 +1041,55 @@ Content creation experience`
         }
 
         // Make openRoleModal globally available
+        // 🔒 LOCKED DOWN: System health debugging for admins
+        window.CT5PrideDebug = {
+            checkHealth: function() {
+                const health = JSON.parse(localStorage.getItem('ct5pride_health_history') || '[]');
+                console.group('🏥 CT5 Pride Volunteer System Health Report');
+                console.log('Recent Health History:', health);
+                console.log('Cache Status:', {
+                    roles: localStorage.getItem('ct5pride_volunteer_roles') ? 'Present' : 'Empty',
+                    lastUpdate: localStorage.getItem('ct5pride_volunteer_roles_timestamp') 
+                        ? new Date(parseInt(localStorage.getItem('ct5pride_volunteer_roles_timestamp'))).toLocaleString()
+                        : 'Never'
+                });
+                console.log('System Status:', health.length > 0 ? health[health.length - 1].status : 'Unknown');
+                console.groupEnd();
+                return health;
+            },
+            clearCache: function() {
+                localStorage.removeItem('ct5pride_volunteer_roles');
+                localStorage.removeItem('ct5pride_volunteer_roles_timestamp');
+                console.log('✅ Cache cleared - page refresh recommended');
+            },
+            testAPI: function() {
+                return fetch('https://admin.ct5pride.co.uk/api/roles/public')
+                    .then(r => r.json())
+                    .then(d => {
+                        console.log('✅ API Test Result:', d);
+                        return d;
+                    })
+                    .catch(e => {
+                        console.error('❌ API Test Failed:', e);
+                        return { error: e.message };
+                    });
+            }
+        };
+
+        // Make functions available globally
         window.openRoleModal = openRoleModal;
 
-        // Initialize when DOM is ready
+        // 🔒 LOCKED DOWN: Initialize when DOM is ready with startup monitoring
+        console.log('🚀 CT5 Pride Volunteer System starting...');
+        
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initializeRoles);
         } else {
             initializeRoles();
         }
+        
+        // Add helpful console message for admins
+        console.log('🔧 Admin Debug: Type CT5PrideDebug.checkHealth() to view system status');
 
     </script>
 
