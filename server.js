@@ -216,6 +216,25 @@ app.get('/health/db', async (req, res) => {
   }
 });
 
+// Admin-specific health check
+app.get('/admin/health', (req, res) => {
+  const host = req.get('host') || '';
+  const isAdmin = host.startsWith('admin.') || host.includes('admin');
+  
+  res.status(200).json({
+    status: 'OK',
+    admin: isAdmin,
+    host: host,
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    adminFiles: {
+      index: fs.existsSync(path.join(adminDir, 'index.html')),
+      appJs: fs.existsSync(path.join(adminDir, 'js', 'app.js')),
+      adminCss: fs.existsSync(path.join(adminDir, 'css', 'admin.css'))
+    }
+  });
+});
+
 // ==================== AUTHENTICATION ROUTES ====================
 
 // Login endpoint
@@ -2879,5 +2898,22 @@ app.listen(PORT, () => {
   console.log('🔐 API endpoints protected with Supabase Auth');
   console.log('📊 Analytics, roles, applications, events, and memberships APIs ready');
   console.log('🛡️ Security headers enabled (CSP, HSTS, X-Frame-Options, etc.)');
-  console.log('❤️  Health checks available at /health, /ping, /health/db');
+  console.log('❤️  Health checks available at /health, /ping, /health/db, /admin/health');
+  
+  // Verify admin files exist
+  const adminFiles = {
+    index: fs.existsSync(path.join(adminDir, 'index.html')),
+    appJs: fs.existsSync(path.join(adminDir, 'js', 'app.js')),
+    adminCss: fs.existsSync(path.join(adminDir, 'css', 'admin.css'))
+  };
+  
+  console.log('📋 Admin files check:', adminFiles);
+  
+  if (!adminFiles.index || !adminFiles.appJs) {
+    console.error('❌ Critical admin files missing!');
+    console.error('   index.html:', adminFiles.index);
+    console.error('   app.js:', adminFiles.appJs);
+  } else {
+    console.log('✅ All admin files present');
+  }
 }); 
