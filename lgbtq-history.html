@@ -1057,14 +1057,31 @@
                 if (targetElement) {
                     // Wait a bit for the world map to initialize
                     setTimeout(() => {
-                        // Scroll to the element with some offset for better visibility
-                        const headerHeight = document.querySelector('header').offsetHeight;
-                        const elementTop = targetElement.offsetTop - headerHeight - 20;
+                        // Get the header height and account for sticky positioning
+                        const header = document.querySelector('header');
+                        const headerHeight = header ? header.offsetHeight : 0;
                         
-                        window.scrollTo({
-                            top: elementTop,
-                            behavior: 'smooth'
+                        // Calculate the correct scroll position accounting for sticky header
+                        const elementTop = targetElement.offsetTop - headerHeight - 40; // Extra padding for better visibility
+                        
+                        // Use scrollIntoView for better browser compatibility
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
                         });
+                        
+                        // Additional manual scroll adjustment for sticky header
+                        setTimeout(() => {
+                            const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+                            const targetScroll = elementTop;
+                            
+                            if (Math.abs(currentScroll - targetScroll) > 10) {
+                                window.scrollTo({
+                                    top: targetScroll,
+                                    behavior: 'smooth'
+                                });
+                            }
+                        }, 100);
                         
                         // Add a subtle highlight to the world map container
                         targetElement.style.boxShadow = '0 0 20px rgba(33, 150, 243, 0.3)';
