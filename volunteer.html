@@ -1146,6 +1146,95 @@ Content creation experience`
         </div>
     </div>
 
+    <!-- 🔒 LOCKED DOWN: Application Modal Structure -->
+    <div id="applicationModal" class="modal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+        <div class="modal-content" style="background: white; margin: auto; padding: 2rem; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem;">
+                <h2 id="applicationModalTitle" style="margin: 0; color: var(--text);">Apply for Position</h2>
+                <span class="close" onclick="closeApplicationModal()" style="font-size: 2rem; cursor: pointer; color: var(--text-light); transition: color 0.2s ease;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text-light)'">&times;</span>
+            </div>
+            
+            <form id="applicationForm" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Personal Information -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label for="firstName" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">First Name *</label>
+                        <input type="text" id="firstName" name="firstName" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; font-size: 1rem;">
+                    </div>
+                    <div>
+                        <label for="lastName" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">Last Name *</label>
+                        <input type="text" id="lastName" name="lastName" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; font-size: 1rem;">
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">Email Address *</label>
+                    <input type="email" id="email" name="email" required style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; font-size: 1rem;">
+                </div>
+                
+                <div>
+                    <label for="phone" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; font-size: 1rem;">
+                </div>
+                
+                <!-- Cover Letter Options -->
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">Cover Letter *</label>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="radio" name="coverLetterType" value="text" checked style="margin: 0;">
+                            <span>Write cover letter</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; margin-top: 0.5rem;">
+                            <input type="radio" name="coverLetterType" value="file" style="margin: 0;">
+                            <span>Upload file</span>
+                        </label>
+                    </div>
+                    
+                    <div id="coverLetterTextGroup">
+                        <textarea id="coverLetterText" name="coverLetterText" placeholder="Tell us why you're interested in this role and what you'd bring to our team..." required style="width: 100%; min-height: 120px; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; font-size: 1rem; resize: vertical;"></textarea>
+                    </div>
+                    
+                    <div id="coverLetterFileGroup" style="display: none;">
+                        <input type="file" id="coverLetterFile" name="coverLetterFile" accept=".pdf,.doc,.docx,.txt" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; font-size: 1rem;">
+                        <small style="color: var(--text-light); margin-top: 0.5rem; display: block;">Accepted formats: PDF, DOC, DOCX, TXT (max 5MB)</small>
+                    </div>
+                </div>
+                
+                <!-- Availability -->
+                <div>
+                    <label for="availability" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">When are you available to start?</label>
+                    <select id="availability" name="availability" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; font-size: 1rem;">
+                        <option value="">Select availability</option>
+                        <option value="immediately">Immediately</option>
+                        <option value="1-2weeks">1-2 weeks</option>
+                        <option value="1month">Within 1 month</option>
+                        <option value="flexible">Flexible</option>
+                    </select>
+                </div>
+                
+                <!-- Experience -->
+                <div>
+                    <label for="experience" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text);">Relevant Experience (Optional)</label>
+                    <textarea id="experience" name="experience" placeholder="Tell us about any relevant experience, skills, or qualifications..." style="width: 100%; min-height: 80px; padding: 0.75rem; border: 2px solid var(--border); border-radius: 6px; font-size: 1rem; resize: vertical;"></textarea>
+                </div>
+                
+                <!-- Privacy Notice -->
+                <div style="background: rgba(248,249,250,0.9); padding: 1rem; border-radius: 6px; border-left: 4px solid var(--primary);">
+                    <small style="color: var(--text-light); line-height: 1.4;">
+                        <strong>Privacy Notice:</strong> Your application will be securely processed by CT5 Pride. We only use your information for volunteer recruitment purposes and will not share it with third parties. See our <a href="privacy.html" style="color: var(--primary);">Privacy Policy</a> for more details.
+                    </small>
+                </div>
+                
+                <!-- Submit Button -->
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1rem;">
+                    <button type="button" onclick="closeApplicationModal()" style="padding: 0.75rem 1.5rem; background: transparent; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 1rem;">Cancel</button>
+                    <button type="submit" style="padding: 0.75rem 2rem; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: 600;">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="js/main.js"></script>
 </body>
 </html> 
