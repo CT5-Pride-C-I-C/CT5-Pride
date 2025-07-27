@@ -52,16 +52,40 @@ const adminDir = path.join(__dirname, 'admin');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS middleware for admin domain
+// Enhanced CORS middleware - explicitly allow ct5pride.co.uk
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
+  const origin = req.headers.origin;
+  
+  // Allow specific origins and all subdomains
+  const allowedOrigins = [
+    'https://ct5pride.co.uk',
+    'https://www.ct5pride.co.uk',
+    'http://ct5pride.co.uk',
+    'http://www.ct5pride.co.uk',
+    'https://admin.ct5pride.co.uk',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+  ];
+  
+  if (allowedOrigins.includes(origin) || !origin) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
   } else {
-    next();
+    res.header('Access-Control-Allow-Origin', '*'); // Fallback to allow all
   }
+  
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma');
+  res.header('Access-Control-Allow-Credentials', 'false');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    console.log(`🔗 CORS preflight request from origin: ${origin}`);
+    return res.status(200).end();
+  }
+  
+  console.log(`🌐 Request from origin: ${origin} to ${req.path}`);
+  next();
 });
 
 // Security headers with host-based configuration
@@ -242,7 +266,13 @@ app.post('/api/auth/logout', requireSupabaseAuth, async (req, res) => {
 // Get published roles (public endpoint - no auth required)
 app.get('/api/roles/public', async (req, res) => {
   try {
-    console.log('🌐 Public roles API called');
+    const origin = req.headers.origin;
+    console.log(`🌐 Public roles API called from origin: ${origin}`);
+    
+    // Ensure CORS headers are set for this specific endpoint
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     
     const { data, error } = await supabase
       .from('roles')
@@ -255,7 +285,7 @@ app.get('/api/roles/public', async (req, res) => {
       return res.status(400).json({ success: false, message: error.message });
     }
 
-    console.log(`✅ Found ${data.length} published roles`);
+    console.log(`✅ Found ${data.length} published roles for origin: ${origin}`);
     res.json({ success: true, roles: data });
   } catch (err) {
     console.error('Public roles API error:', err);
@@ -354,7 +384,14 @@ app.post('/api/apply', upload.fields([
   { name: 'coverLetterFile', maxCount: 1 }
 ]), async (req, res) => {
   try {
-    console.log('📥 Application submission received');
+    const origin = req.headers.origin;
+    console.log(`📥 Application submission received from origin: ${origin}`);
+    
+    // Ensure CORS headers are set for this specific endpoint
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    
     console.log('📋 Request body:', req.body);
     console.log('📁 Files:', req.files);
     
