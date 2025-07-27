@@ -180,12 +180,12 @@ function setupAccessibility() {
                 console.log(`📏 Setting text size to:`, size);
                 
                 // Remove any existing text-size classes from body
-                document.body.classList.remove('text-small', 'text-large', 'text-extra-large');
+                document.body.classList.remove('text-size-small', 'text-size-large', 'text-size-extra-large');
                 
                 // Add new text-size class if not normal
                 if (size !== 'normal') {
-                    document.body.classList.add(`text-${size}`);
-                    console.log(`✅ Added text-${size} class to body`);
+                    document.body.classList.add(`text-size-${size}`);
+                    console.log(`✅ Added text-size-${size} class to body`);
                 } else {
                     console.log(`✅ Normal text size - no additional class needed`);
                 }
@@ -246,11 +246,11 @@ function setupAccessibility() {
             
             // Apply the saved text size to body
             if (savedTextSize !== 'normal') {
-                document.body.classList.remove('text-small', 'text-large', 'text-extra-large');
-                document.body.classList.add(`text-${savedTextSize}`);
-                console.log(`✅ Applied saved text size: text-${savedTextSize}`);
+                document.body.classList.remove('text-size-small', 'text-size-large', 'text-size-extra-large');
+                document.body.classList.add(`text-size-${savedTextSize}`);
+                console.log(`✅ Applied saved text size: text-size-${savedTextSize}`);
             } else {
-                document.body.classList.remove('text-small', 'text-large', 'text-extra-large');
+                document.body.classList.remove('text-size-small', 'text-size-large', 'text-size-extra-large');
                 console.log(`✅ Applied normal text size`);
             }
         } else {
@@ -259,6 +259,75 @@ function setupAccessibility() {
                 btn.classList.toggle('active', btn.dataset.size === 'normal');
             });
             console.log(`✅ Set default text size to normal`);
+        }
+
+        // Reset button functionality
+        const resetBtn = document.querySelector('.accessibility-reset-btn');
+        console.log(`🔧 Found reset button:`, !!resetBtn);
+        
+        if (resetBtn) {
+            resetBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log(`🔄 Resetting all accessibility settings`);
+                
+                // Reset all toggle switches
+                toggles.forEach(toggle => {
+                    toggle.setAttribute('aria-checked', 'false');
+                    toggle.classList.remove('active');
+                    const setting = toggle.dataset.setting;
+                    document.body.classList.remove(setting);
+                    localStorage.removeItem(`ct5pride-${setting}`);
+                });
+                
+                // Reset text size
+                textSizeBtns.forEach(btn => btn.classList.remove('active'));
+                const normalBtn = document.querySelector('.text-size-btn[data-size="normal"]');
+                if (normalBtn) {
+                    normalBtn.classList.add('active');
+                }
+                document.body.classList.remove('text-size-small', 'text-size-large', 'text-size-extra-large');
+                localStorage.removeItem('ct5pride-text-size');
+                
+                // Announce reset for screen readers
+                const announcement = document.createElement('div');
+                announcement.setAttribute('aria-live', 'polite');
+                announcement.setAttribute('aria-atomic', 'true');
+                announcement.style.position = 'absolute';
+                announcement.style.left = '-10000px';
+                announcement.style.width = '1px';
+                announcement.style.height = '1px';
+                announcement.style.overflow = 'hidden';
+                announcement.textContent = 'All accessibility settings have been reset to default';
+                document.body.appendChild(announcement);
+                
+                setTimeout(() => {
+                    if (announcement.parentNode) {
+                        announcement.parentNode.removeChild(announcement);
+                    }
+                }, 1000);
+                
+                console.log(`✅ All accessibility settings reset`);
+            });
+            
+            // Add keyboard support for reset button
+            resetBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    resetBtn.click();
+                }
+            });
+        }
+
+        // Check for prefers-reduced-motion and auto-enable if user has system preference
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        if (prefersReducedMotion.matches) {
+            const reducedMotionToggle = document.querySelector('[data-setting="reduced-motion"]');
+            if (reducedMotionToggle && !localStorage.getItem('ct5pride-reduced-motion')) {
+                reducedMotionToggle.setAttribute('aria-checked', 'true');
+                reducedMotionToggle.classList.add('active');
+                document.body.classList.add('reduced-motion');
+                console.log(`✅ Auto-enabled reduced motion based on system preference`);
+            }
         }
     } else {
         console.error('❌ Accessibility elements not found!', {
@@ -300,8 +369,8 @@ function announceToggleChange(setting, isEnabled) {
     
     const settingNames = {
         'high-contrast': 'High Contrast Mode',
-        'dyslexia-friendly': 'Dyslexia Friendly Font',
-        'reduce-motion': 'Reduce Motion'
+        'dyslexia-font': 'Dyslexia Friendly Font',
+        'reduced-motion': 'Reduced Motion'
     };
     
     const settingName = settingNames[setting] || setting;

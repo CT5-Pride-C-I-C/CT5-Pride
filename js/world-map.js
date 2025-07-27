@@ -359,98 +359,8 @@ const colorSchemes = {
     }
 };
 
-// Import world country paths
-// Load from external file for better maintainability
-const worldCountryPaths = {
-    'United Kingdom': {
-        path: 'M 468 142 L 478 140 L 485 145 L 482 152 L 479 159 L 475 162 L 470 160 L 465 155 L 463 148 Z M 460 148 L 465 150 L 468 155 L 465 160 L 460 158 L 458 152 Z',
-        center: [473, 151]
-    },
-    'France': {
-        path: 'M 445 175 L 465 172 L 475 178 L 478 185 L 475 195 L 470 200 L 460 202 L 450 200 L 445 190 L 440 182 Z',
-        center: [460, 187]
-    },
-    'Germany': {
-        path: 'M 475 155 L 490 152 L 495 158 L 498 165 L 495 175 L 488 180 L 480 178 L 475 170 L 472 162 Z',
-        center: [485, 167]
-    },
-    'Spain': {
-        path: 'M 420 195 L 445 192 L 450 200 L 448 210 L 445 218 L 435 222 L 425 220 L 418 212 L 415 202 Z',
-        center: [432, 207]
-    },
-    'Italy': {
-        path: 'M 475 195 L 485 192 L 488 200 L 485 210 L 482 220 L 478 235 L 475 245 L 470 240 L 468 225 L 470 210 L 472 200 Z',
-        center: [477, 218]
-    },
-    'Netherlands': {
-        path: 'M 465 150 L 475 148 L 478 152 L 475 158 L 470 160 L 465 158 L 462 154 Z',
-        center: [470, 154]
-    },
-    'Belgium': {
-        path: 'M 455 165 L 465 163 L 468 167 L 465 172 L 460 174 L 455 172 L 452 168 Z',
-        center: [460, 168]
-    },
-    'Poland': {
-        path: 'M 495 155 L 515 152 L 520 158 L 522 168 L 518 178 L 510 182 L 500 180 L 495 172 L 492 162 Z',
-        center: [507, 167]
-    },
-    'Hungary': {
-        path: 'M 495 178 L 510 175 L 515 182 L 512 190 L 508 195 L 500 192 L 495 187 L 492 182 Z',
-        center: [504, 184]
-    },
-    'Russia': {
-        path: 'M 520 120 L 750 115 L 760 125 L 755 140 L 750 155 L 745 170 L 740 185 L 730 195 L 720 200 L 700 198 L 680 195 L 660 192 L 640 190 L 620 188 L 600 185 L 580 182 L 560 180 L 540 178 L 520 175 L 515 165 L 512 150 L 515 135 Z',
-        center: [635, 157]
-    },
-    'Iceland': {
-        path: 'M 400 115 L 415 112 L 420 118 L 418 125 L 412 128 L 405 126 L 398 122 Z',
-        center: [409, 120]
-    },
-    'Malta': {
-        path: 'M 485 235 L 490 233 L 492 237 L 490 241 L 485 239 L 483 235 Z',
-        center: [487, 237]
-    },
-    'United States': {
-        path: 'M 80 160 L 280 155 L 285 165 L 290 180 L 285 195 L 280 210 L 275 225 L 270 240 L 260 250 L 245 255 L 225 258 L 200 260 L 175 258 L 150 255 L 125 252 L 100 248 L 85 240 L 78 225 L 75 210 L 78 195 L 80 180 Z M 50 200 L 75 195 L 80 205 L 75 215 L 50 210 Z',
-        center: [182, 207]
-    },
-    'Canada': {
-        path: 'M 60 80 L 300 75 L 310 85 L 315 100 L 310 115 L 305 130 L 300 145 L 290 155 L 280 160 L 260 158 L 240 155 L 220 152 L 200 150 L 180 148 L 160 145 L 140 142 L 120 140 L 100 138 L 80 135 L 65 130 L 55 120 L 50 105 L 55 90 Z',
-        center: [182, 117]
-    },
-    'Brazil': {
-        path: 'M 220 300 L 320 295 L 335 305 L 345 320 L 350 340 L 345 360 L 340 380 L 330 400 L 315 415 L 295 425 L 270 428 L 245 425 L 225 420 L 210 410 L 200 395 L 195 375 L 200 355 L 205 335 L 212 315 Z',
-        center: [270, 365]
-    },
-    'Australia': {
-        path: 'M 720 340 L 820 335 L 840 345 L 850 360 L 845 380 L 835 395 L 820 405 L 800 410 L 775 408 L 750 405 L 730 400 L 715 390 L 708 375 L 710 360 L 715 350 Z',
-        center: [778, 375]
-    },
-    'South Africa': {
-        path: 'M 480 370 L 520 368 L 525 375 L 528 385 L 525 395 L 520 405 L 512 410 L 500 408 L 488 405 L 480 398 L 475 388 L 477 378 Z',
-        center: [502, 389]
-    },
-    'Nigeria': {
-        path: 'M 445 285 L 470 282 L 475 290 L 478 300 L 475 310 L 468 318 L 458 320 L 448 318 L 442 310 L 440 300 L 442 290 Z',
-        center: [459, 301]
-    },
-    'Saudi Arabia': {
-        path: 'M 535 245 L 570 242 L 575 250 L 578 260 L 575 270 L 570 280 L 562 285 L 550 282 L 540 278 L 532 270 L 530 260 L 532 250 Z',
-        center: [554, 264]
-    },
-    'India': {
-        path: 'M 620 240 L 680 235 L 690 245 L 695 260 L 692 280 L 685 300 L 675 315 L 660 325 L 645 322 L 630 315 L 620 300 L 615 280 L 618 260 L 620 245 Z',
-        center: [657, 280]
-    },
-    'China': {
-        path: 'M 670 170 L 750 165 L 770 175 L 785 190 L 790 210 L 785 230 L 775 245 L 760 255 L 740 260 L 720 258 L 700 255 L 685 250 L 675 240 L 670 225 L 668 205 L 670 185 Z',
-        center: [729, 215]
-    },
-    'Japan': {
-        path: 'M 800 180 L 820 178 L 825 185 L 828 195 L 825 205 L 820 215 L 812 220 L 805 218 L 800 210 L 798 200 L 800 190 Z M 805 220 L 815 218 L 818 225 L 815 232 L 810 235 L 805 232 L 802 225 Z',
-        center: [814, 205]
-    }
-};
+// World Country Paths are loaded from world-map-paths.js
+// This file uses the worldCountryPaths variable defined there
 
 class WorldMap {
     constructor() {
@@ -461,6 +371,15 @@ class WorldMap {
     }
 
     init() {
+        console.log('🗺️ Initializing World Map...');
+        console.log('🔍 World Country Paths available:', typeof worldCountryPaths !== 'undefined' ? Object.keys(worldCountryPaths).length : 'undefined');
+        console.log('🔍 World Map Data available:', typeof worldMapData !== 'undefined' ? Object.keys(worldMapData).length : 'undefined');
+        
+        if (typeof worldCountryPaths === 'undefined') {
+            console.error('❌ worldCountryPaths is not defined! Make sure world-map-paths.js is loaded first.');
+            return;
+        }
+        
         this.createMap();
         this.setupControls();
         this.updateColors();
@@ -524,8 +443,19 @@ class WorldMap {
         this.svg.appendChild(continents);
         
         // Create country paths
+        console.log('🏗️ Creating country paths...');
+        console.log('🔍 Available countries in worldCountryPaths:', Object.keys(worldCountryPaths));
+        console.log('🔍 Available countries in worldMapData:', Object.keys(worldMapData));
+        
+        let countriesCreated = 0;
         Object.entries(worldCountryPaths).forEach(([countryName, countryData]) => {
+            console.log(`🔍 Processing country: ${countryName}`);
+            console.log(`🔍 Country data structure:`, countryData);
+            console.log(`🔍 Has worldMapData for ${countryName}:`, !!worldMapData[countryName]);
+            
             if (worldMapData[countryName]) {
+                console.log(`✅ Creating SVG elements for ${countryName}`);
+                
                 const countryElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 countryElement.setAttribute('d', countryData.path);
                 countryElement.setAttribute('id', `country-${countryName.replace(/\s+/g, '-')}`);
@@ -536,12 +466,15 @@ class WorldMap {
                 countryElement.style.transition = 'all 0.3s ease';
                 countryElement.style.strokeLinejoin = 'round';
                 countryElement.style.strokeLinecap = 'round';
+                countryElement.style.fill = '#f0f0f0'; // Default fill to make visible
                 
                 countryElement.addEventListener('click', () => this.showCountryInfo(countryName));
                 countryElement.addEventListener('mouseenter', () => this.highlightCountry(countryElement));
                 countryElement.addEventListener('mouseleave', () => this.unhighlightCountry(countryElement));
                 
                 this.svg.appendChild(countryElement);
+                countriesCreated++;
+                console.log(`✅ Added country path for ${countryName}`);
 
                 // Add country labels for better identification
                 if (countryData.center) {
@@ -565,9 +498,15 @@ class WorldMap {
                     
                     label.textContent = displayName;
                     this.svg.appendChild(label);
+                    console.log(`✅ Added label for ${countryName}`);
                 }
+            } else {
+                console.log(`⚠️ No worldMapData found for ${countryName}`);
             }
         });
+        
+        console.log(`📊 Total countries created: ${countriesCreated}`);
+        console.log(`📋 SVG children count: ${this.svg.children.length}`);
     }
 
     setupControls() {
@@ -584,6 +523,9 @@ class WorldMap {
     }
 
     updateColors() {
+        console.log('🎨 Updating colors with filter:', this.currentFilter);
+        
+        let colorsApplied = 0;
         Object.entries(worldMapData).forEach(([countryName, data]) => {
             const element = document.getElementById(`country-${countryName.replace(/\s+/g, '-')}`);
             if (element) {
@@ -604,9 +546,19 @@ class WorldMap {
                     color = crimColor; // Simplified for now
                 }
                 
-                element.setAttribute('fill', color);
+                if (color) {
+                    element.setAttribute('fill', color);
+                    colorsApplied++;
+                    console.log(`🎨 Applied color ${color} to ${countryName}`);
+                } else {
+                    console.log(`⚠️ No color determined for ${countryName}`, data);
+                }
+            } else {
+                console.log(`⚠️ No element found for country: ${countryName}`);
             }
         });
+        
+        console.log(`📊 Colors applied to ${colorsApplied} countries`);
     }
 
     updateLegend() {
@@ -728,8 +680,30 @@ class WorldMap {
 
 // Initialize the map when the page loads
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 DOM Content Loaded - checking for world map...');
+    
     // Only initialize if we're on the lgbtq-history page
-    if (document.getElementById('world-map')) {
-        new WorldMap();
+    const mapElement = document.getElementById('world-map');
+    console.log('🔍 Map element found:', !!mapElement);
+    
+    if (mapElement) {
+        console.log('🗺️ Initializing WorldMap class...');
+        
+        // Check if dependencies are loaded
+        if (typeof worldCountryPaths === 'undefined') {
+            console.error('❌ worldCountryPaths not defined. Retrying in 500ms...');
+            setTimeout(() => {
+                if (typeof worldCountryPaths !== 'undefined') {
+                    console.log('✅ worldCountryPaths loaded on retry');
+                    new WorldMap();
+                } else {
+                    console.error('❌ worldCountryPaths still not available after retry');
+                }
+            }, 500);
+        } else {
+            new WorldMap();
+        }
+    } else {
+        console.log('ℹ️ No world map element found on this page');
     }
 }); 
