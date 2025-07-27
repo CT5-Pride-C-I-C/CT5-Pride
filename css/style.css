@@ -6906,3 +6906,73 @@ h1, h2, h3, h4, h5, h6, p, a, span, div {
     position: relative;
     z-index: 10;
 }
+
+/* ==================== LAYOUT FIXES FOR FULL WIDTH ==================== */
+
+/* Ensure hero sections span full width properly */
+.hero {
+    width: 100%;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+}
+
+/* Fix section layouts for full width display */
+section {
+    width: 100%;
+    display: block;
+}
+
+.cta-section {
+    width: 100%;
+    padding: 4rem 0;
+}
+
+/* Ensure containers center content properly within full width sections */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+/* Fix footer width issues */
+footer {
+    width: 100%;
+    background: var(--background);
+    padding: 3rem 0 2rem;
+    border-top: 1px solid var(--border);
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+    .hero {
+        min-height: 50vh;
+        padding: 3rem 0;
+    }
+    
+    .container {
+        padding: 0 1rem;
+    }
+    
+    .cta-section {
+        padding: 3rem 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        min-height: 40vh;
+        padding: 2rem 0;
+    }
+    
+    .container {
+        padding: 0 0.75rem;
+    }
+    
+    .cta-section {
+        padding: 2rem 0;
+    }
+}

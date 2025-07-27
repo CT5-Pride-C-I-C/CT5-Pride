@@ -263,83 +263,100 @@
     <footer>
         <div class="container">
             <div class="footer-layout">
+                <!-- Left Section: Company Info -->
                 <div class="footer-info">
                     <h3>CT5 Pride Community Interest Company</h3>
                     <div class="contact-links">
-                        <a href="mailto:hello@ct5pride.org.uk">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                                <polyline points="22,6 12,13 2,6"/>
+                        <a href="mailto:hello@ct5pride.org.uk" aria-label="Email CT5 Pride">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                             </svg>
                             hello@ct5pride.org.uk
                         </a>
                         <a href="privacy.html">Privacy Policy</a>
                     </div>
                 </div>
-
+                
+                <!-- Center Section: Pride Flags -->
                 <div class="footer-flags">
                     <div class="flag-section-title">
                         <p>Click flags for temporary themes</p>
                     </div>
                     <div class="flags-grid">
-                        <button class="pride-flag-icon default-theme" 
-                                data-theme="default" 
-                                aria-label="Default theme">
-                            <div class="rainbow-flag"></div>
-                        </button>
-                        <button class="pride-flag-icon" 
-                                data-theme="rainbow" 
-                                aria-label="Rainbow flag theme">
-                            <div class="rainbow-flag"></div>
-                        </button>
-                        <button class="pride-flag-icon" 
-                                data-theme="progress" 
-                                aria-label="Progress flag theme">
-                            <div class="progress-flag"></div>
-                        </button>
-                        <button class="pride-flag-icon" 
-                                data-theme="trans" 
-                                aria-label="Trans flag theme">
-                            <div class="trans-flag"></div>
-                        </button>
-                        <button class="pride-flag-icon" 
-                                data-theme="nonbinary" 
-                                aria-label="Non-binary flag theme">
-                            <div class="nonbinary-flag"></div>
-                        </button>
-                        <button class="pride-flag-icon" 
-                                data-theme="lesbian" 
-                                aria-label="Lesbian flag theme">
-                            <div class="lesbian-flag"></div>
-                        </button>
-                        <button class="pride-flag-icon" 
-                                data-theme="gay" 
-                                aria-label="Gay flag theme">
-                            <div class="gay-flag"></div>
-                        </button>
-                        <button class="pride-flag-icon" 
-                                data-theme="bisexual" 
-                                aria-label="Bisexual flag theme">
-                            <div class="bisexual-flag"></div>
-                        </button>
-                        <button class="pride-flag-icon" 
-                                data-theme="pansexual" 
-                                aria-label="Pansexual flag theme">
-                            <div class="pansexual-flag"></div>
-                        </button>
-                        <button class="pride-flag-icon" 
-                                data-theme="asexual" 
-                                aria-label="Asexual flag theme">
-                            <div class="asexual-flag"></div>
-                        </button>
-                        <button class="pride-flag-icon" 
-                                data-theme="bear" 
-                                aria-label="Bear flag theme">
-                            <div class="bear-flag"></div>
-                        </button>
+                        <!-- Row 1 -->
+                        <div class="pride-flag-icon default-theme" 
+                             role="button" 
+                             aria-label="Default CT5 Pride Theme"
+                             tabindex="0"
+                             data-theme="default"
+                             title="CT5 Pride Default Theme"></div>
+                        <div class="pride-flag-icon rainbow-flag" 
+                             role="button" 
+                             aria-label="Rainbow Pride Flag"
+                             tabindex="0"
+                             data-theme="rainbow"
+                             title="Rainbow Pride Flag"></div>
+                        <div class="pride-flag-icon progress-flag" 
+                             role="button" 
+                             aria-label="Progress Pride Flag"
+                             tabindex="0"
+                             data-theme="progress"
+                             title="Progress Pride Flag"></div>
+                        <div class="pride-flag-icon trans-flag" 
+                             role="button" 
+                             aria-label="Transgender Pride Flag"
+                             tabindex="0"
+                             data-theme="trans"
+                             title="Transgender Pride Flag"></div>
+                        <div class="pride-flag-icon nonbinary-flag" 
+                             role="button" 
+                             aria-label="Non-Binary Pride Flag"
+                             tabindex="0"
+                             data-theme="nonbinary"
+                             title="Non-Binary Pride Flag"></div>
+                        
+                        <!-- Row 2 -->
+                        <div class="pride-flag-icon lesbian-flag" 
+                             role="button" 
+                             aria-label="Lesbian Pride Flag"
+                             tabindex="0"
+                             data-theme="lesbian"
+                             title="Lesbian Pride Flag"></div>
+                        <div class="pride-flag-icon gay-flag" 
+                             role="button" 
+                             aria-label="Gay Pride Flag"
+                             tabindex="0"
+                             data-theme="gay"
+                             title="Gay Pride Flag"></div>
+                        <div class="pride-flag-icon bisexual-flag" 
+                             role="button" 
+                             aria-label="Bisexual Pride Flag"
+                             tabindex="0"
+                             data-theme="bisexual"
+                             title="Bisexual Pride Flag"></div>
+                        <div class="pride-flag-icon pansexual-flag" 
+                             role="button" 
+                             aria-label="Pansexual Pride Flag"
+                             tabindex="0"
+                             data-theme="pansexual"
+                             title="Pansexual Pride Flag"></div>
+                        <div class="pride-flag-icon asexual-flag" 
+                             role="button" 
+                             aria-label="Asexual Pride Flag"
+                             tabindex="0"
+                             data-theme="asexual"
+                             title="Asexual Pride Flag"></div>
+                        <div class="pride-flag-icon bear-flag" 
+                             role="button" 
+                             aria-label="Bear Pride Flag"
+                             tabindex="0"
+                             data-theme="bear"
+                             title="Bear Pride Flag"></div>
                     </div>
-
-                    <div class="footer-social">
+                </div>
+                
+                <!-- Right Section: Social Links -->
+                <div class="footer-social">
                         <div class="social-links">
                             <a href="https://www.facebook.com/CT5Pride" target="_blank" rel="noopener noreferrer" 
                                aria-label="Follow us on Facebook">
