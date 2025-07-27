@@ -31,6 +31,56 @@
     <!-- Progress Pride Flag Stripe -->
     <div class="pride-stripe" role="banner" aria-label="Progress Pride Flag"></div>
     
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo-link" aria-label="CT5 Pride Homepage">
+                    <img src="Images/Logo-with-Transparent-background.svg" alt="CT5 Pride logo" class="site-logo">
+                </a>
+                
+                <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                    ☰
+                </button>
+                
+                <nav role="navigation" aria-label="Main navigation">
+                    <ul>
+                        <li><a href="index.html" >Home</a></li>
+                        <li class="dropdown">
+                            <a href="#" aria-haspopup="true" aria-expanded="false">About</a>
+                            <ul class="dropdown-content" role="menu">
+                                <li role="none"><a href="about.html" role="menuitem">About Us</a></li>
+                                <li role="none"><a href="team.html" role="menuitem">Our Team</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="events.html">Events</a></li>
+                        <li class="dropdown">
+                            <a href="#" aria-haspopup="true" aria-expanded="false">Get Involved</a>
+                            <ul class="dropdown-content" role="menu">
+                                <li role="none"><a href="get-involved.html" role="menuitem">Overview</a></li>
+                                <li role="none"><a href="volunteer.html" role="menuitem">Volunteer Opportunities</a></li>
+        
+                                <li role="none"><a href="contact.html" role="menuitem">Contact Us</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" aria-haspopup="true" aria-expanded="false">Support & Education</a>
+                            <ul class="dropdown-content" role="menu">
+                                <li role="none"><a href="help-support.html" role="menuitem" aria-current="page">Help & Support</a></li>
+                                <li role="none"><a href="education.html" role="menuitem">Education Resources</a></li>
+                                <li role="none"><a href="pride-quiz.html" role="menuitem">Pride Knowledge Quiz</a></li>
+                            </ul>
+                        </li>
+                        <li class="donate-button">
+                            <a href="https://www.justgiving.com/crowdfunding/ct5pride" target="_blank" rel="noopener noreferrer" class="donate-link">
+                                💝 Donate
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
         <div class="container">
             <div class="header-content">
                 <a href="index.html" class="logo-link" aria-label="CT5 Pride Homepage">
@@ -61,9 +111,9 @@
                             </ul>
                         </li>
                         <li class="dropdown">
-                            <a href="#" aria-haspopup="true" aria-expanded="false" aria-current="page">Support & Education</a>
+                            <a href="#" aria-haspopup="true" aria-expanded="false" >Support & Education</a>
                             <ul class="dropdown-content" role="menu">
-                                <li role="none"><a href="help-support.html" role="menuitem" aria-current="page">Help & Support</a></li>
+                                <li role="none"><a href="help-support.html" role="menuitem" >Help & Support</a></li>
                                 <li role="none"><a href="education.html" role="menuitem">Education Resources</a></li>
                                 <li role="none"><a href="pride-quiz.html" role="menuitem">Pride Knowledge Quiz</a></li>
                             </ul>
@@ -326,63 +376,103 @@
 
             <!-- Footer -->
     <footer>
-        <div class="footer-layout">
-            <div class="footer-info">
-                <h3>CT5 Pride</h3>
-                <div class="contact-links">
-                    <a href="mailto:hello@ct5pride.org.uk">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                            <polyline points="22,6 12,13 2,6"/>
-                        </svg>
-                        hello@ct5pride.org.uk
-                    </a>
+        <div class="container">
+            <div class="footer-layout">
+                <!-- Left Section: Company Info -->
+                <div class="footer-info">
+                    <h3>CT5 Pride Community Interest Company</h3>
+                    <div class="contact-links">
+                        <a href="mailto:hello@ct5pride.org.uk" aria-label="Email CT5 Pride">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                            </svg>
+                            hello@ct5pride.org.uk
+                        </a>
+                        <a href="/privacy.html">Privacy Policy</a>
+                    </div>
                 </div>
-            </div>
-
-            <div class="footer-flags">
-                <div class="flag-section-title">
-                    <p>Choose Your Pride Flag Theme</p>
+                
+                <!-- Center Section: Pride Flags -->
+                <div class="footer-flags">
+                    <div class="flag-section-title">
+                        <p>Click flags for temporary themes</p>
+                    </div>
+                    <div class="flags-grid">
+                        <!-- Row 1 -->
+                        <div class="pride-flag-icon default-theme" 
+                             role="button" 
+                             aria-label="Default CT5 Pride Theme"
+                             tabindex="0"
+                             data-theme="default"
+                             title="CT5 Pride Default Theme"></div>
+                        <div class="pride-flag-icon rainbow-flag" 
+                             role="button" 
+                             aria-label="Rainbow Pride Flag"
+                             tabindex="0"
+                             data-theme="rainbow"
+                             title="Rainbow Pride Flag"></div>
+                        <div class="pride-flag-icon progress-flag" 
+                             role="button" 
+                             aria-label="Progress Pride Flag"
+                             tabindex="0"
+                             data-theme="progress"
+                             title="Progress Pride Flag"></div>
+                        <div class="pride-flag-icon trans-flag" 
+                             role="button" 
+                             aria-label="Transgender Pride Flag"
+                             tabindex="0"
+                             data-theme="trans"
+                             title="Transgender Pride Flag"></div>
+                        <div class="pride-flag-icon nonbinary-flag" 
+                             role="button" 
+                             aria-label="Non-Binary Pride Flag"
+                             tabindex="0"
+                             data-theme="nonbinary"
+                             title="Non-Binary Pride Flag"></div>
+                        
+                        <!-- Row 2 -->
+                        <div class="pride-flag-icon lesbian-flag" 
+                             role="button" 
+                             aria-label="Lesbian Pride Flag"
+                             tabindex="0"
+                             data-theme="lesbian"
+                             title="Lesbian Pride Flag"></div>
+                        <div class="pride-flag-icon gay-flag" 
+                             role="button" 
+                             aria-label="Gay Pride Flag"
+                             tabindex="0"
+                             data-theme="gay"
+                             title="Gay Pride Flag"></div>
+                        <div class="pride-flag-icon bisexual-flag" 
+                             role="button" 
+                             aria-label="Bisexual Pride Flag"
+                             tabindex="0"
+                             data-theme="bisexual"
+                             title="Bisexual Pride Flag"></div>
+                        <div class="pride-flag-icon pansexual-flag" 
+                             role="button" 
+                             aria-label="Pansexual Pride Flag"
+                             tabindex="0"
+                             data-theme="pansexual"
+                             title="Pansexual Pride Flag"></div>
+                        <div class="pride-flag-icon asexual-flag" 
+                             role="button" 
+                             aria-label="Asexual Pride Flag"
+                             tabindex="0"
+                             data-theme="asexual"
+                             title="Asexual Pride Flag"></div>
+                        <div class="pride-flag-icon bear-flag" 
+                             role="button" 
+                             aria-label="Bear Pride Flag"
+                             tabindex="0"
+                             data-theme="bear"
+                             title="Bear Pride Flag"></div>
+                    </div>
                 </div>
-                <div class="flags-grid">
-                    <button class="pride-flag-icon default-theme" onclick="setTheme('default')" aria-label="Default theme">
-                        <div class="rainbow-flag"></div>
-                    </button>
-                    <button class="pride-flag-icon" onclick="setTheme('rainbow')" aria-label="Rainbow flag theme">
-                        <div class="rainbow-flag"></div>
-                    </button>
-                    <button class="pride-flag-icon" onclick="setTheme('progress')" aria-label="Progress flag theme">
-                        <div class="progress-flag"></div>
-                    </button>
-                    <button class="pride-flag-icon" onclick="setTheme('trans')" aria-label="Trans flag theme">
-                        <div class="trans-flag"></div>
-                    </button>
-                    <button class="pride-flag-icon" onclick="setTheme('nonbinary')" aria-label="Non-binary flag theme">
-                        <div class="nonbinary-flag"></div>
-                    </button>
-                    <button class="pride-flag-icon" onclick="setTheme('lesbian')" aria-label="Lesbian flag theme">
-                        <div class="lesbian-flag"></div>
-                    </button>
-                    <button class="pride-flag-icon" onclick="setTheme('gay')" aria-label="Gay flag theme">
-                        <div class="gay-flag"></div>
-                    </button>
-                    <button class="pride-flag-icon" onclick="setTheme('bisexual')" aria-label="Bisexual flag theme">
-                        <div class="bisexual-flag"></div>
-                    </button>
-                    <button class="pride-flag-icon" onclick="setTheme('pansexual')" aria-label="Pansexual flag theme">
-                        <div class="pansexual-flag"></div>
-                    </button>
-                    <button class="pride-flag-icon" onclick="setTheme('asexual')" aria-label="Asexual flag theme">
-                        <div class="asexual-flag"></div>
-                    </button>
-                    <button class="pride-flag-icon" onclick="setTheme('bear')" aria-label="Bear flag theme">
-                        <div class="bear-flag"></div>
-                    </button>
-                </div>
-            </div>
-
-            <div class="footer-social">
-                <div class="social-links">
+                
+                <!-- Right Section: Social Links -->
+                <div class="footer-social">
+                    <div class="social-links">
                     <a href="https://www.facebook.com/CT5Pride" target="_blank" rel="noopener noreferrer" 
                        aria-label="Follow us on Facebook">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -406,19 +496,20 @@
                             <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                         </svg>
                     </a>
-                </div>
-                
-                <!-- Facebook Community Group Button -->
-                <div style="margin-top: 1.5rem; text-align: center;">
-                    <a href="https://www.facebook.com/groups/1452370402865655/" 
-                       target="_blank" 
-                       rel="noopener noreferrer" 
-                       style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1rem; background: linear-gradient(135deg, #1877f2, #42a5f5); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease; box-shadow: 0 2px 6px rgba(24, 119, 242, 0.3); white-space: nowrap; min-width: fit-content;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                        </svg>
-                        Join our Facebook Community Group
-                    </a>
+                    </div>
+                    
+                    <!-- Facebook Community Group Button -->
+                    <div style="margin-top: 1.5rem; text-align: center;">
+                        <a href="https://www.facebook.com/groups/1452370402865655/" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1rem; background: linear-gradient(135deg, #1877f2, #42a5f5); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.85rem; transition: all 0.3s ease; box-shadow: 0 2px 6px rgba(24, 119, 242, 0.3); white-space: nowrap; min-width: fit-content;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            Join our Facebook Community Group
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -441,41 +532,6 @@
                      tabindex="0"
                      data-setting="high-contrast">
                 </div>
-            </div>
-            
-            <div class="accessibility-option">
-                <label for="dyslexia-toggle">Dyslexia Friendly Font</label>
-                <div class="accessibility-toggle-switch" 
-                     id="dyslexia-toggle"
-                     role="switch" 
-                     aria-checked="false" 
-                     tabindex="0"
-                     data-setting="dyslexia-friendly">
-                </div>
-            </div>
-            
-            <div class="accessibility-option">
-                <label for="reduce-motion-toggle">Reduce Motion</label>
-                <div class="accessibility-toggle-switch" 
-                     id="reduce-motion-toggle"
-                     role="switch" 
-                     aria-checked="false" 
-                     tabindex="0"
-                     data-setting="reduce-motion">
-                </div>
-            </div>
-            
-            <div class="accessibility-option">
-                <label for="text-size">Text Size</label>
-                <div class="text-size-controls">
-                    <button class="text-size-btn" data-size="small" aria-label="Small text size">A</button>
-                    <button class="text-size-btn active" data-size="normal" aria-label="Normal text size">A</button>
-                    <button class="text-size-btn" data-size="large" aria-label="Large text size">A</button>
-                    <button class="text-size-btn" data-size="extra-large" aria-label="Extra large text size">A</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script src="js/main.js"></script>
 </body>
