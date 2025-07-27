@@ -169,8 +169,8 @@ app.get('/health/db', async (req, res) => {
   try {
     // Simple test query to check Supabase connection
     const { data, error } = await supabase
-      .from('roles')
-      .select('count(*)')
+      .from('conflict_of_interest')
+      .select('id')
       .limit(1);
     
     if (error) {
