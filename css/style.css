@@ -7309,7 +7309,7 @@ footer {
 }
 
 .term-content.expanded {
-    max-height: 500px;
+    max-height: 2000px;
     padding: 1.5rem;
 }
 
@@ -7458,7 +7458,7 @@ footer {
         opacity: 0;
     }
     to {
-        max-height: 500px;
+        max-height: 2000px;
         opacity: 1;
     }
 }
