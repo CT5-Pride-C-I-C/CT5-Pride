@@ -468,7 +468,7 @@ const worldMapData = {
         criminalizationStatus: 'Legal',
         rainbowScore: 25,
         marriageEquality: false,
-        description: 'Civil unions recognized but not marriage. Conservative constitutional provisions.'
+        description: 'Civil unions recognised but not marriage. Conservative constitutional provisions.'
     },
     'Venezuela': {
         name: 'Venezuela',
@@ -649,8 +649,8 @@ const worldMapData = {
     }
 };
 
-// Color schemes for different views
-const colorSchemes = {
+// Colour schemes for different views
+const colourSchemes = {
     criminalization: {
         'Criminal': '#d32f2f',           // Strong red - urgent change needed
         'Limited Protection': '#f57c00', // Orange
@@ -687,7 +687,7 @@ class WorldMap {
             // Load the accurate world map SVG
             await this.loadWorldMapSVG();
             this.setupControls();
-            this.updateColors();
+            this.updateColours();
             
             console.log('✅ World map initialized successfully');
         } catch (error) {
@@ -931,7 +931,7 @@ class WorldMap {
             criminalizationBtn.addEventListener('click', () => {
                 this.currentFilter = 'criminalization';
                 this.updateActiveButton(criminalizationBtn);
-                this.updateColors();
+                this.updateColours();
                 this.updateLegend();
             });
         }
@@ -940,7 +940,7 @@ class WorldMap {
             rainbowBtn.addEventListener('click', () => {
                 this.currentFilter = 'rainbow';
                 this.updateActiveButton(rainbowBtn);
-                this.updateColors();
+                this.updateColours();
                 this.updateLegend();
             });
         }
@@ -949,7 +949,7 @@ class WorldMap {
             bothBtn.addEventListener('click', () => {
                 this.currentFilter = 'both';
                 this.updateActiveButton(bothBtn);
-                this.updateColors();
+                this.updateColours();
                 this.updateLegend();
             });
         }
@@ -965,33 +965,33 @@ class WorldMap {
         activeBtn.classList.add('active');
     }
 
-    updateColors() {
-        console.log(`🎨 Updating colors for filter: ${this.currentFilter}`);
+    updateColours() {
+        console.log(`🎨 Updating colours for filter: ${this.currentFilter}`);
         
         const countryPaths = this.svg.querySelectorAll('.country-path:not(.no-data)');
-        console.log(`🔍 Found ${countryPaths.length} country paths to color`);
+        console.log(`🔍 Found ${countryPaths.length} country paths to colour`);
         
-        let coloredCountries = 0;
+        let colouredCountries = 0;
         
         countryPaths.forEach(path => {
             const countryName = path.getAttribute('data-country');
             const data = worldMapData[countryName];
             
             if (data) {
-                let color = '#f0f0f0'; // Default color
+                let colour = '#f0f0f0'; // Default colour
                 
                 if (this.currentFilter === 'criminalization') {
-                    color = this.getCriminalizationColor(data.criminalizationStatus);
+                    colour = this.getCriminalizationColour(data.criminalizationStatus);
                 } else if (this.currentFilter === 'rainbow') {
-                    color = this.getRainbowColor(data.rainbowScore);
+                    colour = this.getRainbowColour(data.rainbowScore);
                 } else if (this.currentFilter === 'both') {
-                    // Combined view - prioritize criminalization with rainbow transparency
-                    color = this.getCombinedColor(data);
+                    // Combined view - prioritise criminalisation with rainbow transparency
+                    colour = this.getCombinedColour(data);
                 }
                 
-                path.style.fill = color;
+                path.style.fill = colour;
                 path.style.fillOpacity = '0.8';
-                coloredCountries++;
+                colouredCountries++;
                 
                 // Add special highlighting for criminal countries in default view
                 if (this.currentFilter === 'criminalization' && data.criminalizationStatus === 'Criminal') {
@@ -1001,20 +1001,20 @@ class WorldMap {
             }
         });
         
-        console.log(`✅ Successfully colored ${coloredCountries} countries`);
+        console.log(`✅ Successfully coloured ${colouredCountries} countries`);
     }
 
-    getCriminalizationColor(status) {
-        const colors = {
+    getCriminalizationColour(status) {
+        const colours = {
             'Criminal': '#d32f2f',           // Strong red - urgent change needed
             'Limited Protection': '#f57c00', // Orange
             'Legal': '#388e3c',              // Green
             'Full Equality': '#1976d2'       // Blue
         };
-        return colors[status] || '#f0f0f0';
+        return colours[status] || '#f0f0f0';
     }
 
-    getRainbowColor(score) {
+    getRainbowColour(score) {
         if (score >= 81) return '#006400';  // Dark green
         if (score >= 61) return '#32cd32';  // Lime green
         if (score >= 41) return '#ffa500';  // Orange
@@ -1022,9 +1022,9 @@ class WorldMap {
         return '#8b0000';  // Dark red
     }
 
-    getCombinedColor(data) {
-        // Prioritize showing criminalization status
-        return this.getCriminalizationColor(data.criminalizationStatus);
+    getCombinedColour(data) {
+        // Prioritise showing criminalisation status
+        return this.getCriminalizationColour(data.criminalizationStatus);
     }
 
     updateLegend() {
@@ -1072,11 +1072,11 @@ class WorldMap {
         let detailsHTML = '';
         
         if (this.currentFilter === 'criminalization' || this.currentFilter === 'both') {
-            const statusColor = this.getCriminalizationColor(data.criminalizationStatus);
+            const statusColour = this.getCriminalizationColour(data.criminalizationStatus);
             detailsHTML += `
                 <div style="margin-bottom: 1rem;">
-                    <strong>Criminalization Status:</strong>
-                    <span style="color: ${statusColor}; font-weight: bold; margin-left: 0.5rem;">
+                    <strong>Criminalisation Status:</strong>
+                    <span style="color: ${statusColour}; font-weight: bold; margin-left: 0.5rem;">
                         ${data.criminalizationStatus}
                     </span>
                 </div>
@@ -1084,11 +1084,11 @@ class WorldMap {
         }
         
         if (this.currentFilter === 'rainbow' || this.currentFilter === 'both') {
-            const scoreColor = this.getRainbowColor(data.rainbowScore);
+            const scoreColour = this.getRainbowColour(data.rainbowScore);
             detailsHTML += `
                 <div style="margin-bottom: 1rem;">
                     <strong>Rainbow Map Score:</strong>
-                    <span style="color: ${scoreColor}; font-weight: bold; margin-left: 0.5rem;">
+                    <span style="color: ${scoreColour}; font-weight: bold; margin-left: 0.5rem;">
                         ${data.rainbowScore}%
                     </span>
                 </div>
@@ -1114,8 +1114,8 @@ class WorldMap {
         if (data.criminalizationStatus === 'Criminal') {
             const warningHTML = `
                 <div style="background: #ffebee; border: 1px solid #f44336; border-radius: 4px; padding: 0.75rem; margin-top: 1rem;">
-                    <strong style="color: #d32f2f;">⚠️ Change Needed:</strong> 
-                    <span style="color: #c62828;">LGBTQ+ people face criminalization in this country. Advocacy and legal reform are urgently needed.</span>
+                                    <strong style="color: #d32f2f;">⚠️ Change Needed:</strong> 
+                <span style="color: #c62828;">LGBTQ+ people face criminalisation in this country. Advocacy and legal reform are urgently needed.</span>
                 </div>
             `;
             countryDetailsEl.innerHTML += warningHTML;

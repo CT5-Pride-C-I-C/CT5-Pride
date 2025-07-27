@@ -59,7 +59,7 @@ const lgbtqTerms = [
     {
         term: "Bicurious",
         category: "sexual-orientation",
-        definition: "An individual who identifies as gay or straight while showing some curiosity for a relationship or sexual activity with a person of the sex they do not favor. (Related terms: heteroflexible, homoflexible)",
+        definition: "An individual who identifies as gay or straight while showing some curiosity for a relationship or sexual activity with a person of the sex they do not favour. (Related terms: heteroflexible, homoflexible)",
         example: "A straight person who is bicurious might be curious about exploring relationships with people of the same gender."
     },
     {

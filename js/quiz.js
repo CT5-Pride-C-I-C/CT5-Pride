@@ -15,14 +15,14 @@ const quizQuestions = [
     },
     {
         id: 2,
-        question: "Which symbol is most widely recognized for LGBTQIA+ Pride?",
+        question: "Which symbol is most widely recognised for LGBTQIA+ Pride?",
         answers: [
             { text: "Pink triangle", correct: false },
             { text: "Rainbow flag", correct: true },
             { text: "Lambda symbol", correct: false },
             { text: "Lavender rhinoceros", correct: false }
         ],
-        explanation: "The rainbow flag, designed by Gilbert Baker in 1978, is the most widely recognized symbol of LGBTQ+ pride. Each color represents different aspects of the community."
+        explanation: "The rainbow flag, designed by Gilbert Baker in 1978, is the most widely recognised symbol of LGBTQ+ pride. Each colour represents different aspects of the community."
     },
     {
         id: 3,
@@ -99,7 +99,7 @@ const quizQuestions = [
             { text: "Blue for sadness, pink for love, white for hope", correct: false },
             { text: "Blue for sky, pink for sunset, white for clouds", correct: false }
         ],
-        explanation: "The Trans Pride Flag has light blue for traditional boy colors, pink for traditional girl colors, and white for those who are transitioning, intersex, or consider themselves neutral or undefined gender."
+        explanation: "The Trans Pride Flag has light blue for traditional boy colours, pink for traditional girl colours, and white for those who are transitioning, intersex, or consider themselves neutral or undefined gender."
     },
     {
         id: 10,

@@ -853,16 +853,16 @@ function applyTheme(theme) {
         }, 500);
     }, 50);
     
-    // Update meta theme color for mobile browsers
-    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (!metaThemeColor) {
-        metaThemeColor = document.createElement('meta');
-        metaThemeColor.name = 'theme-color';
-        document.head.appendChild(metaThemeColor);
-    }
-    
-    // Set theme color based on flag
-    const themeColors = {
+            // Update meta theme colour for mobile browsers
+        let metaThemeColour = document.querySelector('meta[name="theme-color"]');
+        if (!metaThemeColour) {
+            metaThemeColour = document.createElement('meta');
+            metaThemeColour.name = 'theme-color';
+            document.head.appendChild(metaThemeColour);
+        }
+
+        // Set theme colour based on flag
+        const themeColours = {
         rainbow: '#e40303',
         progress: '#d62d20',
         trans: '#5bcffa',
@@ -876,7 +876,7 @@ function applyTheme(theme) {
         default: '#e91e63'
     };
     
-    metaThemeColor.content = themeColors[theme] || themeColors.default;
+            metaThemeColour.content = themeColours[theme] || themeColours.default;
     
     // Add visual celebration effect
     addThemeCelebrationEffect(theme);
@@ -898,7 +898,7 @@ function addThemeCelebrationEffect(theme) {
         transition: opacity 0.3s ease;
     `;
     
-    const themeColors = {
+    const themeColours = {
         rainbow: ['#e40303', '#ff8c00', '#ffed00', '#008018', '#004cff', '#732982'],
         progress: ['#5bcffa', '#f5a9b8', '#ffffff', '#784f17', '#000000'],
         trans: ['#5bcffa', '#f5a9b8', '#ffffff'],
@@ -911,7 +911,7 @@ function addThemeCelebrationEffect(theme) {
         default: ['#e91e63', '#2196f3', '#e91e63']
     };
     
-    const colors = themeColors[theme] || themeColors.default;
+    const colours = themeColours[theme] || themeColours.default;
     
     // Create sparkle elements
     for (let i = 0; i < 15; i++) {
@@ -920,7 +920,7 @@ function addThemeCelebrationEffect(theme) {
             position: absolute;
             width: 4px;
             height: 4px;
-            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            background: ${colours[Math.floor(Math.random() * colours.length)]};
             border-radius: 50%;
             top: ${Math.random() * 100}%;
             left: ${Math.random() * 100}%;
@@ -986,20 +986,20 @@ function announceThemeChange(theme) {
     };
     
     const themeDescriptions = {
-        default: 'Original CT5 Pride colors restored',
-        rainbow: 'Classic rainbow pride colors applied with vibrant red, orange, yellow, green, blue, and purple',
-        progress: 'Progress Pride colors with inclusion stripes featuring trans, brown, and black representation',
-        trans: 'Transgender pride colors in light blue, pink, and white',
-        nonbinary: 'Non-binary pride colors in yellow, white, purple, and black',
-        lesbian: 'Lesbian pride colors in orange, white, and pink tones',
-        gay: 'Gay pride colors in teal, green, and blue tones',
-        bisexual: 'Bisexual pride colors in pink, purple, and blue',
-        pansexual: 'Pansexual pride colors in pink, yellow, and blue',
-        asexual: 'Asexual pride colors in black, gray, white, and purple',
-        bear: 'Bear pride colors in brown, tan, and earth tones representing the bear community'
+        default: 'Original CT5 Pride colours restored',
+        rainbow: 'Classic rainbow pride colours applied with vibrant red, orange, yellow, green, blue, and purple',
+        progress: 'Progress Pride colours with inclusion stripes featuring trans, brown, and black representation',
+        trans: 'Transgender pride colours in light blue, pink, and white',
+        nonbinary: 'Non-binary pride colours in yellow, white, purple, and black',
+        lesbian: 'Lesbian pride colours in orange, white, and pink tones',
+        gay: 'Gay pride colours in teal, green, and blue tones',
+        bisexual: 'Bisexual pride colours in pink, purple, and blue',
+        pansexual: 'Pansexual pride colours in pink, yellow, and blue',
+        asexual: 'Asexual pride colours in black, grey, white, and purple',
+        bear: 'Bear pride colours in brown, tan, and earth tones representing the bear community'
     };
     
-    announcement.textContent = `${themeNames[theme]} theme temporarily activated. ${themeDescriptions[theme]}. Footer, header, and website elements updated with new color scheme. Theme will reset on page refresh.`;
+    announcement.textContent = `${themeNames[theme]} theme temporarily activated. ${themeDescriptions[theme]}. Footer, header, and website elements updated with new colour scheme. Theme will reset on page refresh.`;
     document.body.appendChild(announcement);
     
     // Also show a brief visual notification
