@@ -1123,7 +1123,23 @@
 html {
   scroll-behavior: smooth;
   /* Ensure proper scroll padding for sticky header */
-  scroll-padding-top: 100px;
+  scroll-padding-top: 140px;
+}
+
+/* Ensure proper spacing when navigating to world map via anchor */
+body:has(#world-map-container) {
+  scroll-padding-top: 140px;
+}
+
+/* Additional spacing for world map section */
+section:has(#world-map-container) {
+  padding-top: 2rem;
+  margin-top: 2rem;
+}
+
+/* Ensure smooth scrolling for all anchor links */
+a[href*="#"] {
+  scroll-behavior: smooth;
 }
 
 html, body {
@@ -7883,12 +7899,23 @@ footer {
     box-shadow: var(--box-shadow);
     background: #f0f8ff;
     min-height: 500px;
+    width: 100%;
+    height: 500px;
     z-index: 1;
-    margin: 2rem 0;
+    margin: 4rem 0 2rem 0;
     /* Ensure proper spacing from sticky header when scrolling to anchor */
-    scroll-margin-top: 100px;
+    scroll-margin-top: 140px;
     /* Additional spacing to prevent overlap with header */
-    padding-top: 20px;
+    padding-top: 60px;
+    /* Ensure proper spacing from elements above */
+    margin-top: 5rem;
+}
+
+/* Ensure the SVG inside the container is properly sized */
+#world-map-container svg {
+    width: 100%;
+    height: 100%;
+    background: #f0f8ff;
 }
 
 #world-map {

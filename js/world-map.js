@@ -1132,52 +1132,80 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('🗺️ Initializing WorldMap with accurate country shapes...');
         const worldMap = new WorldMap();
         
-        // If we're navigating to the world map via anchor, ensure it's properly positioned
-        if (window.location.hash === '#world-map-container') {
-            console.log('🎯 World map anchor detected - ensuring proper positioning...');
-            
-            // Wait for the map to fully load and initialize
-            const waitForMapReady = () => {
-                // Check if the map has been properly initialized by looking for country paths
-                const countryPaths = mapElement.querySelectorAll('.country-path');
-                if (countryPaths.length > 0) {
-                    console.log('✅ World map fully loaded with', countryPaths.length, 'countries');
+        // Handle anchor navigation for world map
+        const handleAnchorNavigation = () => {
+            if (window.location.hash === '#world-map-container') {
+                console.log('🎯 World map anchor detected - preventing default and handling manually...');
+                
+                // Prevent the default browser anchor behavior
+                const container = document.getElementById('world-map-container');
+                if (container) {
+                    // Wait for the map to fully load and initialize
+                    const waitForMapReady = () => {
+                        // Check if the map has been properly initialized by looking for country paths
+                        const countryPaths = mapElement.querySelectorAll('.country-path');
+                        if (countryPaths.length > 0) {
+                            console.log('✅ World map fully loaded with', countryPaths.length, 'countries');
+                            
+                            // Get the header height and account for sticky positioning
+                            const header = document.querySelector('header');
+                            const headerHeight = header ? header.offsetHeight : 0;
+                            
+                            // Calculate the correct scroll position with extra padding
+                            const elementTop = container.offsetTop - headerHeight - 100;
+                            
+                            // Use a more reliable scrolling method
+                            setTimeout(() => {
+                                window.scrollTo({
+                                    top: elementTop,
+                                    behavior: 'smooth'
+                                });
+                                
+                                // Add a temporary highlight to make it clear where the user landed
+                                container.style.boxShadow = '0 0 20px rgba(33, 150, 243, 0.3)';
+                                setTimeout(() => {
+                                    container.style.boxShadow = '';
+                                }, 2000);
+                            }, 100);
+                        } else {
+                            // If map isn't ready yet, wait a bit more
+                            console.log('⏳ World map still loading, waiting...');
+                            setTimeout(waitForMapReady, 200);
+                        }
+                    };
                     
-                    const container = document.getElementById('world-map-container');
-                    if (container) {
-                        // Ensure the container is visible and not overlapping
-                        container.style.position = 'relative';
-                        container.style.zIndex = '1';
-                        
-                        // Get the header height and account for sticky positioning
-                        const header = document.querySelector('header');
-                        const headerHeight = header ? header.offsetHeight : 0;
-                        
-                        // Calculate the correct scroll position with extra padding
-                        const elementTop = container.offsetTop - headerHeight - 40;
-                        
-                        // Scroll to the map with proper offset
-                        window.scrollTo({
-                            top: elementTop,
-                            behavior: 'smooth'
-                        });
-                        
-                        // Add a temporary highlight to make it clear where the user landed
-                        container.style.boxShadow = '0 0 20px rgba(33, 150, 243, 0.3)';
-                        setTimeout(() => {
-                            container.style.boxShadow = '';
-                        }, 2000);
-                    }
-                } else {
-                    // If map isn't ready yet, wait a bit more
-                    console.log('⏳ World map still loading, waiting...');
-                    setTimeout(waitForMapReady, 200);
+                    // Start checking for map readiness after a short delay
+                    setTimeout(waitForMapReady, 500);
                 }
-            };
+            }
+        };
+        
+        // Prevent default anchor behavior on page load
+        if (window.location.hash === '#world-map-container') {
+            console.log('🎯 Preventing default anchor behavior on page load...');
             
-            // Start checking for map readiness after a short delay
-            setTimeout(waitForMapReady, 500);
+            // Temporarily remove the hash to prevent default behavior
+            const currentHash = window.location.hash;
+            history.replaceState(null, null, window.location.pathname);
+            
+            // Handle the navigation manually after a delay
+            setTimeout(() => {
+                // Restore the hash
+                history.replaceState(null, null, currentHash);
+                // Handle the navigation
+                handleAnchorNavigation();
+            }, 200);
         }
+        
+        // Also handle anchor navigation when hash changes (for back/forward navigation)
+        window.addEventListener('hashchange', (e) => {
+            if (window.location.hash === '#world-map-container') {
+                console.log('🎯 Hash change detected - handling world map navigation...');
+                // Prevent default behavior
+                e.preventDefault();
+                handleAnchorNavigation();
+            }
+        });
     } else {
         console.log('❌ No world map element found on this page');
     }
