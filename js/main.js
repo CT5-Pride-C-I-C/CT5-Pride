@@ -3,6 +3,76 @@
 
 console.log('🏳️‍🌈 CT5 Pride Main JS Loading...');
 
+// ==================== ANCHOR NAVIGATION ====================
+
+function setupAnchorNavigation() {
+    console.log('🔗 Setting up anchor navigation...');
+    
+    // Only handle anchor navigation if we're not on the world map page
+    // (world-map.js will handle it there)
+    if (!document.getElementById('world-map')) {
+        console.log('🔗 Not on world map page, skipping anchor navigation setup');
+        return;
+    }
+    
+    // Handle anchor navigation for world map
+    const handleWorldMapAnchor = () => {
+        if (window.location.hash === '#world-map-container') {
+            console.log('🎯 World map anchor detected in main.js');
+            
+            // Wait for the world map to be ready
+            const waitForWorldMap = () => {
+                const container = document.getElementById('world-map-container');
+                const mapElement = document.getElementById('world-map');
+                
+                if (container && mapElement) {
+                    // Check if the world map has loaded
+                    const countryPaths = mapElement.querySelectorAll('.country-path');
+                    if (countryPaths.length > 0) {
+                        console.log('✅ World map ready, scrolling to it...');
+                        
+                        // Get the header height
+                        const header = document.querySelector('header');
+                        const headerHeight = header ? header.offsetHeight : 0;
+                        
+                        // Calculate scroll position
+                        const elementTop = container.offsetTop - headerHeight - 80;
+                        
+                        // Scroll to the world map
+                        window.scrollTo({
+                            top: elementTop,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Add highlight effect
+                        container.style.boxShadow = '0 0 20px rgba(33, 150, 243, 0.3)';
+                        setTimeout(() => {
+                            container.style.boxShadow = '';
+                        }, 2000);
+                    } else {
+                        // If world map not ready, wait a bit more
+                        setTimeout(waitForWorldMap, 200);
+                    }
+                } else {
+                    // If elements not found, wait a bit more
+                    setTimeout(waitForWorldMap, 200);
+                }
+            };
+            
+            // Start checking after a short delay
+            setTimeout(waitForWorldMap, 500);
+        }
+    };
+    
+    // Handle anchor navigation on page load
+    if (window.location.hash === '#world-map-container') {
+        setTimeout(handleWorldMapAnchor, 100);
+    }
+    
+    // Handle hash changes
+    window.addEventListener('hashchange', handleWorldMapAnchor);
+}
+
 // ==================== NAVIGATION ====================
 
 function setupNavigation() {
@@ -1030,6 +1100,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('🔧 Setting up pride flag themes...');
     setupPrideFlagThemes();
+    
+    console.log('🔗 Setting up anchor navigation...');
+    setupAnchorNavigation();
     
     // Load events if on events page
     if (document.getElementById('eventsContainer')) {

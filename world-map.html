@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Security Meta Tags -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
+    <link rel="icon" type="image/svg+xml" href="Images/Logo-with-Transparent-background.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <title>Global LGBTQ+ Rights World Map - CT5 Pride</title>
+    <meta name="description" content="Interactive world map showing LGBTQ+ rights status, criminalization, and equality rankings globally. Explore where change is still needed.">
+    
+    <!-- OpenGraph/Social Media Meta Tags -->
+    <meta property="og:title" content="Global LGBTQ+ Rights World Map - CT5 Pride">
+    <meta property="og:description" content="Interactive world map showing LGBTQ+ rights status, criminalization, and equality rankings globally. Explore where change is still needed.">
+    <meta property="og:image" content="https://ct5pride.org.uk/Images/world.svg">
+    <meta property="og:url" content="https://ct5pride.org.uk/world-map.html">
+    <meta property="og:type" content="website">
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Progress Pride Flag Stripe -->
+    <div class="pride-stripe" role="banner" aria-label="Progress Pride Flag"></div>
+    
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo-link" aria-label="CT5 Pride Homepage">
+                    <img src="Images/Logo-with-Transparent-background.svg" alt="CT5 Pride logo" class="site-logo">
+                </a>
+                
+                <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                    ☰
+                </button>
+                
+                <nav role="navigation" aria-label="Main navigation">
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li class="dropdown">
+                            <a href="#" aria-haspopup="true" aria-expanded="false">About</a>
+                            <ul class="dropdown-content" role="menu">
+                                <li role="none"><a href="about.html" role="menuitem">About Us</a></li>
+                                <li role="none"><a href="team.html" role="menuitem">Our Team</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="events.html">Events</a></li>
+                        <li class="dropdown">
+                            <a href="#" aria-haspopup="true" aria-expanded="false">Get Involved</a>
+                            <ul class="dropdown-content" role="menu">
+                                <li role="none"><a href="get-involved.html" role="menuitem">Overview</a></li>
+                                <li role="none"><a href="volunteer.html" role="menuitem">Volunteer Opportunities</a></li>
+                                <li role="none"><a href="contact.html" role="menuitem">Contact Us</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" aria-haspopup="true" aria-expanded="false">Support & Education</a>
+                            <ul class="dropdown-content" role="menu">
+                                <li role="none"><a href="help-support.html" role="menuitem">Help & Support</a></li>
+                                <li role="none"><a href="education.html" role="menuitem">Education Resources</a></li>
+                                <li role="none"><a href="pride-quiz.html" role="menuitem">Pride Knowledge Quiz</a></li>
+                            </ul>
+                        </li>
+                        <li class="donate-button">
+                            <a href="https://www.justgiving.com/crowdfunding/ct5pride" target="_blank" rel="noopener noreferrer" class="donate-link">
+                                💝 Donate
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section class="hero" style="background: var(--cosmic-gradient); padding: 4rem 0; position: relative; width: 100%;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('Images/world.svg') center/cover no-repeat; opacity: 0.2; z-index: 1;"></div>
+            <div class="container" style="position: relative; z-index: 2;">
+                <div style="text-align: center; color: white; max-width: 800px; margin: 0 auto;">
+                    <h1 style="font-size: 3.5rem; margin-bottom: 2rem;">
+                        🌍 Global LGBTQ+ Rights World Map
+                    </h1>
+                    <p style="font-size: 1.4rem; line-height: 1.8; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                        Explore our interactive world map showing criminalisation status and equality rankings for LGBTQ+ people globally. Understand where change is still needed.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- World Map Section -->
+        <section style="padding: 4rem 0; background: var(--background);">
+            <div class="container">
+                <div style="max-width: 1200px; margin: 0 auto;">
+                    <!-- Introduction -->
+                    <div style="text-align: center; margin-bottom: 3rem;">
+                        <h2 style="color: var(--text); margin-bottom: 1.5rem; font-size: 2.5rem;">
+                            🌈 Interactive Global Rights Explorer
+                        </h2>
+                        <p style="color: var(--text-light); line-height: 1.7; font-size: 1.2rem; max-width: 800px; margin: 0 auto;">
+                            This interactive map shows the current status of LGBTQ+ rights worldwide, including criminalization status, marriage equality, and anti-discrimination protections. Click on countries to learn more about their specific situation.
+                        </p>
+                    </div>
+
+                    <!-- Map Controls -->
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem;">
+                            <button class="map-filter-btn active" data-filter="criminalization">
+                                🚨 Criminalization Status
+                            </button>
+                            <button class="map-filter-btn" data-filter="rainbow">
+                                🌈 Rainbow Map Score
+                            </button>
+                            <button class="map-filter-btn" data-filter="both">
+                                📊 Combined View
+                            </button>
+                        </div>
+                        <p style="color: var(--text-light); font-size: 0.9rem;">
+                            Use the buttons above to switch between different data views
+                        </p>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="legend-section" style="margin-bottom: 2rem;">
+                        <h4 style="text-align: center; margin-bottom: 1rem; color: var(--text);">Legend</h4>
+                        <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
+                            <!-- Legend content will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Map Container -->
+                    <div id="world-map-container">
+                        <svg id="world-map" width="100%" height="100%" viewBox="0 0 1000 500">
+                            <!-- Simplified world map paths will be added via JavaScript -->
+                        </svg>
+                    </div>
+
+                    <!-- Country Information Panel -->
+                    <div id="country-info" style="margin-top: 1rem; padding: 1rem; background: rgba(248,249,250,0.9); border-radius: 8px; border-left: 4px solid var(--pride-purple); display: none;">
+                        <h4 id="country-name" style="margin: 0 0 0.5rem 0; color: var(--text);"></h4>
+                        <div id="country-details" style="color: var(--text-light);"></div>
+                    </div>
+                </div>
+                
+                <!-- Additional Context Cards -->
+                <div style="max-width: 800px; margin: 2rem auto 0;">
+                    <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h3 style="color: var(--text); margin-bottom: 1rem;">🇪🇺 European Influence</h3>
+                        <p style="color: var(--text-light); line-height: 1.6; margin-bottom: 1rem;">
+                            European Court of Human Rights decisions significantly shaped UK law, particularly around decriminalisation and equal age of consent. Cases like Dudgeon v. UK accelerated progress.
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                        <h3 style="color: var(--text); margin-bottom: 1rem;">🌎 Global Progress</h3>
+                        <p style="color: var(--text-light); line-height: 1.6; margin-bottom: 1rem;">
+                            Over 30 countries have legalised same-sex marriage, with recent additions including Nepal (2023) and Slovenia's adoption rights. However, challenges persist in many regions with criminalisation and oppression.
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <h3 style="color: var(--text); margin-bottom: 1rem;">⚖️ Recent Developments</h3>
+                        <p style="color: var(--text-light); line-height: 1.6; margin-bottom: 1rem;">
+                            2023 saw both progress (Nepal's marriage equality) and setbacks (legislative backlash in various countries), showing that the fight for equality remains ongoing worldwide.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vibrant Section Divider -->
+        <div class="section-divider" role="separator" aria-hidden="true"></div>
+
+        <!-- Conclusion and Call to Action -->
+        <section class="decorative-shapes" style="background: var(--cosmic-gradient); padding: 4rem 0; color: white; width: 100%;">
+            <div class="container">
+                <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 2rem;">
+                        🌟 Understanding Global LGBTQ+ Rights
+                    </h2>
+                    <p style="font-size: 1.3rem; line-height: 1.8; margin-bottom: 2rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                        This interactive map helps us understand the global landscape of LGBTQ+ rights. While significant progress has been made in many countries, there are still places where LGBTQ+ people face criminalization and discrimination.
+                    </p>
+                    <p style="font-size: 1.2rem; line-height: 1.7; margin-bottom: 3rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                        Understanding these global disparities helps us appreciate the progress made while recognizing the work still needed. Every country's journey toward equality is unique, but the goal of universal human rights remains the same.
+                    </p>
+                    
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="lgbtq-history.html" class="button" style="background: white; color: var(--text); border: none;">Learn LGBTQ+ History</a>
+                        <a href="education.html" class="button" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white;">Education Resources</a>
+                        <a href="get-involved.html" class="button" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white;">Get Involved</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-layout">
+                <!-- Left Section: Company Info -->
+                <div class="footer-info">
+                    <h3>CT5 Pride Community Interest Company</h3>
+                    <div class="contact-links">
+                        <a href="mailto:hello@ct5pride.org.uk" aria-label="Email CT5 Pride">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                            </svg>
+                            hello@ct5pride.org.uk
+                        </a>
+                        <a href="privacy.html">Privacy Policy</a>
+                    </div>
+                </div>
+                
+                <!-- Center Section: Pride Flags -->
+                <div class="footer-flags">
+                    <div class="flag-section-title">
+                        <p>Click flags for temporary themes</p>
+                    </div>
+                    <div class="flags-grid">
+                        <!-- Row 1 -->
+                        <div class="pride-flag-icon default-theme" 
+                             role="button" 
+                             aria-label="Default CT5 Pride Theme"
+                             tabindex="0"
+                             data-theme="default"
+                             title="CT5 Pride Default Theme"></div>
+                        <div class="pride-flag-icon rainbow-flag" 
+                             role="button" 
+                             aria-label="Rainbow Pride Flag"
+                             tabindex="0"
+                             data-theme="rainbow"
+                             title="Rainbow Pride Flag"></div>
+                        <div class="pride-flag-icon progress-flag" 
+                             role="button" 
+                             aria-label="Progress Pride Flag"
+                             tabindex="0"
+                             data-theme="progress"
+                             title="Progress Pride Flag"></div>
+                        <div class="pride-flag-icon trans-flag" 
+                             role="button" 
+                             aria-label="Transgender Pride Flag"
+                             tabindex="0"
+                             data-theme="trans"
+                             title="Transgender Pride Flag"></div>
+                        <div class="pride-flag-icon nonbinary-flag" 
+                             role="button" 
+                             aria-label="Non-Binary Pride Flag"
+                             tabindex="0"
+                             data-theme="nonbinary"
+                             title="Non-Binary Pride Flag"></div>
+                        
+                        <!-- Row 2 -->
+                        <div class="pride-flag-icon lesbian-flag" 
+                             role="button" 
+                             aria-label="Lesbian Pride Flag"
+                             tabindex="0"
+                             data-theme="lesbian"
+                             title="Lesbian Pride Flag"></div>
+                        <div class="pride-flag-icon gay-flag" 
+                             role="button" 
+                             aria-label="Gay Pride Flag"
+                             tabindex="0"
+                             data-theme="gay"
+                             title="Gay Pride Flag"></div>
+                        <div class="pride-flag-icon bisexual-flag" 
+                             role="button" 
+                             aria-label="Bisexual Pride Flag"
+                             tabindex="0"
+                             data-theme="bisexual"
+                             title="Bisexual Pride Flag"></div>
+                        <div class="pride-flag-icon pansexual-flag" 
+                             role="button" 
+                             aria-label="Pansexual Pride Flag"
+                             tabindex="0"
+                             data-theme="pansexual"
+                             title="Pansexual Pride Flag"></div>
+                        <div class="pride-flag-icon asexual-flag" 
+                             role="button" 
+                             aria-label="Asexual Pride Flag"
+                             tabindex="0"
+                             data-theme="asexual"
+                             title="Asexual Pride Flag"></div>
+                        
+                        <!-- Row 3 -->
+                        <div class="pride-flag-icon bear-flag" 
+                             role="button" 
+                             aria-label="Bear Pride Flag"
+                             tabindex="0"
+                             data-theme="bear"
+                             title="Bear Pride Flag"></div>
+                        <div class="pride-flag-icon omnisexual-flag" 
+                             role="button" 
+                             aria-label="Omnisexual Pride Flag"
+                             tabindex="0"
+                             data-theme="omnisexual"
+                             title="Omnisexual Pride Flag"></div>
+                    </div>
+                </div>
+                
+                <!-- Right Section: Social Links -->
+                <div class="footer-social">
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/groups/ct5pride" target="_blank" rel="noopener noreferrer" aria-label="Join our Facebook Community Group">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <a href="https://www.instagram.com/ct5pride" target="_blank" rel="noopener noreferrer" aria-label="Follow us on Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                        </a>
+                        <a href="https://www.linkedin.com/company/ct5pride" target="_blank" rel="noopener noreferrer" aria-label="Connect with us on LinkedIn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                            </svg>
+                        </a>
+                        <a href="mailto:hello@ct5pride.org.uk" aria-label="Email CT5 Pride">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Accessibility Panel -->
+    <div class="accessibility-panel">
+        <button class="accessibility-toggle" aria-label="Accessibility Options" aria-expanded="false">
+            ♿
+        </button>
+        <div class="accessibility-menu">
+            <h3>Accessibility Options</h3>
+            <div class="accessibility-option">
+                <label for="highContrastToggle">High Contrast Mode</label>
+                <div class="accessibility-toggle-switch">
+                    <input type="checkbox" id="highContrastToggle" aria-label="Toggle high contrast mode">
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="dyslexiaToggle">Dyslexia Friendly Font</label>
+                <div class="accessibility-toggle-switch">
+                    <input type="checkbox" id="dyslexiaToggle" aria-label="Toggle dyslexia friendly font">
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label for="reduceMotionToggle">Reduce Motion</label>
+                <div class="accessibility-toggle-switch">
+                    <input type="checkbox" id="reduceMotionToggle" aria-label="Toggle reduced motion">
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <label>Text Size</label>
+                <div class="text-size-controls">
+                    <button class="text-size-btn" data-size="small" aria-label="Small text">A</button>
+                    <button class="text-size-btn active" data-size="normal" aria-label="Normal text">A</button>
+                    <button class="text-size-btn" data-size="large" aria-label="Large text">A</button>
+                    <button class="text-size-btn" data-size="extra-large" aria-label="Extra large text">A</button>
+                </div>
+            </div>
+            <div class="accessibility-option">
+                <button class="accessibility-reset-btn" aria-label="Reset all accessibility settings">Reset All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+    <script src="js/world-map.js"></script>
+</body>
+</html> 
