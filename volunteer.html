@@ -546,7 +546,7 @@
                     console.log('✅ API response:', data);
                     if (!data.roles || !Array.isArray(data.roles)) {
                         console.warn('⚠️ API did not return roles array:', data);
-                        return [];
+                        return getFallbackRoles();
                     }
                     console.log(`✅ Loaded ${data.roles.length} published roles`);
                     return data.roles;
@@ -556,9 +556,68 @@
                 }
             } catch (error) {
                 console.error('Failed to load roles from API:', error);
-                // Return empty array if API fails
-                return [];
+                console.log('🔄 Using fallback roles...');
+                // Return fallback roles if API fails
+                return getFallbackRoles();
             }
+        }
+
+        // Fallback roles for when API is unavailable
+        function getFallbackRoles() {
+            return [
+                {
+                    id: 'fallback-1',
+                    title: 'Event Volunteer',
+                    department: 'Events',
+                    icon: 'events',
+                    status: 'open',
+                    summary: 'Help us create amazing Pride events! Support with setup, registration, and ensuring everyone has a great time.',
+                    description: `<p>We're looking for enthusiastic volunteers to help with our Pride events throughout the year.</p>
+                    <p>You'll be part of a welcoming team helping to create safe, fun, and inclusive events for our community.</p>`,
+                    essential_criteria: `Enthusiasm for LGBTQ+ community support
+Available for weekend events
+Good communication skills
+Reliable and punctual`,
+                    desirable_criteria: `Previous event experience
+First aid qualification
+Social media skills`
+                },
+                {
+                    id: 'fallback-2',
+                    title: 'Community Outreach Volunteer',
+                    department: 'Community',
+                    icon: 'outreach',
+                    status: 'open',
+                    summary: 'Connect with local LGBTQ+ community members and help spread awareness about CT5 Pride activities.',
+                    description: `<p>Join our outreach team to help build connections within the LGBTQ+ community across CT5.</p>
+                    <p>You'll help with community engagement, information sharing, and supporting new members.</p>`,
+                    essential_criteria: `Passion for LGBTQ+ community building
+Good interpersonal skills
+Comfortable talking to new people
+Available for flexible hours`,
+                    desirable_criteria: `Knowledge of local area
+Experience with community work
+Multilingual abilities`
+                },
+                {
+                    id: 'fallback-3',
+                    title: 'Social Media Assistant',
+                    department: 'Marketing',
+                    icon: 'marketing',
+                    status: 'open',
+                    summary: 'Help us share our message online! Create content, engage with followers, and spread Pride positivity.',
+                    description: `<p>Support our social media presence across platforms to help reach and engage with our community.</p>
+                    <p>Perfect opportunity to develop digital marketing skills while supporting LGBTQ+ advocacy.</p>`,
+                    essential_criteria: `Active social media user
+Creative and engaging writing
+Understanding of LGBTQ+ issues
+Available for regular posting schedule`,
+                    desirable_criteria: `Graphic design skills
+Photography experience
+Analytics knowledge
+Content creation experience`
+                }
+            ];
         }
 
         // Function to create role cards
