@@ -159,30 +159,106 @@ function setupAccessibility() {
         
         // Text size controls
         const textSizeBtns = document.querySelectorAll('.text-size-btn');
+        console.log(`🔧 Found ${textSizeBtns.length} text size buttons`);
+        
         textSizeBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
+            console.log(`🔧 Text size button:`, btn.dataset.size, btn);
+            
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log(`🖱️ Text size button clicked:`, btn.dataset.size);
+                
+                // Remove active class from all buttons
                 textSizeBtns.forEach(b => b.classList.remove('active'));
+                
+                // Add active class to clicked button
                 btn.classList.add('active');
                 
                 const size = btn.dataset.size;
-                document.body.className = document.body.className.replace(/text-size-\w+/g, '');
+                console.log(`📏 Setting text size to:`, size);
+                
+                // Remove any existing text-size classes from body
+                document.body.classList.remove('text-small', 'text-large', 'text-extra-large');
+                
+                // Add new text-size class if not normal
                 if (size !== 'normal') {
-                    document.body.classList.add(`text-size-${size}`);
+                    document.body.classList.add(`text-${size}`);
+                    console.log(`✅ Added text-${size} class to body`);
+                } else {
+                    console.log(`✅ Normal text size - no additional class needed`);
                 }
                 
+                // Save preference
                 localStorage.setItem('ct5pride-text-size', size);
+                console.log(`💾 Saved text size preference:`, size);
+                
+                // Announce change for screen readers
+                const announcement = document.createElement('div');
+                announcement.setAttribute('aria-live', 'polite');
+                announcement.setAttribute('aria-atomic', 'true');
+                announcement.style.position = 'absolute';
+                announcement.style.left = '-10000px';
+                announcement.style.width = '1px';
+                announcement.style.height = '1px';
+                announcement.style.overflow = 'hidden';
+                
+                const sizeNames = {
+                    'small': 'Small',
+                    'normal': 'Normal',
+                    'large': 'Large',
+                    'extra-large': 'Extra Large'
+                };
+                
+                announcement.textContent = `Text size changed to ${sizeNames[size] || size}`;
+                document.body.appendChild(announcement);
+                
+                setTimeout(() => {
+                    if (announcement.parentNode) {
+                        announcement.parentNode.removeChild(announcement);
+                    }
+                }, 1000);
+            });
+            
+            // Add keyboard support
+            btn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    btn.click();
+                }
             });
         });
         
         // Load saved text size
         const savedTextSize = localStorage.getItem('ct5pride-text-size');
+        console.log(`📏 Loading saved text size:`, savedTextSize);
+        
         if (savedTextSize) {
+            // Find and activate the correct button
             textSizeBtns.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.size === savedTextSize);
+                const isActive = btn.dataset.size === savedTextSize;
+                btn.classList.toggle('active', isActive);
+                if (isActive) {
+                    console.log(`✅ Activated button for saved size:`, savedTextSize);
+                }
             });
+            
+            // Apply the saved text size to body
             if (savedTextSize !== 'normal') {
-                document.body.classList.add(`text-size-${savedTextSize}`);
+                document.body.classList.remove('text-small', 'text-large', 'text-extra-large');
+                document.body.classList.add(`text-${savedTextSize}`);
+                console.log(`✅ Applied saved text size: text-${savedTextSize}`);
+            } else {
+                document.body.classList.remove('text-small', 'text-large', 'text-extra-large');
+                console.log(`✅ Applied normal text size`);
             }
+        } else {
+            // Set default to normal
+            textSizeBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.size === 'normal');
+            });
+            console.log(`✅ Set default text size to normal`);
         }
     } else {
         console.error('❌ Accessibility elements not found!', {
