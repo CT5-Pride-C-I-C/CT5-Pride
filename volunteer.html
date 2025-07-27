@@ -541,8 +541,8 @@
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                              window.innerWidth <= 768 || 
                              'ontouchstart' in window;
-            const REQUEST_TIMEOUT = isMobile ? 30000 : 20000; // 30s for mobile, 20s for desktop
-            const MAX_RETRIES = isMobile ? 5 : 3; // More retries for mobile
+            const REQUEST_TIMEOUT = isMobile ? 45000 : 25000; // 45s for mobile, 25s for desktop
+            const MAX_RETRIES = isMobile ? 8 : 4; // More retries for mobile
             
             try {
                 console.log('🌐 Loading roles from public API with enhanced security...');
@@ -565,6 +565,31 @@
                             localStorage.removeItem(CACHE_KEY);
                             localStorage.removeItem(CACHE_TIMESTAMP_KEY);
                         }
+                    }
+                }
+                
+                // 🔧 MOBILE FIX: Test connection first for mobile devices
+                if (isMobile) {
+                    console.log('📱 Mobile device detected - testing connection...');
+                    
+                    // Test basic connectivity
+                    try {
+                        const testResponse = await fetch('https://httpbin.org/get', { 
+                            method: 'HEAD',
+                            signal: AbortSignal.timeout(5000)
+                        });
+                        console.log('✅ Basic connectivity test passed');
+                    } catch (testError) {
+                        console.warn('⚠️ Basic connectivity test failed:', testError.message);
+                    }
+                    
+                    // Report network status
+                    if ('navigator' in window && 'onLine' in navigator) {
+                        console.log(`📱 Network status: ${navigator.onLine ? 'Online' : 'Offline'}`);
+                    }
+                    if ('connection' in navigator) {
+                        const conn = navigator.connection;
+                        console.log(`📱 Connection info: ${conn.effectiveType || 'unknown'}, downlink: ${conn.downlink || 'unknown'}Mbps`);
                     }
                 }
                 
@@ -611,8 +636,8 @@
                             throw error;
                         }
                         
-                        // Wait before retrying (longer delays for mobile)
-                        const delay = isMobile ? (attempt * 2000) : (attempt * 1000);
+                        // Wait before retrying (more gradual delays for mobile)
+                        const delay = isMobile ? Math.min(attempt * 1500, 8000) : Math.min(attempt * 1000, 5000);
                         console.log(`⏳ Waiting ${delay}ms before retry ${attempt + 1}...`);
                         await new Promise(resolve => setTimeout(resolve, delay));
                     }
@@ -702,9 +727,60 @@
                     }
                 }
                 
-                // 🚫 NO FALLBACK: Force API usage - throw error to prevent hardcoded roles
-                console.error(`🚫 CRITICAL: API failed after ${MAX_RETRIES} attempts - no fallback roles allowed`);
-                throw new Error(`Failed to load roles from admin.ct5pride.co.uk after ${MAX_RETRIES} attempts. Please check your connection and try again.`);
+                // 🔧 MOBILE FIX: Try alternative approaches for mobile devices
+                if (isMobile) {
+                    console.log('📱 Mobile API failed - trying alternative approaches...');
+                    
+                    // Try with different headers
+                    try {
+                        console.log('🔄 Attempting with simplified headers...');
+                        const simpleResponse = await fetch(API_URL, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json'
+                            },
+                            signal: AbortSignal.timeout(20000)
+                        });
+                        
+                        if (simpleResponse.ok) {
+                            const simpleData = await simpleResponse.json();
+                            if (simpleData && simpleData.roles && Array.isArray(simpleData.roles)) {
+                                console.log('✅ Alternative approach succeeded with simplified headers');
+                                return simpleData.roles.filter(role => role && role.id && role.title && role.status === 'open');
+                            }
+                        }
+                    } catch (altError) {
+                        console.warn('⚠️ Alternative approach failed:', altError.message);
+                    }
+                    
+                    // Try with no-cache
+                    try {
+                        console.log('🔄 Attempting with no-cache...');
+                        const noCacheResponse = await fetch(API_URL, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'Cache-Control': 'no-cache',
+                                'Pragma': 'no-cache'
+                            },
+                            signal: AbortSignal.timeout(20000)
+                        });
+                        
+                        if (noCacheResponse.ok) {
+                            const noCacheData = await noCacheResponse.json();
+                            if (noCacheData && noCacheData.roles && Array.isArray(noCacheData.roles)) {
+                                console.log('✅ Alternative approach succeeded with no-cache');
+                                return noCacheData.roles.filter(role => role && role.id && role.title && role.status === 'open');
+                            }
+                        }
+                    } catch (noCacheError) {
+                        console.warn('⚠️ No-cache approach failed:', noCacheError.message);
+                    }
+                }
+                
+                // 🚫 CRITICAL: All API attempts failed
+                console.error(`🚫 CRITICAL: All API attempts failed after ${MAX_RETRIES} retries`);
+                throw new Error(`Unable to load volunteer roles from admin.ct5pride.co.uk. Please check your internet connection and try refreshing the page.`);
             }
         }
 
@@ -840,8 +916,11 @@
                     <h3>🌈 Loading Volunteer Opportunities...</h3>
                     <div class="loading-spinner"></div>
                     <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;">
-                        Connecting to secure CT5 Pride volunteer system...
-                        ${isMobile ? '<br>📱 Optimized loading for mobile devices' : ''}
+                        ${isMobile ? '📱 Connecting to CT5 Pride volunteer system (mobile optimized)...' : 'Connecting to secure CT5 Pride volunteer system...'}
+                    </p>
+                    ${isMobile ? '<p style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem;">Mobile connection detected - using enhanced timeout and retry settings</p>' : ''}
+                    <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem;">
+                        ${isMobile ? '⏱️ Timeout: 45 seconds • Retries: 8 attempts' : '⏱️ Timeout: 25 seconds • Retries: 4 attempts'}
                     </p>
                 </div>
             `;
@@ -1074,33 +1153,49 @@
                 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                                  window.innerWidth <= 768 || 
                                  'ontouchstart' in window;
-                const timeout = isMobile ? 30000 : 20000;
+                const timeout = isMobile ? 45000 : 25000;
                 
                 console.log(`🧪 Testing API with ${timeout}ms timeout (Mobile: ${isMobile})...`);
                 
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), timeout);
-                
-                return fetch('https://admin.ct5pride.co.uk/api/roles/public', {
-                    signal: controller.signal,
-                    headers: {
-                        'Accept': 'application/json',
-                        'User-Agent': `CT5Pride-Debug/1.0 (${isMobile ? 'Mobile' : 'Desktop'})`
-                    }
+                // Test basic connectivity first
+                console.log('🔍 Testing basic connectivity...');
+                return fetch('https://httpbin.org/get', { 
+                    method: 'HEAD',
+                    signal: AbortSignal.timeout(5000)
                 })
-                    .then(r => {
-                        clearTimeout(timeoutId);
-                        return r.json();
+                .then(() => {
+                    console.log('✅ Basic connectivity test passed');
+                    
+                    // Now test the actual API
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeout);
+                    
+                    return fetch('https://admin.ct5pride.co.uk/api/roles/public', {
+                        signal: controller.signal,
+                        headers: {
+                            'Accept': 'application/json',
+                            'User-Agent': `CT5Pride-Debug/1.0 (${isMobile ? 'Mobile' : 'Desktop'})`
+                        }
                     })
-                    .then(d => {
-                        console.log('✅ API Test Result:', d);
-                        return d;
-                    })
-                    .catch(e => {
-                        clearTimeout(timeoutId);
-                        console.error('❌ API Test Failed:', e);
-                        return { error: e.message, isMobile: isMobile, timeout: timeout };
-                    });
+                        .then(r => {
+                            clearTimeout(timeoutId);
+                            console.log('📡 API Response status:', r.status, r.statusText);
+                            return r.json();
+                        })
+                        .then(d => {
+                            console.log('✅ API Test Result:', d);
+                            return { success: true, data: d, isMobile: isMobile, timeout: timeout };
+                        })
+                        .catch(e => {
+                            clearTimeout(timeoutId);
+                            console.error('❌ API Test Failed:', e);
+                            return { error: e.message, isMobile: isMobile, timeout: timeout };
+                        });
+                })
+                .catch(connectError => {
+                    console.error('❌ Basic connectivity test failed:', connectError);
+                    return { error: 'Basic connectivity failed: ' + connectError.message, isMobile: isMobile, timeout: timeout };
+                });
             },
             forceMobileMode: function() {
                 localStorage.setItem('ct5pride_force_mobile', 'true');
