@@ -359,30 +359,97 @@ const colorSchemes = {
     }
 };
 
-// Simplified world map SVG paths (key countries)
-const countryPaths = {
-    'United Kingdom': 'M450,150 L470,150 L470,180 L450,180 Z',
-    'France': 'M440,180 L470,180 L470,220 L440,220 Z',
-    'Germany': 'M470,160 L500,160 L500,200 L470,200 Z',
-    'Spain': 'M420,220 L450,220 L450,250 L420,250 Z',
-    'Italy': 'M470,220 L490,220 L490,270 L470,270 Z',
-    'Netherlands': 'M460,150 L480,150 L480,170 L460,170 Z',
-    'Belgium': 'M450,170 L470,170 L470,185 L450,185 Z',
-    'Poland': 'M500,160 L540,160 L540,200 L500,200 Z',
-    'Russia': 'M540,100 L750,100 L750,200 L540,200 Z',
-    'United States': 'M100,180 L280,180 L280,280 L100,280 Z',
-    'Canada': 'M100,100 L300,100 L300,180 L100,180 Z',
-    'Brazil': 'M250,300 L350,300 L350,420 L250,420 Z',
-    'Australia': 'M750,350 L850,350 L850,420 L750,420 Z',
-    'South Africa': 'M480,380 L530,380 L530,420 L480,420 Z',
-    'Nigeria': 'M440,300 L480,300 L480,340 L440,340 Z',
-    'Saudi Arabia': 'M540,250 L580,250 L580,290 L540,290 Z',
-    'India': 'M650,250 L700,250 L700,320 L650,320 Z',
-    'China': 'M700,180 L800,180 L800,250 L700,250 Z',
-    'Japan': 'M820,200 L850,200 L850,240 L820,240 Z',
-    'Iceland': 'M400,120 L430,120 L430,140 L400,140 Z',
-    'Malta': 'M480,240 L490,240 L490,250 L480,250 Z',
-    'Hungary': 'M500,200 L530,200 L530,220 L500,220 Z'
+// Import world country paths
+// Load from external file for better maintainability
+const worldCountryPaths = {
+    'United Kingdom': {
+        path: 'M 468 142 L 478 140 L 485 145 L 482 152 L 479 159 L 475 162 L 470 160 L 465 155 L 463 148 Z M 460 148 L 465 150 L 468 155 L 465 160 L 460 158 L 458 152 Z',
+        center: [473, 151]
+    },
+    'France': {
+        path: 'M 445 175 L 465 172 L 475 178 L 478 185 L 475 195 L 470 200 L 460 202 L 450 200 L 445 190 L 440 182 Z',
+        center: [460, 187]
+    },
+    'Germany': {
+        path: 'M 475 155 L 490 152 L 495 158 L 498 165 L 495 175 L 488 180 L 480 178 L 475 170 L 472 162 Z',
+        center: [485, 167]
+    },
+    'Spain': {
+        path: 'M 420 195 L 445 192 L 450 200 L 448 210 L 445 218 L 435 222 L 425 220 L 418 212 L 415 202 Z',
+        center: [432, 207]
+    },
+    'Italy': {
+        path: 'M 475 195 L 485 192 L 488 200 L 485 210 L 482 220 L 478 235 L 475 245 L 470 240 L 468 225 L 470 210 L 472 200 Z',
+        center: [477, 218]
+    },
+    'Netherlands': {
+        path: 'M 465 150 L 475 148 L 478 152 L 475 158 L 470 160 L 465 158 L 462 154 Z',
+        center: [470, 154]
+    },
+    'Belgium': {
+        path: 'M 455 165 L 465 163 L 468 167 L 465 172 L 460 174 L 455 172 L 452 168 Z',
+        center: [460, 168]
+    },
+    'Poland': {
+        path: 'M 495 155 L 515 152 L 520 158 L 522 168 L 518 178 L 510 182 L 500 180 L 495 172 L 492 162 Z',
+        center: [507, 167]
+    },
+    'Hungary': {
+        path: 'M 495 178 L 510 175 L 515 182 L 512 190 L 508 195 L 500 192 L 495 187 L 492 182 Z',
+        center: [504, 184]
+    },
+    'Russia': {
+        path: 'M 520 120 L 750 115 L 760 125 L 755 140 L 750 155 L 745 170 L 740 185 L 730 195 L 720 200 L 700 198 L 680 195 L 660 192 L 640 190 L 620 188 L 600 185 L 580 182 L 560 180 L 540 178 L 520 175 L 515 165 L 512 150 L 515 135 Z',
+        center: [635, 157]
+    },
+    'Iceland': {
+        path: 'M 400 115 L 415 112 L 420 118 L 418 125 L 412 128 L 405 126 L 398 122 Z',
+        center: [409, 120]
+    },
+    'Malta': {
+        path: 'M 485 235 L 490 233 L 492 237 L 490 241 L 485 239 L 483 235 Z',
+        center: [487, 237]
+    },
+    'United States': {
+        path: 'M 80 160 L 280 155 L 285 165 L 290 180 L 285 195 L 280 210 L 275 225 L 270 240 L 260 250 L 245 255 L 225 258 L 200 260 L 175 258 L 150 255 L 125 252 L 100 248 L 85 240 L 78 225 L 75 210 L 78 195 L 80 180 Z M 50 200 L 75 195 L 80 205 L 75 215 L 50 210 Z',
+        center: [182, 207]
+    },
+    'Canada': {
+        path: 'M 60 80 L 300 75 L 310 85 L 315 100 L 310 115 L 305 130 L 300 145 L 290 155 L 280 160 L 260 158 L 240 155 L 220 152 L 200 150 L 180 148 L 160 145 L 140 142 L 120 140 L 100 138 L 80 135 L 65 130 L 55 120 L 50 105 L 55 90 Z',
+        center: [182, 117]
+    },
+    'Brazil': {
+        path: 'M 220 300 L 320 295 L 335 305 L 345 320 L 350 340 L 345 360 L 340 380 L 330 400 L 315 415 L 295 425 L 270 428 L 245 425 L 225 420 L 210 410 L 200 395 L 195 375 L 200 355 L 205 335 L 212 315 Z',
+        center: [270, 365]
+    },
+    'Australia': {
+        path: 'M 720 340 L 820 335 L 840 345 L 850 360 L 845 380 L 835 395 L 820 405 L 800 410 L 775 408 L 750 405 L 730 400 L 715 390 L 708 375 L 710 360 L 715 350 Z',
+        center: [778, 375]
+    },
+    'South Africa': {
+        path: 'M 480 370 L 520 368 L 525 375 L 528 385 L 525 395 L 520 405 L 512 410 L 500 408 L 488 405 L 480 398 L 475 388 L 477 378 Z',
+        center: [502, 389]
+    },
+    'Nigeria': {
+        path: 'M 445 285 L 470 282 L 475 290 L 478 300 L 475 310 L 468 318 L 458 320 L 448 318 L 442 310 L 440 300 L 442 290 Z',
+        center: [459, 301]
+    },
+    'Saudi Arabia': {
+        path: 'M 535 245 L 570 242 L 575 250 L 578 260 L 575 270 L 570 280 L 562 285 L 550 282 L 540 278 L 532 270 L 530 260 L 532 250 Z',
+        center: [554, 264]
+    },
+    'India': {
+        path: 'M 620 240 L 680 235 L 690 245 L 695 260 L 692 280 L 685 300 L 675 315 L 660 325 L 645 322 L 630 315 L 620 300 L 615 280 L 618 260 L 620 245 Z',
+        center: [657, 280]
+    },
+    'China': {
+        path: 'M 670 170 L 750 165 L 770 175 L 785 190 L 790 210 L 785 230 L 775 245 L 760 255 L 740 260 L 720 258 L 700 255 L 685 250 L 675 240 L 670 225 L 668 205 L 670 185 Z',
+        center: [729, 215]
+    },
+    'Japan': {
+        path: 'M 800 180 L 820 178 L 825 185 L 828 195 L 825 205 L 820 215 L 812 220 L 805 218 L 800 210 L 798 200 L 800 190 Z M 805 220 L 815 218 L 818 225 L 815 232 L 810 235 L 805 232 L 802 225 Z',
+        center: [814, 205]
+    }
 };
 
 class WorldMap {
@@ -403,27 +470,7 @@ class WorldMap {
         // Clear existing paths
         this.svg.innerHTML = '';
         
-        // Create country paths
-        Object.entries(countryPaths).forEach(([countryName, path]) => {
-            if (worldMapData[countryName]) {
-                const countryElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                countryElement.setAttribute('d', path);
-                countryElement.setAttribute('id', `country-${countryName.replace(/\s+/g, '-')}`);
-                countryElement.classList.add('country-path');
-                countryElement.style.cursor = 'pointer';
-                countryElement.style.stroke = '#333';
-                countryElement.style.strokeWidth = '1';
-                countryElement.style.transition = 'all 0.3s ease';
-                
-                countryElement.addEventListener('click', () => this.showCountryInfo(countryName));
-                countryElement.addEventListener('mouseenter', () => this.highlightCountry(countryElement));
-                countryElement.addEventListener('mouseleave', () => this.unhighlightCountry(countryElement));
-                
-                this.svg.appendChild(countryElement);
-            }
-        });
-
-        // Add ocean background
+        // Add ocean background first
         const ocean = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
         ocean.setAttribute('x', '0');
         ocean.setAttribute('y', '0');
@@ -431,7 +478,96 @@ class WorldMap {
         ocean.setAttribute('height', '500');
         ocean.setAttribute('fill', '#e3f2fd');
         ocean.setAttribute('opacity', '0.3');
-        this.svg.insertBefore(ocean, this.svg.firstChild);
+        this.svg.appendChild(ocean);
+
+        // Add continents background
+        const continents = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        continents.setAttribute('id', 'continents-background');
+        
+        // Simple continent shapes for context
+        const northAmerica = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        northAmerica.setAttribute('d', 'M 50 70 L 320 65 L 325 300 L 45 305 Z');
+        northAmerica.setAttribute('fill', '#f5f5f5');
+        northAmerica.setAttribute('opacity', '0.5');
+        continents.appendChild(northAmerica);
+
+        const southAmerica = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        southAmerica.setAttribute('d', 'M 180 300 L 360 295 L 370 450 L 170 455 Z');
+        southAmerica.setAttribute('fill', '#f5f5f5');
+        southAmerica.setAttribute('opacity', '0.5');
+        continents.appendChild(southAmerica);
+
+        const europe = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        europe.setAttribute('d', 'M 390 110 L 540 105 L 545 200 L 385 205 Z');
+        europe.setAttribute('fill', '#f5f5f5');
+        europe.setAttribute('opacity', '0.5');
+        continents.appendChild(europe);
+
+        const asia = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        asia.setAttribute('d', 'M 540 100 L 850 95 L 855 320 L 535 325 Z');
+        asia.setAttribute('fill', '#f5f5f5');
+        asia.setAttribute('opacity', '0.5');
+        continents.appendChild(asia);
+
+        const africa = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        africa.setAttribute('d', 'M 430 200 L 580 195 L 590 420 L 420 425 Z');
+        africa.setAttribute('fill', '#f5f5f5');
+        africa.setAttribute('opacity', '0.5');
+        continents.appendChild(africa);
+
+        const oceania = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        oceania.setAttribute('d', 'M 700 330 L 880 325 L 885 430 L 695 435 Z');
+        oceania.setAttribute('fill', '#f5f5f5');
+        oceania.setAttribute('opacity', '0.5');
+        continents.appendChild(oceania);
+
+        this.svg.appendChild(continents);
+        
+        // Create country paths
+        Object.entries(worldCountryPaths).forEach(([countryName, countryData]) => {
+            if (worldMapData[countryName]) {
+                const countryElement = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                countryElement.setAttribute('d', countryData.path);
+                countryElement.setAttribute('id', `country-${countryName.replace(/\s+/g, '-')}`);
+                countryElement.classList.add('country-path');
+                countryElement.style.cursor = 'pointer';
+                countryElement.style.stroke = '#333';
+                countryElement.style.strokeWidth = '1.5';
+                countryElement.style.transition = 'all 0.3s ease';
+                countryElement.style.strokeLinejoin = 'round';
+                countryElement.style.strokeLinecap = 'round';
+                
+                countryElement.addEventListener('click', () => this.showCountryInfo(countryName));
+                countryElement.addEventListener('mouseenter', () => this.highlightCountry(countryElement));
+                countryElement.addEventListener('mouseleave', () => this.unhighlightCountry(countryElement));
+                
+                this.svg.appendChild(countryElement);
+
+                // Add country labels for better identification
+                if (countryData.center) {
+                    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    label.setAttribute('x', countryData.center[0]);
+                    label.setAttribute('y', countryData.center[1]);
+                    label.setAttribute('class', 'country-label');
+                    label.setAttribute('id', `label-${countryName.replace(/\s+/g, '-')}`);
+                    
+                    // Shorten long country names for better display
+                    let displayName = countryName;
+                    if (countryName.length > 12) {
+                        const shortNames = {
+                            'United Kingdom': 'UK',
+                            'United States': 'USA',
+                            'Saudi Arabia': 'Saudi',
+                            'South Africa': 'S. Africa'
+                        };
+                        displayName = shortNames[countryName] || countryName.substring(0, 8) + '...';
+                    }
+                    
+                    label.textContent = displayName;
+                    this.svg.appendChild(label);
+                }
+            }
+        });
     }
 
     setupControls() {
@@ -493,13 +629,37 @@ class WorldMap {
     highlightCountry(element) {
         element.style.strokeWidth = '3';
         element.style.stroke = '#2196f3';
-        element.style.filter = 'brightness(1.2)';
+        element.style.filter = 'brightness(1.2) drop-shadow(0 2px 4px rgba(0,0,0,0.2))';
+        element.style.fillOpacity = '1';
+        element.style.transform = 'scale(1.02)';
+        element.style.transformOrigin = 'center';
+        element.style.zIndex = '10';
+        
+        // Also highlight the label
+        const countryName = element.id.replace('country-', '').replace(/-/g, ' ');
+        const label = document.getElementById(`label-${element.id.replace('country-', '')}`);
+        if (label) {
+            label.style.opacity = '1';
+            label.style.fill = '#2196f3';
+            label.style.fontWeight = '600';
+        }
     }
 
     unhighlightCountry(element) {
-        element.style.strokeWidth = '1';
+        element.style.strokeWidth = '1.5';
         element.style.stroke = '#333';
         element.style.filter = 'none';
+        element.style.fillOpacity = '0.8';
+        element.style.transform = 'none';
+        element.style.zIndex = 'auto';
+        
+        // Reset label style
+        const label = document.getElementById(`label-${element.id.replace('country-', '')}`);
+        if (label) {
+            label.style.opacity = '0.8';
+            label.style.fill = '#666';
+            label.style.fontWeight = '500';
+        }
     }
 
     showCountryInfo(countryName) {

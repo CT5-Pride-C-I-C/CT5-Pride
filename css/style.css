@@ -7524,13 +7524,45 @@ footer {
     cursor: pointer;
     transition: all 0.3s ease;
     stroke: #333;
-    stroke-width: 1;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    fill-opacity: 0.8;
 }
 
 .country-path:hover {
     stroke: #2196f3;
     stroke-width: 3;
-    filter: brightness(1.2);
+    filter: brightness(1.2) drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    fill-opacity: 1;
+    transform: scale(1.02);
+    transform-origin: center;
+}
+
+/* Continent backgrounds */
+#continents-background path {
+    transition: opacity 0.3s ease;
+}
+
+/* Country labels */
+.country-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 8px;
+    font-weight: 500;
+    fill: #666;
+    text-anchor: middle;
+    alignment-baseline: middle;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.country-path:hover + .country-label,
+.country-label:hover {
+    opacity: 1;
+    fill: #333;
+    font-weight: 600;
 }
 
 /* Legend Styles */
