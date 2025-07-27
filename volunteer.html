@@ -364,8 +364,6 @@
                      data-setting="high-contrast">
                 </div>
 
-    <script src="js/main.js"></script>
-    
     <!-- Application Modal JavaScript -->
     <script>
         // Global variables for application modal
@@ -543,8 +541,8 @@
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                              window.innerWidth <= 768 || 
                              'ontouchstart' in window;
-            const REQUEST_TIMEOUT = isMobile ? 20000 : 15000; // 20s for mobile, 15s for desktop
-            const MAX_RETRIES = isMobile ? 3 : 2; // More retries for mobile
+            const REQUEST_TIMEOUT = isMobile ? 30000 : 20000; // 30s for mobile, 20s for desktop
+            const MAX_RETRIES = isMobile ? 5 : 3; // More retries for mobile
             
             try {
                 console.log('🌐 Loading roles from public API with enhanced security...');
@@ -613,9 +611,9 @@
                             throw error;
                         }
                         
-                        // Wait before retrying (exponential backoff for mobile)
-                        const delay = isMobile ? (attempt * 1000) : 500;
-                        console.log(`⏳ Waiting ${delay}ms before retry...`);
+                        // Wait before retrying (longer delays for mobile)
+                        const delay = isMobile ? (attempt * 2000) : (attempt * 1000);
+                        console.log(`⏳ Waiting ${delay}ms before retry ${attempt + 1}...`);
                         await new Promise(resolve => setTimeout(resolve, delay));
                     }
                 }
@@ -637,8 +635,8 @@
                 }
                 
                 if (!data.roles || !Array.isArray(data.roles)) {
-                    console.warn('⚠️ API returned no roles array, using fallback');
-                    return getFallbackRoles();
+                    console.error('🚫 CRITICAL: API returned invalid response - no roles array');
+                    throw new Error('Invalid API response: no roles array received from admin.ct5pride.co.uk');
                 }
                 
                 // 🔒 SECURITY: Validate role data integrity
@@ -704,68 +702,10 @@
                     }
                 }
                 
-                // 🔒 FINAL FALLBACK: Use hardcoded roles
-                console.log(`🔄 Using hardcoded fallback roles... (${isMobile ? 'Mobile' : 'Desktop'} mode)`);
-                return getFallbackRoles();
+                // 🚫 NO FALLBACK: Force API usage - throw error to prevent hardcoded roles
+                console.error(`🚫 CRITICAL: API failed after ${MAX_RETRIES} attempts - no fallback roles allowed`);
+                throw new Error(`Failed to load roles from admin.ct5pride.co.uk after ${MAX_RETRIES} attempts. Please check your connection and try again.`);
             }
-        }
-
-        // Fallback roles for when API is unavailable
-        function getFallbackRoles() {
-            return [
-                {
-                    id: 'fallback-1',
-                    title: 'Event Volunteer',
-                    department: 'Events',
-                    icon: 'events',
-                    status: 'open',
-                    summary: 'Help us create amazing Pride events! Support with setup, registration, and ensuring everyone has a great time.',
-                    description: `<p>We're looking for enthusiastic volunteers to help with our Pride events throughout the year.</p>
-                    <p>You'll be part of a welcoming team helping to create safe, fun, and inclusive events for our community.</p>`,
-                    essential_criteria: `Enthusiasm for LGBTQ+ community support
-Available for weekend events
-Good communication skills
-Reliable and punctual`,
-                    desirable_criteria: `Previous event experience
-First aid qualification
-Social media skills`
-                },
-                {
-                    id: 'fallback-2',
-                    title: 'Community Outreach Volunteer',
-                    department: 'Community',
-                    icon: 'outreach',
-                    status: 'open',
-                    summary: 'Connect with local LGBTQ+ community members and help spread awareness about CT5 Pride activities.',
-                    description: `<p>Join our outreach team to help build connections within the LGBTQ+ community across CT5.</p>
-                    <p>You'll help with community engagement, information sharing, and supporting new members.</p>`,
-                    essential_criteria: `Passion for LGBTQ+ community building
-Good interpersonal skills
-Comfortable talking to new people
-Available for flexible hours`,
-                    desirable_criteria: `Knowledge of local area
-Experience with community work
-Multilingual abilities`
-                },
-                {
-                    id: 'fallback-3',
-                    title: 'Social Media Assistant',
-                    department: 'Marketing',
-                    icon: 'marketing',
-                    status: 'open',
-                    summary: 'Help us share our message online! Create content, engage with followers, and spread Pride positivity.',
-                    description: `<p>Support our social media presence across platforms to help reach and engage with our community.</p>
-                    <p>Perfect opportunity to develop digital marketing skills while supporting LGBTQ+ advocacy.</p>`,
-                    essential_criteria: `Active social media user
-Creative and engaging writing
-Understanding of LGBTQ+ issues
-Available for regular posting schedule`,
-                    desirable_criteria: `Graphic design skills
-Photography experience
-Analytics knowledge
-Content creation experience`
-                }
-            ];
         }
 
         // Function to create role cards
@@ -938,21 +878,14 @@ Content creation experience`
                 console.log(`✅ Filtered to ${visibleRoles.length} visible roles (from ${roles.length} total)`);
 
                 if (!visibleRoles.length) {
-                    const isUsingFallback = roles.some(role => role.id && role.id.startsWith('fallback-'));
-                    
                     container.innerHTML = `
                         <div class="no-roles-message">
-                            <h3>🌈 ${isUsingFallback ? 'System Notice' : 'No Open Positions Currently'}</h3>
-                            <p>${isUsingFallback ? 
-                                'Our volunteer system is currently operating in offline mode. Some positions may not be displayed. Please ' :
-                                "We're not actively recruiting for new volunteer positions right now, but we'd still love to hear from you! "
-                            }<a href="contact.html">get in touch</a> to learn about ${isUsingFallback ? 'all available' : 'future'} opportunities.</p>
-                            ${isUsingFallback ? '<p style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;">📡 Status: Operating in offline mode</p>' : ''}
+                            <h3>🌈 No Open Positions Currently</h3>
+                            <p>We're not actively recruiting for new volunteer positions right now, but we'd still love to hear from you! <a href="contact.html">Get in touch</a> to learn about future opportunities.</p>
                         </div>
                     `;
                     
-                    reportSystemHealth(isUsingFallback ? 'degraded' : 'healthy', 
-                        isUsingFallback ? 'Using fallback data' : 'No open roles available');
+                    reportSystemHealth('healthy', 'No open roles available');
                     return;
                 }
 
@@ -972,9 +905,7 @@ Content creation experience`
                 const totalLoadTime = Date.now() - startTime;
                 console.log(`🎉 Successfully loaded ${visibleRoles.length} volunteer roles in ${totalLoadTime}ms`);
                 
-                const isUsingFallback = roles.some(role => role.id && role.id.startsWith('fallback-'));
-                reportSystemHealth(isUsingFallback ? 'degraded' : 'healthy', 
-                    `Loaded ${visibleRoles.length} roles in ${totalLoadTime}ms${isUsingFallback ? ' (fallback mode)' : ''}`);
+                reportSystemHealth('healthy', `Loaded ${visibleRoles.length} roles in ${totalLoadTime}ms`);
 
                 // 🔒 SECURITY: Add event listeners AFTER roles are injected into DOM with error protection
                 setTimeout(() => {
@@ -1020,54 +951,48 @@ Content creation experience`
                 }, 100); // Small delay to ensure DOM is ready
 
             } catch (error) {
-                // 🔒 SECURITY: Enhanced error handling with reporting
+                // 🚫 CRITICAL: API failure - no fallback allowed
                 const errorTime = Date.now() - startTime;
-                console.error('❌ Critical: Failed to initialize roles:', error);
+                console.error('❌ CRITICAL: Failed to load roles from admin.ct5pride.co.uk:', error);
                 
                 // Report system failure
-                reportSystemHealth('failed', `Initialization failed after ${errorTime}ms: ${error.message}`);
+                reportSystemHealth('failed', `API failure after ${errorTime}ms: ${error.message}`);
                 
-                // Try emergency fallback
-                try {
-                    console.log('🚨 Attempting emergency fallback...');
-                    const emergencyRoles = getFallbackRoles();
-                    const emergencyCards = emergencyRoles.map(role => createRoleCard(role)).join('');
-                    
-                    container.innerHTML = `
-                        <div class="error-message" style="margin-bottom: 2rem;">
-                            <h3>⚠️ ${isMobile ? 'Mobile Connection' : 'System'} Operating in Emergency Mode</h3>
-                            <p>Our volunteer system is temporarily experiencing ${isMobile ? 'mobile connectivity issues' : 'technical difficulties'}. The positions below are available, but there may be additional opportunities not shown. Please <a href="contact.html">contact us directly</a> for the most up-to-date information.</p>
-                            ${isMobile ? '<p>📱 <strong>Mobile users:</strong> Try refreshing the page or connecting to WiFi for the latest opportunities.</p>' : ''}
-                            <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;">📡 Status: Emergency fallback mode (${isMobile ? 'Mobile' : 'Desktop'}) • Error ID: ${Date.now().toString(36)}</p>
+                // Show error message with retry option
+                container.innerHTML = `
+                    <div class="error-message">
+                        <h3>🚨 Volunteer System Unavailable</h3>
+                        <p>We're unable to load volunteer opportunities from our secure system at the moment. This could be due to:</p>
+                        <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+                            <li>📱 Mobile connectivity issues (try WiFi or refresh)</li>
+                            <li>🌐 Temporary network problems</li>
+                            <li>🔧 System maintenance</li>
+                        </ul>
+                        <p><strong>Please try refreshing the page or contact us directly for the latest opportunities.</strong></p>
+                        
+                        <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <button onclick="window.location.reload()" class="button" style="background: var(--primary); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                                🔄 Refresh Page
+                            </button>
+                            <a href="contact.html" class="button secondary" style="text-decoration: none; padding: 0.75rem 1.5rem;">
+                                📞 Contact Us
+                            </a>
                         </div>
-                        ${emergencyCards}
-                    `;
-                    
-                    console.log('✅ Emergency fallback successful');
-                    reportSystemHealth('degraded', 'Emergency fallback mode active');
-                    
-                } catch (fallbackError) {
-                    console.error('💥 Emergency fallback also failed:', fallbackError);
-                    
-                    // Final fallback - basic contact message
-                    container.innerHTML = `
-                        <div class="error-message">
-                            <h3>🚨 System Temporarily Unavailable</h3>
-                            <p>We're experiencing technical difficulties with our volunteer system. Please <a href="contact.html" style="font-weight: bold;">contact us directly</a> to learn about volunteer opportunities.</p>
-                            <p>We apologize for the inconvenience and appreciate your interest in volunteering with CT5 Pride! 🌈</p>
-                            <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.05); border-radius: 6px;">
-                                <p style="margin: 0; font-size: 0.9rem; color: var(--text-light);">
-                                    📧 <strong>Email:</strong> volunteer@ct5pride.co.uk<br>
-                                    📞 <strong>Phone:</strong> Available on our contact page<br>
-                                    📍 <strong>Location:</strong> Whitstable & CT5 Area, Kent
-                                </p>
-                            </div>
-                            <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 1rem;">Error ID: ${Date.now().toString(36)} • Time: ${new Date().toLocaleString()}</p>
+                        
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(0,0,0,0.05); border-radius: 6px;">
+                            <p style="margin: 0; font-size: 0.9rem; color: var(--text-light);">
+                                📧 <strong>Email:</strong> volunteer@ct5pride.co.uk<br>
+                                📞 <strong>Phone:</strong> Available on our contact page<br>
+                                📍 <strong>Location:</strong> Whitstable & CT5 Area, Kent
+                            </p>
                         </div>
-                    `;
-                    
-                    reportSystemHealth('failed', 'Complete system failure - displaying contact information');
-                }
+                        
+                        <p style="font-size: 0.8rem; color: var(--text-light); margin-top: 1rem;">
+                            Error ID: ${Date.now().toString(36)} • Time: ${new Date().toLocaleString()}<br>
+                            ${isMobile ? '📱 Mobile device detected' : '🖥️ Desktop device detected'}
+                        </p>
+                    </div>
+                `;
             }
         }
 
@@ -1149,7 +1074,7 @@ Content creation experience`
                 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
                                  window.innerWidth <= 768 || 
                                  'ontouchstart' in window;
-                const timeout = isMobile ? 20000 : 15000;
+                const timeout = isMobile ? 30000 : 20000;
                 
                 console.log(`🧪 Testing API with ${timeout}ms timeout (Mobile: ${isMobile})...`);
                 

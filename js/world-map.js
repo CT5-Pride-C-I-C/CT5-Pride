@@ -1130,7 +1130,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const mapElement = document.getElementById('world-map');
     if (mapElement) {
         console.log('🗺️ Initializing WorldMap with accurate country shapes...');
-        new WorldMap();
+        const worldMap = new WorldMap();
+        
+        // If we're navigating to the world map via anchor, ensure it's properly positioned
+        if (window.location.hash === '#world-map-container') {
+            console.log('🎯 World map anchor detected - ensuring proper positioning...');
+            
+            // Wait for the map to fully load
+            setTimeout(() => {
+                const container = document.getElementById('world-map-container');
+                if (container) {
+                    // Ensure the container is visible and not overlapping
+                    container.style.position = 'relative';
+                    container.style.zIndex = '1';
+                    
+                    // Scroll to the map with proper offset
+                    const headerHeight = document.querySelector('header')?.offsetHeight || 0;
+                    const elementTop = container.offsetTop - headerHeight - 20;
+                    
+                    window.scrollTo({
+                        top: elementTop,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Add a temporary highlight
+                    container.style.boxShadow = '0 0 20px rgba(33, 150, 243, 0.3)';
+                    setTimeout(() => {
+                        container.style.boxShadow = '';
+                    }, 2000);
+                }
+            }, 1000); // Wait 1 second for full map initialization
+        }
     } else {
         console.log('❌ No world map element found on this page');
     }

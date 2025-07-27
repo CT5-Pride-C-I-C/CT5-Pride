@@ -7810,6 +7810,8 @@ footer {
     box-shadow: var(--box-shadow);
     background: #f0f8ff;
     min-height: 500px;
+    z-index: 1;
+    margin: 2rem 0;
 }
 
 #world-map {
@@ -7817,6 +7819,8 @@ footer {
     height: 100%;
     display: block;
     background: #f0f8ff;
+    position: relative;
+    z-index: 1;
 }
 
 /* Country paths styling */
@@ -7983,6 +7987,9 @@ footer {
     
     #world-map-container {
         height: 400px;
+        margin: 1rem 0;
+        position: relative;
+        z-index: 1;
     }
     
     .legend-section div {
