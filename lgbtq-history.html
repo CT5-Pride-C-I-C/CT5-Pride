@@ -392,6 +392,90 @@
             <div class="container">
                 <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--text);">🌍 International Context</h2>
                 
+                <!-- Interactive World Map -->
+                <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                    <h3 style="color: var(--text); margin-bottom: 1rem; text-align: center;">🗺️ Global LGBTQ+ Rights Status</h3>
+                    <p style="color: var(--text-light); line-height: 1.6; margin-bottom: 2rem; text-align: center;">
+                        Click on countries to explore LGBTQ+ legal status and Rainbow Map scores. This interactive map combines criminalization data with ILGA-Europe's comprehensive rights assessment.
+                    </p>
+                    
+                    <!-- Map Controls -->
+                    <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                        <button id="show-criminalization" class="map-filter-btn active" data-filter="criminalization">
+                            🚫 Criminalization Status
+                        </button>
+                        <button id="show-rainbow-scores" class="map-filter-btn" data-filter="rainbow">
+                            🌈 Rainbow Map Scores
+                        </button>
+                        <button id="show-both" class="map-filter-btn" data-filter="both">
+                            📊 Combined View
+                        </button>
+                    </div>
+
+                    <!-- Legend -->
+                    <div id="map-legend" style="background: rgba(248,249,250,0.9); padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+                        <div id="criminalization-legend" class="legend-section">
+                            <h4 style="margin: 0 0 0.5rem 0; color: var(--text); font-size: 1rem;">Criminalization Status:</h4>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 20px; height: 20px; background: #d32f2f; border-radius: 3px;"></div>
+                                    <span style="font-size: 0.9rem;">Criminal</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 20px; height: 20px; background: #f57c00; border-radius: 3px;"></div>
+                                    <span style="font-size: 0.9rem;">Limited Protection</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 20px; height: 20px; background: #388e3c; border-radius: 3px;"></div>
+                                    <span style="font-size: 0.9rem;">Legal</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 20px; height: 20px; background: #1976d2; border-radius: 3px;"></div>
+                                    <span style="font-size: 0.9rem;">Full Equality</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="rainbow-legend" class="legend-section" style="display: none;">
+                            <h4 style="margin: 0.5rem 0 0.5rem 0; color: var(--text); font-size: 1rem;">Rainbow Map Score (0-100%):</h4>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 20px; height: 20px; background: #8b0000; border-radius: 3px;"></div>
+                                    <span style="font-size: 0.9rem;">0-20%</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 20px; height: 20px; background: #ff4500; border-radius: 3px;"></div>
+                                    <span style="font-size: 0.9rem;">21-40%</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 20px; height: 20px; background: #ffa500; border-radius: 3px;"></div>
+                                    <span style="font-size: 0.9rem;">41-60%</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 20px; height: 20px; background: #32cd32; border-radius: 3px;"></div>
+                                    <span style="font-size: 0.9rem;">61-80%</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div style="width: 20px; height: 20px; background: #006400; border-radius: 3px;"></div>
+                                    <span style="font-size: 0.9rem;">81-100%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map Container -->
+                    <div id="world-map-container" style="width: 100%; height: 500px; border: 2px solid #e0e0e0; border-radius: 8px; background: #f8f9fa; position: relative; overflow: hidden;">
+                        <svg id="world-map" width="100%" height="100%" viewBox="0 0 1000 500" style="background: #f0f8ff;">
+                            <!-- Simplified world map paths will be added via JavaScript -->
+                        </svg>
+                    </div>
+
+                    <!-- Country Information Panel -->
+                    <div id="country-info" style="margin-top: 1rem; padding: 1rem; background: rgba(248,249,250,0.9); border-radius: 8px; border-left: 4px solid var(--pride-purple); display: none;">
+                        <h4 id="country-name" style="margin: 0 0 0.5rem 0; color: var(--text);"></h4>
+                        <div id="country-details" style="color: var(--text-light);"></div>
+                    </div>
+                </div>
+                
                 <div style="max-width: 800px; margin: 0 auto;">
                     <div style="background: rgba(255,255,255,0.95); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;">
                         <h3 style="color: var(--text); margin-bottom: 1rem;">🇪🇺 European Influence</h3>
@@ -610,5 +694,6 @@
                 </div>
 
     <script src="js/main.js"></script>
+    <script src="js/world-map.js"></script>
 </body>
 </html> 
