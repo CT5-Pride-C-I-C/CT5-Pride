@@ -257,6 +257,12 @@ const lgbtqTerms = [
         example: "A non-binary person might identify as neither male nor female, or as both, or as something else entirely."
     },
     {
+        term: "Xenogender",
+        category: "gender-identity",
+        definition: "Xenogender is defined as 'a gender that cannot be contained by human understandings of gender; more concerned with crafting other methods of gender categorization and hierarchy such as those relating to animals, plants, or other creatures/things'. Xenogender individuals may use ideas and identities outside of the gender binary to describe themselves and avoid binary gendered identifiers, such as using only their first name or the name of an animal. They may feel they cannot place a label on themselves, or feel as though they lack the terms to fully express their gender or identity, something that derives from a lexical gap. The term 'xenogender' itself was designed to help fill the lexical gap by using terms not typically associated with gender or describing gender with metaphors. Since it is a gender identity that is outside the binary concepts of masculinity and femininity, xenogender is a non-binary identity.",
+        example: "A xenogender person might describe their gender using metaphors related to animals, plants, or other concepts, such as feeling their gender is like a cat, a forest, or a constellation, rather than using traditional gender terms."
+    },
+    {
         term: "Orientation",
         category: "general",
         definition: "A term describing a person's attraction to other people. This attraction may be sexual (sexual orientation) and/or romantic (romantic orientation).",
@@ -273,6 +279,36 @@ const lgbtqTerms = [
         category: "general",
         definition: "When someone discloses information about another's sexual orientation or gender identity without their knowledge and/or consent. If you need support following an outing experience please see our help & support section.",
         example: "Outing someone can have serious consequences for their safety, relationships, and mental health, and should never be done without explicit consent."
+    },
+    {
+        term: "Omnisexual",
+        category: "sexual-orientation",
+        definition: "Omnisexuality is the sexual attraction to people of all sexes and gender identities, wherein gender plays a role in one's attraction. This could be a preference or a recognition, and the attraction may feel different depending on the gender or sex. Some omnisexual individuals may be more attracted to certain genders, but that is not always the case.",
+        example: "An omnisexual person might be attracted to all genders but experience their attraction differently - for example, feeling romantic attraction differently toward men than toward women or non-binary individuals."
+    },
+    {
+        term: "Reciprosexual",
+        category: "sexual-orientation",
+        definition: "Reciprosexual or recipsexual is a sexual orientation on the asexual spectrum meaning someone who does not experience sexual attraction unless they know that the other individual is sexually attracted to them first. Reciprosexual can be a sexual orientation on its own or can be combined with other orientations. For example, one could be reciprosexual and Straight, meaning that when one does experience sexual attraction it's exclusively towards individuals of the opposite gender.",
+        example: "A reciprosexual person might only develop sexual feelings for someone after learning that person is attracted to them, and this attraction pattern can be combined with other orientations like being reciprosexual and gay."
+    },
+    {
+        term: "Lithosexual",
+        category: "sexual-orientation",
+        definition: "Lithosexual is a sexual orientation on the asexual spectrum in which one experiences sexual attraction but does not want it reciprocated. One may feel uncomfortable at the thought of someone being sexually attracted to them, or they may lose their sexual feelings if they learn they're reciprocated. As such, lithosexuals may not feel compelled to seek out a sexual relationship. Lithosexual can be a sexual orientation on its own or can combined with other orientations. For example, one could be lithosexual and heterosexual, meaning that when one does experience sexual attraction it's only towards individuals of the opposite gender.",
+        example: "A lithosexual person might experience sexual attraction to someone but feel uncomfortable or lose interest if they discover that person is also attracted to them, and this pattern can be combined with other orientations like being lithosexual and lesbian."
+    },
+    {
+        term: "Quoisexual",
+        category: "sexual-orientation",
+        definition: "Quoisexual is a sexual orientation that can be considered to be on the asexual spectrum. It has multiple definitions: Sexual orientation and/or attraction as a concept/experience do not make sense to an individual; one finds the concept of sexual attraction to be inapplicable, inaccessible, and/or nonsensical. One doesn't know what sexual attraction is and therefore can't tell if they experience it or not. One has difficulty differentiating between sexual attraction and other types of attraction (e.g., sensual attraction, platonic attraction). One cannot find a better term because their orientation is too complicated/no other terms fit; a catch-all for those who fall on the asexual spectrum but can't define their orientation beyond that. One doesn't experience sexuality in a traditional manner. One dis-identifies with the construct of sexual attraction/orientation entirely.",
+        example: "A quoisexual person might find the entire concept of sexual attraction confusing or irrelevant to their experience, and may struggle to understand or relate to traditional sexual orientation labels."
+    },
+    {
+        term: "Nebulasexual",
+        category: "sexual-orientation",
+        definition: "Nebulasexual is a sexuality under the quoisexual umbrella where one cannot tell if they experience sexual attraction or not, due to neurodivergence or intrusive thoughts/urges/images. One who is nebulasexual might want sex or a sexual relationship, but they do not know if they experience attraction. It is similar to nebularomantic but not the same. The term nebulasexual should only be used by neurodivergent individuals or individuals with intrusive thoughts/urges/images.",
+        example: "A nebulasexual person with ADHD or OCD might experience intrusive sexual thoughts that make it difficult to determine if they're experiencing genuine sexual attraction or just intrusive thoughts, making it hard to understand their true orientation."
     },
     {
         term: "Pan",
@@ -339,6 +375,12 @@ const lgbtqTerms = [
         category: "romantic-orientation",
         definition: "Also known as Poly, refers to the practice or desire to have multiple romantic relationships simultaneously, with the informed consent and knowledge of all partners involved. It's a form of consensual non-monogamy where emotional and romantic intimacy can be shared with multiple people. Polyamory emphasizes deep emotional and romantic connections with multiple partners.",
         example: "A polyamorous person might have multiple committed romantic relationships with different people, all of whom are aware of and consent to the arrangement."
+    },
+    {
+        term: "Autoromantic",
+        category: "romantic-orientation",
+        definition: "Autoromantic describes someone who experiences romantic attraction towards themself. There are many ways in which someone can be autoromantic, some of which are: Having a hard time responding to romantic actions/activities with others, but being able to/comfortable with carrying out said actions/activities with yourself; Feeling little to no attraction to others romantically but feeling romantic attraction to yourself; Experiencing fantasies about romantic interaction or a romantic relationship with yourself; Feeling romantic attraction to yourself more than the 'norm'.",
+        example: "An autoromantic person might prefer to take themselves on romantic dates, write love letters to themselves, or feel most comfortable expressing romantic feelings towards themselves rather than others."
     },
     {
         term: "Sex",
@@ -409,8 +451,8 @@ const lgbtqTerms = [
     {
         term: "Polyamorous",
         category: "sexual-orientation",
-        definition: "Also known as Poly, refers to the practice or desire to have multiple romantic relationships simultaneously, with the informed consent and knowledge of all partners involved. It's a form of consensual non-monogamy where emotional and romantic intimacy can be shared with multiple people. Polyamory is distinct from other forms of non-monogamy, like open relationships or swinging, because it emphasizes emotional connections and often involves multiple partners who are aware of and agree to the arrangement.",
-        example: "A polyamorous person might have multiple committed romantic relationships with different people, all of whom are aware of and consent to the arrangement."
+        definition: "Also known as Poly, refers to the practice or desire to have sexual and romantic relationships with multiple people simultaneously, with the informed consent and knowledge of all partners involved. It's a form of consensual non-monogamy that encompasses both sexual attraction and intimate connections with multiple partners. Polyamory is distinct from other forms of non-monogamy, like open relationships or swinging, because it combines both sexual and emotional connections.",
+        example: "A polyamorous person might be sexually and romantically involved with multiple partners simultaneously, with all parties aware of and consenting to the arrangement."
     },
     {
         term: "Gay Polyamorous",
@@ -421,13 +463,13 @@ const lgbtqTerms = [
     {
         term: "Bears",
         category: "community-tribes",
-        definition: "30+, broad/heavier build (drinks beer), usually hairy, often with facial hair. Likely habitats: RVT",
+        definition: "30+, broad/heavier build (drinks beer), usually hairy, often with facial hair.",
         example: "Bears are often characterized by their larger, more masculine appearance and are a well-established community within LGBTQ+ culture."
     },
     {
         term: "Cubs",
         category: "community-tribes",
-        definition: "Late 20s-30s, younger bears, usually hairy, often with facial hair. Likely habitats: RVT, Brüt, Eagle",
+        definition: "Late 20s-30s, younger bears, usually hairy, often with facial hair.",
         example: "Cubs are essentially younger versions of bears, often in their late twenties to thirties with similar physical characteristics."
     },
     {
@@ -439,56 +481,56 @@ const lgbtqTerms = [
     {
         term: "Drag Queens",
         category: "community-tribes",
-        definition: "Big buxom or svelte, smooth as a baby's, very possibly waxed, facial hair no longer a barrier. Likely habitats: Halfway to Heaven, Molly Moggs, Two Brewers, and on stages everywhere",
+        definition: "Big buxom or svelte, smooth as a baby's, very possibly waxed, facial hair no longer a barrier.",
         example: "Drag queens are performers who dress in feminine clothing and makeup for entertainment, often performing in clubs and venues."
     },
     {
         term: "Circuit Gays",
         category: "community-tribes",
-        definition: "Also known as Gym bunnies: Late 20s-30s, athletic to muscular build, less likely to be hairy, possibly waxed. Likely habitats: Fire, RVT, Ministry of Sound",
+        definition: "Also known as Gym bunnies: Late 20s-30s, athletic to muscular build, less likely to be hairy, possibly waxed.",
         example: "Circuit gays are often associated with the party circuit scene and typically maintain a fit, athletic appearance."
     },
     {
         term: "Jocks",
         category: "community-tribes",
-        definition: "Late 20s-30s, muscular build and gym obsessed, less likely to be hairy, possibly waxed. Likely habitats: Fire, RVT, Ministry of Sound",
+        definition: "Late 20s-30s, muscular build and gym obsessed, less likely to be hairy, possibly waxed.",
         example: "Jocks are characterized by their athletic, muscular physique and dedication to fitness and gym culture."
     },
     {
         term: "Muscle Bears",
         category: "community-tribes",
-        definition: "30+, broad/heavier build (drinks protein shakes), usually hairy, may be trimmed or sculpted to reflect their body shape, often with facial hair. Likely habitats: RVT, Brüt, Eagle",
+        definition: "30+, broad/heavier build (drinks protein shakes), usually hairy, may be trimmed or sculpted to reflect their body shape, often with facial hair.",
         example: "Muscle bears combine the larger build of traditional bears with a more muscular, fitness-focused physique."
     },
     {
         term: "Otters",
         category: "community-tribes",
-        definition: "Late 20s to 30s, leaner, usually hairy, often with facial hair. Skinny bears. Likely habitats: RVT, Duke of Wellington",
+        definition: "Late 20s to 30s, leaner, usually hairy, often with facial hair. Skinny bears.",
         example: "Otters are essentially leaner versions of bears, maintaining the hairiness but with a slimmer build."
     },
     {
         term: "Pups",
         category: "community-tribes",
-        definition: "Late 20s-30s, lean to muscular, can be hairy, puppy genre on the fetish scene becoming increasingly popular. Likely habitats: RVT, Brüt, Eagle",
+        definition: "Late 20s-30s, lean to muscular, can be hairy, puppy genre on the fetish scene becoming increasingly popular.",
         example: "Pups are part of a growing subculture that incorporates elements of puppy play into their identity and social interactions."
     },
     {
         term: "Spunk Monkey",
         category: "community-tribes",
-        definition: "Late 30s. Laid back but easily excited around men. Into long bouts of energetic, bouncy 'Tiggerish' sex. Likely habitats: Camberwell",
+        definition: "Late 30s. Laid back but easily excited around men. Into long bouts of energetic, bouncy 'Tiggerish' sex.",
         example: "This term describes a specific personality type within the community, characterized by high energy and enthusiasm.",
         mature: true
     },
     {
         term: "Twinks",
         category: "community-tribes",
-        definition: "Late teens-early 20s, boyish features, thinner to slim build, usually smooth, may have highlights. Likely habitats: GAY, QBar, Heaven",
+        definition: "Late teens-early 20s, boyish features, thinner to slim build, usually smooth, may have highlights.",
         example: "Twinks are typically young men with a slim, boyish appearance and smooth skin."
     },
     {
         term: "Twunks",
         category: "community-tribes",
-        definition: "Older twinks, not quite jocks, easily confused. Late teens-early 20s, boyish features, thinner to slim build, usually smooth, may have highlights. Likely habitats: GAY, Heaven",
+        definition: "Older twinks, not quite jocks, easily confused. Late teens-early 20s, boyish features, thinner to slim build, usually smooth, may have highlights.",
         example: "Twunks are essentially older twinks who maintain their boyish features but may have slightly more muscle definition."
     },
     {
@@ -506,7 +548,7 @@ const lgbtqTerms = [
     {
         term: "Wolves",
         category: "community-tribes",
-        definition: "Late 30s to 40s, lean to semi-muscular, usually hairy, often with facial hair. Likely habitats: RVT, Brüt",
+        definition: "Late 30s to 40s, lean to semi-muscular, usually hairy, often with facial hair.",
         example: "Wolves are typically older men with a lean to muscular build and natural body hair."
     },
     {
@@ -526,6 +568,12 @@ const lgbtqTerms = [
         category: "general",
         definition: "A male-bodied individual who wears female-designated or feminine clothing. Drag Queens usually cross-dress on a part-time basis and often perform in nightclubs by singing, dancing, or lip-synching.",
         example: "Drag Queens are performers who create feminine personas through elaborate costumes, makeup, and entertainment acts."
+    },
+    {
+        term: "PEP / PrEP",
+        category: "general",
+        definition: "Medication used to prevent HIV infection, often relevant in LGBTQ+ sexual health education. PEP (Post-Exposure Prophylaxis) is taken after potential exposure to HIV, while PrEP (Pre-Exposure Prophylaxis) is taken before potential exposure to prevent infection.",
+        example: "PrEP is a daily medication that can significantly reduce the risk of HIV transmission, while PEP is an emergency treatment taken within 72 hours of potential exposure."
     }
 ];
 

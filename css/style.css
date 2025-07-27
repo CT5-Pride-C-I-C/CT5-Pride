@@ -2718,6 +2718,17 @@ footer::after {
     );
 }
 
+/* Omnisexual Flag */
+.omnisexual-flag {
+    background: linear-gradient(to bottom,
+        #ffb3d9 0%, #ffb3d9 20%,
+        #ff69b4 20%, #ff69b4 40%,
+        #1a1a4d 40%, #1a1a4d 60%,
+        #5d5fff 60%, #5d5fff 80%,
+        #b3b3ff 80%, #b3b3ff 100%
+    );
+}
+
 /* ==================== THEME SWITCHING FUNCTIONALITY ==================== */
 
 /* Theme override styles - applied to body when theme is active */
@@ -2821,6 +2832,16 @@ body.theme-bear {
     --background: #ffffff;
 }
 
+body.theme-omnisexual {
+    --primary: #ff69b4;
+    --secondary: #5d5fff;
+    --accent: #ffb3d9;
+    --vibrant-pink: #ff69b4;
+    --text: #2c2c2c;
+    --text-light: #4a4a4a;
+    --background: #ffffff;
+}
+
 /* ==================== ENHANCED THEME VISUAL EFFECTS ==================== */
 
 /* Footer theme gradients with dark overlay for better text contrast */
@@ -2912,6 +2933,17 @@ body.theme-bear footer {
             #FFFFFF 57.14%, #FFFFFF 71.43%,
             #808080 71.43%, #808080 85.71%,
             #000000 85.71%, #000000 100%) !important;
+}
+
+body.theme-omnisexual footer {
+    background: 
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        linear-gradient(135deg,
+            #ffb3d9 0%, #ffb3d9 20%,
+            #ff69b4 20%, #ff69b4 40%,
+            #1a1a4d 40%, #1a1a4d 60%,
+            #5d5fff 60%, #5d5fff 80%,
+            #b3b3ff 80%, #b3b3ff 100%) !important;
 }
 
 /* Header theme effects */
@@ -3067,7 +3099,8 @@ body.theme-progress .social-links a,
 body.theme-gay .social-links a,
 body.theme-lesbian .social-links a,
 body.theme-bisexual .social-links a,
-body.theme-bear .social-links a {
+body.theme-bear .social-links a,
+body.theme-omnisexual .social-links a {
     color: white !important;
 }
 
@@ -3137,6 +3170,13 @@ body.theme-asexual .social-links a {
 body.theme-bear .social-links a {
     background: linear-gradient(135deg, #654321, #D2691E) !important;
     border-color: #FFD700 !important;
+    color: white !important;
+}
+
+/* Omnisexual Theme */
+body.theme-omnisexual .social-links a {
+    background: linear-gradient(135deg, #ff69b4, #5d5fff) !important;
+    border-color: #ffb3d9 !important;
     color: white !important;
 }
 
