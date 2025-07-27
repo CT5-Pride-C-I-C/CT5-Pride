@@ -5,7 +5,7 @@ const worldMapData = {
     // European Countries (from Rainbow Map)
     'United Kingdom': {
         name: 'United Kingdom',
-        criminalizationStatus: 'legal',
+        criminalizationStatus: 'Legal',
         rainbowScore: 67,
         marriageEquality: true,
         description: 'Legal same-sex activity since 1967. Marriage equality achieved 2013-2014. Recent concerns over trans rights policies.',
@@ -21,7 +21,7 @@ const worldMapData = {
     },
     'Malta': {
         name: 'Malta',
-        criminalizationStatus: 'full-equality',
+        criminalizationStatus: 'Full Equality',
         rainbowScore: 89,
         marriageEquality: true,
         description: 'Leading European country for LGBTQ+ rights. Top of Rainbow Map for 10 consecutive years.',
@@ -37,330 +37,634 @@ const worldMapData = {
     },
     'Belgium': {
         name: 'Belgium',
-        criminalizationStatus: 'full-equality',
+        criminalizationStatus: 'Full Equality',
         rainbowScore: 85,
         marriageEquality: true,
-        description: 'Second place in Rainbow Map 2025. Strong protections across all categories.',
-        categories: {
-            'Equality & Non-Discrimination': 90,
-            'Family': 85,
-            'Hate Crime & Hate Speech': 90,
-            'Legal Gender Recognition': 80,
-            'Intersex Bodily Integrity': 75,
-            'Civil Society Space': 85,
-            'Asylum': 85
-        }
-    },
-    'Iceland': {
-        name: 'Iceland',
-        criminalizationStatus: 'full-equality',
-        rainbowScore: 84,
-        marriageEquality: true,
-        description: 'Third place in Rainbow Map. Strong on intersex protections and gender recognition.',
-        categories: {
-            'Equality & Non-Discrimination': 85,
-            'Family': 90,
-            'Hate Crime & Hate Speech': 85,
-            'Legal Gender Recognition': 85,
-            'Intersex Bodily Integrity': 80,
-            'Civil Society Space': 80,
-            'Asylum': 75
-        }
-    },
-    'Spain': {
-        name: 'Spain',
-        criminalizationStatus: 'full-equality',
-        rainbowScore: 80,
-        marriageEquality: true,
-        description: 'Strong LGBTQ+ protections with regional variations. Full hate crime coverage in some regions.',
-        categories: {
-            'Equality & Non-Discrimination': 85,
-            'Family': 85,
-            'Hate Crime & Hate Speech': 75,
-            'Legal Gender Recognition': 75,
-            'Intersex Bodily Integrity': 80,
-            'Civil Society Space': 80,
-            'Asylum': 80
-        }
-    },
-    'Germany': {
-        name: 'Germany',
-        criminalizationStatus: 'full-equality',
-        rainbowScore: 78,
-        marriageEquality: true,
-        description: 'Recent improvements in legal gender recognition. Strong on intersex protections.',
-        categories: {
-            'Equality & Non-Discrimination': 80,
-            'Family': 80,
-            'Hate Crime & Hate Speech': 75,
-            'Legal Gender Recognition': 85,
-            'Intersex Bodily Integrity': 80,
-            'Civil Society Space': 75,
-            'Asylum': 70
-        }
-    },
-    'France': {
-        name: 'France',
-        criminalizationStatus: 'full-equality',
-        rainbowScore: 72,
-        marriageEquality: true,
-        description: 'Marriage equality since 2013. Some gaps in trans and intersex protections.',
-        categories: {
-            'Equality & Non-Discrimination': 75,
-            'Family': 80,
-            'Hate Crime & Hate Speech': 70,
-            'Legal Gender Recognition': 65,
-            'Intersex Bodily Integrity': 60,
-            'Civil Society Space': 80,
-            'Asylum': 75
-        }
+        description: 'Second place in Rainbow Map 2025. Strong protections across all categories.'
     },
     'Netherlands': {
         name: 'Netherlands',
-        criminalizationStatus: 'full-equality',
-        rainbowScore: 76,
+        criminalizationStatus: 'Full Equality',
+        rainbowScore: 83,
         marriageEquality: true,
-        description: 'First country to legalize same-sex marriage (2001). Strong overall protections.',
-        categories: {
-            'Equality & Non-Discrimination': 80,
-            'Family': 85,
-            'Hate Crime & Hate Speech': 75,
-            'Legal Gender Recognition': 70,
-            'Intersex Bodily Integrity': 65,
-            'Civil Society Space': 80,
-            'Asylum': 70
-        }
+        description: 'First country to legalize same-sex marriage in 2001. Strong LGBTQ+ protections.'
+    },
+    'Norway': {
+        name: 'Norway',
+        criminalizationStatus: 'Full Equality',
+        rainbowScore: 78,
+        marriageEquality: true,
+        description: 'Progressive Nordic country with comprehensive LGBTQ+ rights.'
+    },
+    'France': {
+        name: 'France',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 72,
+        marriageEquality: true,
+        description: 'Marriage equality since 2013. Some regional variations in enforcement.'
+    },
+    'Germany': {
+        name: 'Germany',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 71,
+        marriageEquality: true,
+        description: 'Marriage equality since 2017. Strong anti-discrimination laws.'
+    },
+    'Spain': {
+        name: 'Spain',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 69,
+        marriageEquality: true,
+        description: 'Early adopter of marriage equality (2005). Generally progressive policies.'
+    },
+    'Italy': {
+        name: 'Italy',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 35,
+        marriageEquality: false,
+        description: 'Civil unions but not marriage. Conservative social attitudes persist.'
     },
     'Poland': {
         name: 'Poland',
-        criminalizationStatus: 'limited',
-        rainbowScore: 21,
+        criminalizationStatus: 'Limited Protection',
+        rainbowScore: 13,
         marriageEquality: false,
-        description: 'Significant restrictions on LGBTQ+ rights. "LGBT-free zones" declared in some regions.',
-        categories: {
-            'Equality & Non-Discrimination': 25,
-            'Family': 15,
-            'Hate Crime & Hate Speech': 20,
-            'Legal Gender Recognition': 25,
-            'Intersex Bodily Integrity': 15,
-            'Civil Society Space': 30,
-            'Asylum': 20
-        }
+        description: 'Recent backsliding on LGBTQ+ rights. LGBTQ+-free zones declared in some regions.'
     },
     'Hungary': {
         name: 'Hungary',
-        criminalizationStatus: 'limited',
-        rainbowScore: 25,
+        criminalizationStatus: 'Limited Protection',
+        rainbowScore: 12,
         marriageEquality: false,
-        description: 'Significant rollbacks in recent years. Constitutional amendments restricting LGBTQ+ rights.',
-        categories: {
-            'Equality & Non-Discrimination': 20,
-            'Family': 25,
-            'Hate Crime & Hate Speech': 25,
-            'Legal Gender Recognition': 10,
-            'Intersex Bodily Integrity': 15,
-            'Civil Society Space': 20,
-            'Asylum': 30
-        }
+        description: 'Severe restrictions under Orbán government. Constitutional ban on same-sex adoption.'
     },
     'Russia': {
         name: 'Russia',
-        criminalizationStatus: 'criminal',
-        rainbowScore: 2,
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 7,
         marriageEquality: false,
-        description: 'Severe restrictions including "LGBT propaganda" laws. Bottom of Rainbow Map.',
-        categories: {
-            'Equality & Non-Discrimination': 0,
-            'Family': 0,
-            'Hate Crime & Hate Speech': 5,
-            'Legal Gender Recognition': 0,
-            'Intersex Bodily Integrity': 5,
-            'Civil Society Space': 0,
-            'Asylum': 5
-        }
+        description: 'LGBTQ+ "propaganda" law, extremist organization designation. Severe persecution.'
     },
-    // Global Examples
-    'United States': {
-        name: 'United States',
-        criminalizationStatus: 'legal',
-        rainbowScore: 65,
-        marriageEquality: true,
-        description: 'Federal marriage equality since 2015. Significant state-level variations in protections.',
-        categories: {
-            'Equality & Non-Discrimination': 60,
-            'Family': 75,
-            'Hate Crime & Hate Speech': 55,
-            'Legal Gender Recognition': 50,
-            'Intersex Bodily Integrity': 40,
-            'Civil Society Space': 70,
-            'Asylum': 65
-        }
-    },
-    'Canada': {
-        name: 'Canada',
-        criminalizationStatus: 'full-equality',
-        rainbowScore: 82,
-        marriageEquality: true,
-        description: 'Strong LGBTQ+ protections. Marriage equality since 2005.',
-        categories: {
-            'Equality & Non-Discrimination': 85,
-            'Family': 85,
-            'Hate Crime & Hate Speech': 80,
-            'Legal Gender Recognition': 75,
-            'Intersex Bodily Integrity': 70,
-            'Civil Society Space': 90,
-            'Asylum': 85
-        }
-    },
-    'Australia': {
-        name: 'Australia',
-        criminalizationStatus: 'full-equality',
-        rainbowScore: 75,
-        marriageEquality: true,
-        description: 'Marriage equality since 2017. Strong anti-discrimination protections.',
-        categories: {
-            'Equality & Non-Discrimination': 80,
-            'Family': 80,
-            'Hate Crime & Hate Speech': 70,
-            'Legal Gender Recognition': 65,
-            'Intersex Bodily Integrity': 60,
-            'Civil Society Space': 85,
-            'Asylum': 80
-        }
-    },
-    'Brazil': {
-        name: 'Brazil',
-        criminalizationStatus: 'legal',
-        rainbowScore: 60,
-        marriageEquality: true,
-        description: 'Marriage equality achieved through courts. High levels of violence against LGBTQ+ people.',
-        categories: {
-            'Equality & Non-Discrimination': 65,
-            'Family': 70,
-            'Hate Crime & Hate Speech': 50,
-            'Legal Gender Recognition': 55,
-            'Intersex Bodily Integrity': 45,
-            'Civil Society Space': 60,
-            'Asylum': 55
-        }
-    },
-    'Nigeria': {
-        name: 'Nigeria',
-        criminalizationStatus: 'criminal',
-        rainbowScore: 5,
-        marriageEquality: false,
-        description: 'Homosexuality criminalized with severe penalties. Same-sex marriage prohibited.',
-        categories: {
-            'Equality & Non-Discrimination': 0,
-            'Family': 0,
-            'Hate Crime & Hate Speech': 10,
-            'Legal Gender Recognition': 0,
-            'Intersex Bodily Integrity': 5,
-            'Civil Society Space': 5,
-            'Asylum': 15
-        }
-    },
+    
+    // Middle East & North Africa (mostly criminal status)
     'Saudi Arabia': {
         name: 'Saudi Arabia',
-        criminalizationStatus: 'criminal',
+        criminalizationStatus: 'Criminal',
         rainbowScore: 0,
         marriageEquality: false,
-        description: 'Homosexuality punishable by death. No legal protections for LGBTQ+ people.',
-        categories: {
-            'Equality & Non-Discrimination': 0,
-            'Family': 0,
-            'Hate Crime & Hate Speech': 0,
-            'Legal Gender Recognition': 0,
-            'Intersex Bodily Integrity': 0,
-            'Civil Society Space': 0,
-            'Asylum': 0
-        }
+        description: 'Death penalty for same-sex relations. Extremely repressive laws.'
+    },
+    'Iran': {
+        name: 'Iran',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Death penalty for same-sex relations. State-forced gender transitions.'
+    },
+    'Afghanistan': {
+        name: 'Afghanistan',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Taliban rule: Public stoning and flogging for LGBTQ+ people.'
+    },
+    'Yemen': {
+        name: 'Yemen',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Death penalty prescribed. Ongoing conflict compounds persecution.'
+    },
+    'Syria': {
+        name: 'Syria',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Criminalized with up to 3 years imprisonment.'
+    },
+    'Iraq': {
+        name: 'Iraq',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Recent criminalization under new laws. Increased persecution.'
+    },
+    'Lebanon': {
+        name: 'Lebanon',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 8,
+        marriageEquality: false,
+        description: 'Article 534 criminalizes same-sex relations, but some judicial leniency.'
+    },
+    'Egypt': {
+        name: 'Egypt',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Uses "debauchery" laws to prosecute LGBTQ+ people. Regular crackdowns.'
+    },
+    'Morocco': {
+        name: 'Morocco',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Article 489 criminalizes same-sex relations with up to 3 years prison.'
+    },
+    'Algeria': {
+        name: 'Algeria',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Up to 2 years imprisonment for same-sex relations.'
+    },
+    'Tunisia': {
+        name: 'Tunisia',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 6,
+        marriageEquality: false,
+        description: 'Article 230 criminalizes same-sex relations. Some reform discussions.'
+    },
+    'Libya': {
+        name: 'Libya',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Sharia law applies. LGBTQ+ people face severe persecution.'
+    },
+    
+    // Sub-Saharan Africa (mixed but many criminal)
+    'Nigeria': {
+        name: 'Nigeria',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Federal law criminalizes same-sex relations. Death penalty in northern states under Sharia.'
+    },
+    'Uganda': {
+        name: 'Uganda',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Anti-Homosexuality Act 2023: Life imprisonment, death penalty in some cases.'
+    },
+    'Ghana': {
+        name: 'Ghana',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Colonial-era laws criminalize same-sex relations with up to 3 years prison.'
+    },
+    'Kenya': {
+        name: 'Kenya',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Penal code criminalizes same-sex relations with up to 14 years prison.'
+    },
+    'Tanzania': {
+        name: 'Tanzania',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Life imprisonment for same-sex relations. Severe government crackdowns.'
+    },
+    'Zambia': {
+        name: 'Zambia',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: '15 years to life imprisonment for same-sex relations.'
+    },
+    'Zimbabwe': {
+        name: 'Zimbabwe',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Up to 10 years imprisonment. Constitutional ban on same-sex marriage.'
+    },
+    'Cameroon': {
+        name: 'Cameroon',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Up to 5 years imprisonment. One of the most repressive African countries.'
+    },
+    'Ethiopia': {
+        name: 'Ethiopia',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Criminal code prohibits same-sex relations with up to 15 years prison.'
     },
     'South Africa': {
         name: 'South Africa',
-        criminalizationStatus: 'full-equality',
-        rainbowScore: 68,
+        criminalizationStatus: 'Full Equality',
+        rainbowScore: 65,
         marriageEquality: true,
-        description: 'First country to constitutionally protect LGBTQ+ rights. First African country with marriage equality.',
-        categories: {
-            'Equality & Non-Discrimination': 75,
-            'Family': 75,
-            'Hate Crime & Hate Speech': 60,
-            'Legal Gender Recognition': 55,
-            'Intersex Bodily Integrity': 50,
-            'Civil Society Space': 70,
-            'Asylum': 65
-        }
+        description: 'Most progressive African country. Constitution protects LGBTQ+ rights, marriage equality since 2006.'
     },
-    'Japan': {
-        name: 'Japan',
-        criminalizationStatus: 'legal',
-        rainbowScore: 45,
+    'Botswana': {
+        name: 'Botswana',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 25,
         marriageEquality: false,
-        description: 'Growing acceptance but limited legal protections. Some local partnership recognitions.',
-        categories: {
-            'Equality & Non-Discrimination': 40,
-            'Family': 30,
-            'Hate Crime & Hate Speech': 45,
-            'Legal Gender Recognition': 50,
-            'Intersex Bodily Integrity': 35,
-            'Civil Society Space': 60,
-            'Asylum': 40
-        }
+        description: 'Decriminalized in 2019 after court ruling. Still facing social challenges.'
+    },
+    'Angola': {
+        name: 'Angola',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 15,
+        marriageEquality: false,
+        description: 'Decriminalized in 2019. New constitution includes anti-discrimination protections.'
+    },
+    'Mozambique': {
+        name: 'Mozambique',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 10,
+        marriageEquality: false,
+        description: 'Decriminalized in 2015. Limited additional protections.'
+    },
+    'Seychelles': {
+        name: 'Seychelles',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 20,
+        marriageEquality: false,
+        description: 'Decriminalized in 2016. Small island progress.'
+    },
+    
+    // Asia (mostly criminal or limited)
+    'China': {
+        name: 'China',
+        criminalizationStatus: 'Limited Protection',
+        rainbowScore: 15,
+        marriageEquality: false,
+        description: 'Not criminalized but no legal protections. Censorship of LGBTQ+ content.'
     },
     'India': {
         name: 'India',
-        criminalizationStatus: 'legal',
-        rainbowScore: 35,
-        marriageEquality: false,
-        description: 'Homosexuality decriminalized in 2018. Limited legal protections but growing activism.',
-        categories: {
-            'Equality & Non-Discrimination': 30,
-            'Family': 20,
-            'Hate Crime & Hate Speech': 35,
-            'Legal Gender Recognition': 45,
-            'Intersex Bodily Integrity': 25,
-            'Civil Society Space': 40,
-            'Asylum': 35
-        }
-    },
-    'China': {
-        name: 'China',
-        criminalizationStatus: 'legal',
+        criminalizationStatus: 'Legal',
         rainbowScore: 25,
         marriageEquality: false,
-        description: 'Homosexuality legal but no anti-discrimination protections. Limited civil society space.',
-        categories: {
-            'Equality & Non-Discrimination': 20,
-            'Family': 15,
-            'Hate Crime & Hate Speech': 25,
-            'Legal Gender Recognition': 20,
-            'Intersex Bodily Integrity': 20,
-            'Civil Society Space': 25,
-            'Asylum': 30
-        }
+        description: 'Decriminalized in 2018 by Supreme Court. Ongoing legal battles for marriage rights.'
+    },
+    'Indonesia': {
+        name: 'Indonesia',
+        criminalizationStatus: 'Limited Protection',
+        rainbowScore: 10,
+        marriageEquality: false,
+        description: 'Not federally criminalized but some provinces have Sharia law criminalizing LGBTQ+ people.'
+    },
+    'Malaysia': {
+        name: 'Malaysia',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Federal and state Sharia laws criminalize same-sex relations. Regular persecution.'
+    },
+    'Singapore': {
+        name: 'Singapore',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 30,
+        marriageEquality: false,
+        description: 'Decriminalized in 2022 but constitutional amendment prevents marriage equality.'
+    },
+    'Thailand': {
+        name: 'Thailand',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 55,
+        marriageEquality: true,
+        description: 'Marriage equality passed in 2024. Relatively progressive for the region.'
+    },
+    'Philippines': {
+        name: 'Philippines',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 20,
+        marriageEquality: false,
+        description: 'Not criminalized nationally. SOGIE Act provides some anti-discrimination protections.'
+    },
+    'Vietnam': {
+        name: 'Vietnam',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 15,
+        marriageEquality: false,
+        description: 'Not criminalized. Same-sex marriage recognition removed but not prohibited.'
+    },
+    'Japan': {
+        name: 'Japan',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 45,
+        marriageEquality: false,
+        description: 'Some municipal partnerships. Growing support but no national marriage equality.'
+    },
+    'South Korea': {
+        name: 'South Korea',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 12,
+        marriageEquality: false,
+        description: 'Military still criminalizes same-sex relations. Conservative social attitudes.'
+    },
+    'Pakistan': {
+        name: 'Pakistan',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Sharia law criminalizes same-sex relations. Severe societal persecution.'
+    },
+    'Bangladesh': {
+        name: 'Bangladesh',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Colonial-era Section 377 criminalizes same-sex relations.'
+    },
+    'Myanmar': {
+        name: 'Myanmar',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Section 377 criminalizes same-sex relations with up to 10 years prison.'
+    },
+    'Sri Lanka': {
+        name: 'Sri Lanka',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Section 365A criminalizes same-sex relations between men.'
+    },
+    
+    // Americas (generally more progressive)
+    'United States': {
+        name: 'United States',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 76,
+        marriageEquality: true,
+        description: 'Marriage equality since 2015. State-level variations in protections.'
+    },
+    'Canada': {
+        name: 'Canada',
+        criminalizationStatus: 'Full Equality',
+        rainbowScore: 85,
+        marriageEquality: true,
+        description: 'Marriage equality since 2005. Comprehensive anti-discrimination laws.'
+    },
+    'Brazil': {
+        name: 'Brazil',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 60,
+        marriageEquality: true,
+        description: 'Marriage equality since 2013. High levels of anti-LGBTQ+ violence.'
+    },
+    'Argentina': {
+        name: 'Argentina',
+        criminalizationStatus: 'Full Equality',
+        rainbowScore: 80,
+        marriageEquality: true,
+        description: 'First Latin American country with marriage equality (2010). Progressive gender identity laws.'
+    },
+    'Uruguay': {
+        name: 'Uruguay',
+        criminalizationStatus: 'Full Equality',
+        rainbowScore: 78,
+        marriageEquality: true,
+        description: 'Marriage equality since 2013. Comprehensive LGBTQ+ rights framework.'
+    },
+    'Chile': {
+        name: 'Chile',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 65,
+        marriageEquality: true,
+        description: 'Marriage equality achieved in 2022. Growing acceptance.'
+    },
+    'Colombia': {
+        name: 'Colombia',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 70,
+        marriageEquality: true,
+        description: 'Marriage equality since 2016. Constitutional protections.'
+    },
+    'Ecuador': {
+        name: 'Ecuador',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 45,
+        marriageEquality: true,
+        description: 'Marriage equality since 2019 via Constitutional Court decision.'
+    },
+    'Costa Rica': {
+        name: 'Costa Rica',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 55,
+        marriageEquality: true,
+        description: 'Marriage equality since 2020. Most progressive Central American country.'
+    },
+    'Mexico': {
+        name: 'Mexico',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 50,
+        marriageEquality: true,
+        description: 'Nationwide marriage equality since 2022. State-level variations in implementation.'
+    },
+    'Peru': {
+        name: 'Peru',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 25,
+        marriageEquality: false,
+        description: 'Civil unions recognized but not marriage. Conservative constitutional provisions.'
+    },
+    'Venezuela': {
+        name: 'Venezuela',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 15,
+        marriageEquality: false,
+        description: 'Not criminalized but limited protections. Economic crisis affects all rights.'
+    },
+    'Bolivia': {
+        name: 'Bolivia',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 20,
+        marriageEquality: false,
+        description: 'Anti-discrimination laws but constitutional prohibition on same-sex marriage.'
+    },
+    'Paraguay': {
+        name: 'Paraguay',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 10,
+        marriageEquality: false,
+        description: 'Not criminalized but constitutional prohibition on same-sex marriage.'
+    },
+    'Nicaragua': {
+        name: 'Nicaragua',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 15,
+        marriageEquality: false,
+        description: 'Not criminalized but limited protections. Authoritarian restrictions.'
+    },
+    'Honduras': {
+        name: 'Honduras',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 12,
+        marriageEquality: false,
+        description: 'High levels of anti-LGBTQ+ violence. Constitutional prohibition on same-sex marriage.'
+    },
+    'Guatemala': {
+        name: 'Guatemala',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 8,
+        marriageEquality: false,
+        description: 'Not criminalized but severe social persecution. Constitutional prohibition on same-sex marriage.'
+    },
+    'El Salvador': {
+        name: 'El Salvador',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 10,
+        marriageEquality: false,
+        description: 'Not criminalized but limited protections.'
+    },
+    'Panama': {
+        name: 'Panama',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 20,
+        marriageEquality: false,
+        description: 'Anti-discrimination protections but no marriage equality.'
+    },
+    'Belize': {
+        name: 'Belize',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 25,
+        marriageEquality: false,
+        description: 'Decriminalized in 2016 by Supreme Court ruling.'
+    },
+    'Guyana': {
+        name: 'Guyana',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Colonial-era laws still criminalize same-sex relations.'
+    },
+    'Suriname': {
+        name: 'Suriname',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 15,
+        marriageEquality: false,
+        description: 'Decriminalized in 2022. Limited additional protections.'
+    },
+    'Jamaica': {
+        name: 'Jamaica',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Colonial-era buggery law still enforced. High levels of societal persecution.'
+    },
+    'Trinidad and Tobago': {
+        name: 'Trinidad and Tobago',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 20,
+        marriageEquality: false,
+        description: 'Decriminalized in 2018 by High Court ruling.'
+    },
+    'Barbados': {
+        name: 'Barbados',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 25,
+        marriageEquality: false,
+        description: 'Decriminalized in 2022. Growing acceptance.'
+    },
+    'Cuba': {
+        name: 'Cuba',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 40,
+        marriageEquality: true,
+        description: 'Marriage equality approved in 2022 referendum after government advocacy.'
+    },
+    'Dominican Republic': {
+        name: 'Dominican Republic',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 15,
+        marriageEquality: false,
+        description: 'Not criminalized but constitutional prohibition on same-sex marriage.'
+    },
+    'Haiti': {
+        name: 'Haiti',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 8,
+        marriageEquality: false,
+        description: 'Not criminalized but severe social persecution and limited state capacity.'
+    },
+    
+    // Oceania
+    'Australia': {
+        name: 'Australia',
+        criminalizationStatus: 'Full Equality',
+        rainbowScore: 78,
+        marriageEquality: true,
+        description: 'Marriage equality since 2017 after postal survey. Comprehensive anti-discrimination laws.'
+    },
+    'New Zealand': {
+        name: 'New Zealand',
+        criminalizationStatus: 'Full Equality',
+        rainbowScore: 82,
+        marriageEquality: true,
+        description: 'Marriage equality since 2013. Very progressive legal framework.'
+    },
+    'Fiji': {
+        name: 'Fiji',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 30,
+        marriageEquality: false,
+        description: 'Constitution prohibits discrimination based on sexual orientation.'
+    },
+    'Papua New Guinea': {
+        name: 'Papua New Guinea',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Colonial-era laws criminalize same-sex relations.'
+    },
+    'Samoa': {
+        name: 'Samoa',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Recent criminalization of same-sex relations between men.'
+    },
+    'Tonga': {
+        name: 'Tonga',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Sodomy laws with up to 10 years imprisonment.'
+    },
+    'Solomon Islands': {
+        name: 'Solomon Islands',
+        criminalizationStatus: 'Criminal',
+        rainbowScore: 0,
+        marriageEquality: false,
+        description: 'Colonial-era laws criminalize same-sex relations between men.'
+    },
+    'Vanuatu': {
+        name: 'Vanuatu',
+        criminalizationStatus: 'Legal',
+        rainbowScore: 10,
+        marriageEquality: false,
+        description: 'Not criminalized but limited legal protections.'
     }
 };
 
 // Color schemes for different views
 const colorSchemes = {
     criminalization: {
-        'Criminal': '#d32f2f',      // Strong red - urgent change needed
+        'Criminal': '#d32f2f',           // Strong red - urgent change needed
         'Limited Protection': '#f57c00', // Orange
-        'Legal': '#388e3c',         // Green
-        'Full Equality': '#1976d2'  // Blue
+        'Legal': '#388e3c',              // Green  
+        'Full Equality': '#1976d2'       // Blue
     },
     rainbow: {
-        0: '#8b0000',    // 0-20%
-        20: '#ff4500',   // 21-40%
-        40: '#ffa500',   // 41-60%
-        60: '#32cd32',   // 61-80%
-        80: '#006400'    // 81-100%
+        0: '#8b0000',    // 0-20% Dark red
+        20: '#ff4500',   // 21-40% Orange red
+        40: '#ffa500',   // 41-60% Orange
+        60: '#32cd32',   // 61-80% Lime green
+        80: '#006400'    // 81-100% Dark green
     }
 };
-
-// World Country Paths are loaded from world-map-paths.js
-// This file uses the worldCountryPaths variable defined there
 
 class WorldMap {
     constructor() {
@@ -388,14 +692,22 @@ class WorldMap {
             console.log('✅ World map initialized successfully');
         } catch (error) {
             console.error('❌ Failed to initialize world map:', error);
+            this.createFallbackMap();
         }
     }
 
     async loadWorldMapSVG() {
         try {
             // Load the world.svg file
-            const response = await fetch('Images/world.svg');
+            console.log('🔄 Loading world.svg from Images/world.svg...');
+            const response = await fetch('./Images/world.svg');
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch world.svg: ${response.status} ${response.statusText}`);
+            }
+            
             const svgText = await response.text();
+            console.log('📝 SVG text loaded, length:', svgText.length);
             
             // Create a temporary container to parse the SVG
             const tempDiv = document.createElement('div');
@@ -410,29 +722,32 @@ class WorldMap {
             this.svg.innerHTML = '';
             
             // Copy the viewBox from the source SVG
-            const viewBox = sourceSvg.getAttribute('viewBox') || sourceSvg.getAttribute('mapsvg:geoViewBox') || '0 0 1000 500';
+            const viewBox = sourceSvg.getAttribute('viewBox') || '0 0 1000 500';
             this.svg.setAttribute('viewBox', viewBox);
+            console.log('📐 Set viewBox:', viewBox);
             
             // Get all country paths from the source SVG
             const countryPaths = sourceSvg.querySelectorAll('path[id]');
             console.log(`📍 Found ${countryPaths.length} countries in world.svg`);
             
+            let mappedCountries = 0;
+            
             // Process each country path
             countryPaths.forEach(path => {
                 const countryCode = path.getAttribute('id');
-                const countryName = path.getAttribute('title');
+                const countryName = path.getAttribute('title') || path.getAttribute('data-name') || this.getCountryNameFromCode(countryCode);
                 const pathData = path.getAttribute('d');
                 
-                if (countryCode && countryName && pathData) {
+                if (countryCode && pathData) {
                     // Check if we have data for this country
-                    const countryData = this.getCountryDataByCode(countryCode) || this.getCountryDataByName(countryName);
+                    const countryData = this.getCountryDataByName(countryName) || this.getCountryDataByCode(countryCode);
                     
                     if (countryData) {
-                        // Create new path element
+                        // Create new path element with data
                         const newPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         newPath.setAttribute('d', pathData);
                         newPath.setAttribute('id', `country-${countryCode}`);
-                        newPath.setAttribute('data-country', countryName);
+                        newPath.setAttribute('data-country', countryData.name);
                         newPath.classList.add('country-path');
                         newPath.style.cursor = 'pointer';
                         newPath.style.stroke = '#333';
@@ -442,19 +757,20 @@ class WorldMap {
                         newPath.style.strokeLinecap = 'round';
                         
                         // Add event listeners
-                        newPath.addEventListener('click', () => this.showCountryInfo(countryName));
+                        newPath.addEventListener('click', () => this.showCountryInfo(countryData.name));
                         newPath.addEventListener('mouseenter', () => this.highlightCountry(newPath));
                         newPath.addEventListener('mouseleave', () => this.unhighlightCountry(newPath));
                         
                         this.svg.appendChild(newPath);
+                        mappedCountries++;
                     } else {
                         // Create path with default styling for countries without data
                         const newPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         newPath.setAttribute('d', pathData);
                         newPath.setAttribute('id', `country-${countryCode}`);
-                        newPath.setAttribute('data-country', countryName);
+                        newPath.setAttribute('data-country', countryName || countryCode);
                         newPath.classList.add('country-path', 'no-data');
-                        newPath.style.fill = '#f0f0f0';
+                        newPath.style.fill = '#f5f5f5';
                         newPath.style.stroke = '#ddd';
                         newPath.style.strokeWidth = '0.5';
                         newPath.style.cursor = 'default';
@@ -464,94 +780,111 @@ class WorldMap {
                 }
             });
             
-            console.log('🌍 World map SVG loaded successfully');
+            console.log(`🌍 World map SVG loaded successfully. Mapped ${mappedCountries} countries with data.`);
             
         } catch (error) {
             console.error('Failed to load world.svg:', error);
-            // Fallback to basic map if loading fails
-            this.createFallbackMap();
+            throw error;
         }
     }
 
-    getCountryDataByCode(code) {
-        // Map country codes to our data
+    getCountryNameFromCode(code) {
         const codeMapping = {
             'US': 'United States',
-            'GB': 'United Kingdom', 
+            'GB': 'United Kingdom',
             'FR': 'France',
             'DE': 'Germany',
             'ES': 'Spain',
             'IT': 'Italy',
+            'NL': 'Netherlands',
+            'BE': 'Belgium',
+            'MT': 'Malta',
+            'NO': 'Norway',
+            'PL': 'Poland',
+            'HU': 'Hungary',
             'RU': 'Russia',
-            'CN': 'China',
-            'IN': 'India',
-            'BR': 'Brazil',
-            'AU': 'Australia',
-            'CA': 'Canada',
-            'MX': 'Mexico',
-            'AR': 'Argentina',
-            'ZA': 'South Africa',
-            'EG': 'Egypt',
-            'NG': 'Nigeria',
-            'KE': 'Kenya',
-            'JP': 'Japan',
-            'KR': 'South Korea',
-            'TH': 'Thailand',
-            'ID': 'Indonesia',
-            'MY': 'Malaysia',
-            'PH': 'Philippines',
-            'VN': 'Vietnam',
-            'TR': 'Turkey',
-            'IR': 'Iran',
             'SA': 'Saudi Arabia',
-            'AE': 'United Arab Emirates',
-            'IL': 'Israel',
-            'JO': 'Jordan',
-            'LB': 'Lebanon',
+            'IR': 'Iran',
+            'AF': 'Afghanistan',
+            'YE': 'Yemen',
             'SY': 'Syria',
             'IQ': 'Iraq',
-            'AF': 'Afghanistan',
-            'PK': 'Pakistan',
-            'BD': 'Bangladesh',
-            'LK': 'Sri Lanka',
-            'MM': 'Myanmar',
-            'NP': 'Nepal',
-            'BT': 'Bhutan',
-            'MV': 'Maldives',
+            'LB': 'Lebanon',
+            'EG': 'Egypt',
+            'MA': 'Morocco',
+            'DZ': 'Algeria',
+            'TN': 'Tunisia',
+            'LY': 'Libya',
+            'NG': 'Nigeria',
             'UG': 'Uganda',
-            'TZ': 'Tanzania',
-            'RW': 'Rwanda',
-            'ET': 'Ethiopia',
             'GH': 'Ghana',
-            'SN': 'Senegal',
-            'ML': 'Mali',
-            'BF': 'Burkina Faso',
-            'NE': 'Niger',
-            'TD': 'Chad',
-            'SD': 'Sudan',
-            'SS': 'South Sudan',
-            'CF': 'Central African Republic',
-            'CM': 'Cameroon',
-            'GA': 'Gabon',
-            'CG': 'Congo',
-            'CD': 'Democratic Republic of Congo',
-            'AO': 'Angola',
+            'KE': 'Kenya',
+            'TZ': 'Tanzania',
             'ZM': 'Zambia',
             'ZW': 'Zimbabwe',
+            'CM': 'Cameroon',
+            'ET': 'Ethiopia',
+            'ZA': 'South Africa',
             'BW': 'Botswana',
-            'NA': 'Namibia',
-            'MW': 'Malawi',
+            'AO': 'Angola',
             'MZ': 'Mozambique',
-            'MG': 'Madagascar',
-            'MU': 'Mauritius',
             'SC': 'Seychelles',
-            'KM': 'Comoros',
-            'DJ': 'Djibouti',
-            'SO': 'Somalia',
-            'ER': 'Eritrea'
+            'CN': 'China',
+            'IN': 'India',
+            'ID': 'Indonesia',
+            'MY': 'Malaysia',
+            'SG': 'Singapore',
+            'TH': 'Thailand',
+            'PH': 'Philippines',
+            'VN': 'Vietnam',
+            'JP': 'Japan',
+            'KR': 'South Korea',
+            'PK': 'Pakistan',
+            'BD': 'Bangladesh',
+            'MM': 'Myanmar',
+            'LK': 'Sri Lanka',
+            'CA': 'Canada',
+            'BR': 'Brazil',
+            'AR': 'Argentina',
+            'UY': 'Uruguay',
+            'CL': 'Chile',
+            'CO': 'Colombia',
+            'EC': 'Ecuador',
+            'CR': 'Costa Rica',
+            'MX': 'Mexico',
+            'PE': 'Peru',
+            'VE': 'Venezuela',
+            'BO': 'Bolivia',
+            'PY': 'Paraguay',
+            'NI': 'Nicaragua',
+            'HN': 'Honduras',
+            'GT': 'Guatemala',
+            'SV': 'El Salvador',
+            'PA': 'Panama',
+            'BZ': 'Belize',
+            'GY': 'Guyana',
+            'SR': 'Suriname',
+            'JM': 'Jamaica',
+            'TT': 'Trinidad and Tobago',
+            'BB': 'Barbados',
+            'CU': 'Cuba',
+            'DO': 'Dominican Republic',
+            'HT': 'Haiti',
+            'AU': 'Australia',
+            'NZ': 'New Zealand',
+            'FJ': 'Fiji',
+            'PG': 'Papua New Guinea',
+            'WS': 'Samoa',
+            'TO': 'Tonga',
+            'SB': 'Solomon Islands',
+            'VU': 'Vanuatu'
         };
         
-        const countryName = codeMapping[code];
+        return codeMapping[code] || null;
+    }
+
+    getCountryDataByCode(code) {
+        const countryName = this.getCountryNameFromCode(code);
         return countryName ? worldMapData[countryName] : null;
     }
 
@@ -583,7 +916,7 @@ class WorldMap {
         errorText.setAttribute('font-family', 'Arial, sans-serif');
         errorText.setAttribute('font-size', '18');
         errorText.setAttribute('fill', '#666');
-        errorText.textContent = 'World map could not be loaded';
+        errorText.textContent = 'World map could not be loaded. Please try refreshing the page.';
         this.svg.appendChild(errorText);
     }
 
@@ -636,6 +969,9 @@ class WorldMap {
         console.log(`🎨 Updating colors for filter: ${this.currentFilter}`);
         
         const countryPaths = this.svg.querySelectorAll('.country-path:not(.no-data)');
+        console.log(`🔍 Found ${countryPaths.length} country paths to color`);
+        
+        let coloredCountries = 0;
         
         countryPaths.forEach(path => {
             const countryName = path.getAttribute('data-country');
@@ -649,22 +985,31 @@ class WorldMap {
                 } else if (this.currentFilter === 'rainbow') {
                     color = this.getRainbowColor(data.rainbowScore);
                 } else if (this.currentFilter === 'both') {
-                    // Combined view - prioritize criminalization with transparency
+                    // Combined view - prioritize criminalization with rainbow transparency
                     color = this.getCombinedColor(data);
                 }
                 
                 path.style.fill = color;
                 path.style.fillOpacity = '0.8';
+                coloredCountries++;
+                
+                // Add special highlighting for criminal countries in default view
+                if (this.currentFilter === 'criminalization' && data.criminalizationStatus === 'Criminal') {
+                    path.style.fillOpacity = '0.9';
+                    path.style.strokeWidth = '1';
+                }
             }
         });
+        
+        console.log(`✅ Successfully colored ${coloredCountries} countries`);
     }
 
     getCriminalizationColor(status) {
         const colors = {
-            'Criminal': '#d32f2f',      // Strong red - urgent change needed
+            'Criminal': '#d32f2f',           // Strong red - urgent change needed
             'Limited Protection': '#f57c00', // Orange
-            'Legal': '#388e3c',         // Green
-            'Full Equality': '#1976d2'  // Blue
+            'Legal': '#388e3c',              // Green
+            'Full Equality': '#1976d2'       // Blue
         };
         return colors[status] || '#f0f0f0';
     }
@@ -678,9 +1023,8 @@ class WorldMap {
     }
 
     getCombinedColor(data) {
-        // Prioritize showing criminalization status with rainbow score transparency
-        const baseColor = this.getCriminalizationColor(data.criminalizationStatus);
-        return baseColor;
+        // Prioritize showing criminalization status
+        return this.getCriminalizationColor(data.criminalizationStatus);
     }
 
     updateLegend() {
@@ -759,6 +1103,10 @@ class WorldMap {
             }
         }
 
+        if (data.description) {
+            detailsHTML += `<div style="margin-top: 1rem; font-style: italic; color: var(--text-light);">${data.description}</div>`;
+        }
+
         countryDetailsEl.innerHTML = detailsHTML;
         infoPanel.style.display = 'block';
         
@@ -783,5 +1131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mapElement) {
         console.log('🗺️ Initializing WorldMap with accurate country shapes...');
         new WorldMap();
+    } else {
+        console.log('❌ No world map element found on this page');
     }
 }); 
