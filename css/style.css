@@ -67,6 +67,12 @@
     rgba(115, 41, 130, 0.1) 100%
   );
   
+  --cosmic-gradient: linear-gradient(135deg, 
+    var(--pride-purple) 0%,
+    var(--pride-blue) 50%,
+    var(--secondary) 100%
+  );
+  
   --warm-gradient: linear-gradient(135deg, 
     #ff6b6b 0%, 
     #ffa500 25%, 
@@ -6987,4 +6993,436 @@ footer {
     .cta-section {
         padding: 2rem 0;
     }
+}
+
+/* ==================== LGBTQ+ TERMS PAGE STYLES ==================== */
+
+/* Terms Container */
+.terms-container {
+    background: var(--background);
+    padding: 2rem 0;
+    min-height: 100vh;
+}
+
+/* Search Section */
+.search-section {
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.modern-search-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Search Box */
+.search-box {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 1rem 3rem 1rem 3rem;
+    border: 2px solid #e0e7ff;
+    border-radius: 50px;
+    font-size: 1rem;
+    background: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 4px 20px rgba(233, 30, 99, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    z-index: 2;
+}
+
+.clear-search {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.clear-search:hover {
+    background: var(--gray);
+    color: var(--text);
+}
+
+/* Filter Buttons */
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border: 2px solid #e0e7ff;
+    border-radius: 25px;
+    color: var(--text);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    text-decoration: none;
+}
+
+.filter-btn:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+}
+
+.filter-icon {
+    font-size: 1.1rem;
+}
+
+/* Sensitive Content Toggle */
+.sensitive-content-toggle {
+    margin: 1.5rem 0;
+}
+
+.sensitive-toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.sensitive-toggle-switch {
+    width: 50px;
+    height: 24px;
+    background: #ccc;
+    border-radius: 12px;
+    position: relative;
+    transition: background 0.3s ease;
+}
+
+.sensitive-toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+#sensitiveToggle:checked + .sensitive-toggle-switch {
+    background: var(--warning);
+}
+
+#sensitiveToggle:checked + .sensitive-toggle-switch::after {
+    transform: translateX(26px);
+}
+
+/* Results Count */
+.results-count {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.95rem;
+    margin-top: 1rem;
+    font-weight: 500;
+}
+
+/* Terms Grid */
+.terms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* Term Cards */
+.term-card {
+    background: white;
+    border-radius: 16px;
+    border: 2px solid #f0f0f0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.term-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 4px 20px rgba(233, 30, 99, 0.15);
+    transform: translateY(-2px);
+}
+
+.term-card.expanded {
+    border-color: var(--primary);
+    box-shadow: 0 8px 30px rgba(233, 30, 99, 0.2);
+}
+
+.term-card.sensitive {
+    border-color: var(--warning);
+    background: #fff9f0;
+}
+
+.term-card.sensitive .term-header {
+    background: linear-gradient(135deg, #fff9f0, #fef3e2);
+}
+
+/* Term Header */
+.term-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #f8f9ff, #e8f4fd);
+    border-bottom: 1px solid #e0e7ff;
+}
+
+.term-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+    flex: 1;
+}
+
+.term-category {
+    background: var(--primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-right: 1rem;
+}
+
+.term-toggle {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.term-toggle:hover {
+    background: rgba(233, 30, 99, 0.1);
+    color: var(--primary);
+}
+
+.term-toggle svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.3s ease;
+}
+
+.term-toggle.expanded svg {
+    transform: rotate(180deg);
+}
+
+/* Term Content */
+.term-content {
+    padding: 0 1.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.term-content.expanded {
+    max-height: 500px;
+    padding: 1.5rem;
+}
+
+.term-definition {
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.term-example {
+    background: var(--gray);
+    padding: 1rem;
+    border-radius: 8px;
+    color: var(--text-light);
+    font-style: italic;
+    line-height: 1.5;
+    border-left: 4px solid var(--primary);
+}
+
+.term-example::before {
+    content: "💡 Example: ";
+    font-weight: 600;
+    color: var(--primary);
+    font-style: normal;
+}
+
+/* Term Hint */
+.term-hint {
+    padding: 0.75rem 1.5rem;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-light);
+    grid-column: 1 / -1;
+}
+
+.no-results h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .search-section {
+        padding: 2rem 1rem;
+        margin: 0 1rem 2rem;
+    }
+    
+    .terms-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin: 1rem;
+    }
+    
+    .filter-buttons {
+        justify-content: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .term-header {
+        padding: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .term-title {
+        font-size: 1rem;
+    }
+    
+    .term-category {
+        order: 3;
+        margin-right: 0;
+    }
+    
+    .term-toggle {
+        order: 2;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-input {
+        padding: 0.875rem 2.5rem 0.875rem 2.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .filter-btn {
+        padding: 0.5rem 0.875rem;
+        font-size: 0.85rem;
+    }
+    
+    .term-content.expanded {
+        padding: 1rem;
+    }
+    
+    .term-header {
+        padding: 0.875rem;
+    }
+}
+
+/* High Contrast Mode Adjustments */
+.high-contrast .term-card {
+    border-color: var(--text) !important;
+    background: var(--background) !important;
+}
+
+.high-contrast .term-header {
+    background: var(--background) !important;
+    border-bottom-color: var(--text) !important;
+}
+
+.high-contrast .filter-btn {
+    border-color: var(--text) !important;
+    background: var(--background) !important;
+    color: var(--text) !important;
+}
+
+.high-contrast .filter-btn.active {
+    background: var(--text) !important;
+    color: var(--background) !important;
+}
+
+.high-contrast .search-input {
+    border-color: var(--text) !important;
+    background: var(--background) !important;
+    color: var(--text) !important;
+}
+
+/* Animation for card expansion */
+@keyframes expandCard {
+    from {
+        max-height: 0;
+        opacity: 0;
+    }
+    to {
+        max-height: 500px;
+        opacity: 1;
+    }
+}
+
+.term-content.expanded {
+    animation: expandCard 0.3s ease-out;
 }
