@@ -180,12 +180,12 @@ function setupAccessibility() {
                 console.log(`📏 Setting text size to:`, size);
                 
                 // Remove any existing text-size classes from body
-                document.body.classList.remove('text-size-small', 'text-size-large', 'text-size-extra-large');
+                document.body.classList.remove('text-small', 'text-large', 'text-extra-large');
                 
                 // Add new text-size class if not normal
                 if (size !== 'normal') {
-                    document.body.classList.add(`text-size-${size}`);
-                    console.log(`✅ Added text-size-${size} class to body`);
+                    document.body.classList.add(`text-${size}`);
+                    console.log(`✅ Added text-${size} class to body`);
                 } else {
                     console.log(`✅ Normal text size - no additional class needed`);
                 }
@@ -246,11 +246,11 @@ function setupAccessibility() {
             
             // Apply the saved text size to body
             if (savedTextSize !== 'normal') {
-                document.body.classList.remove('text-size-small', 'text-size-large', 'text-size-extra-large');
-                document.body.classList.add(`text-size-${savedTextSize}`);
-                console.log(`✅ Applied saved text size: text-size-${savedTextSize}`);
+                document.body.classList.remove('text-small', 'text-large', 'text-extra-large');
+                document.body.classList.add(`text-${savedTextSize}`);
+                console.log(`✅ Applied saved text size: text-${savedTextSize}`);
             } else {
-                document.body.classList.remove('text-size-small', 'text-size-large', 'text-size-extra-large');
+                document.body.classList.remove('text-small', 'text-large', 'text-extra-large');
                 console.log(`✅ Applied normal text size`);
             }
         } else {
@@ -259,75 +259,6 @@ function setupAccessibility() {
                 btn.classList.toggle('active', btn.dataset.size === 'normal');
             });
             console.log(`✅ Set default text size to normal`);
-        }
-
-        // Reset button functionality
-        const resetBtn = document.querySelector('.accessibility-reset-btn');
-        console.log(`🔧 Found reset button:`, !!resetBtn);
-        
-        if (resetBtn) {
-            resetBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                console.log(`🔄 Resetting all accessibility settings`);
-                
-                // Reset all toggle switches
-                toggles.forEach(toggle => {
-                    toggle.setAttribute('aria-checked', 'false');
-                    toggle.classList.remove('active');
-                    const setting = toggle.dataset.setting;
-                    document.body.classList.remove(setting);
-                    localStorage.removeItem(`ct5pride-${setting}`);
-                });
-                
-                // Reset text size
-                textSizeBtns.forEach(btn => btn.classList.remove('active'));
-                const normalBtn = document.querySelector('.text-size-btn[data-size="normal"]');
-                if (normalBtn) {
-                    normalBtn.classList.add('active');
-                }
-                document.body.classList.remove('text-size-small', 'text-size-large', 'text-size-extra-large');
-                localStorage.removeItem('ct5pride-text-size');
-                
-                // Announce reset for screen readers
-                const announcement = document.createElement('div');
-                announcement.setAttribute('aria-live', 'polite');
-                announcement.setAttribute('aria-atomic', 'true');
-                announcement.style.position = 'absolute';
-                announcement.style.left = '-10000px';
-                announcement.style.width = '1px';
-                announcement.style.height = '1px';
-                announcement.style.overflow = 'hidden';
-                announcement.textContent = 'All accessibility settings have been reset to default';
-                document.body.appendChild(announcement);
-                
-                setTimeout(() => {
-                    if (announcement.parentNode) {
-                        announcement.parentNode.removeChild(announcement);
-                    }
-                }, 1000);
-                
-                console.log(`✅ All accessibility settings reset`);
-            });
-            
-            // Add keyboard support for reset button
-            resetBtn.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    resetBtn.click();
-                }
-            });
-        }
-
-        // Check for prefers-reduced-motion and auto-enable if user has system preference
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-        if (prefersReducedMotion.matches) {
-            const reducedMotionToggle = document.querySelector('[data-setting="reduced-motion"]');
-            if (reducedMotionToggle && !localStorage.getItem('ct5pride-reduced-motion')) {
-                reducedMotionToggle.setAttribute('aria-checked', 'true');
-                reducedMotionToggle.classList.add('active');
-                document.body.classList.add('reduced-motion');
-                console.log(`✅ Auto-enabled reduced motion based on system preference`);
-            }
         }
     } else {
         console.error('❌ Accessibility elements not found!', {
@@ -369,8 +300,8 @@ function announceToggleChange(setting, isEnabled) {
     
     const settingNames = {
         'high-contrast': 'High Contrast Mode',
-        'dyslexia-font': 'Dyslexia Friendly Font',
-        'reduced-motion': 'Reduced Motion'
+        'dyslexia-friendly': 'Dyslexia Friendly Font',
+        'reduce-motion': 'Reduce Motion'
     };
     
     const settingName = settingNames[setting] || setting;
@@ -853,16 +784,16 @@ function applyTheme(theme) {
         }, 500);
     }, 50);
     
-            // Update meta theme colour for mobile browsers
-        let metaThemeColour = document.querySelector('meta[name="theme-color"]');
-        if (!metaThemeColour) {
-            metaThemeColour = document.createElement('meta');
-            metaThemeColour.name = 'theme-color';
-            document.head.appendChild(metaThemeColour);
-        }
-
-        // Set theme colour based on flag
-        const themeColours = {
+    // Update meta theme color for mobile browsers
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+        metaThemeColor = document.createElement('meta');
+        metaThemeColor.name = 'theme-color';
+        document.head.appendChild(metaThemeColor);
+    }
+    
+    // Set theme color based on flag
+    const themeColors = {
         rainbow: '#e40303',
         progress: '#d62d20',
         trans: '#5bcffa',
@@ -876,7 +807,7 @@ function applyTheme(theme) {
         default: '#e91e63'
     };
     
-            metaThemeColour.content = themeColours[theme] || themeColours.default;
+    metaThemeColor.content = themeColors[theme] || themeColors.default;
     
     // Add visual celebration effect
     addThemeCelebrationEffect(theme);
@@ -898,7 +829,7 @@ function addThemeCelebrationEffect(theme) {
         transition: opacity 0.3s ease;
     `;
     
-    const themeColours = {
+    const themeColors = {
         rainbow: ['#e40303', '#ff8c00', '#ffed00', '#008018', '#004cff', '#732982'],
         progress: ['#5bcffa', '#f5a9b8', '#ffffff', '#784f17', '#000000'],
         trans: ['#5bcffa', '#f5a9b8', '#ffffff'],
@@ -911,7 +842,7 @@ function addThemeCelebrationEffect(theme) {
         default: ['#e91e63', '#2196f3', '#e91e63']
     };
     
-    const colours = themeColours[theme] || themeColours.default;
+    const colors = themeColors[theme] || themeColors.default;
     
     // Create sparkle elements
     for (let i = 0; i < 15; i++) {
@@ -920,7 +851,7 @@ function addThemeCelebrationEffect(theme) {
             position: absolute;
             width: 4px;
             height: 4px;
-            background: ${colours[Math.floor(Math.random() * colours.length)]};
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
             border-radius: 50%;
             top: ${Math.random() * 100}%;
             left: ${Math.random() * 100}%;
@@ -986,20 +917,20 @@ function announceThemeChange(theme) {
     };
     
     const themeDescriptions = {
-        default: 'Original CT5 Pride colours restored',
-        rainbow: 'Classic rainbow pride colours applied with vibrant red, orange, yellow, green, blue, and purple',
-        progress: 'Progress Pride colours with inclusion stripes featuring trans, brown, and black representation',
-        trans: 'Transgender pride colours in light blue, pink, and white',
-        nonbinary: 'Non-binary pride colours in yellow, white, purple, and black',
-        lesbian: 'Lesbian pride colours in orange, white, and pink tones',
-        gay: 'Gay pride colours in teal, green, and blue tones',
-        bisexual: 'Bisexual pride colours in pink, purple, and blue',
-        pansexual: 'Pansexual pride colours in pink, yellow, and blue',
-        asexual: 'Asexual pride colours in black, grey, white, and purple',
-        bear: 'Bear pride colours in brown, tan, and earth tones representing the bear community'
+        default: 'Original CT5 Pride colors restored',
+        rainbow: 'Classic rainbow pride colors applied with vibrant red, orange, yellow, green, blue, and purple',
+        progress: 'Progress Pride colors with inclusion stripes featuring trans, brown, and black representation',
+        trans: 'Transgender pride colors in light blue, pink, and white',
+        nonbinary: 'Non-binary pride colors in yellow, white, purple, and black',
+        lesbian: 'Lesbian pride colors in orange, white, and pink tones',
+        gay: 'Gay pride colors in teal, green, and blue tones',
+        bisexual: 'Bisexual pride colors in pink, purple, and blue',
+        pansexual: 'Pansexual pride colors in pink, yellow, and blue',
+        asexual: 'Asexual pride colors in black, gray, white, and purple',
+        bear: 'Bear pride colors in brown, tan, and earth tones representing the bear community'
     };
     
-    announcement.textContent = `${themeNames[theme]} theme temporarily activated. ${themeDescriptions[theme]}. Footer, header, and website elements updated with new colour scheme. Theme will reset on page refresh.`;
+    announcement.textContent = `${themeNames[theme]} theme temporarily activated. ${themeDescriptions[theme]}. Footer, header, and website elements updated with new color scheme. Theme will reset on page refresh.`;
     document.body.appendChild(announcement);
     
     // Also show a brief visual notification

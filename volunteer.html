@@ -538,7 +538,13 @@
             const CACHE_KEY = 'ct5pride_volunteer_roles';
             const CACHE_TIMESTAMP_KEY = 'ct5pride_volunteer_roles_timestamp';
             const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
-            const REQUEST_TIMEOUT = 10000; // 10 second timeout
+            
+            // 🔧 MOBILE FIX: Detect mobile and adjust timeout accordingly
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                             window.innerWidth <= 768 || 
+                             'ontouchstart' in window;
+            const REQUEST_TIMEOUT = isMobile ? 20000 : 15000; // 20s for mobile, 15s for desktop
+            const MAX_RETRIES = isMobile ? 3 : 2; // More retries for mobile
             
             try {
                 console.log('🌐 Loading roles from public API with enhanced security...');
@@ -564,27 +570,55 @@
                     }
                 }
                 
-                // 🔒 SECURITY: Add request timeout to prevent hanging
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => {
-                    controller.abort();
-                    console.error('⏰ Request timeout after ' + REQUEST_TIMEOUT + 'ms');
-                }, REQUEST_TIMEOUT);
+                // 🔧 MOBILE FIX: Implement retry logic for mobile devices
+                console.log(`🔗 Fetching roles from: ${API_URL} (Mobile: ${isMobile}, Timeout: ${REQUEST_TIMEOUT}ms, Retries: ${MAX_RETRIES})`);
                 
-                console.log('🔗 Fetching roles from:', API_URL);
+                let response;
+                let lastError;
                 
-                // 🔒 SECURITY: Enhanced fetch with headers and timeout
-                const response = await fetch(API_URL, { 
-                    credentials: 'omit',
-                    signal: controller.signal,
-                    headers: {
-                        'Accept': 'application/json',
-                        'Cache-Control': 'no-cache',
-                        'User-Agent': 'CT5Pride-Website/1.0'
+                for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                    try {
+                        console.log(`📱 Attempt ${attempt}/${MAX_RETRIES} to fetch roles...`);
+                        
+                        // 🔒 SECURITY: Add request timeout to prevent hanging
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => {
+                            controller.abort();
+                            console.error(`⏰ Request timeout after ${REQUEST_TIMEOUT}ms (attempt ${attempt})`);
+                        }, REQUEST_TIMEOUT);
+                        
+                        // 🔒 SECURITY: Enhanced fetch with headers and timeout
+                        response = await fetch(API_URL, { 
+                            credentials: 'omit',
+                            signal: controller.signal,
+                            headers: {
+                                'Accept': 'application/json',
+                                'Cache-Control': isMobile && attempt > 1 ? 'no-cache' : 'max-age=0',
+                                'User-Agent': `CT5Pride-Website/1.0 (${isMobile ? 'Mobile' : 'Desktop'})`
+                            }
+                        });
+                        
+                        clearTimeout(timeoutId);
+                        
+                        // If we get here, the request succeeded
+                        console.log(`✅ Successfully fetched on attempt ${attempt}`);
+                        break; // Exit retry loop
+                        
+                    } catch (error) {
+                        lastError = error;
+                        console.warn(`⚠️ Attempt ${attempt} failed:`, error.message);
+                        
+                        // Don't retry on the last attempt
+                        if (attempt === MAX_RETRIES) {
+                            throw error;
+                        }
+                        
+                        // Wait before retrying (exponential backoff for mobile)
+                        const delay = isMobile ? (attempt * 1000) : 500;
+                        console.log(`⏳ Waiting ${delay}ms before retry...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
                     }
-                });
-                
-                clearTimeout(timeoutId);
+                }
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -633,15 +667,36 @@
                 return validRoles;
                 
             } catch (error) {
-                console.error('❌ Failed to load roles from API:', error.message);
+                console.error(`❌ Failed to load roles from API after ${MAX_RETRIES} attempts:`, error.message);
                 
-                // 🔒 FALLBACK: Try stale cache first
+                // 🔧 MOBILE FIX: Enhanced mobile-specific error reporting
+                if (isMobile) {
+                    console.log('📱 Mobile device detected - checking connection and cache options...');
+                    
+                    // Report network status for mobile debugging
+                    if ('navigator' in window && 'onLine' in navigator) {
+                        console.log(`📱 Network status: ${navigator.onLine ? 'Online' : 'Offline'}`);
+                    }
+                    if ('connection' in navigator) {
+                        const conn = navigator.connection;
+                        console.log(`📱 Connection info: ${conn.effectiveType || 'unknown'}, downlink: ${conn.downlink || 'unknown'}Mbps`);
+                    }
+                }
+                
+                // 🔒 FALLBACK: Try stale cache first (more aggressive for mobile)
                 const staleCache = localStorage.getItem(CACHE_KEY);
                 if (staleCache) {
                     try {
                         const staleCachedRoles = JSON.parse(staleCache);
                         if (Array.isArray(staleCachedRoles) && staleCachedRoles.length > 0) {
-                            console.log('🔄 Using stale cached data as emergency fallback');
+                            const cacheAge = Date.now() - parseInt(localStorage.getItem(CACHE_TIMESTAMP_KEY) || '0');
+                            console.log(`🔄 Using stale cached data (age: ${Math.round(cacheAge / 1000 / 60)}min) as emergency fallback`);
+                            
+                            // For mobile, extend cache timestamp so it doesn't try API again too soon
+                            if (isMobile) {
+                                localStorage.setItem(CACHE_TIMESTAMP_KEY, (Date.now() - CACHE_DURATION + 60000).toString()); // Give 1 min buffer
+                            }
+                            
                             return staleCachedRoles;
                         }
                     } catch (e) {
@@ -650,7 +705,7 @@
                 }
                 
                 // 🔒 FINAL FALLBACK: Use hardcoded roles
-                console.log('🔄 Using hardcoded fallback roles...');
+                console.log(`🔄 Using hardcoded fallback roles... (${isMobile ? 'Mobile' : 'Desktop'} mode)`);
                 return getFallbackRoles();
             }
         }
@@ -796,12 +851,20 @@ Content creation experience`
 
         // 🔒 LOCKED DOWN: Health monitoring and status reporting
         function reportSystemHealth(status, details) {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                             window.innerWidth <= 768 || 
+                             'ontouchstart' in window;
+            
             const healthReport = {
                 timestamp: new Date().toISOString(),
                 status: status, // 'healthy', 'degraded', 'failed'
                 details: details,
                 userAgent: navigator.userAgent,
-                url: window.location.href
+                url: window.location.href,
+                isMobile: isMobile,
+                screenSize: `${window.innerWidth}x${window.innerHeight}`,
+                networkStatus: navigator.onLine ? 'online' : 'offline',
+                connectionType: navigator.connection ? navigator.connection.effectiveType : 'unknown'
             };
             
             console.log('📊 System Health Report:', healthReport);
@@ -827,13 +890,18 @@ Content creation experience`
                 return;
             }
 
-            // Show enhanced loading state with status
+            // 🔧 MOBILE FIX: Enhanced loading state with device-specific messaging
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                             window.innerWidth <= 768 || 
+                             'ontouchstart' in window;
+            
             container.innerHTML = `
                 <div class="loading-message">
                     <h3>🌈 Loading Volunteer Opportunities...</h3>
                     <div class="loading-spinner"></div>
                     <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;">
                         Connecting to secure CT5 Pride volunteer system...
+                        ${isMobile ? '<br>📱 Optimized loading for mobile devices' : ''}
                     </p>
                 </div>
             `;
@@ -967,9 +1035,10 @@ Content creation experience`
                     
                     container.innerHTML = `
                         <div class="error-message" style="margin-bottom: 2rem;">
-                            <h3>⚠️ System Operating in Emergency Mode</h3>
-                            <p>Our volunteer system is temporarily experiencing issues. The positions below are available, but there may be additional opportunities not shown. Please <a href="contact.html">contact us directly</a> for the most up-to-date information.</p>
-                            <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;">📡 Status: Emergency fallback mode • Error ID: ${Date.now().toString(36)}</p>
+                            <h3>⚠️ ${isMobile ? 'Mobile Connection' : 'System'} Operating in Emergency Mode</h3>
+                            <p>Our volunteer system is temporarily experiencing ${isMobile ? 'mobile connectivity issues' : 'technical difficulties'}. The positions below are available, but there may be additional opportunities not shown. Please <a href="contact.html">contact us directly</a> for the most up-to-date information.</p>
+                            ${isMobile ? '<p>📱 <strong>Mobile users:</strong> Try refreshing the page or connecting to WiFi for the latest opportunities.</p>' : ''}
+                            <p style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;">📡 Status: Emergency fallback mode (${isMobile ? 'Mobile' : 'Desktop'}) • Error ID: ${Date.now().toString(36)}</p>
                         </div>
                         ${emergencyCards}
                     `;
@@ -1045,13 +1114,27 @@ Content creation experience`
         window.CT5PrideDebug = {
             checkHealth: function() {
                 const health = JSON.parse(localStorage.getItem('ct5pride_health_history') || '[]');
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                                 window.innerWidth <= 768 || 
+                                 'ontouchstart' in window;
+                
                 console.group('🏥 CT5 Pride Volunteer System Health Report');
+                console.log('Device Info:', {
+                    isMobile: isMobile,
+                    screenSize: `${window.innerWidth}x${window.innerHeight}`,
+                    userAgent: navigator.userAgent,
+                    networkStatus: navigator.onLine ? 'online' : 'offline',
+                    connectionType: navigator.connection ? navigator.connection.effectiveType : 'unknown'
+                });
                 console.log('Recent Health History:', health);
                 console.log('Cache Status:', {
                     roles: localStorage.getItem('ct5pride_volunteer_roles') ? 'Present' : 'Empty',
                     lastUpdate: localStorage.getItem('ct5pride_volunteer_roles_timestamp') 
                         ? new Date(parseInt(localStorage.getItem('ct5pride_volunteer_roles_timestamp'))).toLocaleString()
-                        : 'Never'
+                        : 'Never',
+                    cacheAge: localStorage.getItem('ct5pride_volunteer_roles_timestamp') 
+                        ? Math.round((Date.now() - parseInt(localStorage.getItem('ct5pride_volunteer_roles_timestamp'))) / 1000 / 60) + ' minutes'
+                        : 'N/A'
                 });
                 console.log('System Status:', health.length > 0 ? health[health.length - 1].status : 'Unknown');
                 console.groupEnd();
@@ -1063,16 +1146,44 @@ Content creation experience`
                 console.log('✅ Cache cleared - page refresh recommended');
             },
             testAPI: function() {
-                return fetch('https://admin.ct5pride.co.uk/api/roles/public')
-                    .then(r => r.json())
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                                 window.innerWidth <= 768 || 
+                                 'ontouchstart' in window;
+                const timeout = isMobile ? 20000 : 15000;
+                
+                console.log(`🧪 Testing API with ${timeout}ms timeout (Mobile: ${isMobile})...`);
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeout);
+                
+                return fetch('https://admin.ct5pride.co.uk/api/roles/public', {
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json',
+                        'User-Agent': `CT5Pride-Debug/1.0 (${isMobile ? 'Mobile' : 'Desktop'})`
+                    }
+                })
+                    .then(r => {
+                        clearTimeout(timeoutId);
+                        return r.json();
+                    })
                     .then(d => {
                         console.log('✅ API Test Result:', d);
                         return d;
                     })
                     .catch(e => {
+                        clearTimeout(timeoutId);
                         console.error('❌ API Test Failed:', e);
-                        return { error: e.message };
+                        return { error: e.message, isMobile: isMobile, timeout: timeout };
                     });
+            },
+            forceMobileMode: function() {
+                localStorage.setItem('ct5pride_force_mobile', 'true');
+                console.log('📱 Mobile mode forced - refresh page to test mobile behavior');
+            },
+            resetMobileMode: function() {
+                localStorage.removeItem('ct5pride_force_mobile');
+                console.log('🖥️ Mobile mode reset - refresh page to test normal behavior');
             }
         };
 
