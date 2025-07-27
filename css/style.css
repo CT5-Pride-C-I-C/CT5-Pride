@@ -1877,7 +1877,6 @@ section:nth-child(odd) {
   font-size: 2.5rem;
   position: relative;
   z-index: 2;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .cta-section h2::after {
@@ -2223,7 +2222,6 @@ section:nth-child(odd) {
   font-size: 2rem;
   color: var(--text);
   font-weight: 700;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .role-summary {
@@ -3030,19 +3028,16 @@ body[class*="theme-"] .decorative-shapes .button:hover {
 /* Enhanced contrast handling for all themed footers */
 body[class*="theme-"] footer * {
     color: white !important;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
     font-weight: 500;
 }
 
 body[class*="theme-"] footer a {
     color: rgba(255,255,255,0.9) !important;
     text-decoration: underline;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
 }
 
 body[class*="theme-"] footer a:hover {
     color: white !important;
-    text-shadow: 2px 2px 6px rgba(0,0,0,1);
 }
 
 /* ==================== ENHANCED SOCIAL MEDIA THEMING ==================== */
@@ -6864,7 +6859,6 @@ nav a:focus {
 .hero-content p {
     position: relative;
     z-index: 20 !important;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     background: rgba(255, 255, 255, 0.1);
     padding: 0.5rem 1rem;
     border-radius: 8px;
@@ -6886,7 +6880,6 @@ nav a:focus {
 .cta-section p {
     position: relative;
     z-index: 10 !important;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Ensure all main content has proper layering */
