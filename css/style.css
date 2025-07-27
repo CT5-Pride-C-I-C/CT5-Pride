@@ -2363,9 +2363,9 @@ section:nth-child(odd) {
 
 /* Optimized Footer Layout */
 footer {
-  background: var(--pride-purple);
+  background: #732982 !important;
   background-attachment: fixed;
-  color: white;
+  color: white !important;
   padding: var(--spacing-lg) 0;
   margin-top: var(--spacing-xl);
   position: relative;
