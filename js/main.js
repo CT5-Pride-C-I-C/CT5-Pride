@@ -6,15 +6,43 @@ console.log('🏳️‍🌈 CT5 Pride Main JS Loading...');
 // ==================== NAVIGATION ====================
 
 function setupNavigation() {
+    console.log('🔧 Setting up navigation...');
     const navToggle = document.querySelector('.nav-toggle');
     const nav = document.querySelector('nav');
     
+    console.log('🔍 Navigation elements found:', {
+        navToggle: !!navToggle,
+        nav: !!nav,
+        navToggleElement: navToggle,
+        navElement: nav
+    });
+    
     if (navToggle && nav) {
-        navToggle.addEventListener('click', () => {
+        console.log('✅ Adding click listener to nav toggle');
+        navToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🖱️ Nav toggle clicked!');
+            
             const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
-            navToggle.setAttribute('aria-expanded', !isExpanded);
+            const newState = !isExpanded;
+            
+            console.log('📋 Toggle state:', { current: isExpanded, new: newState });
+            
+            navToggle.setAttribute('aria-expanded', newState);
             nav.classList.toggle('nav-open');
+            
+            console.log('📋 Nav classes after toggle:', nav.className);
+            console.log('📋 Nav display after toggle:', window.getComputedStyle(nav).display);
         });
+        
+        // Add touch event for mobile
+        navToggle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            console.log('📱 Touch event on nav toggle');
+        });
+    } else {
+        console.error('❌ Navigation elements not found:', { navToggle, nav });
     }
     
     // Handle dropdown menus
@@ -993,16 +1021,34 @@ function showThemeNotification(themeName) {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('✅ CT5 Pride DOM loaded, initializing...');
     
+    // Ensure navigation is set up first
+    console.log('🔧 Setting up navigation...');
     setupNavigation();
+    
+    console.log('🔧 Setting up accessibility...');
     setupAccessibility();
+    
+    console.log('🔧 Setting up pride flag themes...');
     setupPrideFlagThemes();
     
     // Load events if on events page
     if (document.getElementById('eventsContainer')) {
+        console.log('📅 Loading events...');
         loadEvents();
     }
     
     console.log('🏳️‍🌈 CT5 Pride initialization complete');
+    
+    // Additional debugging for mobile navigation
+    const navToggle = document.querySelector('.nav-toggle');
+    const nav = document.querySelector('nav');
+    console.log('🔍 Final navigation check:', {
+        navToggle: !!navToggle,
+        nav: !!nav,
+        navToggleDisplay: navToggle ? window.getComputedStyle(navToggle).display : 'N/A',
+        navDisplay: nav ? window.getComputedStyle(nav).display : 'N/A',
+        isMobile: window.innerWidth <= 768
+    });
 });
 
 // Make functions available globally

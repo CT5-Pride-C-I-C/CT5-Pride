@@ -1561,15 +1561,22 @@ nav a:focus {
 /* Mobile Navigation Toggle */
 .nav-toggle {
     display: none;
-  background: var(--primary);
+    background: var(--primary);
     border: none;
-  font-size: 1.5rem;
+    font-size: 1.5rem;
     cursor: pointer;
-  padding: var(--spacing-sm);
-  color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  transition: var(--transition);
+    padding: var(--spacing-sm);
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: var(--transition);
+    position: relative;
+    z-index: 1000;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .nav-toggle:hover {
@@ -1584,7 +1591,9 @@ nav a:focus {
 /* Mobile Navigation Styles */
 @media (max-width: 768px) {
   .nav-toggle {
-    display: block;
+    display: flex !important;
+    position: relative;
+    z-index: 1000;
   }
 
   nav {
