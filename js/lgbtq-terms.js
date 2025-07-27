@@ -788,20 +788,6 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Add smooth scrolling for better UX
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
-});
-
 // Add search suggestions (optional enhancement)
 searchInput.addEventListener('focus', function() {
     if (this.value.trim() === '') {
@@ -812,17 +798,3 @@ searchInput.addEventListener('focus', function() {
 searchInput.addEventListener('blur', function() {
     this.placeholder = 'Search for terms, definitions, or keywords...';
 });
-
-// Add smooth scrolling for better UX
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
-}); 

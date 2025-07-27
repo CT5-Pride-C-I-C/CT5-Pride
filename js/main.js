@@ -804,6 +804,7 @@ function applyTheme(theme) {
         pansexual: '#ff218c',
         asexual: '#800080',
         bear: '#654321',
+        omnisexual: '#ff69b4',
         default: '#e91e63'
     };
     
