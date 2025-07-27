@@ -1136,30 +1136,47 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.location.hash === '#world-map-container') {
             console.log('🎯 World map anchor detected - ensuring proper positioning...');
             
-            // Wait for the map to fully load
-            setTimeout(() => {
-                const container = document.getElementById('world-map-container');
-                if (container) {
-                    // Ensure the container is visible and not overlapping
-                    container.style.position = 'relative';
-                    container.style.zIndex = '1';
+            // Wait for the map to fully load and initialize
+            const waitForMapReady = () => {
+                // Check if the map has been properly initialized by looking for country paths
+                const countryPaths = mapElement.querySelectorAll('.country-path');
+                if (countryPaths.length > 0) {
+                    console.log('✅ World map fully loaded with', countryPaths.length, 'countries');
                     
-                    // Scroll to the map with proper offset
-                    const headerHeight = document.querySelector('header')?.offsetHeight || 0;
-                    const elementTop = container.offsetTop - headerHeight - 20;
-                    
-                    window.scrollTo({
-                        top: elementTop,
-                        behavior: 'smooth'
-                    });
-                    
-                    // Add a temporary highlight
-                    container.style.boxShadow = '0 0 20px rgba(33, 150, 243, 0.3)';
-                    setTimeout(() => {
-                        container.style.boxShadow = '';
-                    }, 2000);
+                    const container = document.getElementById('world-map-container');
+                    if (container) {
+                        // Ensure the container is visible and not overlapping
+                        container.style.position = 'relative';
+                        container.style.zIndex = '1';
+                        
+                        // Get the header height and account for sticky positioning
+                        const header = document.querySelector('header');
+                        const headerHeight = header ? header.offsetHeight : 0;
+                        
+                        // Calculate the correct scroll position with extra padding
+                        const elementTop = container.offsetTop - headerHeight - 40;
+                        
+                        // Scroll to the map with proper offset
+                        window.scrollTo({
+                            top: elementTop,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Add a temporary highlight to make it clear where the user landed
+                        container.style.boxShadow = '0 0 20px rgba(33, 150, 243, 0.3)';
+                        setTimeout(() => {
+                            container.style.boxShadow = '';
+                        }, 2000);
+                    }
+                } else {
+                    // If map isn't ready yet, wait a bit more
+                    console.log('⏳ World map still loading, waiting...');
+                    setTimeout(waitForMapReady, 200);
                 }
-            }, 1000); // Wait 1 second for full map initialization
+            };
+            
+            // Start checking for map readiness after a short delay
+            setTimeout(waitForMapReady, 500);
         }
     } else {
         console.log('❌ No world map element found on this page');

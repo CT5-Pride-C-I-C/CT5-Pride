@@ -7887,6 +7887,8 @@ footer {
     margin: 2rem 0;
     /* Ensure proper spacing from sticky header when scrolling to anchor */
     scroll-margin-top: 100px;
+    /* Additional spacing to prevent overlap with header */
+    padding-top: 20px;
 }
 
 #world-map {
