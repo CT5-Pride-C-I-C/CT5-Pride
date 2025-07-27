@@ -968,50 +968,62 @@
                     return;
                 }
 
-                // 🔒 SECURITY: Create role grid with data validation
-                const roleCards = visibleRoles.map(role => {
+                // 🚀 PROGRESSIVE LOADING: Display roles one by one for better UX
+                console.log(`🚀 Starting progressive loading of ${visibleRoles.length} roles...`);
+                
+                // Clear container and add role grid structure
+                container.innerHTML = `
+                    <div class="role-grid" id="roleGrid">
+                        <!-- Roles will be progressively added here -->
+                    </div>
+                    <div class="loading-progress" style="text-align: center; margin: 2rem 0; color: var(--text-light);">
+                        <div class="progress-spinner" style="display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top: 2px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-right: 0.5rem;"></div>
+                        <span id="loadingProgress">Loading roles... (0/${visibleRoles.length})</span>
+                    </div>
+                `;
+                
+                const roleGrid = document.getElementById('roleGrid');
+                const loadingProgress = document.getElementById('loadingProgress');
+                let loadedCount = 0;
+                let totalLoadTime = 0;
+                
+                // Progressive loading function
+                const loadRoleProgressively = async (role, index) => {
                     try {
-                        return createRoleCard(role);
-                    } catch (error) {
-                        console.warn('⚠️ Failed to create card for role:', role.title, error);
-                        return ''; // Skip invalid roles
-                    }
-                }).filter(card => card); // Remove empty cards
-                
-                container.innerHTML = roleCards.join('');
-                
-                // 🔒 MONITORING: Report successful load
-                const totalLoadTime = Date.now() - startTime;
-                console.log(`🎉 Successfully loaded ${visibleRoles.length} volunteer roles in ${totalLoadTime}ms`);
-                
-                reportSystemHealth('healthy', `Loaded ${visibleRoles.length} roles in ${totalLoadTime}ms`);
-
-                // 🔒 SECURITY: Add event listeners AFTER roles are injected into DOM with error protection
-                setTimeout(() => {
-                    // Add click handlers for view buttons (these are the "View details / Apply" buttons)
-                    document.querySelectorAll('.view-btn').forEach(btn => {
-                        btn.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const roleId = btn.getAttribute('data-id');
-                            const role = visibleRoles.find(r => r.id == roleId);
-                            if (role) {
+                        // Create role card
+                        const roleCard = createRoleCard(role);
+                        
+                        // Add card to grid with fade-in animation
+                        const roleElement = document.createElement('div');
+                        roleElement.innerHTML = roleCard;
+                        roleElement.style.opacity = '0';
+                        roleElement.style.transform = 'translateY(20px)';
+                        roleElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        
+                        roleGrid.appendChild(roleElement);
+                        
+                        // Trigger animation
+                        await new Promise(resolve => setTimeout(resolve, 50));
+                        roleElement.style.opacity = '1';
+                        roleElement.style.transform = 'translateY(0)';
+                        
+                        // Add event listeners to the new role card
+                        const card = roleElement.firstElementChild;
+                        const viewBtn = card.querySelector('.view-btn');
+                        
+                        if (viewBtn) {
+                            viewBtn.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
                                 openRoleModal(role);
-                            }
-                        });
-                    });
-
-                    // Add click handlers for role cards (for accessibility and general interaction)
-                    document.querySelectorAll('[data-role-id]').forEach(card => {
+                            });
+                        }
+                        
+                        // Add click handler for the entire card
                         card.addEventListener('click', (e) => {
-                            // Only trigger if clicking on the card itself, not on buttons/links
                             if (e.target === card || e.target.closest('.role-header') || e.target.closest('.role-summary')) {
                                 e.preventDefault();
-                                const roleId = card.getAttribute('data-role-id');
-                                const role = visibleRoles.find(r => r.id == roleId);
-                                if (role) {
-                                    openRoleModal(role);
-                                }
+                                openRoleModal(role);
                             }
                         });
                         
@@ -1019,15 +1031,47 @@
                         card.addEventListener('keydown', (e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
                                 e.preventDefault();
-                                const roleId = card.getAttribute('data-role-id');
-                                const role = visibleRoles.find(r => r.id == roleId);
-                                if (role) {
-                                    openRoleModal(role);
-                                }
+                                openRoleModal(role);
                             }
                         });
-                    });
-                }, 100); // Small delay to ensure DOM is ready
+                        
+                        loadedCount++;
+                        loadingProgress.textContent = `Loading roles... (${loadedCount}/${visibleRoles.length})`;
+                        
+                        // Add slight delay between roles for smooth animation
+                        if (index < visibleRoles.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
+                        
+                    } catch (error) {
+                        console.warn('⚠️ Failed to load role progressively:', role.title, error);
+                        loadedCount++;
+                        loadingProgress.textContent = `Loading roles... (${loadedCount}/${visibleRoles.length})`;
+                    }
+                };
+                
+                // Load all roles progressively
+                const progressiveLoadStart = Date.now();
+                
+                for (let i = 0; i < visibleRoles.length; i++) {
+                    await loadRoleProgressively(visibleRoles[i], i);
+                }
+                
+                // Remove loading progress indicator
+                const progressElement = document.querySelector('.loading-progress');
+                if (progressElement) {
+                    progressElement.style.opacity = '0';
+                    progressElement.style.transform = 'translateY(-10px)';
+                    progressElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    setTimeout(() => progressElement.remove(), 300);
+                }
+                
+                // 🔒 MONITORING: Report successful progressive load
+                totalLoadTime = Date.now() - startTime;
+                const progressiveLoadTime = Date.now() - progressiveLoadStart;
+                console.log(`🎉 Successfully loaded ${visibleRoles.length} volunteer roles progressively in ${progressiveLoadTime}ms (total: ${totalLoadTime}ms)`);
+                
+                reportSystemHealth('healthy', `Progressive load: ${visibleRoles.length} roles in ${progressiveLoadTime}ms (total: ${totalLoadTime}ms)`);
 
             } catch (error) {
                 // 🚫 CRITICAL: API failure - no fallback allowed

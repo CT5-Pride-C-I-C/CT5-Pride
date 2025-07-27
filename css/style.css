@@ -5446,6 +5446,50 @@ nav a:focus {
   margin-top: 2rem;
 }
 
+/* Progressive Loading Animations */
+.role-grid > div {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.role-grid > div.loaded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.loading-progress {
+  text-align: center;
+  margin: 2rem 0;
+  color: var(--text-light);
+  font-size: 0.9rem;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.progress-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top: 2px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+/* Staggered animation delays for progressive loading */
+.role-grid > div:nth-child(1) { transition-delay: 0.1s; }
+.role-grid > div:nth-child(2) { transition-delay: 0.2s; }
+.role-grid > div:nth-child(3) { transition-delay: 0.3s; }
+.role-grid > div:nth-child(4) { transition-delay: 0.4s; }
+.role-grid > div:nth-child(5) { transition-delay: 0.5s; }
+.role-grid > div:nth-child(6) { transition-delay: 0.6s; }
+.role-grid > div:nth-child(7) { transition-delay: 0.7s; }
+.role-grid > div:nth-child(8) { transition-delay: 0.8s; }
+.role-grid > div:nth-child(9) { transition-delay: 0.9s; }
+.role-grid > div:nth-child(10) { transition-delay: 1.0s; }
+
 .role-card {
   background: white;
   border: 2px solid var(--border);
@@ -5857,6 +5901,21 @@ nav a:focus {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     margin-top: 1.5rem;
+  }
+  
+  /* Mobile progressive loading optimizations */
+  .role-grid > div {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  .loading-progress {
+    font-size: 0.85rem;
+    margin: 1.5rem 0;
+  }
+  
+  .progress-spinner {
+    width: 18px;
+    height: 18px;
   }
   
   .role-card {
