@@ -759,10 +759,17 @@ class WorldMap {
             // Clear the current SVG and copy content from world.svg
             this.svg.innerHTML = '';
             
-            // Copy the viewBox from the source SVG
-            const viewBox = sourceSvg.getAttribute('viewBox') || '0 0 1009.6727 665.96301';
-            this.svg.setAttribute('viewBox', viewBox);
-            console.log('📐 Set viewBox:', viewBox);
+            // Copy the viewBox from the source SVG and adjust to extend bottom and cut top
+            const originalViewBox = sourceSvg.getAttribute('viewBox') || '0 0 1009.6727 665.96301';
+            const viewBoxParts = originalViewBox.split(' ');
+            const x = parseFloat(viewBoxParts[0]);
+            const y = parseFloat(viewBoxParts[1]) + 50; // Cut 50 units from top
+            const width = parseFloat(viewBoxParts[2]);
+            const height = parseFloat(viewBoxParts[3]) + 100; // Extend 100 units at bottom
+            const adjustedViewBox = `${x} ${y} ${width} ${height}`;
+            this.svg.setAttribute('viewBox', adjustedViewBox);
+            console.log('📐 Original viewBox:', originalViewBox);
+            console.log('📐 Adjusted viewBox:', adjustedViewBox);
             
             // Get all country paths from the source SVG
             const countryPaths = sourceSvg.querySelectorAll('path[id]');
