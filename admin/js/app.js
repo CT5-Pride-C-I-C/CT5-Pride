@@ -3564,7 +3564,24 @@ async function handleConflictSubmit(event, conflictId) {
     
   } catch (err) {
     console.error('Conflict save error:', err);
-    showError(`Failed to save conflict: ${err.message}`);
+    
+    // Enhanced error logging for debugging
+    console.error('🔍 Detailed error information:');
+    console.error('  - Error name:', err.name);
+    console.error('  - Error message:', err.message);
+    console.error('  - Error stack:', err.stack);
+    
+    // Check if it's a network error
+    if (err.name === 'TypeError' && err.message.includes('fetch')) {
+      showError('Network error: Unable to connect to the server. Please check your internet connection and try again.');
+    } else if (err.message.includes('401')) {
+      showError('Authentication error: Your session has expired. Please log in again.');
+      window.location.hash = '#/login';
+    } else if (err.message.includes('500')) {
+      showError('Server error: The server encountered an internal error. Please try again later or contact support.');
+    } else {
+      showError(`Failed to save conflict: ${err.message}`);
+    }
     
     // Reset button
     const submitBtn = form.querySelector('button[type="submit"]');

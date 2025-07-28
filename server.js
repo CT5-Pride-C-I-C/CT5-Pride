@@ -204,13 +204,66 @@ app.get('/health/db', async (req, res) => {
     res.status(200).json({
       status: 'OK',
       database: 'Connected',
+      conflicts_table: 'Available',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     res.status(503).json({
       status: 'ERROR',
       database: 'Disconnected',
+      conflicts_table: 'Unavailable',
       error: error.message,
+      error_code: error.code,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Conflicts table health check
+app.get('/health/conflicts', async (req, res) => {
+  try {
+    console.log('🔍 Checking conflicts table health...');
+    
+    // Test basic select
+    const { data: selectData, error: selectError } = await supabase
+      .from('conflict_of_interest')
+      .select('id, individual_name, created_at')
+      .limit(1);
+    
+    if (selectError) {
+      console.error('❌ Conflicts table select error:', selectError);
+      throw selectError;
+    }
+    
+    // Test table structure by attempting to get column info
+    const { data: countData, error: countError } = await supabase
+      .from('conflict_of_interest')
+      .select('*', { count: 'exact', head: true });
+    
+    if (countError) {
+      console.error('❌ Conflicts table count error:', countError);
+      throw countError;
+    }
+    
+    console.log('✅ Conflicts table health check passed');
+    
+    res.status(200).json({
+      status: 'OK',
+      table: 'conflict_of_interest',
+      select_test: 'PASSED',
+      count_test: 'PASSED',
+      record_count: countData || 0,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('❌ Conflicts table health check failed:', error);
+    
+    res.status(503).json({
+      status: 'ERROR',
+      table: 'conflict_of_interest',
+      error: error.message,
+      error_code: error.code,
+      error_details: error.details,
       timestamp: new Date().toISOString()
     });
   }
@@ -2159,7 +2212,14 @@ app.post('/api/conflicts', requireSupabaseAuth, async (req, res) => {
   } catch (error) {
     console.error('Conflict creation error:', error);
     
-    // Handle unique constraint violations
+    // Enhanced error logging
+    console.error('🔍 Detailed conflict creation error:');
+    console.error('  - Error code:', error.code);
+    console.error('  - Error message:', error.message);
+    console.error('  - Error details:', error.details);
+    console.error('  - Error hint:', error.hint);
+    
+    // Handle specific database errors
     if (error.code === '23505') {
       return res.status(400).json({
         success: false,
@@ -2167,10 +2227,43 @@ app.post('/api/conflicts', requireSupabaseAuth, async (req, res) => {
       });
     }
     
+    // Handle table not found error
+    if (error.code === '42P01') {
+      return res.status(500).json({
+        success: false,
+        message: 'Database table not found. Please contact the administrator.'
+      });
+    }
+    
+    // Handle permission denied error
+    if (error.code === '42501') {
+      return res.status(500).json({
+        success: false,
+        message: 'Database permission denied. Please contact the administrator.'
+      });
+    }
+    
+    // Handle foreign key constraint violations
+    if (error.code === '23503') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid reference data. Please check your input.'
+      });
+    }
+    
+    // Handle not null constraint violations
+    if (error.code === '23502') {
+      return res.status(400).json({
+        success: false,
+        message: 'Required field is missing. Please fill in all required fields.'
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Failed to create conflict of interest',
-      error: error.message
+      error: error.message,
+      code: error.code
     });
   }
 });
