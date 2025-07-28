@@ -2193,8 +2193,16 @@ app.post('/api/conflicts', requireSupabaseAuth, async (req, res) => {
       });
     }
     
+    // Generate auto conflict_id
+    const timestamp = Date.now();
+    const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const autoConflictId = `COI-${timestamp}-${randomSuffix}`;
+    
+    console.log('🆔 Generated conflict_id:', autoConflictId);
+    
     // Map frontend field names to database column names
     const mappedData = {
+      conflict_id: autoConflictId, // Auto-generated conflict_id
       individual_name: conflictData.individual_name,
       nature_of_interest: conflictData.nature_of_interest,
       conflict_type: conflictData.conflict_type,
@@ -2507,13 +2515,13 @@ app.get('/api/conflicts/export/:format', requireSupabaseAuth, async (req, res) =
     switch (format.toLowerCase()) {
       case 'csv':
         const csvHeaders = [
-          'ID', 'Individual Name', 'Position/Role', 'Nature of Interest', 'Conflict Type', 
+          'Conflict ID', 'Individual Name', 'Position/Role', 'Nature of Interest', 'Conflict Type', 
           'Description', 'Monetary Value', 'Currency', 'Date Declared', 'Status', 
           'Mitigation Actions', 'Before Mitigation Risk', 'Residual Risk Level', 'Review Date', 'Notes', 'Created Date', 'Updated Date'
         ];
         
         const csvRows = conflicts.map(conflict => [
-                      `"${(conflict.id || '').replace(/"/g, '""')}"`,
+                      `"${(conflict.conflict_id || '').replace(/"/g, '""')}"`,
           `"${(conflict.individual_name || '').replace(/"/g, '""')}"`,
           `"${(conflict.role || '').replace(/"/g, '""')}"`, // Map role to position_role
           `"${(conflict.nature_of_interest || '').replace(/"/g, '""')}"`,

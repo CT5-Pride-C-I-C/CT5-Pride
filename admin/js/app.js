@@ -3215,7 +3215,7 @@ function renderConflictsTable() {
         <tbody>
           ${filteredConflicts.map(conflict => `
             <tr style="border-bottom: 1px solid #e5e7eb;">
-              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;"><strong>${conflict.id ? conflict.id.substring(0, 8) + '...' : 'N/A'}</strong></td>
+              <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;"><strong>${conflict.conflict_id || 'N/A'}</strong></td>
               <td style="padding: 0.75rem; border-right: 1px solid #e5e7eb;">
                 <strong>${conflict.individual_name || 'Unknown'}</strong>
                 ${conflict.date_declared ? `<br><small style="color: #6b7280;">Declared: ${new Date(conflict.date_declared).toLocaleDateString('en-GB')}</small>` : ''}
@@ -3667,11 +3667,11 @@ function exportConflictsToCSV() {
     return;
   }
   
-  const headers = ['ID', 'Individual Name', 'Position/Role', 'Nature of Interest', 'Conflict Type', 'Description', 'Monetary Value', 'Currency', 'Date Declared', 'Status', 'Mitigation Actions', 'Before Mitigation Risk', 'Residual Risk Level', 'Review Date', 'Notes', 'Created Date', 'Updated Date'];
+  const headers = ['Conflict ID', 'Individual Name', 'Position/Role', 'Nature of Interest', 'Conflict Type', 'Description', 'Monetary Value', 'Currency', 'Date Declared', 'Status', 'Mitigation Actions', 'Before Mitigation Risk', 'Residual Risk Level', 'Review Date', 'Notes', 'Created Date', 'Updated Date'];
   const csvContent = [
     headers.join(','),
     ...filteredConflicts.map(conflict => [
-      `"${(conflict.id || '').replace(/"/g, '""')}"`,
+      `"${(conflict.conflict_id || '').replace(/"/g, '""')}"`,
       `"${(conflict.individual_name || '').replace(/"/g, '""')}"`,
       `"${(conflict.position_role || '').replace(/"/g, '""')}"`,
       `"${(conflict.nature_of_interest || '').replace(/"/g, '""')}"`,
@@ -3713,7 +3713,7 @@ function exportConflictsToMarkdown() {
   
   sortedConflicts.forEach((conflict, index) => {
     markdown += `### ${index + 1}. ${conflict.individual_name || 'Unknown Individual'}\n\n`;
-    markdown += `- **ID:** ${conflict.id || 'N/A'}\n`;
+    markdown += `- **Conflict ID:** ${conflict.conflict_id || 'N/A'}\n`;
     markdown += `- **Position/Role:** ${conflict.position_role || 'N/A'}\n`;
     markdown += `- **Conflict Type:** ${conflict.conflict_type || 'N/A'}\n`;
     markdown += `- **Nature of Interest:** ${conflict.nature_of_interest || 'N/A'}\n`;
