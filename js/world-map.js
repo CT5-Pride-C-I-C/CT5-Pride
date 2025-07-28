@@ -687,26 +687,64 @@ class WorldMap {
             // Load the accurate world map SVG
             await this.loadWorldMapSVG();
             this.setupControls();
-            this.updateColours();
+            
+            // Ensure colors are applied after a short delay to allow DOM to settle
+            setTimeout(() => {
+                this.updateColours();
+                this.updateLegend();
+            }, 100);
             
             console.log('✅ World map initialized successfully');
         } catch (error) {
             console.error('❌ Failed to initialize world map:', error);
-            this.createFallbackMap();
+            console.log('🔄 Creating fallback map due to error...');
+            this.createSimplifiedWorldMap();
         }
     }
 
     async loadWorldMapSVG() {
         try {
-            // Load the world.svg file
-            console.log('🔄 Loading world.svg from Images/world.svg...');
-            const response = await fetch('./Images/world.svg');
+            // Try multiple possible paths for the SVG file
+            const possiblePaths = [
+                './Images/world.svg',
+                './images/world.svg',
+                'Images/world.svg',
+                'images/world.svg',
+                '/Images/world.svg',
+                '/images/world.svg'
+            ];
             
-            if (!response.ok) {
-                throw new Error(`Failed to fetch world.svg: ${response.status} ${response.statusText}`);
+            let svgText = null;
+            let usedPath = null;
+            
+            for (const path of possiblePaths) {
+                try {
+                    console.log(`🔄 Trying to load world.svg from: ${path}`);
+                    const response = await fetch(path);
+                    
+                    if (response.ok) {
+                        svgText = await response.text();
+                        usedPath = path;
+                        console.log(`✅ Successfully loaded SVG from: ${path}`);
+                        console.log(`📊 SVG file size: ${svgText.length} characters`);
+                        break;
+                    } else {
+                        console.log(`❌ Failed to load from ${path}: ${response.status} ${response.statusText}`);
+                    }
+                } catch (pathError) {
+                    console.log(`❌ Error loading from ${path}:`, pathError.message);
+                    if (pathError.message.includes('CORS')) {
+                        console.log('💡 CORS error detected - make sure you are using http://localhost:8000 instead of file://');
+                    }
+                }
             }
             
-            const svgText = await response.text();
+            if (!svgText) {
+                console.error('❌ Could not load world.svg from any of the attempted paths');
+                console.log('🔍 Attempted paths:', possiblePaths);
+                throw new Error('Could not load world.svg from any of the attempted paths');
+            }
+            
             console.log('📝 SVG text loaded, length:', svgText.length);
             
             // Create a temporary container to parse the SVG
@@ -722,7 +760,7 @@ class WorldMap {
             this.svg.innerHTML = '';
             
             // Copy the viewBox from the source SVG
-            const viewBox = sourceSvg.getAttribute('viewBox') || '0 0 1000 500';
+            const viewBox = sourceSvg.getAttribute('viewBox') || '0 0 1009.6727 665.96301';
             this.svg.setAttribute('viewBox', viewBox);
             console.log('📐 Set viewBox:', viewBox);
             
@@ -730,7 +768,14 @@ class WorldMap {
             const countryPaths = sourceSvg.querySelectorAll('path[id]');
             console.log(`📍 Found ${countryPaths.length} countries in world.svg`);
             
+            if (countryPaths.length === 0) {
+                console.error('❌ No country paths found in the SVG file');
+                console.log('🔍 SVG content preview:', svgText.substring(0, 500));
+                throw new Error('No country paths found in the SVG file');
+            }
+            
             let mappedCountries = 0;
+            let countriesWithData = 0;
             
             // Process each country path
             countryPaths.forEach(path => {
@@ -743,6 +788,7 @@ class WorldMap {
                     const countryData = this.getCountryDataByName(countryName) || this.getCountryDataByCode(countryCode);
                     
                     if (countryData) {
+                        countriesWithData++;
                         // Create new path element with data
                         const newPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         newPath.setAttribute('d', pathData);
@@ -780,12 +826,271 @@ class WorldMap {
                 }
             });
             
-            console.log(`🌍 World map SVG loaded successfully. Mapped ${mappedCountries} countries with data.`);
+            console.log(`🌍 World map SVG loaded successfully from ${usedPath}. Mapped ${mappedCountries} countries, ${countriesWithData} with data.`);
             
         } catch (error) {
-            console.error('Failed to load world.svg:', error);
-            throw error;
+            console.error('❌ Failed to load world.svg:', error);
+            console.log('🔄 Falling back to simplified world map...');
+            this.createSimplifiedWorldMap();
         }
+    }
+
+    createSimplifiedWorldMap() {
+        console.log('🗺️ Creating simplified world map...');
+        
+        // Clear the current SVG
+        this.svg.innerHTML = '';
+        this.svg.setAttribute('viewBox', '0 0 1000 500');
+        
+        // Create a simplified world map with basic shapes for major regions
+        const regions = [
+            // Europe
+            { id: 'EU', name: 'Europe', path: 'M 450 150 L 550 150 L 550 200 L 450 200 Z', countries: ['United Kingdom', 'France', 'Germany', 'Spain', 'Italy', 'Netherlands', 'Belgium', 'Malta', 'Norway', 'Poland', 'Hungary', 'Russia'] },
+            // North America
+            { id: 'NA', name: 'North America', path: 'M 100 150 L 300 150 L 300 300 L 100 300 Z', countries: ['United States', 'Canada'] },
+            // South America
+            { id: 'SA', name: 'South America', path: 'M 200 350 L 300 350 L 300 450 L 200 450 Z', countries: ['Brazil', 'Argentina', 'Uruguay', 'Chile', 'Colombia', 'Ecuador', 'Costa Rica', 'Mexico', 'Peru', 'Venezuela', 'Bolivia', 'Paraguay', 'Nicaragua', 'Honduras', 'Guatemala', 'El Salvador', 'Panama', 'Belize', 'Guyana', 'Suriname', 'Jamaica', 'Trinidad and Tobago', 'Barbados', 'Cuba', 'Dominican Republic', 'Haiti'] },
+            // Africa
+            { id: 'AF', name: 'Africa', path: 'M 450 250 L 550 250 L 550 400 L 450 400 Z', countries: ['Saudi Arabia', 'Iran', 'Afghanistan', 'Yemen', 'Syria', 'Iraq', 'Lebanon', 'Egypt', 'Morocco', 'Algeria', 'Tunisia', 'Libya', 'Nigeria', 'Uganda', 'Ghana', 'Kenya', 'Tanzania', 'Zambia', 'Zimbabwe', 'Cameroon', 'Ethiopia', 'South Africa', 'Botswana', 'Angola', 'Mozambique', 'Seychelles'] },
+            // Asia
+            { id: 'AS', name: 'Asia', path: 'M 650 200 L 850 200 L 850 350 L 650 350 Z', countries: ['China', 'India', 'Indonesia', 'Malaysia', 'Singapore', 'Thailand', 'Philippines', 'Vietnam', 'Japan', 'South Korea', 'Pakistan', 'Bangladesh', 'Myanmar', 'Sri Lanka'] },
+            // Oceania
+            { id: 'OC', name: 'Oceania', path: 'M 750 400 L 850 400 L 850 450 L 750 450 Z', countries: ['Australia', 'New Zealand', 'Fiji', 'Papua New Guinea', 'Samoa', 'Tonga', 'Solomon Islands', 'Vanuatu'] }
+        ];
+        
+        // Create region shapes
+        regions.forEach(region => {
+            const regionPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            regionPath.setAttribute('d', region.path);
+            regionPath.setAttribute('id', `region-${region.id}`);
+            regionPath.setAttribute('data-region', region.name);
+            regionPath.classList.add('region-path');
+            regionPath.style.fill = '#f0f0f0';
+            regionPath.style.stroke = '#333';
+            regionPath.style.strokeWidth = '1';
+            regionPath.style.cursor = 'pointer';
+            regionPath.style.transition = 'all 0.3s ease';
+            
+            // Add event listeners
+            regionPath.addEventListener('click', () => this.showRegionInfo(region.name));
+            regionPath.addEventListener('mouseenter', () => this.highlightRegion(regionPath));
+            regionPath.addEventListener('mouseleave', () => this.unhighlightRegion(regionPath));
+            
+            this.svg.appendChild(regionPath);
+        });
+        
+        // Create country dots for countries with data
+        let dotCount = 0;
+        Object.keys(worldMapData).forEach(countryName => {
+            const data = worldMapData[countryName];
+            if (data) {
+                // Find which region this country belongs to
+                const region = regions.find(r => r.countries.includes(countryName));
+                if (region) {
+                    // Calculate position within the region
+                    const regionIndex = region.countries.indexOf(countryName);
+                    const regionElement = this.svg.querySelector(`#region-${region.id}`);
+                    if (regionElement) {
+                        const bbox = regionElement.getBBox();
+                        const x = bbox.x + bbox.width * 0.3 + (regionIndex % 3) * 20;
+                        const y = bbox.y + bbox.height * 0.3 + Math.floor(regionIndex / 3) * 20;
+                        
+                        // Create country dot
+                        const countryDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        countryDot.setAttribute('cx', x);
+                        countryDot.setAttribute('cy', y);
+                        countryDot.setAttribute('r', '3');
+                        countryDot.setAttribute('id', `dot-${countryName.replace(/\s+/g, '-')}`);
+                        countryDot.setAttribute('data-country', countryName);
+                        countryDot.classList.add('country-dot');
+                        countryDot.style.cursor = 'pointer';
+                        countryDot.style.transition = 'all 0.3s ease';
+                        
+                        // Add event listeners
+                        countryDot.addEventListener('click', () => this.showCountryInfo(countryName));
+                        countryDot.addEventListener('mouseenter', () => this.highlightCountry(countryDot));
+                        countryDot.addEventListener('mouseleave', () => this.unhighlightCountry(countryDot));
+                        
+                        this.svg.appendChild(countryDot);
+                        dotCount++;
+                    }
+                }
+            }
+        });
+        
+        console.log(`🗺️ Simplified world map created with ${regions.length} regions and ${dotCount} country dots`);
+    }
+
+    createSimplifiedWorldMap() {
+        console.log('🗺️ Creating simplified world map...');
+        
+        // Clear the current SVG
+        this.svg.innerHTML = '';
+        this.svg.setAttribute('viewBox', '0 0 1000 500');
+        
+        // Create a simplified world map with better positioned regions
+        const regions = [
+            // North America
+            { id: 'NA', name: 'North America', path: 'M 150 100 L 350 100 L 350 250 L 150 250 Z', countries: ['United States', 'Canada'] },
+            // South America
+            { id: 'SA', name: 'South America', path: 'M 200 280 L 300 280 L 300 450 L 200 450 Z', countries: ['Brazil', 'Argentina', 'Uruguay', 'Chile', 'Colombia', 'Ecuador', 'Costa Rica', 'Mexico', 'Peru', 'Venezuela', 'Bolivia', 'Paraguay', 'Nicaragua', 'Honduras', 'Guatemala', 'El Salvador', 'Panama', 'Belize', 'Guyana', 'Suriname', 'Jamaica', 'Trinidad and Tobago', 'Barbados', 'Cuba', 'Dominican Republic', 'Haiti'] },
+            // Europe
+            { id: 'EU', name: 'Europe', path: 'M 450 120 L 550 120 L 550 200 L 450 200 Z', countries: ['United Kingdom', 'France', 'Germany', 'Spain', 'Italy', 'Netherlands', 'Belgium', 'Malta', 'Norway', 'Poland', 'Hungary', 'Russia'] },
+            // Africa
+            { id: 'AF', name: 'Africa', path: 'M 450 220 L 550 220 L 550 400 L 450 400 Z', countries: ['Nigeria', 'Uganda', 'Ghana', 'Kenya', 'Tanzania', 'Zambia', 'Zimbabwe', 'Cameroon', 'Ethiopia', 'South Africa', 'Botswana', 'Angola', 'Mozambique', 'Seychelles'] },
+            // Asia
+            { id: 'AS', name: 'Asia', path: 'M 600 150 L 850 150 L 850 350 L 600 350 Z', countries: ['China', 'India', 'Indonesia', 'Malaysia', 'Singapore', 'Thailand', 'Philippines', 'Vietnam', 'Japan', 'South Korea', 'Pakistan', 'Bangladesh', 'Myanmar', 'Sri Lanka'] },
+            // Oceania
+            { id: 'OC', name: 'Oceania', path: 'M 700 380 L 900 380 L 900 450 L 700 450 Z', countries: ['Australia', 'New Zealand', 'Fiji', 'Papua New Guinea', 'Samoa', 'Tonga', 'Solomon Islands', 'Vanuatu'] }
+        ];
+        
+        let mappedCountries = 0;
+        
+        // First, create all region paths
+        regions.forEach(region => {
+            const regionPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            regionPath.setAttribute('d', region.path);
+            regionPath.setAttribute('id', `region-${region.id}`);
+            regionPath.setAttribute('data-region', region.name);
+            regionPath.classList.add('region-path');
+            regionPath.style.fill = '#f0f0f0';
+            regionPath.style.stroke = '#333';
+            regionPath.style.strokeWidth = '1';
+            regionPath.style.cursor = 'pointer';
+            
+            // Add event listeners for region
+            regionPath.addEventListener('click', () => this.showRegionInfo(region));
+            regionPath.addEventListener('mouseenter', () => this.highlightRegion(regionPath));
+            regionPath.addEventListener('mouseleave', () => this.unhighlightRegion(regionPath));
+            
+            this.svg.appendChild(regionPath);
+        });
+        
+        // Then add countries with fixed positions
+        const countryPositions = {
+            // North America
+            'United States': { x: 250, y: 175 },
+            'Canada': { x: 250, y: 125 },
+            
+            // South America
+            'Brazil': { x: 250, y: 350 },
+            'Argentina': { x: 250, y: 400 },
+            'Uruguay': { x: 250, y: 420 },
+            'Chile': { x: 220, y: 400 },
+            'Colombia': { x: 220, y: 320 },
+            'Ecuador': { x: 200, y: 320 },
+            'Costa Rica': { x: 200, y: 300 },
+            'Mexico': { x: 200, y: 250 },
+            'Peru': { x: 220, y: 350 },
+            'Venezuela': { x: 240, y: 300 },
+            'Bolivia': { x: 230, y: 370 },
+            'Paraguay': { x: 240, y: 380 },
+            'Nicaragua': { x: 200, y: 290 },
+            'Honduras': { x: 200, y: 280 },
+            'Guatemala': { x: 200, y: 270 },
+            'El Salvador': { x: 200, y: 285 },
+            'Panama': { x: 210, y: 310 },
+            'Belize': { x: 200, y: 260 },
+            'Guyana': { x: 260, y: 320 },
+            'Suriname': { x: 260, y: 330 },
+            'Jamaica': { x: 220, y: 280 },
+            'Trinidad and Tobago': { x: 260, y: 310 },
+            'Barbados': { x: 270, y: 320 },
+            'Cuba': { x: 230, y: 270 },
+            'Dominican Republic': { x: 240, y: 280 },
+            'Haiti': { x: 235, y: 285 },
+            
+            // Europe
+            'United Kingdom': { x: 470, y: 140 },
+            'France': { x: 480, y: 160 },
+            'Germany': { x: 490, y: 150 },
+            'Spain': { x: 470, y: 180 },
+            'Italy': { x: 500, y: 170 },
+            'Netherlands': { x: 485, y: 145 },
+            'Belgium': { x: 485, y: 150 },
+            'Malta': { x: 510, y: 190 },
+            'Norway': { x: 490, y: 125 },
+            'Poland': { x: 500, y: 145 },
+            'Hungary': { x: 505, y: 155 },
+            'Russia': { x: 520, y: 130 },
+            
+            // Africa
+            'Nigeria': { x: 480, y: 280 },
+            'Uganda': { x: 510, y: 300 },
+            'Ghana': { x: 470, y: 290 },
+            'Kenya': { x: 515, y: 310 },
+            'Tanzania': { x: 515, y: 320 },
+            'Zambia': { x: 505, y: 330 },
+            'Zimbabwe': { x: 505, y: 340 },
+            'Cameroon': { x: 485, y: 300 },
+            'Ethiopia': { x: 520, y: 290 },
+            'South Africa': { x: 500, y: 380 },
+            'Botswana': { x: 505, y: 360 },
+            'Angola': { x: 490, y: 330 },
+            'Mozambique': { x: 515, y: 350 },
+            'Seychelles': { x: 530, y: 310 },
+            
+            // Asia
+            'China': { x: 750, y: 200 },
+            'India': { x: 650, y: 250 },
+            'Indonesia': { x: 700, y: 320 },
+            'Malaysia': { x: 680, y: 300 },
+            'Singapore': { x: 690, y: 310 },
+            'Thailand': { x: 680, y: 280 },
+            'Philippines': { x: 750, y: 280 },
+            'Vietnam': { x: 720, y: 280 },
+            'Japan': { x: 800, y: 200 },
+            'South Korea': { x: 780, y: 210 },
+            'Pakistan': { x: 620, y: 230 },
+            'Bangladesh': { x: 660, y: 240 },
+            'Myanmar': { x: 670, y: 270 },
+            'Sri Lanka': { x: 650, y: 290 },
+            
+            // Oceania
+            'Australia': { x: 800, y: 400 },
+            'New Zealand': { x: 850, y: 420 },
+            'Fiji': { x: 850, y: 410 },
+            'Papua New Guinea': { x: 780, y: 380 },
+            'Samoa': { x: 860, y: 400 },
+            'Tonga': { x: 865, y: 405 },
+            'Solomon Islands': { x: 820, y: 390 },
+            'Vanuatu': { x: 830, y: 395 }
+        };
+        
+        // Add countries with fixed positions
+        regions.forEach(region => {
+            region.countries.forEach(countryName => {
+                const countryData = worldMapData[countryName];
+                const position = countryPositions[countryName];
+                
+                if (countryData && position) {
+                    // Create a small circle for each country
+                    const countryCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    
+                    countryCircle.setAttribute('cx', position.x);
+                    countryCircle.setAttribute('cy', position.y);
+                    countryCircle.setAttribute('r', '4');
+                    countryCircle.setAttribute('id', `country-${countryName.replace(/\s+/g, '-')}`);
+                    countryCircle.setAttribute('data-country', countryName);
+                    countryCircle.classList.add('country-path');
+                    countryCircle.style.cursor = 'pointer';
+                    countryCircle.style.stroke = '#333';
+                    countryCircle.style.strokeWidth = '0.5';
+                    countryCircle.style.transition = 'all 0.3s ease';
+                    
+                    // Add event listeners
+                    countryCircle.addEventListener('click', () => this.showCountryInfo(countryName));
+                    countryCircle.addEventListener('mouseenter', () => this.highlightCountry(countryCircle));
+                    countryCircle.addEventListener('mouseleave', () => this.unhighlightCountry(countryCircle));
+                    
+                    this.svg.appendChild(countryCircle);
+                    mappedCountries++;
+                }
+            });
+        });
+        
+        console.log(`🌍 Simplified world map created with ${mappedCountries} countries.`);
+        console.log('💡 Tip: For the full interactive map, please use a local web server (http://localhost:8000) instead of opening the file directly.');
     }
 
     getCountryNameFromCode(code) {
@@ -921,37 +1226,31 @@ class WorldMap {
     }
 
     setupControls() {
-        // Set default filter to criminalization
-        const criminalizationBtn = document.getElementById('show-criminalization');
-        const rainbowBtn = document.getElementById('show-rainbow-scores');
-        const bothBtn = document.getElementById('show-both');
-
-        if (criminalizationBtn) {
-            criminalizationBtn.classList.add('active');
-            criminalizationBtn.addEventListener('click', () => {
-                this.currentFilter = 'criminalization';
-                this.updateActiveButton(criminalizationBtn);
-                this.updateColours();
-                this.updateLegend();
+        // Get all map filter buttons by class
+        const filterButtons = document.querySelectorAll('.map-filter-btn');
+        console.log(`🔘 Found ${filterButtons.length} map filter buttons`);
+        
+        if (filterButtons.length > 0) {
+            // Set default filter to criminalization (first button should be active by default)
+            this.currentFilter = 'criminalization';
+            
+            // Add event listeners to all filter buttons
+            filterButtons.forEach((button, index) => {
+                const filter = button.getAttribute('data-filter');
+                console.log(`🔘 Button ${index + 1}: data-filter="${filter}"`);
+                
+                button.addEventListener('click', () => {
+                    console.log(`🎯 Button clicked: ${filter}`);
+                    if (filter) {
+                        this.currentFilter = filter;
+                        this.updateActiveButton(button);
+                        this.updateColours();
+                        this.updateLegend();
+                    }
+                });
             });
-        }
-
-        if (rainbowBtn) {
-            rainbowBtn.addEventListener('click', () => {
-                this.currentFilter = 'rainbow';
-                this.updateActiveButton(rainbowBtn);
-                this.updateColours();
-                this.updateLegend();
-            });
-        }
-
-        if (bothBtn) {
-            bothBtn.addEventListener('click', () => {
-                this.currentFilter = 'both';
-                this.updateActiveButton(bothBtn);
-                this.updateColours();
-                this.updateLegend();
-            });
+        } else {
+            console.warn('⚠️ No map filter buttons found');
         }
 
         // Set initial legend
@@ -970,6 +1269,19 @@ class WorldMap {
         
         const countryPaths = this.svg.querySelectorAll('.country-path:not(.no-data)');
         console.log(`🔍 Found ${countryPaths.length} country paths to colour`);
+        
+        if (countryPaths.length === 0) {
+            console.warn('⚠️ No country paths found! Checking for any paths...');
+            const allPaths = this.svg.querySelectorAll('path');
+            console.log(`📊 Total paths in SVG: ${allPaths.length}`);
+            allPaths.forEach((path, index) => {
+                console.log(`Path ${index}:`, {
+                    id: path.getAttribute('id'),
+                    class: path.getAttribute('class'),
+                    'data-country': path.getAttribute('data-country')
+                });
+            });
+        }
         
         let colouredCountries = 0;
         
@@ -993,15 +1305,19 @@ class WorldMap {
                 path.style.fillOpacity = '0.8';
                 colouredCountries++;
                 
+                console.log(`🎨 Coloured ${countryName}: ${colour}`);
+                
                 // Add special highlighting for criminal countries in default view
                 if (this.currentFilter === 'criminalization' && data.criminalizationStatus === 'Criminal') {
                     path.style.fillOpacity = '0.9';
                     path.style.strokeWidth = '1';
                 }
+            } else {
+                console.log(`⚠️ No data found for country: ${countryName}`);
             }
         });
         
-        console.log(`✅ Successfully coloured ${colouredCountries} countries`);
+        console.log(`✅ Successfully coloured ${colouredCountries} countries with filter: ${this.currentFilter}`);
     }
 
     getCriminalizationColour(status) {
@@ -1028,18 +1344,84 @@ class WorldMap {
     }
 
     updateLegend() {
-        const criminalizationLegend = document.getElementById('criminalization-legend');
-        const rainbowLegend = document.getElementById('rainbow-legend');
+        const legendSection = document.querySelector('.legend-section');
+        if (!legendSection) return;
         
-        if (criminalizationLegend && rainbowLegend) {
-            if (this.currentFilter === 'criminalization' || this.currentFilter === 'both') {
-                criminalizationLegend.style.display = 'block';
-                rainbowLegend.style.display = 'none';
-            } else if (this.currentFilter === 'rainbow') {
-                criminalizationLegend.style.display = 'none';
-                rainbowLegend.style.display = 'block';
-            }
+        const legendContent = legendSection.querySelector('div');
+        if (!legendContent) return;
+        
+        let legendHTML = '';
+        
+        if (this.currentFilter === 'criminalization') {
+            legendHTML = `
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #d32f2f; border: 1px solid #333;"></div>
+                        <span>Criminal</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #f57c00; border: 1px solid #333;"></div>
+                        <span>Limited Protection</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #388e3c; border: 1px solid #333;"></div>
+                        <span>Legal</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #1976d2; border: 1px solid #333;"></div>
+                        <span>Full Equality</span>
+                    </div>
+                </div>
+            `;
+        } else if (this.currentFilter === 'rainbow') {
+            legendHTML = `
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #8b0000; border: 1px solid #333;"></div>
+                        <span>0-20%</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #ff4500; border: 1px solid #333;"></div>
+                        <span>21-40%</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #ffa500; border: 1px solid #333;"></div>
+                        <span>41-60%</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #32cd32; border: 1px solid #333;"></div>
+                        <span>61-80%</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #006400; border: 1px solid #333;"></div>
+                        <span>81-100%</span>
+                    </div>
+                </div>
+            `;
+        } else if (this.currentFilter === 'both') {
+            legendHTML = `
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #d32f2f; border: 1px solid #333;"></div>
+                        <span>Criminal</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #f57c00; border: 1px solid #333;"></div>
+                        <span>Limited Protection</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #388e3c; border: 1px solid #333;"></div>
+                        <span>Legal</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 20px; height: 20px; background: #1976d2; border: 1px solid #333;"></div>
+                        <span>Full Equality</span>
+                    </div>
+                </div>
+            `;
         }
+        
+        legendContent.innerHTML = legendHTML;
     }
 
     highlightCountry(element) {
@@ -1120,6 +1502,49 @@ class WorldMap {
             `;
             countryDetailsEl.innerHTML += warningHTML;
         }
+    }
+
+    showRegionInfo(region) {
+        const infoPanel = document.getElementById('country-info');
+        const countryNameEl = document.getElementById('country-name');
+        const countryDetailsEl = document.getElementById('country-details');
+
+        if (!infoPanel) return;
+
+        countryNameEl.textContent = region.name;
+        
+        let detailsHTML = `
+            <div style="margin-bottom: 1rem;">
+                <strong>Region:</strong> ${region.name}
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <strong>Countries in this region:</strong>
+                <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+        `;
+        
+        region.countries.forEach(countryName => {
+            const countryData = worldMapData[countryName];
+            if (countryData) {
+                detailsHTML += `<li>${countryName} - ${countryData.criminalizationStatus} (${countryData.rainbowScore}%)</li>`;
+            }
+        });
+        
+        detailsHTML += '</ul></div>';
+        
+        countryDetailsEl.innerHTML = detailsHTML;
+        infoPanel.style.display = 'block';
+    }
+
+    highlightRegion(element) {
+        element.style.strokeWidth = '2';
+        element.style.stroke = '#2196f3';
+        element.style.filter = 'brightness(1.1)';
+    }
+
+    unhighlightRegion(element) {
+        element.style.strokeWidth = '1';
+        element.style.stroke = '#333';
+        element.style.filter = 'none';
     }
 }
 
