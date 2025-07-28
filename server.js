@@ -2153,9 +2153,17 @@ app.get('/api/conflicts', requireSupabaseAuth, async (req, res) => {
 
     console.log(`✅ Successfully fetched ${conflicts?.length || 0} conflicts of interest`);
     
+    // Map database column names back to frontend field names
+    const mappedConflicts = conflicts?.map(conflict => ({
+      ...conflict,
+      position_role: conflict.role, // Map role to position_role
+      description: conflict.details, // Map details to description
+      mitigation_actions: conflict.mitigation // Map mitigation to mitigation_actions
+    })) || [];
+    
     res.json({
       success: true,
-      conflicts: conflicts || []
+      conflicts: mappedConflicts
     });
 
   } catch (error) {
@@ -2185,14 +2193,30 @@ app.post('/api/conflicts', requireSupabaseAuth, async (req, res) => {
       });
     }
     
-    // Convert monetary_value to number if provided
-    if (conflictData.monetary_value) {
-      conflictData.monetary_value = parseFloat(conflictData.monetary_value);
-    }
+    // Map frontend field names to database column names
+    const mappedData = {
+      individual_name: conflictData.individual_name,
+      nature_of_interest: conflictData.nature_of_interest,
+      conflict_type: conflictData.conflict_type,
+      date_declared: conflictData.date_declared,
+      status: conflictData.status,
+      before_mitigation_risk_level: conflictData.before_mitigation_risk_level,
+      residual_risk_level: conflictData.residual_risk_level,
+      role: conflictData.position_role, // Map position_role to role
+      details: conflictData.description, // Map description to details
+      mitigation: conflictData.mitigation_actions, // Map mitigation_actions to mitigation
+      monetary_value: conflictData.monetary_value ? parseFloat(conflictData.monetary_value) : null,
+      currency: conflictData.currency || 'GBP',
+      notes: conflictData.notes,
+      review_date: conflictData.review_date || null,
+      organisation: conflictData.organisation || null
+    };
+    
+    console.log('📋 Mapped data for database:', mappedData);
     
     const { data: conflict, error } = await supabase
       .from('conflict_of_interest')
-      .insert([conflictData])
+      .insert([mappedData])
       .select()
       .single();
 
@@ -2286,14 +2310,30 @@ app.put('/api/conflicts/:id', requireSupabaseAuth, async (req, res) => {
       });
     }
     
-    // Convert monetary_value to number if provided
-    if (conflictData.monetary_value) {
-      conflictData.monetary_value = parseFloat(conflictData.monetary_value);
-    }
+    // Map frontend field names to database column names
+    const mappedData = {
+      individual_name: conflictData.individual_name,
+      nature_of_interest: conflictData.nature_of_interest,
+      conflict_type: conflictData.conflict_type,
+      date_declared: conflictData.date_declared,
+      status: conflictData.status,
+      before_mitigation_risk_level: conflictData.before_mitigation_risk_level,
+      residual_risk_level: conflictData.residual_risk_level,
+      role: conflictData.position_role, // Map position_role to role
+      details: conflictData.description, // Map description to details
+      mitigation: conflictData.mitigation_actions, // Map mitigation_actions to mitigation
+      monetary_value: conflictData.monetary_value ? parseFloat(conflictData.monetary_value) : null,
+      currency: conflictData.currency || 'GBP',
+      notes: conflictData.notes,
+      review_date: conflictData.review_date || null,
+      organisation: conflictData.organisation || null
+    };
+    
+    console.log('📋 Mapped data for database update:', mappedData);
     
     const { data: conflict, error } = await supabase
       .from('conflict_of_interest')
-      .update(conflictData)
+      .update(mappedData)
       .eq('id', id)
       .select()
       .single();
@@ -2475,15 +2515,15 @@ app.get('/api/conflicts/export/:format', requireSupabaseAuth, async (req, res) =
         const csvRows = conflicts.map(conflict => [
                       `"${(conflict.id || '').replace(/"/g, '""')}"`,
           `"${(conflict.individual_name || '').replace(/"/g, '""')}"`,
-          `"${(conflict.position_role || '').replace(/"/g, '""')}"`,
+          `"${(conflict.role || '').replace(/"/g, '""')}"`, // Map role to position_role
           `"${(conflict.nature_of_interest || '').replace(/"/g, '""')}"`,
           `"${(conflict.conflict_type || '').replace(/"/g, '""')}"`,
-          `"${(conflict.description || '').replace(/"/g, '""')}"`,
+          `"${(conflict.details || '').replace(/"/g, '""')}"`, // Map details to description
           conflict.monetary_value || '',
           `"${(conflict.currency || '').replace(/"/g, '""')}"`,
           conflict.date_declared ? new Date(conflict.date_declared).toLocaleDateString('en-GB') : '',
           `"${(conflict.status || '').replace(/"/g, '""')}"`,
-          `"${(conflict.mitigation_actions || '').replace(/"/g, '""')}"`,
+          `"${(conflict.mitigation || '').replace(/"/g, '""')}"`, // Map mitigation to mitigation_actions
           `"${(conflict.before_mitigation_risk_level || '').replace(/"/g, '""')}"`,
           `"${(conflict.residual_risk_level || '').replace(/"/g, '""')}"`,
           conflict.review_date ? new Date(conflict.review_date).toLocaleDateString('en-GB') : '',
