@@ -2003,6 +2003,7 @@ section:nth-child(odd) {
   gap: var(--spacing-xl);
   margin-top: var(--spacing-xl);
   position: relative;
+  width: 100%;
 }
 
 /* Volunteer Community Background - Removed for cleaner look */
@@ -2010,9 +2011,38 @@ section:nth-child(odd) {
   display: none;
 }
 
+/* Ensure role-board doesn't interfere with role-grid */
+.role-board:has(.role-grid) {
+  display: block;
+}
+
+.role-board:has(.role-grid) .role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 100%;
+}
+
 @media (min-width: 768px) {
-  .role-board {
-    grid-template-columns: repeat(3, 1fr);
+  .role-board:has(.role-grid) .role-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .role-board:has(.role-grid) .role-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 3rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .role-board:has(.role-grid) .role-grid {
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 3.5rem;
   }
 }
 
@@ -4739,9 +4769,16 @@ input[type="checkbox"] {
 }
 
 /* Mobile Responsive Enhancements */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .role-board {
     grid-template-columns: 1fr;
+  }
+  
+  .role-board:has(.role-grid) .role-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    max-width: 100%;
   }
   
   .role-card-header {
@@ -5462,9 +5499,11 @@ nav a:focus {
 /* Dynamic Role Cards and Modal Styles */
 .role-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   margin-top: 2rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Progressive Loading Animations */
@@ -5511,6 +5550,28 @@ nav a:focus {
 .role-grid > div:nth-child(9) { transition-delay: 0.9s; }
 .role-grid > div:nth-child(10) { transition-delay: 1.0s; }
 
+/* Enhanced responsive breakpoints for better grid layout */
+@media (min-width: 768px) {
+  .role-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .role-grid {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 3rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .role-grid {
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 3.5rem;
+  }
+}
+
 .role-card {
   background: white;
   border: 2px solid var(--border);
@@ -5521,6 +5582,10 @@ nav a:focus {
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  height: fit-content;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
 }
 
 .role-card::before {
@@ -5917,11 +5982,12 @@ nav a:focus {
 }
 
 /* Responsive Design for Dynamic Cards */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .role-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
     margin-top: 1.5rem;
+    max-width: 100%;
   }
   
   /* Mobile progressive loading optimizations */
