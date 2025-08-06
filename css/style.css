@@ -1598,6 +1598,10 @@ nav a:focus {
     min-height: 44px;
     align-items: center;
     justify-content: center;
+    /* Ensure it's clickable on mobile */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
 }
 
 .nav-toggle:hover {
@@ -1615,6 +1619,12 @@ nav a:focus {
     display: flex !important;
     position: relative;
     z-index: 1000;
+    /* Ensure it's always clickable on mobile */
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    /* Prevent any interference */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   nav {
@@ -1627,6 +1637,7 @@ nav a:focus {
     border-top: 3px solid var(--rainbow-gradient);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
+    z-index: 999;
   }
 
   nav.nav-open {

@@ -452,5 +452,41 @@
     </div>
 
     <script src="js/main.js"></script>
+    
+    <!-- Mobile Navigation Test -->
+    <script>
+        // Test mobile navigation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 Testing mobile navigation...');
+            
+            const navToggle = document.querySelector('.nav-toggle');
+            const nav = document.querySelector('nav');
+            
+            if (navToggle && nav) {
+                console.log('✅ Navigation elements found');
+                
+                // Test click functionality
+                navToggle.addEventListener('click', function(e) {
+                    console.log('🖱️ Nav toggle clicked!');
+                    alert('Navigation toggle clicked! This should open the mobile menu.');
+                });
+                
+                // Test touch functionality
+                navToggle.addEventListener('touchstart', function(e) {
+                    console.log('📱 Nav toggle touched!');
+                });
+                
+                // Log current state
+                console.log('📋 Initial nav state:', {
+                    navDisplay: window.getComputedStyle(nav).display,
+                    navToggleDisplay: window.getComputedStyle(navToggle).display,
+                    navToggleZIndex: window.getComputedStyle(navToggle).zIndex,
+                    navTogglePointerEvents: window.getComputedStyle(navToggle).pointerEvents
+                });
+            } else {
+                console.error('❌ Navigation elements not found');
+            }
+        });
+    </script>
 </body>
 </html> 

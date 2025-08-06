@@ -89,7 +89,27 @@ function setupNavigation() {
     
     if (navToggle && nav) {
         console.log('✅ Adding click listener to nav toggle');
-        navToggle.addEventListener('click', (e) => {
+        
+        // Force ensure the nav toggle is visible and clickable on mobile
+        const ensureMobileToggle = () => {
+            if (window.innerWidth <= 768) {
+                navToggle.style.display = 'flex';
+                navToggle.style.position = 'relative';
+                navToggle.style.zIndex = '1000';
+                navToggle.style.pointerEvents = 'auto';
+                navToggle.style.cursor = 'pointer';
+                console.log('🔧 Forced mobile nav toggle visibility');
+            }
+        };
+        
+        // Ensure mobile toggle is visible
+        ensureMobileToggle();
+        
+        // Re-check on window resize
+        window.addEventListener('resize', ensureMobileToggle);
+        
+        // Add multiple event listeners for better mobile compatibility
+        const toggleNav = (e) => {
             e.preventDefault();
             e.stopPropagation();
             console.log('🖱️ Nav toggle clicked!');
@@ -104,15 +124,46 @@ function setupNavigation() {
             
             console.log('📋 Nav classes after toggle:', nav.className);
             console.log('📋 Nav display after toggle:', window.getComputedStyle(nav).display);
-        });
+        };
+        
+        // Add click event
+        navToggle.addEventListener('click', toggleNav);
         
         // Add touch event for mobile
         navToggle.addEventListener('touchstart', (e) => {
             e.preventDefault();
             console.log('📱 Touch event on nav toggle');
+            toggleNav(e);
         });
+        
+        // Add mousedown event as backup
+        navToggle.addEventListener('mousedown', (e) => {
+            console.log('🖱️ Mouse down event on nav toggle');
+        });
+        
+        // Add keydown event for accessibility
+        navToggle.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleNav(e);
+            }
+        });
+        
     } else {
         console.error('❌ Navigation elements not found:', { navToggle, nav });
+        
+        // Fallback: try to find elements again after a delay
+        setTimeout(() => {
+            const retryNavToggle = document.querySelector('.nav-toggle');
+            const retryNav = document.querySelector('nav');
+            
+            if (retryNavToggle && retryNav) {
+                console.log('🔄 Retry: Found navigation elements');
+                setupNavigation();
+            } else {
+                console.error('❌ Retry failed: Navigation elements still not found');
+            }
+        }, 1000);
     }
     
     // Handle dropdown menus
