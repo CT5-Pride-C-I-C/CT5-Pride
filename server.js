@@ -2942,6 +2942,15 @@ app.get('/', (req, res) => {
   }
 });
 
+// Protected team page routes - requires authentication
+app.get('/team.html', requireSupabaseAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'team.html'));
+});
+
+app.get('/team', requireSupabaseAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'team.html'));
+});
+
 // Host-based wildcard route for SPA routing and file serving
 app.get('*', (req, res, next) => {
   // Skip API routes
