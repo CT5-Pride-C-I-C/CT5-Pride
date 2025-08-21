@@ -1878,28 +1878,35 @@ app.get('/api/events/public', async (req, res) => {
           console.log(`🎫 Loaded ticket data for ${ticketData.length} events`);
         }
         
-        // Merge Eventbrite data with ticket information
-        const enrichedEvents = (eventbriteData.events || []).map(event => {
-          const ticketInfo = ticketMap.get(event.id);
-          const enrichedEvent = { ...event };
-          
-          if (ticketInfo) {
-            enrichedEvent.capacity = ticketInfo.capacity;
-            enrichedEvent.tickets_sold = ticketInfo.tickets_sold;
-            enrichedEvent.tickets_remaining = ticketInfo.tickets_remaining;
-            enrichedEvent.sold_out = ticketInfo.sold_out;
-            console.log(`🎫 Enriched event ${event.id} with ticket data:`, {
-              capacity: ticketInfo.capacity,
-              sold: ticketInfo.tickets_sold,
-              remaining: ticketInfo.tickets_remaining,
-              soldOut: ticketInfo.sold_out
-            });
-          }
-          
-          return enrichedEvent;
-        });
+        // Merge Eventbrite data with ticket information and filter for upcoming events only
+        const now = new Date();
+        const enrichedEvents = (eventbriteData.events || [])
+          .filter(event => {
+            // Filter out past events - only show events that haven't ended yet
+            const eventEndTime = new Date(event.end.utc);
+            return eventEndTime > now;
+          })
+          .map(event => {
+            const ticketInfo = ticketMap.get(event.id);
+            const enrichedEvent = { ...event };
+            
+            if (ticketInfo) {
+              enrichedEvent.capacity = ticketInfo.capacity;
+              enrichedEvent.tickets_sold = ticketInfo.tickets_sold;
+              enrichedEvent.tickets_remaining = ticketInfo.tickets_remaining;
+              enrichedEvent.sold_out = ticketInfo.sold_out;
+              console.log(`🎫 Enriched event ${event.id} with ticket data:`, {
+                capacity: ticketInfo.capacity,
+                sold: ticketInfo.tickets_sold,
+                remaining: ticketInfo.tickets_remaining,
+                soldOut: ticketInfo.sold_out
+              });
+            }
+            
+            return enrichedEvent;
+          });
         
-        console.log(`🔍 Debug: Returning ${enrichedEvents.length} enriched events`);
+        console.log(`🔍 Debug: Filtered to ${enrichedEvents.length} upcoming events (${(eventbriteData.events || []).length - enrichedEvents.length} past events filtered out)`);
         
         // Update cache
         publicEventsCache = {

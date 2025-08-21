@@ -546,8 +546,23 @@ async function loadEvents() {
         
         // Check if we have valid events data
         if (data && data.events && Array.isArray(data.events) && data.events.length > 0) {
-            // Display events with optimized rendering
-            renderEvents(data.events);
+            // Additional client-side filtering as safety measure
+            const now = new Date();
+            const upcomingEvents = data.events.filter(event => {
+                // Filter out past events - only show events that haven't ended yet
+                const eventEndTime = new Date(event.end_time || event.end?.utc || event.end_date || event.end);
+                return eventEndTime > now;
+            });
+            
+            console.log(`🔍 Client-side filtering: ${data.events.length} total events, ${upcomingEvents.length} upcoming events`);
+            
+            if (upcomingEvents.length > 0) {
+                // Display events with optimized rendering
+                renderEvents(upcomingEvents);
+            } else {
+                // No upcoming events found - show branded empty state
+                showNoEvents();
+            }
         } else if (!hasNetworkError) {
             // No events found but API worked - show branded empty state
             showNoEvents();
