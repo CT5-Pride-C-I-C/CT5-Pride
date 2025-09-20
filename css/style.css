@@ -1339,7 +1339,9 @@ header.scrolled {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  padding: var(--spacing-md) 0;
+  padding: var(--spacing-sm) 0;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 
 /* Enhanced Logo Styles with Pride Elements */
@@ -1347,13 +1349,14 @@ header.scrolled {
     display: flex;
     align-items: center;
   transition: all 0.3s ease;
-    padding: 0.75rem;
+    padding: 0.5rem;
   background: linear-gradient(135deg, white 0%, #ffe4e1 100%);
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-    margin: 0.5rem 0;
+    margin: 0.25rem 0;
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
   border: 2px solid transparent;
 }
 
@@ -1383,7 +1386,7 @@ header.scrolled {
 }
 
 .site-logo {
-  height: 60px;
+  height: 50px;
     width: auto;
     transition: all 0.3s ease;
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.2));
@@ -1405,7 +1408,7 @@ header.scrolled {
   }
   
   .site-logo {
-    height: 45px;
+    height: 40px;
   }
 }
 
@@ -1419,7 +1422,7 @@ nav ul {
     list-style: none;
     margin: 0;
     padding: 0;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
 nav li {
